@@ -67,7 +67,6 @@ model User {
   refreshTokens RefreshToken[]
   resetTokens   PasswordResetToken[]
 
-  @@index([email])
   @@map("users")
 }
 
@@ -90,7 +89,6 @@ model Artist {
   quotes       Quote[]              @relation("ArtistQuotes")
   bookings     Booking[]            @relation("ArtistBookings")
 
-  @@index([slug])
   @@index([isActive])
   @@map("artists")
 }
@@ -271,7 +269,6 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([token])
   @@map("refresh_tokens")
 }
 
@@ -285,7 +282,6 @@ model PasswordResetToken {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])
   @@index([userId])
   @@map("password_reset_tokens")
 }
@@ -299,7 +295,7 @@ model EmailTemplate {
   isActive  Boolean  @default(true)
   updatedAt DateTime @updatedAt
 
-  @@index([key, isActive])
+  @@index([isActive])
   @@map("email_templates")
 }
 
@@ -311,7 +307,6 @@ model FeatureFlag {
   isEnabled   Boolean  @default(true)
   updatedAt   DateTime @updatedAt
 
-  @@index([key])
   @@map("feature_flags")
 }
 
