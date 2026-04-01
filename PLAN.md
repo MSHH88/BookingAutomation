@@ -1750,8 +1750,8 @@ All steps to build the backend foundation. Numbers added from previous Q&A round
 
 | Step | What | Status |
 |---|---|---|
-| 1.1 | Project scaffolding (package.json, tsconfig, .env.example, .gitignore) | ⬜ Next |
-| 1.2 | Prisma setup + schema (all models) | ⬜ |
+| 1.1 | Project scaffolding (package.json, tsconfig, .env.example, .gitignore) | ✅ Done |
+| 1.2 | Prisma setup + schema (all models) | ⬜ Next |
 | 1.3 | Auth module (JWT access + refresh tokens) | ⬜ |
 | 1.4 | Feature flag system (DB-driven, middleware) | ⬜ |
 | 1.5 | Business type config (labels, default flags) | ⬜ |
@@ -1807,7 +1807,8 @@ All four previously open items are now resolved:
 ---
 
 > **PLAN STATUS: ✅ LOCKED. Zero open items. All decisions made.**
-> **Next action: Start Phase 1, Step 1.1 — Project scaffolding.**
+> **Step 1.1 — Project scaffolding: ✅ DONE.**
+> **Next action: Step 1.2 — Prisma schema (all models).**
 > We proceed one step at a time. Each file is reviewed before the next is created.
 
 ---
