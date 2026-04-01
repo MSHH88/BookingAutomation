@@ -7,6 +7,102 @@
 
 ---
 
+## 🐳 Before You Start — Install Docker Desktop
+
+> **Read this first.** Docker must be installed and running before you can start the database. If you skip this and run `docker compose up -d`, you will get `zsh: command not found: docker`.
+
+### What is Docker?
+
+Docker is a free app that lets you run software like a database **inside a container** on your Mac — without installing the database directly onto your machine. Think of it like a tiny isolated computer that runs inside your Mac.
+
+For this project, Docker runs two things locally:
+- **PostgreSQL** — the database that stores all your booking data
+- **Redis** — a fast cache used for sessions and rate limiting
+
+Both start with a single command (`docker compose up -d`) and stop just as easily. Your data is saved between restarts.
+
+---
+
+### How to install Docker Desktop on Mac
+
+**Step 1 — Check if Docker is already installed**
+
+Open Terminal and run:
+```bash
+docker --version
+```
+
+- If you see `Docker version 26.x.x` → ✅ Already installed, skip to the next section.
+- If you see `zsh: command not found: docker` → Follow the steps below.
+
+---
+
+**Step 2 — Find out which Mac chip you have**
+
+Click the  (Apple logo) in the top-left corner of your screen → **About This Mac**
+
+- Look for **"Chip"** — if it says **Apple M1 / M2 / M3 / M4** → you have **Apple Silicon**
+- Look for **"Processor"** — if it says **Intel** → you have **Intel**
+
+---
+
+**Step 3 — Download Docker Desktop**
+
+Go to: **https://www.docker.com/products/docker-desktop/**
+
+Click **"Download for Mac"** and choose:
+- **Apple Silicon** if your chip is M1/M2/M3/M4
+- **Intel Chip** if your processor is Intel
+
+---
+
+**Step 4 — Install Docker Desktop**
+
+1. Open the `.dmg` file that downloaded
+2. Drag the **Docker** icon into your **Applications** folder
+3. Close the installer window
+
+---
+
+**Step 5 — Open Docker Desktop**
+
+1. Open **Finder → Applications → Docker** (or press `⌘ Space`, type `Docker`, press Enter)
+2. Wait for the **whale icon 🐳** to appear in your Mac's **menu bar** (top-right of screen)
+3. Wait until the whale **stops animating** — that means Docker is fully started
+4. If Docker asks you to **accept terms** → click **Accept**
+
+> ⚠️ The whale icon 🐳 must be visible and still in your menu bar **every time** you use Docker commands. If it's not there, open Docker from Applications before running any `docker compose` commands.
+
+---
+
+**Step 6 — Verify Docker is working**
+
+Open Terminal and run both commands:
+
+```bash
+docker --version
+```
+**Expected:**
+```
+Docker version 26.x.x, build xxxxxxx
+```
+
+```bash
+docker compose version
+```
+**Expected:**
+```
+Docker Compose version v2.x.x
+```
+
+> ❌ If either command still shows `command not found` — **close Terminal completely**, reopen it, then try again. Docker adds itself to your PATH when it first launches.
+
+---
+
+✅ Docker is installed and working. You're ready to follow the steps below.
+
+---
+
 ## 🗺️ Phase Map
 
 | Phase | What | Status |
