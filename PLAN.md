@@ -2,7 +2,7 @@
 
 > **Status: PLAN LOCKED — All decisions confirmed and elaborated. Ready to start Phase 1, Step 1.1.**
 > We proceed **one step at a time**, completing and verifying each step before moving on.
-> Last updated: 2026-04-01 — Round 2 Q&A completed. All open items resolved. Stack finalised.
+> Last updated: 2026-04-01 — Phase order revised: Phase 1 Backend → Phase 2 CRM → Phase 3 Frontend → Phase 4 3D Mannequin.
 
 ---
 
@@ -778,14 +778,14 @@ redis:
 ---
 ---
 
-# PHASE 2 — 3D Mannequin Module
+# PHASE 2 — CRM Admin Dashboard (Backend Integration & Full Management Layer)
 
-> **Goal:** Build an interactive 3D mannequin using Three.js that customers use to select body placement for their tattoo. This is the single biggest UI differentiator vs all competitors.  
-> **Why second:** This is a standalone visual component. It needs to be perfected in isolation before it is integrated into the frontend booking flow in Phase 3.
+> **Goal:** Build the studio management dashboard (CRM) that gives admins and artists full control over every aspect of the business — leads, quotes, bookings, invoices, artists, styles, email templates, feature flags, and user roles.  
+> **Why second:** The CRM depends only on Phase 1 (backend) being stable and complete. Building the CRM before the customer-facing frontend ensures every admin workflow, every role, and every data management action is tested with real API calls. When the frontend (Phase 3) is built, it connects to a backend that already has a full admin layer proving it works. The CRM is also the primary tool for the studio owner from day one — they need it before customers do.
 
 ---
 
-## Step 2.1 — 3D Scene Setup
+## Step 4.1 — 3D Scene Setup
 
 **What:** Initialise a Three.js scene (or React Three Fiber scene) with camera, lights, renderer, and orbit controls for 360° rotation.
 
@@ -803,7 +803,7 @@ redis:
 
 ---
 
-## Step 2.2 — 3D Model Integration
+## Step 4.2 — 3D Model Integration
 
 **What:** Load and render the mannequin 3D model (GLB/GLTF format) into the scene.
 
@@ -820,7 +820,7 @@ redis:
 
 ---
 
-## Step 2.3 — Hitbox Implementation
+## Step 4.3 — Hitbox Implementation
 
 **What:** Add invisible clickable mesh overlays on top of the mannequin for each body part in the specification table.
 
@@ -864,7 +864,7 @@ redis:
 
 ---
 
-## Step 2.4 — Granular Placement Refinement UI
+## Step 4.4 — Granular Placement Refinement UI
 
 **What:** After a hitbox is clicked, show a contextual refinement panel with sub-region options specific to that body part.
 
@@ -891,11 +891,11 @@ redis:
 
 ---
 
-## Step 2.5 — Mannequin as Embeddable Component
+## Step 4.5 — Mannequin as Embeddable Component
 
-**What:** Package the mannequin as a self-contained React component with a clean props interface so Phase 3 can drop it straight into the booking flow.
+**What:** Package the mannequin as a self-contained React component with a clean props interface so Phase 3 (frontend) can drop it straight into the booking flow at Step 3.5.
 
-**Why:** The mannequin must integrate cleanly into the frontend without any leaky implementation details. A well-defined props API makes this seamless.
+**Why:** The mannequin must integrate cleanly into the frontend without any leaky implementation details. A well-defined props API makes this a zero-friction drop-in once Phase 4 is complete.
 
 **Props interface:**
 ```typescript
@@ -916,10 +916,14 @@ interface MannequinProps {
 
 ## ✅ Phase 2 Complete When:
 
-- [ ] All 5 steps above completed and verified
-- [ ] Component renders, rotates, hitboxes work, refinement works
-- [ ] Mobile-tested
-- [ ] No console errors
+- [ ] All 12 steps completed and verified
+- [ ] Full admin workflow: lead → quote → booking → invoice works end-to-end in CRM
+- [ ] Analytics dashboard shows real data
+- [ ] God Mode toggles work live without restart
+- [ ] All email templates editable from CRM
+- [ ] Feature flags toggle all features in real time
+- [ ] Role management works (ADMIN, ARTIST, CUSTOMER)
+- [ ] Tested on desktop (CRM is primarily a desktop tool)
 
 ---
 ---
@@ -927,7 +931,7 @@ interface MannequinProps {
 # PHASE 3 — Customer-Facing Frontend
 
 > **Goal:** Build the customer-facing booking inquiry website — a beautiful, fast, step-by-step form that guides customers from artist selection through to submitting their inquiry and scheduling.  
-> **Why third:** The frontend is the customer's first impression. It depends on both the backend API (Phase 1) and the 3D mannequin (Phase 2) being complete.
+> **Why third:** The frontend is the customer's first impression. It depends on the backend (Phase 1) for its API and on the CRM (Phase 2) being fully operational — by this point every backend route has been exercised by a real admin UI, so any bugs are already fixed. The 3D mannequin body-placement step (Step 3.5) uses the component built in Phase 4; that step can be skipped during initial development and slotted in once Phase 4 is complete.
 
 ---
 
@@ -1020,15 +1024,17 @@ interface MannequinProps {
 
 ## Step 3.5 — Step 4: Body Placement (3D Mannequin)
 
-**What:** Integrate the Phase 2 mannequin component into the booking flow.
+**What:** Integrate the Phase 4 mannequin component into the booking flow.
 
 **Why:** This is the step that makes the product unique. No competitor has this.
 
 **Files to create (this step only):**
 - `frontend/src/pages/booking/BodyPlacement.tsx` — wraps Mannequin component, handles selection event
 
+**Note:** This step requires Phase 4 to be complete. During Phase 3 development, use a simple dropdown placeholder for placement so the rest of the booking flow can be built and tested. Swap the placeholder for the real 3D component once Phase 4 is done.
+
 **Logic:**
-- Import Mannequin component from Phase 2
+- Import Mannequin component from Phase 4 (`mannequin/` package)
 - Listen for `onPlacementSelected` event
 - Store placement JSON in Zustand
 - If placement is "whole area" → set `skipSizeStep = true` in store
@@ -1178,18 +1184,19 @@ interface MannequinProps {
 - [ ] Lead appears in database after submission
 - [ ] Confirmation email received
 - [ ] Tested on desktop and mobile
+- [ ] Step 3.5 (3D Mannequin placement) integrated once Phase 4 component is complete
 
 ---
 ---
 
-# PHASE 4 — CRM Admin Dashboard
+# PHASE 4 — 3D Mannequin Module
 
-> **Goal:** Build the studio management dashboard (CRM) that gives admins and artists full control over every aspect of the business.  
-> **Why last:** The CRM reads from and writes to all the data built in Phase 1. It is the admin layer on top of everything else.
+> **Goal:** Build the interactive 3D mannequin using Three.js / React Three Fiber that customers use to select body placement for their tattoo. This is the single biggest UI differentiator vs every competitor — no booking platform in the world has this.  
+> **Why fourth:** The mannequin is a self-contained visual component. It is built after the backend (Phase 1), CRM (Phase 2), and frontend foundation (Phase 3) are all solid. Building it last means the integration point is already proven (Step 3.5 slot exists and waits), and the team can focus entirely on getting the 3D experience perfect without pressure from other moving parts.
 
 ---
 
-## Step 4.1 — CRM App Scaffolding
+## Step 2.1 — CRM App Scaffolding
 
 **What:** Create the CRM React + Vite + TypeScript + Tailwind app with authenticated routing.
 
@@ -1208,7 +1215,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.2 — Login Page
+## Step 2.2 — Login Page
 
 **What:** Clean, secure login screen for admins and artists.
 
@@ -1223,7 +1230,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.3 — Main Dashboard (Analytics Overview)
+## Step 2.3 — Main Dashboard (Analytics Overview)
 
 **What:** The home screen of the CRM showing key business metrics at a glance.
 
@@ -1252,7 +1259,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.4 — Lead Management
+## Step 2.4 — Lead Management
 
 **What:** Full lead pipeline view. List, filter, search, and update lead status. View full lead detail including 3D placement selection, reference images, and notes.
 
@@ -1270,7 +1277,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.5 — Quote Management
+## Step 2.5 — Quote Management
 
 **What:** Manage all quotes. Create new quotes from a lead. View quote status. Resend quotes.
 
@@ -1287,7 +1294,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.6 — Booking Management
+## Step 2.6 — Booking Management
 
 **What:** Full appointment management. Calendar view + list view. Confirm, cancel, reschedule bookings.
 
@@ -1304,7 +1311,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.7 — Invoice Management
+## Step 2.7 — Invoice Management
 
 **What:** View and manage all invoices. Mark as paid. Resend invoice email.
 
@@ -1320,7 +1327,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.8 — Artist Management
+## Step 2.8 — Artist Management
 
 **What:** Add, edit, and manage artist profiles, portfolios, and style assignments.
 
@@ -1336,7 +1343,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.9 — Style Management
+## Step 2.9 — Style Management
 
 **What:** Manage the list of tattoo styles available on the frontend.
 
@@ -1350,7 +1357,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.10 — Email Template Management
+## Step 2.10 — Email Template Management
 
 **What:** View, edit, and preview all automated email templates from the CRM.
 
@@ -1366,7 +1373,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.11 — God Mode Feature Flag Panel
+## Step 2.11 — God Mode Feature Flag Panel
 
 **What:** The ultimate admin control panel. Toggle any feature in the system ON or OFF with a switch.
 
@@ -1387,7 +1394,7 @@ interface MannequinProps {
 
 ---
 
-## Step 4.12 — User & Role Management
+## Step 2.12 — User & Role Management
 
 **What:** Manage all user accounts in the system (admins, artists, customers).
 
@@ -1405,11 +1412,13 @@ interface MannequinProps {
 
 ## ✅ Phase 4 Complete When:
 
-- [ ] All 12 steps completed and verified
-- [ ] Full admin workflow: lead → quote → booking → invoice works end-to-end in CRM
-- [ ] Analytics dashboard shows real data
-- [ ] God mode toggles work
-- [ ] Tested on desktop (CRM is primarily desktop)
+- [ ] All 5 steps completed and verified
+- [ ] 3D mannequin renders and rotates 360° smoothly
+- [ ] All body-part hitboxes clickable and correctly labelled
+- [ ] Granular refinement panel works on all body areas
+- [ ] Component exported and integrated into Step 3.5 of the frontend booking flow
+- [ ] Mobile-tested (touch rotation + tap hitboxes)
+- [ ] No console errors, no z-fighting, no clipping
 
 ---
 ---
@@ -1417,14 +1426,14 @@ interface MannequinProps {
 # Overall Project Completion Checklist
 
 - [ ] Phase 1 — Backend ✅
-- [ ] Phase 2 — 3D Mannequin ✅
-- [ ] Phase 3 — Frontend ✅
-- [ ] Phase 4 — CRM ✅
+- [ ] Phase 2 — CRM Admin Dashboard ✅
+- [ ] Phase 3 — Customer-Facing Frontend ✅
+- [ ] Phase 4 — 3D Mannequin (integrated into Step 3.5) ✅
 - [ ] End-to-end test: customer submits inquiry → artist quotes → customer accepts → booking confirmed → invoice generated
 - [ ] Security audit: no hardcoded secrets, all routes protected, rate limiting active
 - [ ] Performance: API < 200ms on all endpoints, frontend Lighthouse score > 90
 - [ ] Documentation: README for each package with setup instructions
-- [ ] Deployment: Docker Compose file for local dev, deployment guide for production
+- [ ] Deployment: Docker Compose for local dev, Railway + Vercel for production
 
 ---
 
@@ -1818,7 +1827,7 @@ Every new client (restaurant, salon, barber) gets a frontend styled to **their b
 
 ## DECISION 9 — 3D Mannequin Model ✅ UPDATED (with links)
 
-**Confirmed: Source a GLB for Phase 2 development. Commission or create a custom model for production.**
+**Confirmed: Source a GLB for Phase 4 development. Commission or create a custom model for production.**
 
 ### Where to look and what to expect (with links)
 
@@ -1856,7 +1865,7 @@ Every new client (restaurant, salon, barber) gets a frontend styled to **their b
 - **If the purchased model is not pre-separated:** Open in Blender (free), manually separate by body region, export as GLB. This takes 2–4 hours for someone with basic Blender knowledge.
 - **Style:** Stylised / slightly abstract mannequin preferred over photorealistic human — looks cleaner in a UI, loads faster
 
-**Timeline:** Source a model before Phase 2 begins (while Phase 1 backend is being built). This can happen in parallel.
+**Timeline:** Source a model before Phase 4 begins (can happen in parallel while Phases 1–3 are being built). This is a non-blocking parallel task.
 
 **For production:** Commission a custom model from a 3D artist on Fiverr or ArtStation. Budget: $300–1,500 depending on complexity. Brief them on the named mesh requirements above. This is the model that goes live on real client sites.
 
@@ -2015,9 +2024,9 @@ All steps to build the backend foundation. See `PHASE1.md` for the definitive pe
 
 All four previously open items are now resolved:
 
-1. **Mannequin GLB source** — Links added in Decision 9. Source before Phase 2 begins. TurboSquid and CGTrader are the first stop. This can happen in parallel while Phase 1 is being built.
+1. **Mannequin GLB source** — Links added in Decision 9. Source before Phase 4 begins. TurboSquid and CGTrader are the first stop. This can happen in parallel while Phases 1–3 are being built.
 
-2. **Studio name / domain** — Not needed until Phase 3 (frontend build). This first deployment is a showcase / demo product. Domain, name, and branding finalised when ready. Phase 1 and Phase 2 are completely unblocked without this.
+2. **Studio name / domain** — Not needed until Phase 3 (frontend build). This first deployment is a showcase / demo product. Domain, name, and branding finalised when ready. Phases 1 and 2 are completely unblocked without this.
 
 3. **Payment / deposit** — Added as a future Phase 5 item. Module planned (`deposits/`) with `DEPOSIT_ENABLED` feature flag. Payment processed in-studio for now. Stripe will be integrated when ready (most sellable option: Stripe Checkout + Stripe Connect for passing payments to the business). Toggle OFF for clients who do not take deposits (many salons and restaurants do not).
 
