@@ -103,6 +103,26 @@ npm run db:reset
 
 ---
 
+### 📋 Step 0.5: Delete any old or corrupt backend files
+
+If you have run any part of Step 1 before (even partially), old files may be broken or out of date. This command wipes the entire `backend/` folder so you start completely clean.
+
+> ⚠️ This deletes everything inside `backend/` — including `node_modules`, `.env`, and any files you created. Your `~/Desktop/Automation/` folder itself is kept, only the `backend/` subfolder is removed.
+
+```bash
+rm -rf ~/Desktop/Automation/backend
+echo "✅ Old backend folder deleted — ready for a clean start"
+```
+
+**Expected output:**
+```
+✅ Old backend folder deleted — ready for a clean start
+```
+
+> If the folder didn't exist yet, the command still succeeds silently — that's fine.
+
+---
+
 ### 📋 Step 1: Create the 4 files directly in your Automation folder
 
 Open Terminal. **Copy the entire block below and paste it in one go**, then press Enter.
