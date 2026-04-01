@@ -103,11 +103,60 @@ npm run db:reset
 
 ---
 
-### 📋 Step 1: Move the files to your machine
+### 📋 Step 1: Download the 4 files directly into your Automation folder
 
-Put all 4 files inside: `~/Desktop/Automation/backend/`
+Open Terminal and run **all of the following lines in order**.  
+Each command creates any folders it needs and downloads the file in one shot.
 
-Your folder should look like this after:
+```bash
+# ── Make sure the backend folder exists ──────────────────────
+mkdir -p ~/Desktop/Automation/backend
+
+# ── Download package.json ─────────────────────────────────────
+curl -sfL -o ~/Desktop/Automation/backend/package.json \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/package.json" \
+  && echo "✅ 1/4 package.json" || echo "❌ FAILED: package.json"
+
+# ── Download tsconfig.json ────────────────────────────────────
+curl -sfL -o ~/Desktop/Automation/backend/tsconfig.json \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/tsconfig.json" \
+  && echo "✅ 2/4 tsconfig.json" || echo "❌ FAILED: tsconfig.json"
+
+# ── Download .env.example ─────────────────────────────────────
+curl -sfL -o ~/Desktop/Automation/backend/.env.example \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.env.example" \
+  && echo "✅ 3/4 .env.example" || echo "❌ FAILED: .env.example"
+
+# ── Download .gitignore ───────────────────────────────────────
+curl -sfL -o ~/Desktop/Automation/backend/.gitignore \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.gitignore" \
+  && echo "✅ 4/4 .gitignore" || echo "❌ FAILED: .gitignore"
+```
+
+**Expected output (all 4 lines must show ✅):**
+```
+✅ 1/4 package.json
+✅ 2/4 tsconfig.json
+✅ 3/4 .env.example
+✅ 4/4 .gitignore
+```
+
+> ❌ If any line shows FAILED — stop and tell me which file failed before continuing.
+
+**Verify the files landed correctly:**
+```bash
+ls -la ~/Desktop/Automation/backend/
+```
+
+Expected output:
+```
+-rw-r--r--  .env.example
+-rw-r--r--  .gitignore
+-rw-r--r--  package.json
+-rw-r--r--  tsconfig.json
+```
+
+Your folder now looks like this:
 ```
 ~/Desktop/Automation/
 └── backend/
