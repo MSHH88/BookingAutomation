@@ -105,13 +105,8 @@ npm run db:reset
 
 ### 📋 Step 1: Create the 4 files directly in your Automation folder
 
-The repository is private so download links won't work. Instead, the file contents are embedded below — paste each block into Terminal and it will write the file for you automatically.
+Open Terminal. **Copy the entire block below and paste it in one go**, then press Enter.
 
-Open Terminal and run all 4 blocks one after the other (each block creates one file):
-
----
-
-**1/4 — package.json**
 ```bash
 mkdir -p ~/Desktop/Automation/backend && cat > ~/Desktop/Automation/backend/package.json << 'EOF'
 {
@@ -189,12 +184,6 @@ mkdir -p ~/Desktop/Automation/backend && cat > ~/Desktop/Automation/backend/pack
 }
 EOF
 echo "✅ 1/4 package.json"
-```
-
----
-
-**2/4 — tsconfig.json**
-```bash
 cat > ~/Desktop/Automation/backend/tsconfig.json << 'EOF'
 {
   "compilerOptions": {
@@ -228,12 +217,6 @@ cat > ~/Desktop/Automation/backend/tsconfig.json << 'EOF'
 }
 EOF
 echo "✅ 2/4 tsconfig.json"
-```
-
----
-
-**3/4 — .env.example**
-```bash
 cat > ~/Desktop/Automation/backend/.env.example << 'EOF'
 # ============================================================
 # AUTOMATION BACKEND — Environment Variables
@@ -306,12 +289,6 @@ REVIEWS_ENABLED=true
 DEPOSIT_ENABLED=false
 EOF
 echo "✅ 3/4 .env.example"
-```
-
----
-
-**4/4 — .gitignore**
-```bash
 cat > ~/Desktop/Automation/backend/.gitignore << 'EOF'
 node_modules/
 dist/
@@ -333,15 +310,15 @@ EOF
 echo "✅ 4/4 .gitignore"
 ```
 
----
-
-**Expected output after each block:**
+**Expected output:**
 ```
 ✅ 1/4 package.json
 ✅ 2/4 tsconfig.json
 ✅ 3/4 .env.example
 ✅ 4/4 .gitignore
 ```
+
+> ❌ If any line shows an error — stop and tell me before continuing.
 
 **Verify the files landed correctly:**
 ```bash
