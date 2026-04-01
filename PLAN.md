@@ -1,8 +1,8 @@
 # BookingAutomation — Master Development Plan
 
-> **Status: PLAN IN PROGRESS — Architecture decisions answered, awaiting final approval before any code is written.**
+> **Status: PLAN LOCKED — All decisions confirmed and elaborated. Ready to start Phase 1, Step 1.1.**
 > We proceed **one step at a time**, completing and verifying each step before moving on.
-> Last updated: 2026-04-01 — Architecture Q&A added, all infrastructure decisions made.
+> Last updated: 2026-04-01 — Round 2 Q&A completed. All open items resolved. Stack finalised.
 
 ---
 
@@ -1196,566 +1196,618 @@ interface MannequinProps {
 
 ---
 
-# ARCHITECTURE DECISIONS — Answered & Confirmed
+# ARCHITECTURE DECISIONS — Round 1 + Round 2 Q&A (All Confirmed)
 
 > Everything in this section is a logical, factual decision with reasoning.
 > No affirmation — just the best technical choice for quality, cost, reliability, and sellability.
-> **Status: ✅ All decisions confirmed. Ready to start building.**
+> **Round 2 follow-up questions answered in full below each decision.**
+> **Status: ✅ All decisions locked. Zero open items. Ready to build.**
 
 ---
 
-## DECISION 1 — Feature Flags: Toggle ON/OFF vs Remove From Code
+## DECISION 1 — Feature Flags: Toggle ON/OFF vs Remove From Code ✅ LOCKED
 
-**Question:** Can features be toggled on/off in the CRM without causing bugs? Or is it safer to remove the code entirely when a feature is not needed (e.g. a hair salon doesn't need the mannequin)?
+**Confirmed:** Build all features as independent modules, controlled by `FeatureFlag` records in the database.  
+One flag per feature. Admin can toggle any flag in the God Mode panel of the CRM.  
+The code is always there — it just does nothing when the flag is OFF.
 
-**Answer: Feature flags are the correct and professional approach. Here is the full reasoning.**
+**How it works — no bugs:**
+- The backend route for a disabled module returns `503 Feature Not Available` immediately. No logic runs.
+- The CRM sidebar does not render the menu item. The user never sees it.
+- The customer frontend checks the public `/api/features` endpoint on load and hides entire sections.
+- No module references another module directly — they communicate only via the database. So disabling one never breaks another.
 
-This is exactly how serious SaaS products work. Companies like Airbnb, Netflix, GitHub, and every major booking platform use feature flag systems. The reason is simple: maintaining one clean, modular codebase that serves all customers is dramatically more efficient than maintaining separate versions of the code per client.
-
-**How it works so there are NO bugs:**
-
-The key is that each feature must be a self-contained module with no hard dependencies on other modules. When a flag is OFF:
-- The backend routes for that module return `503 Feature Not Available` immediately — no logic runs
-- The CRM sidebar/menu does not render the navigation item for that feature — the user never even sees it
-- The customer-facing frontend checks the public feature flags endpoint on load and hides entire UI steps (e.g. no mannequin step for a hair salon)
-- Nothing breaks because no other module tries to call a disabled module
-
-**When to actually remove code instead of just toggling:**
-Only remove code when a client is getting a permanent, dedicated deployment of the system that will never need that feature again, and you want a smaller codebase to maintain for them. For our use case (one codebase sold to many clients), flags are always better. The code is there if they ever want to add the feature later.
-
-**The module list for each business type — what gets toggled:**
+**Feature flag table — default state per business type:**
 
 | Feature / Module | Tattoo Studio | Hair Salon | Barber | Restaurant |
 |---|---|---|---|---|
 | Booking & Calendar | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
 | Lead Capture | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
 | Automated Emails | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
+| WhatsApp Automation | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
 | Quote System | ✅ ON | ⚠️ OPTIONAL | ⚠️ OPTIONAL | ❌ OFF |
 | Invoicing | ✅ ON | ✅ ON | ✅ ON | ⚠️ OPTIONAL |
+| Deposit / Payment | ✅ ON (future) | ✅ ON (future) | ✅ ON (future) | ✅ ON (future) |
 | 3D Mannequin | ✅ ON | ❌ OFF | ❌ OFF | ❌ OFF |
 | Table Selector | ❌ OFF | ❌ OFF | ❌ OFF | ✅ ON |
-| Artist Profiles | ✅ ON | ✅ ON (stylists) | ✅ ON | ❌ OFF |
+| Artist Profiles | ✅ ON | ✅ ON (stylists) | ✅ ON (barbers) | ❌ OFF |
 | Portfolio/Gallery | ✅ ON | ⚠️ OPTIONAL | ⚠️ OPTIONAL | ⚠️ OPTIONAL |
 | Review Requests | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
-| WhatsApp Contact | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
 | Analytics (God Mode) | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
-| Promotions/Email Campaigns | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
-| Deposit / Payment | ✅ ON (future) | ✅ ON (future) | ✅ ON (future) | ✅ ON (future) |
-
-**Confirmed decision:** Build all features as independent modules, controlled by `FeatureFlag` records in the database. One flag per feature. Admin can toggle any flag in the CRM God Mode panel. The code is always there — it just does nothing when disabled. This is the correct, scalable, professional approach.
+| Email Campaigns | ✅ ON | ✅ ON | ✅ ON | ✅ ON |
 
 ---
 
-## DECISION 2 — Database: PostgreSQL Host
+## DECISION 2 — Database: Neon (Serverless PostgreSQL) ✅ LOCKED
 
-**Question:** Local for dev, but what is the best production host — safest, cheapest, least bugs, what the pros use?
+**Confirmed: Neon for production. Docker Compose `postgres:16` for local dev.**
 
-**Answer: Use Neon for production.**
+### Follow-up: Can we switch database later? Is Neon good for big scale?
 
-Here is the comparison of every real option:
+**Yes — switching databases is easy.** Here is why: we use Prisma as our ORM. Prisma sits between our code and the database. Our code never writes raw SQL — it writes Prisma queries. If we ever need to move off Neon (to AWS RDS, a self-hosted VPS, or anything else), we change one line in the Prisma config and one environment variable. The application code is 100% unchanged. Migration is a half-day job, not a rewrite.
 
-| Provider | Cost | Setup | Reliability | Scales to Zero | What pros say |
-|---|---|---|---|---|---|
-| **Neon** | Free tier generous (~0.5GB + 190 compute hours/month), paid from $19/mo | 2 minutes | Excellent | ✅ Yes | Used heavily by indie SaaS, startups, Vercel's recommended PostgreSQL |
-| **Supabase** | Free tier generous (500MB, pauses after 1 week inactive), paid from $25/mo | 5 minutes | Excellent | ⚠️ Only on free tier (pauses) | Very popular, comes with auth + storage + realtime built in |
-| **Railway** | ~$5/mo for small instance | 3 minutes | Good | ❌ No | Good for early projects, simple |
-| **PlanetScale** | ❌ MySQL, not PostgreSQL | — | — | — | Not applicable |
-| **AWS RDS** | ~$15/mo minimum | Complex | Excellent | ❌ No | Overkill until you have serious traffic |
-| **Hetzner VPS (self-hosted)** | €4-8/mo for the whole server | Requires setup | Excellent | ❌ No | Cheapest long-term, most control, requires Docker knowledge |
+**Is Neon good for big scale and multiple clients?**
 
-**Recommendation: Neon.**
-- Severless PostgreSQL — you pay for compute time, not idle time. When no queries are running, cost is near-zero.
-- Has a "database branching" feature (like git branches for your database) — you get a dev branch and a prod branch, which is excellent for development workflow.
-- Integrates directly with Vercel and Railway with one click.
-- Used by thousands of serious projects. The bugs are near-zero because it is plain PostgreSQL under the hood.
-- Free tier is sufficient for development and early clients. Scale up when needed.
+Yes, with caveats that are easy to plan around:
 
-**Local dev setup: Docker Compose** with a `postgres:16` container. This means the dev environment is identical for any developer, no local PostgreSQL installation needed.
-
-**Confirmed: Neon for production. Docker Compose postgres:16 for local development.**
-
----
-
-## DECISION 3 — Redis: Host for Job Queue
-
-**Question:** Local for dev, but what is best for production?
-
-**Answer: Use Upstash for production.**
-
-| Provider | Cost | Setup | Reliability | Scales to Zero |
-|---|---|---|---|---|
-| **Upstash** | Free tier: 10,000 commands/day. Paid: $0.20 per 100k commands | 2 minutes | Excellent | ✅ Yes — truly serverless |
-| **Redis Cloud** | Free tier: 30MB. Paid from $7/mo | 5 minutes | Excellent | ❌ No |
-| **Railway (Redis)** | ~$5/mo | 2 minutes | Good | ❌ No |
-| **Self-hosted on VPS** | Included in VPS cost | Docker setup | Excellent | ❌ No |
-
-**Recommendation: Upstash.**
-- Serverless Redis — you pay per command, not per instance. A studio that sends 200 emails a month pays almost nothing.
-- Official BullMQ integration guide specifically mentions Upstash. It just works.
-- Used by the same crowd as Neon — serious indie SaaS developers.
-- Has a REST API option too, which means it works even in serverless/edge environments.
-
-**Local dev: Docker Compose** with a `redis:7-alpine` container.
-
-**Confirmed: Upstash for production. Docker Compose redis:7-alpine for local development.**
-
----
-
-## DECISION 4 — Email Provider
-
-**Question:** Gmail SMTP for dev, but what is the best production provider? What is easiest to set up when selling to other businesses?
-
-**Answer: Use Resend for production. It is the best option available right now.**
-
-Here is the honest comparison:
-
-| Provider | Free Tier | Cost | Deliverability | Setup Complexity | Selling to clients |
-|---|---|---|---|---|---|
-| **Resend** | 3,000 emails/month, 100/day | $20/mo for 50k/month | Excellent | 5 minutes | Easiest — just an API key |
-| **SendGrid** | 100/day forever | $19.95/mo for 50k/month | Excellent (industry standard) | Moderate (lots of settings) | Easy |
-| **Postmark** | None (pay from day 1) | $15/mo for 10k/month | Best in the industry | Easy | Easy |
-| **Mailgun** | 1,000/month for 3 months then paid | ~$35/mo for 50k | Good | Moderate | Easy |
-| **AWS SES** | Free for first 62k/month from EC2 | $0.10 per 1000 | Excellent | Complex | Complex for clients |
-| **Gmail SMTP** | 500/day | Free | Poor for production | Easy | ❌ Do not use in production |
-
-**Why Resend wins:**
-- Built by ex-Stripe engineers specifically for developers. The API is the cleanest available.
-- React Email integration — email templates can be built as React components, which is perfect since our codebase is React/TypeScript
-- Excellent deliverability (they are very strict about spam, which protects your reputation)
-- For selling to clients: they just need to add their domain's DNS records (same process for any provider) and give you the API key. Takes 10 minutes.
-- The free tier is enough for development and small clients just getting started.
-
-**Gmail SMTP is only for local development testing.** Never use it in production — Gmail rate-limits it, marks it as suspicious, and it destroys email deliverability.
-
-**Confirmed: Resend for production. Gmail SMTP only for local dev.**
-
-**Additional note on email:** Each client we sell to will need their own Resend account and their own domain verified. This is standard practice. We build the system so the Resend API key is a simple environment variable — when deploying for a new client, you just swap in their key. 5 minutes of setup.
-
----
-
-## DECISION 5 — File Storage
-
-**Question:** Cloudinary or AWS S3? What is cheapest, safest, and has fewest bugs?
-
-**Answer: Cloudinary for now. Here is why — and when to switch to S3.**
-
-| Provider | Free Tier | Cost | Image Transformation | CDN | Complexity |
-|---|---|---|---|---|---|
-| **Cloudinary** | 25 credits/month (~25GB bandwidth + 25GB storage) | $89/mo for 225 credits | ✅ Built-in (resize, crop, watermark, format conversion) | ✅ Built-in global CDN | Low — one SDK |
-| **AWS S3 + CloudFront** | 5GB storage, 15GB transfer (12 months) | ~$0.023/GB storage + $0.085/GB transfer | ❌ Need separate Lambda or third-party | ✅ CloudFront CDN | High — multiple services |
-| **Uploadthing** | 2GB free | $10/mo for 100GB | ❌ None | ❌ None | Low |
-| **Supabase Storage** | 1GB free | $0.021/GB | ❌ None | ⚠️ Basic | Low (if using Supabase) |
-
-**Why Cloudinary is the right choice for this project:**
-Tattoo studio images need to be optimised automatically. A customer uploads a 12MB DSLR photo as a reference — we cannot serve that raw to every page visitor. Cloudinary automatically:
-- Converts to WebP (50% smaller than JPEG)
-- Generates thumbnails at the sizes we need (artist card, portfolio gallery, full-screen)
-- Serves from the closest CDN server to the viewer
-- All via a URL parameter — `image.jpg` → `image_400x400_c_fill.webp` — no extra code
-
-This means the frontend just uses different URL parameters for different sizes. Zero extra engineering.
-
-**When to move to S3:** When storage costs become a meaningful line item (usually >50GB of active files). At that point, building an image processing pipeline (S3 + Lambda + CloudFront) makes sense. For now, Cloudinary's free tier and simplicity are correct.
-
-**Note on "safest":** Both are safe. Neither stores passwords or sensitive data — they store images. The API secret stays on the server, never reaches the browser. No meaningful security difference.
-
-**Confirmed: Cloudinary. Switch decision point: if monthly storage exceeds 25GB or cost exceeds $89/mo, evaluate S3 migration.**
-
----
-
-## DECISION 6 — Calendar Integration
-
-**Question:** Google Calendar only, or Calendly too? What is better? Do we need both? Also noted: Google Analytics for lead tracking.
-
-**Answer: Google Calendar only. Calendly is a competitor, not a tool. Google Analytics confirmed.**
-
-**Why Calendly is the wrong choice:**
-
-Calendly is a booking and scheduling product — meaning it IS what we are building. Integrating with Calendly would mean our customers need both our system AND a Calendly account, paying twice, managing two systems. There is no reason to add this dependency. Our system replaces Calendly.
-
-**The correct calendar strategy:**
-
-Our system IS the scheduling layer. We sync TO external calendars, not FROM them as a dependency:
-
-| Direction | What happens | Why |
+| Client count | Database strategy | Cost |
 |---|---|---|
-| Our booking → Google Calendar | When a booking is confirmed, create a Google Calendar event in the artist's calendar | Artist sees appointment in their personal calendar, gets reminders |
-| Google Calendar → Our system | Read artist's external events (holidays, personal blocks) to mark those times unavailable | Prevents double-booking when artist has personal events |
-| Our booking → Apple Calendar (iCal) | Provide `.ics` download link for any booking | Universal — works with Apple Calendar, Outlook, any calendar app |
+| 1–5 clients | One Neon project per client, each on free tier (~$0/month) | Free |
+| 5–20 clients | Some clients upgrade to Neon Launch plan | $19/mo per active client |
+| 20–50 clients | Most clients on Neon Launch, some on Scale | $19–$69/mo per client — you pass this cost to them |
+| 50+ clients | Still fine on Neon, or migrate large clients to dedicated VPS | Evaluate case by case |
 
-**Why Google Calendar is sufficient:**
-- Over 3 billion Google accounts exist. Virtually every small business uses Google Workspace or Gmail.
-- The API is free, well-documented, reliable, and has been stable for over a decade.
-- Artists can share their Google Calendar with the studio owner for visibility.
-- When selling to barbers, salons, restaurants — they all use Google Calendar.
+**Why one Neon project per client (not shared):**
+- Data isolation — each client's data is completely separate. A bug or breach for one client cannot touch another's data.
+- Billing is separate per client — you know exactly what each client costs.
+- Backups and migrations are independent.
+- This is the correct architecture for a white-label SaaS product. Every serious SaaS company does this.
 
-**Apple Calendar / Outlook:** We do not need a live API integration. We serve an `.ics` file (universal calendar format). Any calendar app in the world can import it. This covers every other calendar without any OAuth complexity.
+**Neon's scale ceiling:** Neon's Scale plan ($69/mo) supports up to 10GB storage and autoscales compute. A tattoo studio or small salon will never hit this limit. If a client somehow grows to a major chain with thousands of bookings per day, at that point they are generating enough revenue to justify a dedicated AWS RDS or Hetzner VPS — and as noted above, moving is easy because of Prisma.
 
-**For future versions only:** Microsoft Graph API (Outlook) integration is worth adding if we sell to corporate clients. Not needed now.
-
-**Confirmed: Google Calendar API for live two-way sync. `.ics` download for universal compatibility. No Calendly.**
-
----
-
-### On Google Analytics for Lead Intelligence
-
-**This is a very good idea. Here is how to implement it correctly.**
-
-There are two layers of analytics:
-
-**Layer 1 — Google Analytics 4 (GA4) on the frontend:**
-- Tracks page views, user flow through the booking steps, time spent on each step, bounce rates, traffic sources
-- Shows where leads come from (Google search, Instagram link, direct, referral)
-- Completely free, no setup beyond adding the GA4 snippet to the frontend
-- This data is for understanding marketing performance
-
-**Layer 2 — Our own first-party data in the `AnalyticsEvent` table:**
-This is the "God Mode" intelligence. When a lead submits the inquiry form, we capture and store:
-- Name, email, phone number (from the form — fully legal since they entered it)
-- WhatsApp preference
-- What artist they chose
-- What style they selected
-- What body placement
-- What size
-- Their IP address (geolocation: country, city — legal for analytics)
-- The UTM source (how they found the site — `?utm_source=instagram`)
-- Timestamp and session ID
-- Which device type (mobile/desktop) and browser
-
-This means if a lead does not book, we still have their contact info and can follow up. If they came from Instagram, we know Instagram is driving inquiries. This is standard CRM practice.
-
-**Privacy/Legal note:** We must include in the privacy policy that we collect this data. Since they submitted a form voluntarily, the data is legally obtained. No cookies needed for the form data — it is first-party data from an active submission. IP geolocation is a standard practice and legal in all major jurisdictions.
-
-**The lead intelligence profile we build for each inquiry:**
-```
-Name: John Smith
-Email: john@email.com  
-Phone: +44 7700 900000
-WhatsApp: Yes
-Interested in: Hyperrealistic style, left arm, 15x15cm
-Artist preference: Artist A
-Found via: Instagram (utm_source=instagram)
-Location: London, UK (IP geolocation)
-Device: Mobile (iPhone, Safari)
-Time: 14:32 on a Tuesday
-Referred by: [URL they came from]
-```
-
-This is exactly the lead profile that lets you run targeted follow-ups and understand your marketing.
-
-**Confirmed: GA4 on frontend + first-party AnalyticsEvent table in backend. Both layers active.**
+**Bottom line:** Neon is correct for every client from day one. Easy to scale within Neon (just pay more). Easy to switch to anything else when the time comes.
 
 ---
 
-## DECISION 7 — Deployment Target
+## DECISION 3 — Redis / Job Queue: Upstash ✅ LOCKED
 
-**Question:** Vercel + Railway? Self-hosted VPS? What is best?
+**Confirmed: Upstash for production. Docker Compose `redis:7-alpine` for local dev.**
 
-**Answer: Start with Vercel + Railway + Neon (three-service stack). Consider Hetzner VPS when scaling.**
+### Follow-up: What is Upstash and Redis? Could we build our own? Is it stable for 300 clients / 50k emails? How does billing work?
 
-**The recommended stack for each deployment layer:**
+**What is Redis?**
 
-| Component | Service | Cost | Why |
-|---|---|---|---|
-| **Frontend** (React booking site) | Vercel | Free tier | Instant deploys, global CDN, perfect for React/Vite. The industry standard. |
-| **CRM** (React admin dashboard) | Vercel | Free tier | Same as above — just a second Vercel project |
-| **Backend API** (Express/Node) | Railway | ~$5/mo | Git-based deploys, easy environment variables, can run Node.js + auto-restart + logs |
-| **Database** (PostgreSQL) | Neon | Free → $19/mo | Already decided above |
-| **Redis** (BullMQ queues) | Upstash | Free → pay per use | Already decided above |
-| **File storage** | Cloudinary | Free tier | Already decided above |
-| **Email sending** | Resend | Free → $20/mo | Already decided above |
+Redis is an in-memory database that is extremely fast. We do not use it to store business data (that goes in PostgreSQL). We use Redis for one specific job: the **job queue**. When our system needs to send an email, it does not send it immediately — it writes a "job" (a small instruction: "send this email to this person at this time") into the Redis queue. A separate background worker reads jobs from the queue and executes them. This means:
+- If the email provider is temporarily down, the job stays in the queue and retries automatically
+- Emails that should be sent in 24 hours (review requests) sit in the queue and are executed at exactly the right time
+- The main API stays fast — adding a job to the queue is instant, doing the actual email work is background
 
-**Total cost for a new client (small studio):** ~$0-5/month to start. Scales up only when traffic grows.
+**What is BullMQ?**
 
-**When to switch to a VPS (Hetzner/DigitalOcean):**
-Once a client has consistent traffic (more than ~500 bookings/month), consolidating to a single VPS with Docker Compose is cheaper:
-- Hetzner CX21: €5.77/month for 2 vCPU, 4GB RAM — runs backend + Redis + PostgreSQL together
-- Everything in one Docker Compose file. One server, one bill.
-- At that point Vercel stays for the frontends (it is so good there is no reason to self-host a frontend)
+BullMQ is our job queue library — the code that manages putting jobs into Redis and taking them out. It handles retries, delays, priorities, and failure handling. It is the most used Node.js job queue library in production.
 
-**For selling to multiple clients:** Each client gets their own set of environment variables pointing to their own Railway/Neon/Cloudinary/Resend accounts. The codebase is the same. Deployment takes under an hour per new client once the template is set up.
+**What is Upstash?**
+
+Upstash is a cloud service that runs Redis for you. You do not manage a server. It is serverless — it scales automatically and you pay only for the commands you actually use.
+
+**Could we build our own?**
+
+Technically yes — you could run Redis on your own VPS. The cost would be included in the VPS bill. For now, Upstash is the correct choice because:
+- Zero server management — it just works
+- The cost at our scale is negligible
+- The official BullMQ documentation has specific guidance for Upstash
+- When you are eventually running a VPS for a client anyway, you can run Redis on the same VPS (one command: `docker compose up redis`) — there is literally no extra work
+
+**Is it stable for 300 clients / 50k emails per month?**
+
+Yes. Let us do the actual maths:
+
+- 50,000 emails per month = ~1,667 emails per day = ~70 per hour
+- Each email job = approximately 5–10 Redis commands (enqueue, dequeue, process, confirm, log)
+- 50,000 emails × 10 commands = 500,000 Redis commands per month
+
+**Upstash cost for 500,000 commands per month:** approximately **$1.00/month**. The free tier covers 10,000 commands/day (310,000/month) — so a light client may never even pay for Redis.
+
+For 300 clients all sending emails, the Redis usage still costs a few dollars per month across the whole system. This is not a meaningful cost.
+
+**How billing works:**
+
+You own one Upstash account (or one per client if you want full isolation). Upstash sends you one bill. You charge your clients a monthly SaaS fee that covers all infrastructure costs with a healthy margin. Your clients never even know Upstash exists — it is invisible infrastructure.
+
+**Billing model suggestion:**
+- Your infrastructure cost per small client: ~$0–25/month (Neon + Upstash + Cloudinary + Resend + Railway)
+- You charge the client: €50–150/month SaaS fee depending on plan tier
+- Margin: very healthy, and it grows as you add more clients without proportionally more cost
+
+---
+
+## DECISION 4 — Email Templates: Custom Handlebars (NOT React Email) ✅ REVISED
+
+**Original decision was Resend + React Email. This is revised based on your input.**
+
+**Revised: Resend (confirmed, stays) + custom Handlebars `.hbs` HTML templates (replaces React Email).**
+
+### Why the change is correct
+
+React Email is a tool for writing email HTML using React components. It is useful for large teams where developers maintain a design system. For our use case, it adds unnecessary complexity — we are writing a fixed set of 5–7 templates per client, not a library of hundreds.
+
+**The correct approach: Handlebars templates**
+
+Handlebars (`.hbs`) is a simple templating system where you write plain HTML and put variables in `{{ }}` placeholders. Example:
+
+```html
+<h1>Hello {{ customerName }},</h1>
+<p>Your booking with {{ artistName }} is confirmed for {{ date }} at {{ time }}.</p>
+```
+
+When the system sends the email, it replaces `{{ customerName }}` with the actual name. That is it. No React, no build step, no complexity.
+
+**The 7 email templates we write — one set per client, customised with their branding:**
+
+| Template | When sent | Who receives |
+|---|---|---|
+| `inquiry-received.hbs` | Customer submits inquiry form | Customer (auto-reply: "we received your inquiry") |
+| `inquiry-notification.hbs` | Customer submits inquiry form | Artist / Studio admin (internal alert) |
+| `quote-sent.hbs` | Artist sends a quote to customer | Customer |
+| `booking-confirmed.hbs` | Booking is confirmed (artist + customer agreed) | Customer |
+| `booking-reminder.hbs` | 24h before the appointment | Customer |
+| `review-request.hbs` | 24–48h after appointment completed | Customer |
+| `invoice.hbs` | Invoice generated | Customer |
+
+**Each template is customised per client:** header logo, business name, brand colour, contact details, social links. This takes approximately 30 minutes per client to set up. If a client wants to change their email copy, you edit the `.hbs` file — it is plain text/HTML, no programming knowledge required.
+
+**Can clients edit the templates themselves?** Not directly in the CRM (that would require a full template editor feature). They request changes from you, you edit the `.hbs` file, push the update. For most small businesses this is perfectly acceptable. A template editor in the CRM can be added later as a premium feature if there is demand.
+
+**Resend is still used** — it is the service that actually sends the email through the internet and handles deliverability. The `.hbs` template is just the content. Think of Resend as the post office and the `.hbs` file as the letter.
+
+**Confirmed (revised): Resend for delivery + custom Handlebars `.hbs` templates (stored in backend repo, one set per client).**
+
+---
+
+## DECISION 5 — File Storage: Cloudinary (One Account Per Client) ✅ UPDATED
+
+**Confirmed: Cloudinary. One Cloudinary account per client (each gets their own 25GB free tier).**
+
+### Follow-up: Why resizing? Can't I resize manually? Can each business have their own Cloudinary account?
+
+**Yes — one Cloudinary account per client is exactly the right approach.** Here is why it works:
+
+Each client creates their own free Cloudinary account (email + 2 minutes, no credit card). They get 25GB storage and 25GB bandwidth per month — completely free for any small business. You add their Cloudinary `cloud_name`, `api_key`, and `api_secret` to their deployment's environment variables. Their images stay in their account. They own their data. You pay nothing.
+
+**Why use Cloudinary instead of just storing files yourself?**
+
+When someone uploads an image to your server, the server stores it as a file on disk. Problems with this approach:
+1. The file is on one server. If that server moves, the images move (or break).
+2. Serving a 5MB raw image to 100 users simultaneously is slow and uses a lot of bandwidth.
+3. You have to write code to handle file storage, naming, deletion, and serving URLs yourself.
+
+Cloudinary handles all of this: images are stored on their CDN (Content Delivery Network), which means the image is automatically cached on servers worldwide. A visitor in Tokyo gets the image from a Tokyo server. A visitor in London gets it from a London server. Fast for everyone.
+
+**Do you need the automatic resizing?**
+
+The resizing is automatic and requires zero effort — it happens via the URL. You do not have to resize anything manually. The original full-size image is stored once. When you need a thumbnail, you just add `_w_400` to the URL — Cloudinary generates and caches the thumbnail on the fly. No code, no processing on your end. For the artist portfolio grid, you need a square thumbnail. For the full-screen image on the booking page, you need the full image. You do not want to show a 5MB photo where a 80KB thumbnail is needed — it makes the page slow. Cloudinary's URL trick solves this in literally one line of code.
+
+**So the resizing benefit is:**
+- Faster website load times (Google ranks fast sites higher)
+- Less bandwidth cost
+- No manual work — the URL does all the work
+
+**If you genuinely do not want automatic resizing**, Cloudinary still works fine — just use the original image URL everywhere. You lose the performance benefit but the system still works perfectly. We will use the URL transformations because they cost nothing extra and make the product noticeably faster.
+
+**Confirmed: Cloudinary, one account per client, each on free tier. URL transformations used for thumbnails.**
+
+---
+
+## DECISION 6 — Calendar Integration: Google Calendar API + Time Slots ✅ UPDATED
+
+**Confirmed: Google Calendar API only. `.ics` download for universal compatibility. No Calendly.**
+
+### Follow-up: Detailed booking and calendar flow — how does it actually work?
+
+This is the core workflow. Here is the complete flow, step by step:
+
+---
+
+**STEP 1 — Customer submits inquiry:**
+- Customer fills in the booking form on the frontend
+- They enter: desired style, body placement, size, reference image, description
+- They enter **3 preferred dates/times** when they are available (e.g. "Tuesday 14:00, Thursday 10:00, Saturday 11:00")
+- They choose contact preference: email or WhatsApp
+- System saves the inquiry to the database
+- System sends auto-reply email (or WhatsApp message if chosen): *"Thanks for your inquiry! [Artist] will get back to you shortly."*
+- Artist + admin receive internal notification: *"New inquiry from [Name] — 3 preferred dates."*
+
+---
+
+**STEP 2 — Artist reviews in the CRM:**
+- Artist logs into the CRM
+- Sees the inquiry with all details + the 3 proposed dates
+- If more than one inquiry is for the same day, the CRM shows: **"3 requests already for Tuesday 14 Jan"** — a small warning badge on that date
+- Artist clicks **"Accept"** on the date they prefer
+- System immediately:
+  1. Creates a Google Calendar event for the artist with full booking details
+  2. Updates the booking status to `CONFIRMED`
+  3. Sends confirmation email to the customer with the confirmed date, time, artist name, and studio address
+  4. Sends WhatsApp confirmation message if the customer chose WhatsApp contact
+  5. Marks that time slot as **BOOKED** in our database's availability table
+
+---
+
+**STEP 3 — Calendar display on the customer-facing website:**
+
+The booking page shows a calendar. Rules:
+- **If a full day is booked (no more slots):** Day is greyed out, non-clickable, shows small "FULL" label
+- **If a day has some slots available:** Day is clickable and highlighted
+- **When customer clicks an available day:** Time slots appear below the calendar
+  - Available slots shown in jade green, clickable
+  - Booked slots shown in grey, non-clickable
+  - Example: Artist works 10:00–17:00. Booking from 10:00–13:00 is confirmed. Customer sees: `10:00` (grey/taken), `13:30` (green/available), `15:00` (green/available)
+  - The 30-minute gap after a booking (`13:00` → next slot `13:30`) is configurable — some artists want 30 min setup, others want none
+- **Multiple artists in a studio:** The availability calendar is per-artist. Customer selects an artist first, then sees that artist's available slots.
+
+---
+
+**STEP 4 — Time slot logic (how the slots work):**
+
+Each artist has a set of working hours (stored in the database, e.g. Tuesday: 10:00–17:00). When a booking is confirmed for 10:00–13:00:
+- The system calculates: occupied from 10:00 to 13:00
+- Add the configured buffer (e.g. 30 minutes) = unavailable until 13:30
+- Remaining available: 13:30–17:00
+- Possible slots that fit within that window are generated (configurable slot duration, e.g. 90-minute minimum for small tattoos)
+
+The artist can also manually block days or time ranges in the CRM (holidays, private blocks). These blocked ranges are also read from the database and shown as unavailable on the customer calendar.
+
+---
+
+**STEP 5 — CRM calendar view (what the studio admin sees):**
+
+- Full month/week/day calendar view in the CRM
+- Each confirmed booking shows as a colour-coded block
+- Pending inquiries (not yet confirmed) show as dashed/striped blocks
+- Days with 3+ pending requests show a badge counter
+- Admin can click any booking to see full details
+- Admin can manually drag bookings to different times (for rescheduling)
+- Artist availability is shown per artist with a filter
+
+---
+
+**STEP 6 — Google Calendar sync:**
+
+When a booking is confirmed (Step 2 above):
+- Our backend calls the Google Calendar API using the artist's connected Google account
+- Creates a calendar event: title = "[Customer name] — [Style] — [Body placement]", description = full booking details, start time = booking start, end time = booking end
+- Event appears in the artist's personal Google Calendar immediately
+- Artist gets Google Calendar's own reminders (email/phone notification 1 hour before) — we do not need to build this ourselves
+
+Artist connects their Google account to the CRM once (OAuth flow, takes 2 minutes). Their stored Google refresh token is used for all future calendar writes.
+
+---
+
+**`.ics` file download:**
+When a booking is confirmed, the customer receives an `.ics` file attachment in their confirmation email. They click it and it adds the appointment to whatever calendar app they use (Apple Calendar, Outlook, Google Calendar, any app in the world). This requires zero API integration — we generate an `.ics` file (plain text, standard format) and attach it to the email.
+
+---
+
+**Confirmed: Full booking flow with time slots, CRM calendar view with pending request indicators, Google Calendar auto-sync on confirmation, `.ics` for customers.**
+
+---
+
+### On Google Analytics for Lead Intelligence (unchanged)
+
+**GA4 on frontend + first-party `AnalyticsEvent` table in backend. Both layers active. Only God Mode can see lead data.**
+
+First-party data captured per inquiry: name, email, phone, WhatsApp preference, style interest, IP geolocation, UTM source (which marketing channel brought them), device type, referrer URL.
+
+---
+
+## DECISION 7 — Deployment Target ✅ LOCKED (unchanged)
 
 **Confirmed: Vercel (frontend + CRM) + Railway (backend) + Neon (DB) + Upstash (Redis) + Cloudinary (files) + Resend (email).**
 
+**Total cost per small client: ~$0–25/month.** Scales up only when traffic justifies it.
+
+**Scale-up path:**
+- Phase 1 (1–5 clients): Everything on free tiers. Cost ≈ $0.
+- Phase 2 (5–20 clients): Some clients on paid Neon + Railway. Cost: ~$5–25/client.
+- Phase 3 (20+ clients): Evaluate migrating large clients to Hetzner VPS (€5.77/month runs everything — backend, Redis, PostgreSQL together in Docker Compose).
+- Vercel stays for frontends regardless of scale — it is free and requires zero maintenance.
+
 ---
 
-## DECISION 8 — Brand Colours (Tattoo Studio Frontend)
+## DECISION 8 — Brand Colours: Two-Mode Design System ✅ UPDATED
 
-**Confirmed: Jade green / light jade green / glass aesthetic.**
+**The design has two complete palettes — one for each mode — plus the tattoo frontend follows the CRM design.**
 
-**Technical implementation in Tailwind:**
+### CRM — Light Mode (default)
+
+> Bone white background. Jade green for interactive elements and text accents. Clean, professional, minimal.
 
 ```
-Primary:        #00A896  (jade green — buttons, links, CTAs)
-Primary Light:  #7FDBCC  (light jade — hover states, accents)
-Glass BG:       rgba(0, 168, 150, 0.08)  (glass card backgrounds)
-Dark BG:        #0A0A0A  (near-black — main background for tattoo studio feel)
-Surface:        #141414  (cards, panels on dark background)
-Border:         rgba(0, 168, 150, 0.2)  (glass borders with jade tint)
-Text Primary:   #F0F0F0  (near-white — main text)
-Text Secondary: #888888  (muted — labels, captions)
-Error:          #FF4D4F  (red — errors, warnings)
-Success:        #52C41A  (green — success states)
+CRM background:    #F5F0EB  (bone white — not pure white, warm and easy on the eyes)
+CRM surface:       #FFFFFF  (white — cards, panels, inputs)
+CRM border:        #E0D9D1  (warm light grey — card borders, dividers)
+Primary / CTA:     #4D9B9E  (jade teal — buttons, links, active states, accents)
+Primary hover:     #3A7B7E  (slightly darker jade — hover on buttons)
+Text primary:      #1A1A1A  (near-black — headings, body text)
+Text secondary:    #6B6B6B  (mid grey — labels, captions, placeholders)
+Text on primary:   #FFFFFF  (white text on jade green buttons)
+Error:             #C0392B  (muted red)
+Success:           #27AE60  (muted green)
+Warning:           #E67E22  (amber)
 ```
 
-**Why this works for a tattoo studio:**
-- Dark background is standard for tattoo studio branding (matches the aesthetic)
-- Jade/glass gives it a premium, modern feel that stands out vs competitors using red/black or generic blue
-- The glass effect (frosted glass cards, subtle borders) is a current design trend that makes UIs look expensive
-- High contrast between dark background and jade green = excellent accessibility (WCAG AA compliant)
+### CRM — Dark Mode
 
-**Confirmed: Jade green + dark background + glass morphism design language.**
-
----
-
-## DECISION 9 — 3D Mannequin Model
-
-**Confirmed: Source or create a custom mannequin GLB. Do not use a pre-made generic one for production.**
-
-**Options in order of recommendation:**
-
-1. **Buy from TurboSquid or CGTrader** (~$20-150): Search for "body mannequin low poly GLB". Fastest path to development. Good for building and testing the hitbox system. May need minor Blender editing to separate body parts into named meshes (required for hitboxes). ← Use this for Phase 2 development.
-
-2. **Mixamo free models**: Adobe provides free rigged 3D characters. Can be exported as GLB from Mixamo. Royalty-free for commercial use. Downside: they are characters, not mannequins — may look odd. Good for rapid prototyping.
-
-3. **Commission a custom model** ($500-2000 from a 3D artist): Clean, stylised mannequin designed specifically for our hitbox requirements. This is what we use for the production product. Can be gender-neutral or have a male/female toggle.
-
-4. **Build in Blender** (free): Time-intensive but produces exactly what we need. Requires 3D modelling skills or contracting a Blender artist.
-
-**Technical requirements for the mannequin model:**
-- Format: GLB (GLTF binary) — the only format that works natively with Three.js/R3F
-- Poly count: Under 50,000 triangles — must run at 60fps on mid-range mobile
-- Mesh structure: Each hitbox body part must be a **separate named mesh** within the GLB (e.g. `mesh_back`, `mesh_left_arm`, `mesh_left_leg_upper`) — this is how we detect which body part was clicked
-- Style: Stylised/clean (not photorealistic) — a slightly stylised mannequin looks better and reduces file size significantly
-- Rigging: Not required (we are not animating it, just rotating it)
-- UV unwrapping: Required if we want to show tattoo placement preview on the skin surface (future feature)
-
-**Gender toggle (future feature):** If we want male/female mannequins, we load two separate GLB files and swap based on the customer's gender preference selection. This is simple to implement.
-
-**Action required before Phase 2 starts:** Source or purchase a suitable mannequin GLB for development. This is a one-time task that can happen in parallel with Phase 1 backend work.
-
-**Confirmed: Purchase/source a suitable GLB for Phase 2 development. Commission a custom model for production launch.**
-
----
-
-## DECISION 10 — Artist Picture Editing (Additional Requirement)
-
-**Confirmed new requirement: Artists must be able to edit and upload their own profile pictures and portfolio images from the frontend (not only from the CRM admin panel).**
-
-**How this works:**
-- Artists have their own login to the CRM (role: `ARTIST`)
-- In the CRM, artists see their own profile editor — they can update bio, profile photo, and portfolio images
-- Portfolio images are uploaded via the Cloudinary upload endpoint — artist gets a file picker, Cloudinary URL is saved to their artist profile
-- Artists **cannot** edit other artists' profiles — only their own (enforced by checking `userId` match on the backend)
-- The studio admin (ADMIN role) can edit any artist's profile
-
-**This does NOT mean artists edit pictures directly on the public frontend booking site.** The booking site is read-only and displays what is stored in the database. Changes made in the CRM immediately reflect on the booking site (no rebuild needed, data is fetched from the API).
-
-**What artists can edit in the CRM:**
-- Profile photo (upload via Cloudinary)
-- Bio / description
-- Specialty tags / styles they offer
-- Portfolio images (add / remove / reorder)
-- Their own availability (blocked dates, working hours)
-
-**What only ADMIN can edit:**
-- Artist's active/inactive status
-- Artist's role
-- Other artists' profiles
-- Any feature flags
-- System-wide settings
-
-**This is already accounted for in the Prisma schema** (`Artist.userId` FK + role-based middleware). We just need to ensure the CRM artist profile page is accessible with the `ARTIST` role, not only `ADMIN`.
-
----
-
-## DECISION 11 — Interchangeable Base: Architecture Confirmed
-
-**The final confirmed architecture for a white-label, multi-industry SaaS product.**
-
-**The single codebase structure:**
+> Dark grey near-black background. Light blue-green for interactive elements and text accents. Premium, modern.
 
 ```
-BookingAutomation/
-├── backend/          ← 100% shared across ALL business types
-│   └── src/
-│       ├── modules/  ← All feature modules (toggled by feature flags)
-│       │   ├── auth/
-│       │   ├── artists/      ← Also used as "stylists", "barbers", "staff"
-│       │   ├── bookings/
-│       │   ├── leads/
-│       │   ├── quotes/
-│       │   ├── invoices/
-│       │   ├── styles/       ← "Tattoo styles" for tattoo / "Hair styles" for salon / "Menu items" for restaurant
-│       │   ├── analytics/
-│       │   ├── calendar/
-│       │   ├── email/
-│       │   ├── features/     ← God Mode flag system
-│       │   ├── uploads/
-│       │   └── reviews/      ← Post-appointment review requests (Google link)
-│       └── config/
-│           └── businessType.ts  ← Single config file: what type of business this deployment is for
-│
-├── crm/              ← Shared CRM with all panels (hidden by feature flags)
-│
-├── frontend-tattoo/  ← Tattoo studio specific booking flow (uses backend)
-├── frontend-salon/   ← Hair salon booking flow (uses same backend, different UI)
-├── frontend-barber/  ← Barber booking flow (same backend, different UI)
-└── frontend-restaurant/ ← Restaurant booking flow (table selector instead of mannequin)
+CRM background:    #1A1A1A  (dark grey near-black)
+CRM surface:       #242424  (slightly lighter — cards, panels)
+CRM border:        #333333  (dark border — card edges, dividers)
+Primary / CTA:     #AFD6D8  (light blue-green — buttons, links, active states)
+Primary hover:     #C5E5E7  (slightly lighter — hover)
+Text primary:      #F0F0F0  (near-white — headings, body text)
+Text secondary:    #999999  (mid grey — labels, captions)
+Text on primary:   #1A1A1A  (dark text on light blue-green buttons)
+Error:             #FF6B6B  (lighter red for dark mode legibility)
+Success:           #6BCB77  (lighter green for dark mode)
+Warning:           #FFD166  (lighter amber for dark mode)
 ```
 
-**The key insight:** The backend API is 100% identical for every business type. The only thing that changes per deployment is:
-1. A `BUSINESS_TYPE` environment variable (`tattoo_studio` | `hair_salon` | `barber` | `restaurant`)
-2. Which feature flags are enabled
-3. The frontend (different booking flow for each)
-4. The CRM labels (e.g. "Artists" becomes "Stylists" or "Staff" based on business type)
+### CRM Glass Morphism Elements (applies to both modes)
 
-This means when we want to deploy for a new barber shop client:
-- Deploy the same backend (5 minutes, just new env vars)
-- Deploy the barber frontend (already built once, reuse)
-- Configure which features are ON/OFF for that client
-- Done. No new code written per client.
+Glass panels, modals, and overlay elements use:
+```
+Glass fill:        rgba(255, 255, 255, 0.06)  (dark mode) / rgba(255, 255, 255, 0.65) (light mode)
+Glass border:      rgba(255, 255, 255, 0.12)  (dark mode) / rgba(0, 0, 0, 0.08) (light mode)
+Glass blur:        backdrop-filter: blur(16px) saturate(180%)
+Glass shadow:      0 8px 32px rgba(0, 0, 0, 0.2)
+```
 
-**The `styles` module is intentionally generic:** For a tattoo studio, "styles" are Hyperrealistic, Old School, Japanese etc. For a hair salon, "styles" are Bob Cut, Balayage, Undercut etc. For a restaurant, this module is toggled OFF (replaced by a menu/dish module later). The database model is the same — just different data.
+This is exactly the Apple liquid-glass feel — panels that look like frosted glass over the background.
 
-**The `artists` module is intentionally generic:** The label changes per business type (Artists / Stylists / Barbers / Staff) but the data model is identical — name, bio, profile photo, portfolio/work photos, available slots, assigned specialties.
+### Tattoo Studio Frontend
+
+The tattoo studio frontend **follows the CRM design language exactly** — it uses the same glass morphism, same jade green, same dark mode palette as the CRM dark mode. This is intentional: the tattoo studio is the showcase product and it should look like a premium, expensive custom website. Since the CRM uses the same design, the two feel like a unified product — which they are.
+
+The first frontend will follow the CRM dark mode palette:
+- Dark background (`#1A1A1A`)
+- Light blue-green accents (`#AFD6D8`) for interactive elements
+- Jade teal (`#4D9B9E`) for CTAs and highlights
+- Glass morphism cards and panels throughout
+
+### Future Clients' Frontends
+
+Every new client (restaurant, salon, barber) gets a frontend styled to **their brand colours**. We swap the Tailwind CSS variables to their palette. The glass morphism and component structure stay the same — only the colours change. This means a new frontend skin takes hours, not days.
 
 ---
 
-## UPDATED Tech Stack (All Decisions Confirmed)
+## DECISION 9 — 3D Mannequin Model ✅ UPDATED (with links)
 
-| Layer | Technology | Decision | Notes |
+**Confirmed: Source a GLB for Phase 2 development. Commission or create a custom model for production.**
+
+### Where to look and what to expect (with links)
+
+**Option 1 — TurboSquid (recommended starting point):**
+→ https://www.turbosquid.com/Search/3D-Models/free/mannequin
+→ https://www.turbosquid.com/Search/3D-Models/mannequin/glb
+- Search: "mannequin low poly GLB"
+- Price range: Free–$150 for a decent model
+- What to look for: under 50,000 triangles, separate named meshes (or separable in Blender), clean topology
+- Note: Check the license carefully — you want **Royalty Free** license that allows use in commercial interactive applications
+
+**Option 2 — CGTrader:**
+→ https://www.cgtrader.com/3d-models/character/woman/mannequin
+→ https://www.cgtrader.com/free-3d-models/character/man/mannequin
+- Often cheaper than TurboSquid
+- Wide variety of styles — wireframe mannequin, solid mannequin, stylised body forms
+- Same license check applies
+
+**Option 3 — Sketchfab:**
+→ https://sketchfab.com/search?q=mannequin&sort_by=-likeCount&type=models
+- Some models are free to download in GLB format
+- Good for prototyping — check license (CC licenses vary)
+
+**Option 4 — Mixamo (free, from Adobe):**
+→ https://www.mixamo.com
+- Free rigged 3D character models
+- Export as FBX, then convert to GLB using https://products.aspose.app/3d/conversion or Blender
+- Characters look like people, not mannequins — fine for development, not ideal for production
+- Completely free for commercial use
+
+**What the model needs to work with our system:**
+- **Format:** GLB (GLTF binary) — non-negotiable, Three.js/R3F requires it
+- **Poly count:** Under 50,000 triangles (ideally under 30,000) — must run at 60fps on a mid-range phone
+- **Named meshes:** Each body region must be a separate mesh named clearly (e.g. `head`, `neck`, `chest`, `back`, `left_arm_upper`, `left_arm_lower`, `left_hand`, `right_arm_upper`, `right_arm_lower`, `right_hand`, `torso_front`, `torso_back`, `left_leg_upper`, `left_leg_lower`, `left_foot`, `right_leg_upper`, `right_leg_lower`, `right_foot`). This is how clicking detects which body part was selected.
+- **If the purchased model is not pre-separated:** Open in Blender (free), manually separate by body region, export as GLB. This takes 2–4 hours for someone with basic Blender knowledge.
+- **Style:** Stylised / slightly abstract mannequin preferred over photorealistic human — looks cleaner in a UI, loads faster
+
+**Timeline:** Source a model before Phase 2 begins (while Phase 1 backend is being built). This can happen in parallel.
+
+**For production:** Commission a custom model from a 3D artist on Fiverr or ArtStation. Budget: $300–1,500 depending on complexity. Brief them on the named mesh requirements above. This is the model that goes live on real client sites.
+
+---
+
+## DECISION 10 — Artist Profile & Picture Editing ✅ LOCKED
+
+**Confirmed: Artists edit their own profile and portfolio via the CRM (ARTIST role). This feature is also valuable for salons (stylists edit their own profile). Can be toggled OFF for restaurants.**
+
+**Access rules:**
+- `ARTIST` role: can edit own profile, bio, profile photo, portfolio images, own availability
+- `ADMIN` role: can edit any artist's profile + all system settings
+- Public frontend: read-only, displays what is in the database, updates reflect immediately without a page rebuild
+
+---
+
+## DECISION 11 — Interchangeable Architecture ✅ LOCKED
+
+**Confirmed: One backend, multiple frontends, `BUSINESS_TYPE` environment variable drives label changes and default flag configuration.**
+
+**Deployment per new client:**
+1. Clone backend repository, set new client's environment variables (DB, Redis, email, Cloudinary, business type)
+2. Deploy to Railway (10 minutes)
+3. Deploy the appropriate frontend (tattoo / salon / barber / restaurant) to Vercel (5 minutes)
+4. Configure feature flags in the CRM God Mode panel
+5. Done — no new code written
+
+**CRM label system (driven by `BUSINESS_TYPE` env var):**
+
+| Label | TATTOO_STUDIO | HAIR_SALON | BARBER | RESTAURANT |
+|---|---|---|---|---|
+| "Artists" | Artists | Stylists | Barbers | Staff |
+| "Styles" | Tattoo Styles | Hair Styles | Cuts & Styles | Menu |
+| "Portfolio" | Portfolio | Gallery | Gallery | Photo Gallery |
+| "Quote" | Quote | Estimate | Estimate | — (OFF) |
+| "Mannequin" | Body Placement | — (OFF) | — (OFF) | — (OFF) |
+| "Table Selector" | — (OFF) | — (OFF) | — (OFF) | Table Booking |
+
+---
+
+## DECISION 12 — WhatsApp Automation ✅ NEW — CONFIRMED
+
+**Confirmed: Two automated WhatsApp messages per booking lifecycle. Offered as a toggleable service (`WHATSAPP_AUTOMATION` feature flag).**
+
+### What the automation does
+
+**Message 1 — On inquiry submission (immediate):**
+Sent when the customer submits their inquiry and chose WhatsApp as their contact preference.
+
+> *"Hi [Name]! 👋 Thanks for reaching out to [Studio Name]. We've received your inquiry and [Artist Name] will get back to you shortly to confirm your appointment. We're excited to work with you! — [Studio Name]"*
+
+Purpose: establishes immediate contact, confirms receipt, sets expectation for response time, builds rapport.
+
+**Message 2 — On booking completion (2 hours after marked COMPLETE):**
+Sent when the artist marks the appointment as completed in the CRM.
+
+> *"Hi [Name]! 🙏 Thank you so much for your visit to [Studio Name] today! We hope you love your new tattoo. We'd really appreciate it if you could take a moment to leave us a Google review — it means the world to us: [Google Review Link]. See you next time! — [Studio Name]"*
+
+Purpose: post-appointment goodwill message + review request. The 2-hour delay gives the customer time to get home and rest before seeing the message.
+
+### Technical implementation
+
+**Provider: Twilio WhatsApp API** (or WhatsApp Business API via Meta directly for high-volume clients).
+
+| Provider | Cost | Setup | Message limit |
 |---|---|---|---|
-| Backend runtime | Node.js 20 LTS + TypeScript 5 | ✅ Confirmed | LTS for stability |
-| Backend framework | Express.js | ✅ Confirmed | |
-| Database | PostgreSQL 16 | ✅ Confirmed | |
-| ORM | Prisma | ✅ Confirmed | |
-| Auth | JWT access (15min) + refresh (7d) | ✅ Confirmed | |
-| Validation | Zod | ✅ Confirmed | |
-| Job queue | BullMQ | ✅ Confirmed | |
-| Email sending | **Resend** | ✅ DECIDED | Best DX, best deliverability, easy per-client setup |
-| Email templates | **React Email** | ✅ DECIDED | React components as emails, perfect with Resend |
-| File uploads | **Cloudinary** | ✅ DECIDED | Auto-resize, CDN, free tier sufficient |
-| File upload middleware | Multer | ✅ Confirmed | |
-| Logging | Winston | ✅ Confirmed | |
-| Testing | Jest + Supertest | ✅ Confirmed | |
-| Frontend | React 18 + TypeScript + Vite | ✅ Confirmed | |
-| Styling | Tailwind CSS v3 | ✅ Confirmed | |
-| Design system | Jade green + dark + glass morphism | ✅ DECIDED | |
-| State management | Zustand | ✅ Confirmed | |
-| 3D Mannequin | Three.js + React Three Fiber | ✅ Confirmed | |
-| Mannequin model | **Purchased GLB for dev, custom for prod** | ✅ DECIDED | |
-| CRM framework | React + Tailwind (custom) | ✅ Confirmed | |
-| Charts/Analytics | Recharts | ✅ Confirmed | |
-| Calendar | **Google Calendar API + .ics download** | ✅ DECIDED | No Calendly |
-| Lead analytics | **GA4 + first-party AnalyticsEvent table** | ✅ DECIDED | |
-| Feature flags | **DB-driven, BullMQ-safe, middleware-gated** | ✅ DECIDED | No code removal needed |
-| Dev DB | **Docker Compose postgres:16** | ✅ DECIDED | |
-| Prod DB | **Neon (serverless PostgreSQL)** | ✅ DECIDED | |
-| Dev Redis | **Docker Compose redis:7-alpine** | ✅ DECIDED | |
-| Prod Redis | **Upstash (serverless Redis)** | ✅ DECIDED | |
-| Frontend deploy | **Vercel** | ✅ DECIDED | |
-| Backend deploy | **Railway** | ✅ DECIDED | |
-| Business type | **ENV variable + feature flags** | ✅ DECIDED | One codebase, all clients |
+| **Twilio** | $0.005–0.008 per message (~$0.007) | 2 hours | Unlimited |
+| **Meta WhatsApp Business API** | Free for first 1,000 service conversations/month, then ~$0.015/message | 1–2 days (Facebook approval) | Unlimited |
+| **WhatsApp Web scraping (unofficial)** | Free | ❌ Never — violates terms, account will be banned | ❌ Not allowed |
+
+**Recommended: Start with Twilio.** Twilio is the professional standard. Their WhatsApp sandbox is available immediately for testing. To go live, you apply for a WhatsApp Business number (Twilio handles the Meta approval process for you). Takes 1–2 business days.
+
+**Cost at scale:** 300 clients × 2 messages × 20 bookings/month = 12,000 messages/month = ~$84/month total. You pass this cost to clients as part of their WhatsApp Automation plan tier.
+
+**Feature flag:** `WHATSAPP_AUTOMATION` — when OFF, no messages are sent, the preference is still captured in the database. Can be toggled on/off per client in the CRM.
+
+**New module added to Phase 1:** `backend/src/modules/whatsapp/`
 
 ---
 
-## New Steps Added to Phase 1 from This Q&A
+## UPDATED Tech Stack (All Decisions Locked — Round 2)
 
-The following steps need to be added to Phase 1 now that decisions are confirmed:
-
-### Step 1.17 — Docker Compose for Local Development
-**What:** A single `docker-compose.yml` at the repo root that spins up PostgreSQL 16 + Redis 7 with one command (`docker compose up`). Any developer can start the full dev environment in under 2 minutes without installing anything locally except Docker.
-
-**Files to create:**
-- `docker-compose.yml` — postgres:16 + redis:7-alpine services
-- `docker-compose.override.yml` — local developer overrides (port mappings, volume mounts)
-
-**Checklist:**
-- [ ] `docker compose up` starts both services
-- [ ] PostgreSQL accessible on localhost:5432
-- [ ] Redis accessible on localhost:6379
-- [ ] Data persists between restarts (named volumes)
-- [ ] Health checks configured
-
----
-
-### Step 1.18 — Google Review Request Automation
-**What:** After a booking is marked `COMPLETED`, automatically queue an email (24-48h later) asking the customer to leave a Google review. The email contains a direct link to the studio's Google Business Profile review page.
-
-**Why:** Google reviews are the #1 factor in local business discovery. Automating review requests after every completed appointment is a major value-add. The delay (24-48h) is intentional — customer is happiest just after the appointment.
-
-**What is needed:**
-- Add `GOOGLE_REVIEW_URL` to env vars (the business's Google review link)
-- Add `REVIEW_REQUEST_ENABLED` feature flag
-- Add `review-request.hbs` email template
-- When booking status changes to `COMPLETED`, schedule a BullMQ job with a 24h delay
-- Job sends the review request email
-
-**Files to create (this step only):**
-- `backend/src/modules/email/templates/review-request.hbs`
-- Logic added to bookings.service.ts (one new queue job dispatch)
-
-**Checklist:**
-- [ ] Template created and styled
-- [ ] Job queued with 24h delay on booking completion
-- [ ] `REVIEW_REQUEST_ENABLED` flag gates this feature
-- [ ] Test confirms job is queued correctly
+| Layer | Technology | Status | Notes |
+|---|---|---|---|
+| Backend runtime | Node.js 20 LTS + TypeScript 5 | ✅ Locked | |
+| Backend framework | Express.js | ✅ Locked | |
+| Database | PostgreSQL 16 | ✅ Locked | |
+| ORM | Prisma | ✅ Locked | Easy DB migration: change 1 line |
+| Auth | JWT access (15min) + refresh (7d) | ✅ Locked | |
+| Validation | Zod | ✅ Locked | |
+| Job queue | BullMQ | ✅ Locked | |
+| Email sending | **Resend** | ✅ Locked | One account per client |
+| Email templates | **Handlebars `.hbs`** | ✅ Revised | Plain HTML, no React Email |
+| File uploads | **Cloudinary** | ✅ Locked | One account per client, 25GB free |
+| File upload middleware | Multer | ✅ Locked | |
+| WhatsApp messages | **Twilio WhatsApp API** | ✅ New | Toggle via `WHATSAPP_AUTOMATION` flag |
+| Logging | Winston | ✅ Locked | |
+| Testing | Jest + Supertest | ✅ Locked | |
+| Frontend | React 18 + TypeScript + Vite | ✅ Locked | |
+| Styling | Tailwind CSS v3 | ✅ Locked | |
+| CRM light mode | Bone white (`#F5F0EB`) + jade (`#4D9B9E`) | ✅ Locked | |
+| CRM dark mode | Near-black (`#1A1A1A`) + light blue (`#AFD6D8`) | ✅ Locked | |
+| Glass morphism | backdrop-filter blur(16px) + frosted panels | ✅ Locked | Apple liquid-glass style |
+| State management | Zustand | ✅ Locked | |
+| 3D Mannequin | Three.js + React Three Fiber | ✅ Locked | |
+| Mannequin model | **Purchased GLB for dev, custom for prod** | ✅ Locked | See links in Decision 9 |
+| CRM framework | React + Tailwind (custom) | ✅ Locked | |
+| Charts/Analytics | Recharts | ✅ Locked | |
+| Calendar | **Google Calendar API + .ics** | ✅ Locked | Full time-slot system |
+| Lead analytics | **GA4 + first-party AnalyticsEvent** | ✅ Locked | God Mode only |
+| Feature flags | **DB-driven, middleware-gated** | ✅ Locked | |
+| Dev DB | Docker Compose postgres:16 | ✅ Locked | |
+| Prod DB | **Neon** | ✅ Locked | One project per client |
+| Dev Redis | Docker Compose redis:7-alpine | ✅ Locked | |
+| Prod Redis | **Upstash** | ✅ Locked | ~$1/mo per client at scale |
+| Frontend deploy | **Vercel** | ✅ Locked | |
+| Backend deploy | **Railway** | ✅ Locked | |
+| Business type config | `BUSINESS_TYPE` env var | ✅ Locked | One codebase, all clients |
 
 ---
 
-### Step 1.19 — Business Type Configuration
-**What:** A single config file that defines what type of business this deployment is for. This drives CRM label changes (Artists vs Stylists vs Staff) and sets the default feature flag configuration for that business type.
+## Phase 1 Steps — Complete List (including all additions)
 
-**Files to create (this step only):**
-- `backend/src/config/businessType.ts` — business type enum + label mappings
+All steps to build the backend foundation. Numbers added from previous Q&A rounds.
 
-**Business type → default flag config:**
-```
-TATTOO_STUDIO:  all flags ON (mannequin, quotes, portfolio, etc.)
-HAIR_SALON:     mannequin OFF, table_selector OFF, quotes OPTIONAL
-BARBER:         mannequin OFF, table_selector OFF, quotes OFF
-RESTAURANT:     mannequin OFF, table_selector ON, quotes OFF, portfolio OFF
-```
-
-**Checklist:**
-- [ ] `BUSINESS_TYPE` env var read at startup
-- [ ] CRM labels change based on business type
-- [ ] Seed script uses business type to set correct default flags
-
----
-
-## Open Items — Still To Decide Before Phase 2/3 Start
-
-These do not block Phase 1 but need to be answered before we start the frontend and 3D work:
-
-1. **3D Mannequin source:** Need a GLB file to start Phase 2. Task: find a suitable mannequin on TurboSquid/CGTrader or Mixamo before Phase 2 begins.
-
-2. **Studio name and domain for the tattoo studio frontend:** What is the studio's name? What domain will it run on? (Needed for Resend domain verification, GA4 setup, and the email "From" name.)
-
-3. **Payment / deposit system (future):** The issue mentions invoices and payment. Do we need online payment (Stripe) integrated in Phase 1, or is this a Phase 5 addition? Stripe is the obvious choice (used by every serious SaaS product) — just confirming whether this is in scope now.
-
-4. **WhatsApp automation:** The issue mentions automated WhatsApp messages. This is possible via the WhatsApp Business API (Meta) or via Twilio WhatsApp. This is separate from the `preferWhatsApp` flag (which just tells us the customer wants to be contacted on WhatsApp). Do we want actual automated WhatsApp message sending in Phase 1, or just capture the preference for now?
+| Step | What | Status |
+|---|---|---|
+| 1.1 | Project scaffolding (package.json, tsconfig, .env.example, .gitignore) | ⬜ Next |
+| 1.2 | Prisma setup + schema (all models) | ⬜ |
+| 1.3 | Auth module (JWT access + refresh tokens) | ⬜ |
+| 1.4 | Feature flag system (DB-driven, middleware) | ⬜ |
+| 1.5 | Business type config (labels, default flags) | ⬜ |
+| 1.6 | Artists module (CRUD + role-based access) | ⬜ |
+| 1.7 | Styles module (tattoo styles / hair styles / etc.) | ⬜ |
+| 1.8 | Leads module (inquiry form → lead record) | ⬜ |
+| 1.9 | Quotes module | ⬜ |
+| 1.10 | Bookings module (with time slot availability logic) | ⬜ |
+| 1.11 | Availability & time slot engine | ⬜ |
+| 1.12 | Google Calendar sync (OAuth + event creation) | ⬜ |
+| 1.13 | Invoices module | ⬜ |
+| 1.14 | File upload module (Cloudinary) | ⬜ |
+| 1.15 | Email module (Resend + Handlebars, 7 templates) | ⬜ |
+| 1.16 | WhatsApp automation module (Twilio, 2 messages) | ⬜ |
+| 1.17 | BullMQ job queue setup | ⬜ |
+| 1.18 | Review request automation (24–48h BullMQ job) | ⬜ |
+| 1.19 | Analytics & lead tracking (AnalyticsEvent + GA4 script) | ⬜ |
+| 1.20 | Docker Compose for local dev (postgres + redis) | ⬜ |
+| 1.21 | Seed script (default flags per business type, test data) | ⬜ |
+| 1.22 | Integration tests (Supertest, all routes) | ⬜ |
 
 ---
 
-## Final Notes — What Makes This System Better Than Competitors
+## Open Items — ALL RESOLVED ✅
 
-For reference, here is what the top competitors do and how we beat them:
+All four previously open items are now resolved:
+
+1. **Mannequin GLB source** — Links added in Decision 9. Source before Phase 2 begins. TurboSquid and CGTrader are the first stop. This can happen in parallel while Phase 1 is being built.
+
+2. **Studio name / domain** — Not needed until Phase 3 (frontend build). This first deployment is a showcase / demo product. Domain, name, and branding finalised when ready. Phase 1 and Phase 2 are completely unblocked without this.
+
+3. **Payment / deposit** — Added as a future Phase 5 item. Module planned (`deposits/`) with `DEPOSIT_ENABLED` feature flag. Payment processed in-studio for now. Stripe will be integrated when ready (most sellable option: Stripe Checkout + Stripe Connect for passing payments to the business). Toggle OFF for clients who do not take deposits (many salons and restaurants do not).
+
+4. **WhatsApp automation** — Fully defined in Decision 12 above. Two messages: welcome on inquiry, review request 2 hours after completion. Twilio WhatsApp API. `WHATSAPP_AUTOMATION` feature flag. This is a premium service tier you can charge extra for.
+
+---
+
+## Final Notes — Competitive Advantage Summary
 
 | Competitor | Their weakness | Our advantage |
 |---|---|---|
-| **Fresha** | Generic, designed for salons — no tattoo-specific flow, no mannequin, no reference image upload, no quote system | Our tattoo-specific flow + 3D mannequin + reference upload + quote workflow |
-| **Booksy** | Basic booking only, minimal CRM, no automation, no lead intelligence | Our full automation pipeline, lead intelligence, God Mode analytics |
-| **Vagaro** | Complex, expensive ($25-85/mo), slow, generic | Our speed, modern design, jade glass aesthetic, better UX |
-| **Calendly** | Scheduling only, no CRM, no email automation, no invoicing | Our end-to-end system from inquiry to invoice |
-| **Square Appointments** | No tattoo-specific features, no quote system | Our quote workflow, deposit system, tattoo-specific mannequin |
-| **All of the above** | Single-industry products, cannot be white-labelled | Our multi-industry interchangeable architecture |
+| **Fresha** | No mannequin, no quote system, no reference upload, no lead intelligence | 3D mannequin + quote workflow + reference upload + God Mode lead data |
+| **Booksy** | Basic booking, minimal CRM, no automation | Full automation pipeline: email + WhatsApp + review requests |
+| **Vagaro** | Expensive ($25–85/mo), slow, generic | Cheaper per client, modern glass UI, white-label |
+| **Calendly** | Scheduling only — no CRM, no invoicing, no email automation | End-to-end: inquiry → quote → booking → calendar → invoice → review |
+| **Square Appointments** | No tattoo-specific features | 3D body placement, quote + deposit system |
+| **All of the above** | Single industry, cannot be resold across verticals | Multi-industry interchangeable architecture |
 
-**The one thing none of them have that we have:** The 3D interactive mannequin body placement tool. This alone makes the product completely unique and immediately demonstrable as superior.
+**The single biggest differentiator:** The 3D interactive body placement mannequin. No booking system in the world has this. It is immediately demonstrable and immediately obvious as superior.
+
+**The second differentiator:** God Mode. No competitor gives the studio owner real-time lead intelligence (where people come from, what they want, how they found you). This is a feature that directly increases client revenue — you can sell it as a marketing intelligence add-on.
 
 ---
 
-> **PLAN STATUS: Ready to begin Phase 1, Step 1.1 once you give the green light.**
-> All architecture decisions are made. All questions are answered.
-> We proceed one step at a time. No file is created until you say go.
+> **PLAN STATUS: ✅ LOCKED. Zero open items. All decisions made.**
+> **Next action: Start Phase 1, Step 1.1 — Project scaffolding.**
+> We proceed one step at a time. Each file is reviewed before the next is created.
+
+---
