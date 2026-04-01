@@ -528,48 +528,500 @@ npm test
 
 ### Prerequisites before starting
 
-- [ ] Docker Desktop installed and running
+- [ ] Docker Desktop installed and running ([download here](https://www.docker.com/products/docker-desktop/))
 - [ ] Step 1.1 complete (all 3 checks passing)
 
 ### What this step does
 
-Creates the entire PostgreSQL database schema in a single Prisma schema file:  
-`backend/prisma/schema.prisma`
+Creates the entire PostgreSQL database schema in a single Prisma schema file, plus a Docker Compose file to run the local database.
 
-All models: User, Artist, ArtistAvailability, AvailabilityBlock, TattooStyle, Lead, Quote, Booking, Invoice, EmailTemplate, FeatureFlag, AnalyticsEvent, RefreshToken, PasswordResetToken.
+**Files created in this step:**
 
-### Commands you'll run in this step
+| File | Purpose |
+|---|---|
+| `docker-compose.yml` | Starts PostgreSQL 16 + Redis 7 locally with one command |
+| `backend/prisma/schema.prisma` | Complete database schema — all 15 models, 4 enums, indexes, cascade rules |
+
+**Models:** User, Artist, ArtistAvailability, AvailabilityBlock, TattooStyle, ArtistStyle, Lead, Quote, Booking, Invoice, RefreshToken, PasswordResetToken, EmailTemplate, FeatureFlag, AnalyticsEvent.
+
+---
+
+### 📋 Step 1: Create the Docker Compose file
+
+This starts a local PostgreSQL database and Redis, both exactly matching what runs in production.
+
+Open Terminal. **Copy the entire block below and paste it in one go**, then press Enter.
 
 ```bash
-# ── 1. Start the local database ──────────────────────────────
-cd ~/Desktop/Automation && docker compose up -d
+cat > ~/Desktop/Automation/docker-compose.yml << 'EOF'
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: automation_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-# ── 2. Verify database is running ────────────────────────────
-docker compose ps
-# → Both postgres and redis show "healthy"
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-# ── 3. Run the initial migration ─────────────────────────────
-cd ~/Desktop/Automation/backend && npm run db:migrate
-# → Enter migration name when prompted: init
-# → Expected: "Your database is now in sync with your schema."
-
-# ── 4. Generate Prisma client ─────────────────────────────────
-cd ~/Desktop/Automation/backend && npm run db:generate
-# → Expected: "Generated Prisma Client"
-
-# ── 5. Verify schema in Prisma Studio ────────────────────────
-cd ~/Desktop/Automation/backend && npm run db:studio
-# → Opens http://localhost:5555
-# → You should see all tables listed in the left sidebar
-# → Press Ctrl+C when done
+volumes:
+  postgres_data:
+  redis_data:
+EOF
+echo "✅ docker-compose.yml created"
 ```
 
-**Expected migration output:**
+**Expected output:**
+```
+✅ docker-compose.yml created
+```
+
+---
+
+### 📋 Step 2: Create the Prisma schema file
+
+This creates the full database schema with all models, relationships, and indexes.
+
+```bash
+mkdir -p ~/Desktop/Automation/backend/prisma && cat > ~/Desktop/Automation/backend/prisma/schema.prisma << 'EOF'
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  ARTIST
+  CUSTOMER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  BOOKED
+  COMPLETED
+  CANCELLED
+  LOST
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+  VOID
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  name         String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  artist        Artist?
+  refreshTokens RefreshToken[]
+  resetTokens   PasswordResetToken[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Artist {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  slug            String   @unique
+  bio             String?
+  profileImageUrl String?
+  portfolioImages String[]
+  bufferMinutes   Int      @default(30)
+  slotDuration    Int      @default(90)
+  isActive        Boolean  @default(true)
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availability ArtistAvailability[]
+  blocks       AvailabilityBlock[]
+  styles       ArtistStyle[]
+  leads        Lead[]               @relation("ArtistLeads")
+  quotes       Quote[]              @relation("ArtistQuotes")
+  bookings     Booking[]            @relation("ArtistBookings")
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("artists")
+}
+
+model ArtistAvailability {
+  id        String  @id @default(cuid())
+  artistId  String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean @default(true)
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, dayOfWeek])
+  @@index([artistId, isActive])
+  @@map("artist_availability")
+}
+
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  artistId  String
+  startAt   DateTime
+  endAt     DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId, startAt, endAt])
+  @@map("availability_blocks")
+}
+
+model TattooStyle {
+  id              String  @id @default(cuid())
+  name            String  @unique
+  description     String?
+  exampleImageUrl String?
+  isActive        Boolean @default(true)
+
+  artists ArtistStyle[]
+  leads   Lead[]        @relation("StyleLeads")
+
+  @@index([isActive])
+  @@map("tattoo_styles")
+}
+
+model ArtistStyle {
+  artistId String
+  styleId  String
+
+  artist Artist      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  style  TattooStyle @relation(fields: [styleId], references: [id], onDelete: Cascade)
+
+  @@id([artistId, styleId])
+  @@map("artist_styles")
+}
+
+model Lead {
+  id              String     @id @default(cuid())
+  artistId        String?
+  styleId         String?
+  placement       Json
+  size            String?
+  colorPreference String?
+  referenceImages String[]
+  description     String
+  name            String
+  email           String
+  phone           String
+  preferWhatsApp  Boolean    @default(false)
+  preferredDates  Json?
+  status          LeadStatus @default(NEW)
+  score           Int        @default(0)
+  source          String?
+  utmMedium       String?
+  utmCampaign     String?
+  ipAddress       String?
+  deviceType      String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  artist          Artist?      @relation("ArtistLeads", fields: [artistId], references: [id], onDelete: SetNull)
+  style           TattooStyle? @relation("StyleLeads", fields: [styleId], references: [id], onDelete: SetNull)
+  quotes          Quote[]
+  booking         Booking?
+  analyticsEvents AnalyticsEvent[]
+
+  @@index([status])
+  @@index([artistId, status])
+  @@index([email])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+model Quote {
+  id          String      @id @default(cuid())
+  leadId      String
+  artistId    String
+  price       Decimal     @db.Decimal(10, 2)
+  hours       Float?
+  notes       String?
+  validUntil  DateTime
+  status      QuoteStatus @default(DRAFT)
+  sentAt      DateTime?
+  respondedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  artist  Artist  @relation("ArtistQuotes", fields: [artistId], references: [id], onDelete: Restrict)
+  booking Booking?
+
+  @@index([leadId])
+  @@index([artistId, status])
+  @@map("quotes")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  leadId          String        @unique
+  quoteId         String?       @unique
+  artistId        String
+  startAt         DateTime
+  endAt           DateTime
+  status          BookingStatus @default(PENDING)
+  calendarEventId String?
+  icsToken        String?       @unique
+  notes           String?
+  confirmedAt     DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  lead    Lead     @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote   Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  artist  Artist   @relation("ArtistBookings", fields: [artistId], references: [id], onDelete: Restrict)
+  invoice Invoice?
+
+  @@index([artistId, startAt])
+  @@index([status])
+  @@index([startAt, endAt])
+  @@map("bookings")
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  bookingId String        @unique
+  amount    Decimal       @db.Decimal(10, 2)
+  currency  String        @default("GBP")
+  status    InvoiceStatus @default(UNPAID)
+  dueDate   DateTime
+  paidAt    DateTime?
+  voidedAt  DateTime?
+  sentAt    DateTime?
+  notes     String?
+  lineItems Json
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  subject   String
+  htmlBody  String
+  variables Json
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@index([key, isActive])
+  @@map("email_templates")
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  label       String
+  description String?
+  isEnabled   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@map("feature_flags")
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  leadId      String?
+  eventType   String
+  payload     Json?
+  sessionId   String?
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  createdAt   DateTime @default(now())
+
+  lead Lead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([eventType])
+  @@index([leadId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+EOF
+echo "✅ prisma/schema.prisma created"
+```
+
+**Expected output:**
+```
+✅ prisma/schema.prisma created
+```
+
+---
+
+### 📋 Step 3: Verify the schema file is valid
+
+Before touching the database, check that Prisma can parse the schema with zero errors.
+
+```bash
+cd ~/Desktop/Automation/backend && npx prisma validate
+```
+
+**Expected output:**
+```
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+The schema at prisma/schema.prisma is valid 🚀
+```
+
+> ❌ If you see any errors — stop and tell me before continuing.
+
+---
+
+### 📋 Step 4: Start the local database
+
+```bash
+cd ~/Desktop/Automation && docker compose up -d
+```
+
+**Expected output:**
+```
+✔ Network automation_default  Created
+✔ Container automation-postgres-1  Started
+✔ Container automation-redis-1     Started
+```
+
+Wait ~5 seconds, then verify both containers are healthy:
+
+```bash
+docker compose ps
+```
+
+**Expected output (both STATUS columns should say "healthy"):**
+```
+NAME                    IMAGE               STATUS
+automation-postgres-1   postgres:16-alpine  Up X seconds (healthy)
+automation-redis-1      redis:7-alpine      Up X seconds (healthy)
+```
+
+> ⚠️ If either shows `starting` instead of `healthy` — wait 10 more seconds and run `docker compose ps` again. It takes a moment on first run.
+
+> ❌ If either shows `unhealthy` or `exited` — stop and tell me before continuing.
+
+---
+
+### 📋 Step 5: Run the initial migration
+
+This creates all the database tables from your schema.
+
+```bash
+cd ~/Desktop/Automation/backend && npm run db:migrate
+```
+
+When prompted for a migration name, type `init` and press Enter.
+
+**Expected output:**
 ```
 Prisma schema loaded from prisma/schema.prisma
 Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5432"
 
-Applying migration `20260401_init`
+✔ Enter a name for the new migration: › init
+
+Applying migration `20260401000000_init`
 
 The following migration(s) have been created and applied from new schema changes:
 
@@ -581,6 +1033,63 @@ Your database is now in sync with your schema.
 
 ✔ Generated Prisma Client (v5.x.x) to ./node_modules/@prisma/client in Xms
 ```
+
+> ❌ If you see any errors — stop and tell me before continuing.
+
+---
+
+### 📋 Step 6: Verify in Prisma Studio
+
+Open the visual database browser to confirm all 15 tables were created:
+
+```bash
+cd ~/Desktop/Automation/backend && npm run db:studio
+```
+
+This opens **http://localhost:5555** in your browser automatically.
+
+**You should see these tables in the left sidebar:**
+```
+analytics_events
+artist_availability
+artist_styles
+artists
+availability_blocks
+bookings
+email_templates
+feature_flags
+invoices
+leads
+password_reset_tokens
+quotes
+refresh_tokens
+tattoo_styles
+users
+```
+
+Once confirmed — press **Ctrl+C** in Terminal to stop Prisma Studio.
+
+---
+
+### ✅ Step 1.2 Complete Checklist
+
+```bash
+cd ~/Desktop/Automation/backend
+
+# Check 1: Schema validates
+npx prisma validate
+# → "The schema at prisma/schema.prisma is valid 🚀"
+
+# Check 2: TypeScript still clean
+npm run typecheck
+# → no output = ✅
+
+# Check 3: Tests still pass
+npm test
+# → "No tests found, exiting with code 0" = ✅
+```
+
+All three must pass before moving to Step 1.3.
 
 ---
 

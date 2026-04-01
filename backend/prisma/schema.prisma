@@ -1,0 +1,338 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  ARTIST
+  CUSTOMER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  BOOKED
+  COMPLETED
+  CANCELLED
+  LOST
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+  VOID
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  name         String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  artist        Artist?
+  refreshTokens RefreshToken[]
+  resetTokens   PasswordResetToken[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Artist {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  slug            String   @unique
+  bio             String?
+  profileImageUrl String?
+  portfolioImages String[]
+  bufferMinutes   Int      @default(30)
+  slotDuration    Int      @default(90)
+  isActive        Boolean  @default(true)
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availability ArtistAvailability[]
+  blocks       AvailabilityBlock[]
+  styles       ArtistStyle[]
+  leads        Lead[]               @relation("ArtistLeads")
+  quotes       Quote[]              @relation("ArtistQuotes")
+  bookings     Booking[]            @relation("ArtistBookings")
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("artists")
+}
+
+model ArtistAvailability {
+  id        String  @id @default(cuid())
+  artistId  String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean @default(true)
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, dayOfWeek])
+  @@index([artistId, isActive])
+  @@map("artist_availability")
+}
+
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  artistId  String
+  startAt   DateTime
+  endAt     DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId, startAt, endAt])
+  @@map("availability_blocks")
+}
+
+model TattooStyle {
+  id              String  @id @default(cuid())
+  name            String  @unique
+  description     String?
+  exampleImageUrl String?
+  isActive        Boolean @default(true)
+
+  artists ArtistStyle[]
+  leads   Lead[]        @relation("StyleLeads")
+
+  @@index([isActive])
+  @@map("tattoo_styles")
+}
+
+model ArtistStyle {
+  artistId String
+  styleId  String
+
+  artist Artist      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  style  TattooStyle @relation(fields: [styleId], references: [id], onDelete: Cascade)
+
+  @@id([artistId, styleId])
+  @@map("artist_styles")
+}
+
+model Lead {
+  id              String     @id @default(cuid())
+  artistId        String?
+  styleId         String?
+  placement       Json
+  size            String?
+  colorPreference String?
+  referenceImages String[]
+  description     String
+  name            String
+  email           String
+  phone           String
+  preferWhatsApp  Boolean    @default(false)
+  preferredDates  Json?
+  status          LeadStatus @default(NEW)
+  score           Int        @default(0)
+  source          String?
+  utmMedium       String?
+  utmCampaign     String?
+  ipAddress       String?
+  deviceType      String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  artist          Artist?      @relation("ArtistLeads", fields: [artistId], references: [id], onDelete: SetNull)
+  style           TattooStyle? @relation("StyleLeads", fields: [styleId], references: [id], onDelete: SetNull)
+  quotes          Quote[]
+  booking         Booking?
+  analyticsEvents AnalyticsEvent[]
+
+  @@index([status])
+  @@index([artistId, status])
+  @@index([email])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+model Quote {
+  id          String      @id @default(cuid())
+  leadId      String
+  artistId    String
+  price       Decimal     @db.Decimal(10, 2)
+  hours       Float?
+  notes       String?
+  validUntil  DateTime
+  status      QuoteStatus @default(DRAFT)
+  sentAt      DateTime?
+  respondedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  artist  Artist  @relation("ArtistQuotes", fields: [artistId], references: [id], onDelete: Restrict)
+  booking Booking?
+
+  @@index([leadId])
+  @@index([artistId, status])
+  @@map("quotes")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  leadId          String        @unique
+  quoteId         String?       @unique
+  artistId        String
+  startAt         DateTime
+  endAt           DateTime
+  status          BookingStatus @default(PENDING)
+  calendarEventId String?
+  icsToken        String?       @unique
+  notes           String?
+  confirmedAt     DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  lead    Lead     @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote   Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  artist  Artist   @relation("ArtistBookings", fields: [artistId], references: [id], onDelete: Restrict)
+  invoice Invoice?
+
+  @@index([artistId, startAt])
+  @@index([status])
+  @@index([startAt, endAt])
+  @@map("bookings")
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  bookingId String        @unique
+  amount    Decimal       @db.Decimal(10, 2)
+  currency  String        @default("GBP")
+  status    InvoiceStatus @default(UNPAID)
+  dueDate   DateTime
+  paidAt    DateTime?
+  voidedAt  DateTime?
+  sentAt    DateTime?
+  notes     String?
+  lineItems Json
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  subject   String
+  htmlBody  String
+  variables Json
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@index([key, isActive])
+  @@map("email_templates")
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  label       String
+  description String?
+  isEnabled   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@map("feature_flags")
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  leadId      String?
+  eventType   String
+  payload     Json?
+  sessionId   String?
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  createdAt   DateTime @default(now())
+
+  lead Lead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([eventType])
+  @@index([leadId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
