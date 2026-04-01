@@ -36,7 +36,7 @@ The system is built for tattoo studios first, but the **backend and core logic a
 | Validation | Zod | ✅ Confirmed |
 | Job queue | BullMQ + Redis | ✅ Confirmed |
 | Email sending | **Resend** | ✅ Confirmed |
-| Email templates | **React Email** | ✅ Confirmed |
+| Email templates | **Handlebars `.hbs`** | ✅ Confirmed (revised from React Email — see Decision 4) |
 | File uploads | **Cloudinary** + Multer | ✅ Confirmed |
 | Logging | Winston | ✅ Confirmed |
 | Testing | Jest + Supertest | ✅ Confirmed |
@@ -98,6 +98,8 @@ The system is built for tattoo studios first, but the **backend and core logic a
 **Models to create:**
 - `User` — system accounts (Admin, Artist, Customer roles)
 - `Artist` — artist profile linked to User; bio, slug, portfolio images
+- `ArtistAvailability` — per-artist working hours per day of week (e.g. Tuesday 10:00–17:00)
+- `AvailabilityBlock` — manually blocked date/time ranges per artist (holidays, private blocks)
 - `TattooStyle` — list of styles (Hyperrealistic, Old School, Japanese, etc.); editable from CRM
 - `ArtistStyle` — many-to-many join: which artist offers which style
 - `Lead` — a customer inquiry with all tattoo details (placement, size, style, images, description, contact)
@@ -108,6 +110,7 @@ The system is built for tattoo studios first, but the **backend and core logic a
 - `FeatureFlag` — God Mode on/off switches for every feature in the system
 - `AnalyticsEvent` — raw event log for leads, bookings, page views, conversions
 - `RefreshToken` — stored refresh tokens for JWT rotation
+- `PasswordResetToken` — one-time tokens for forgot-password / reset-password flow
 
 **Checklist:**
 - [ ] `backend/prisma/schema.prisma` created and reviewed
@@ -150,6 +153,29 @@ The system is built for tattoo studios first, but the **backend and core logic a
 
 ---
 
+## Step 1.3b — API Standards: Pagination & Response Envelopes
+
+**What:** Define and document the standard pagination strategy and response shape used by every list endpoint in the system.
+
+**Why:** With 20+ list endpoints across the API, defining the standard once prevents inconsistency. Every module built after this point follows the same contract — frontend developers get predictable behaviour on every endpoint.
+
+**Standard response envelope (all endpoints):**
+```json
+{ "success": true, "data": { ... }, "meta": { ... }, "error": null }
+```
+
+**Pagination strategy (all list endpoints):**
+- Query params: `?page=1&limit=20` (default limit 20, max 100)
+- Response `meta`: `{ "total": 150, "page": 1, "limit": 20, "totalPages": 8 }`
+- Implemented via `src/utils/paginate.ts` helper (wraps Prisma count + findMany)
+
+**Checklist:**
+- [ ] `src/utils/paginate.ts` helper created
+- [ ] All list endpoints use the helper consistently
+- [ ] Default limit 20, max limit 100 enforced
+
+---
+
 ## Step 1.4 — Authentication System
 
 **What:** JWT-based login, registration, token refresh, and logout. Role-based access control (ADMIN, ARTIST, CUSTOMER).
@@ -157,9 +183,9 @@ The system is built for tattoo studios first, but the **backend and core logic a
 **Why:** Every protected API route depends on this. It must be solid before any other module is built. We follow the access-token (15 min) + refresh-token (7 days) pattern to balance security and convenience.
 
 **Files to create (this step only):**
-- `backend/src/modules/auth/auth.schema.ts` — Zod validation for register/login requests
-- `backend/src/modules/auth/auth.service.ts` — hash password, compare password, sign tokens, verify tokens, store/rotate refresh tokens
-- `backend/src/modules/auth/auth.controller.ts` — POST register, POST login, POST refresh, POST logout
+- `backend/src/modules/auth/auth.schema.ts` — Zod validation for register/login/forgot-password/reset-password requests
+- `backend/src/modules/auth/auth.service.ts` — hash password, compare password, sign tokens, verify tokens, store/rotate refresh tokens, generate/validate password reset tokens
+- `backend/src/modules/auth/auth.controller.ts` — POST register, POST login, POST refresh, POST logout, POST forgot-password, POST reset-password, GET /me, PATCH /me
 - `backend/src/modules/auth/auth.routes.ts` — route definitions
 - `backend/src/middleware/auth.ts` — `requireAuth` middleware (validates Bearer token, attaches user to req)
 - `backend/src/middleware/requireRole.ts` — `requireRole('ADMIN')` middleware
@@ -169,13 +195,43 @@ The system is built for tattoo studios first, but the **backend and core logic a
 - [ ] `POST /api/auth/login` verifies credentials, returns tokens
 - [ ] `POST /api/auth/refresh` exchanges refresh token for new access token
 - [ ] `POST /api/auth/logout` invalidates refresh token
+- [ ] `POST /api/auth/forgot-password` generates reset token, sends reset email (queued)
+- [ ] `POST /api/auth/reset-password` validates token, sets new password, invalidates token
+- [ ] `GET /api/auth/me` returns current authenticated user's profile
+- [ ] `PATCH /api/auth/me` updates current user's own name, email, or password
 - [ ] Passwords are hashed with bcrypt (cost 12)
 - [ ] Invalid tokens return `401`
 - [ ] Unit tests written and passing
 
 ---
 
-## Step 1.5 — Artist Management API
+## Step 1.4b — Business Type Configuration
+
+**What:** A config module that reads `BUSINESS_TYPE` from env and exposes a label map + default feature flag set. This drives the CRM label system ("Artists" vs "Stylists" vs "Barbers") and the default flag configuration when seeding a new client.
+
+**Why:** This is the core of the interchangeable architecture. Every module that renders a label (in email templates, API responses, the CRM) reads from this config rather than hardcoding "artists" or "tattoo styles". Adding a new business type in the future is a single config file change.
+
+**Files to create (this step only):**
+- `backend/src/config/businessType.ts` — label map + default flags per `BUSINESS_TYPE`
+
+**Business types supported:** `tattoo_studio` | `hair_salon` | `barber` | `restaurant`
+
+**Label map (example):**
+| Key | tattoo_studio | hair_salon | barber | restaurant |
+|---|---|---|---|---|
+| `artists` | Artists | Stylists | Barbers | Staff |
+| `styles` | Tattoo Styles | Hair Styles | Cuts | Menu |
+| `portfolio` | Portfolio | Gallery | Gallery | Photo Gallery |
+| `quote` | Quote | Estimate | Estimate | — |
+
+**Checklist:**
+- [ ] `BUSINESS_TYPE` env var read and validated at startup
+- [ ] Label map exported and usable by any module
+- [ ] Default feature flag set exported (used by seed script in Step 1.21)
+- [ ] Unknown `BUSINESS_TYPE` value throws a startup error
+- [ ] Tests written and passing
+
+---
 
 **What:** Full CRUD for artist profiles, portfolio images, and style assignments. All data is manageable from the CRM and consumed by the frontend.
 
@@ -353,33 +409,35 @@ The system is built for tattoo studios first, but the **backend and core logic a
 
 ## Step 1.11 — Email Automation Service
 
-**What:** Background email service using BullMQ queues and Handlebars HTML templates. Handles all transactional emails: booking confirmation, quote received, quote ready, invoice, follow-up, promotions.
+**What:** Background email service using BullMQ queues and Handlebars HTML templates. Handles all 7 transactional emails defined in Decision 4.
 
 **Why:** Email automation is a key differentiator. Every important event in the system triggers a beautifully templated, personalised email — automatically. Using a queue ensures emails are sent reliably without blocking the API response.
 
 **Files to create (this step only):**
-- `backend/src/modules/email/email.service.ts` — Nodemailer transport, compile + send template
+- `backend/src/modules/email/email.service.ts` — Resend transport, Handlebars compile + send, .ics attachment generation (ical-generator)
 - `backend/src/modules/email/email.queue.ts` — BullMQ queue definition, job processor
-- `backend/src/modules/email/templates/booking-confirmation.hbs`
-- `backend/src/modules/email/templates/quote-received.hbs`
-- `backend/src/modules/email/templates/quote-ready.hbs`
-- `backend/src/modules/email/templates/invoice.hbs`
-- `backend/src/modules/email/templates/follow-up.hbs`
-- `backend/src/modules/email/templates/promotion.hbs`
+- `backend/src/modules/email/templates/inquiry-received.hbs` — auto-reply to customer on lead submit
+- `backend/src/modules/email/templates/inquiry-notification.hbs` — internal alert to artist/admin on new lead
+- `backend/src/modules/email/templates/quote-sent.hbs` — quote delivered to customer
+- `backend/src/modules/email/templates/booking-confirmed.hbs` — confirmation to customer (+ .ics attachment)
+- `backend/src/modules/email/templates/booking-reminder.hbs` — 24h reminder to customer
+- `backend/src/modules/email/templates/review-request.hbs` — post-appointment review request
+- `backend/src/modules/email/templates/invoice.hbs` — invoice to customer
 
 **Email triggers (automated):**
 | Trigger | Template | Recipient |
 |---|---|---|
-| New lead submitted | `quote-received` | Artist + Studio admin |
-| Quote sent by artist | `quote-ready` | Customer |
-| Booking confirmed | `booking-confirmation` | Customer |
-| Booking cancelled | Cancellation notice | Customer |
-| Invoice sent | `invoice` | Customer |
-| 48h before appointment | `follow-up` reminder | Customer |
-| Lead gone quiet (7 days) | `follow-up` | Customer |
+| New lead submitted | `inquiry-received` | Customer (auto-reply) |
+| New lead submitted | `inquiry-notification` | Artist + Studio admin |
+| Artist sends quote | `quote-sent` | Customer |
+| Booking confirmed | `booking-confirmed` + .ics | Customer |
+| 24h before appointment | `booking-reminder` | Customer |
+| 24–48h after appointment | `review-request` | Customer |
+| Invoice generated | `invoice` | Customer |
 
 **Checklist:**
-- [ ] All 6 templates created and styled
+- [ ] All 7 templates created and styled with Handlebars variables
+- [ ] .ics file generated and attached to `booking-confirmed` email
 - [ ] Queue processes jobs without blocking API
 - [ ] Failed jobs are retried (3 attempts, exponential backoff)
 - [ ] Email templates are editable from CRM (via `EmailTemplate` DB model)
@@ -519,7 +577,7 @@ getAvailability(artistId, dateRange) → returns free slots
 - 3 Artist users with full profiles, bios, and portfolio image placeholder URLs
 - All 12 tattoo styles with descriptions and placeholder image URLs
 - All 10 feature flags (all enabled)
-- 3 sample Email Templates (booking confirmation, quote ready, follow-up)
+- 3 sample Email Templates (booking confirmed, quote sent, review-request)
 - 5 sample Leads in various pipeline stages
 - 2 sample Bookings
 - 2 sample Quotes
@@ -532,14 +590,190 @@ getAvailability(artistId, dateRange) → returns free slots
 
 ---
 
+## Step 1.17 — WhatsApp Automation Module
+
+**What:** Two automated WhatsApp messages per booking lifecycle sent via Twilio WhatsApp API. Gated behind the `WHATSAPP_CONTACT_ENABLED` feature flag.
+
+**Why:** Immediate WhatsApp contact after a lead inquiry builds rapport instantly and differentiates the studio. The post-completion review request drives Google reviews automatically — directly increasing the studio's online reputation without manual effort.
+
+**Files to create (this step only):**
+- `backend/src/modules/whatsapp/whatsapp.service.ts` — Twilio client setup, send message function
+- `backend/src/modules/whatsapp/whatsapp.queue.ts` — BullMQ queue for delayed messages (2h post-completion)
+
+**Messages:**
+- **Message 1 — on lead submit** (immediate, if `preferWhatsApp = true`): *"Hi [Name]! 👋 Thanks for reaching out to [STUDIO_NAME]. We've received your inquiry and [Artist Name] will get back to you shortly. — [STUDIO_NAME]"*
+- **Message 2 — 2h after booking COMPLETE**: *"Hi [Name]! 🙏 Thank you for visiting [STUDIO_NAME] today! We'd love a Google review: [GOOGLE_REVIEW_URL] — [STUDIO_NAME]"*
+
+**Checklist:**
+- [ ] Message 1 queued immediately when lead submitted with `preferWhatsApp = true`
+- [ ] Message 2 queued with 2-hour delay when booking marked COMPLETE
+- [ ] `WHATSAPP_CONTACT_ENABLED` flag gates both messages
+- [ ] Twilio errors handled gracefully (do not fail the parent API request)
+- [ ] Tests written and passing
+
+---
+
+## Step 1.18 — BullMQ Job Queue Infrastructure
+
+**What:** Centralised BullMQ setup — Redis connection, queue registry, worker process, retry/backoff config, and graceful shutdown. This is the infrastructure all queued jobs (email, WhatsApp, review requests) depend on.
+
+**Why:** Email, WhatsApp, and review request jobs all use BullMQ. The queue infrastructure must be set up once, correctly, before any module uses it. Proper worker lifecycle management (graceful shutdown on SIGTERM) is essential for production reliability.
+
+**Files to create (this step only):**
+- `backend/src/queue/redis.ts` — ioredis connection singleton (TLS for Upstash in prod)
+- `backend/src/queue/queues.ts` — registry of all named queues (`email`, `whatsapp`, `reviews`)
+- `backend/src/queue/worker.ts` — unified worker process that processes all queues
+- `backend/src/queue/index.ts` — re-exports; started in `server.ts`
+
+**Config:**
+- Retry: 3 attempts, exponential backoff (2s, 4s, 8s)
+- Failed jobs retained for 100 entries (for debugging)
+- Graceful shutdown: `worker.close()` on SIGTERM/SIGINT before process.exit
+
+**Checklist:**
+- [ ] Redis connection works with both `redis://` (local) and `rediss://` (Upstash TLS)
+- [ ] All three queues registered and worker processes them
+- [ ] Retry + backoff config active on all queues
+- [ ] Graceful shutdown tested (jobs in-flight complete before shutdown)
+- [ ] Tests: queue enqueue + worker process verified
+
+---
+
+## Step 1.19 — Review Request Automation
+
+**What:** BullMQ job that fires 24–48 hours after a booking is marked COMPLETE. Sends a review request email (and/or WhatsApp message) to the customer asking for a Google review.
+
+**Why:** Review requests sent at the right moment (after a successful appointment, before the customer forgets) dramatically increase review conversion. Automating this is a concrete, measurable value the system delivers over manual follow-up.
+
+**Files to create (this step only):**
+- `backend/src/modules/reviews/reviews.queue.ts` — schedule delayed review request job
+- `backend/src/modules/reviews/reviews.processor.ts` — job processor: sends email + optional WhatsApp
+
+**Logic:**
+- On `PATCH /api/bookings/:id/complete`, enqueue a delayed job: delay = 36 hours
+- Job sends `review-request.hbs` email
+- If customer `preferWhatsApp = true` AND flag enabled, also sends WhatsApp Message 2
+
+**Checklist:**
+- [ ] Job enqueued with correct delay when booking completed
+- [ ] Review email sent correctly 36h later
+- [ ] WhatsApp message sent if applicable
+- [ ] Job does not re-run if booking status changes after completion
+- [ ] Tests written and passing
+
+---
+
+## Step 1.20 — Availability & Time Slot Engine
+
+**What:** The algorithm that calculates which time slots are available for a given artist on a given date range, accounting for working hours, confirmed bookings, manually blocked times, and configurable buffer between appointments.
+
+**Why:** This is the logic powering the `GET /api/bookings/availability` endpoint and the customer-facing calendar. It is complex enough to deserve its own focused step. Getting it right here prevents double-booking and is a core reliability promise.
+
+**Files to create (this step only):**
+- `backend/src/modules/availability/availability.service.ts` — core slot calculation engine
+- `backend/src/modules/availability/availability.controller.ts`
+- `backend/src/modules/availability/availability.routes.ts`
+
+**Algorithm:**
+1. Load artist's `ArtistAvailability` for the requested day of week
+2. Load all `CONFIRMED` bookings for that artist in the date range
+3. Load all `AvailabilityBlock` records for that artist in the date range
+4. Subtract confirmed bookings (+ configurable buffer, default 30 min) from working hours
+5. Subtract blocked ranges
+6. Return remaining slots of `slotDuration` (configurable per artist, default 90 min)
+
+**Endpoint:**
+- `GET /api/availability?artistId=X&from=YYYY-MM-DD&to=YYYY-MM-DD` — public; returns array of `{ date, slots: [{ start, end, available }] }`
+
+**Checklist:**
+- [ ] Single-day and multi-day range queries both work
+- [ ] Buffer between appointments respected
+- [ ] Manually blocked ranges excluded correctly
+- [ ] No slot returned that overlaps an existing confirmed booking
+- [ ] Unit tests with edge cases: no working hours, fully booked day, partial day with buffer
+
+---
+
+## Step 1.21 — Docker Compose (Local Dev Environment)
+
+**What:** A `docker-compose.yml` file that starts PostgreSQL 16 and Redis 7 locally with a single command. This is the local development database and queue infrastructure every developer uses.
+
+**Why:** Every developer must be able to run the full backend stack locally without cloud accounts. Docker Compose provides a reproducible, zero-configuration local environment.
+
+**Files to create (this step only):**
+- `docker-compose.yml` (at repo root, one level above `backend/`)
+
+**Services:**
+```yaml
+postgres:
+  image: postgres:16-alpine
+  ports: 5432:5432
+  volumes: postgres_data:/var/lib/postgresql/data
+  environment: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+  healthcheck: pg_isready
+
+redis:
+  image: redis:7-alpine
+  ports: 6379:6379
+  volumes: redis_data:/data
+  command: redis-server --save 60 1 --loglevel warning
+  healthcheck: redis-cli ping
+```
+
+**Checklist:**
+- [ ] `docker compose up -d` starts both services successfully
+- [ ] PostgreSQL accessible on `localhost:5432`
+- [ ] Redis accessible on `localhost:6379`
+- [ ] Health checks pass for both services
+- [ ] Volumes persist data between restarts
+- [ ] `docker compose down -v` cleans up completely
+
+---
+
+## Step 1.22 — Integration Tests (Full API Coverage)
+
+**What:** Supertest integration tests for every API route. Tests run against a real test database (separate from dev) and cover the happy path and key error cases for every endpoint.
+
+**Why:** The integration test suite is the safety net for all future development. Without it, any change to the backend could silently break a route. Running `npm test` must give complete confidence that the entire API is working.
+
+**Files to create (this step only):**
+- `backend/src/modules/auth/auth.test.ts`
+- `backend/src/modules/artists/artists.test.ts`
+- `backend/src/modules/styles/styles.test.ts`
+- `backend/src/modules/leads/leads.test.ts`
+- `backend/src/modules/quotes/quotes.test.ts`
+- `backend/src/modules/bookings/bookings.test.ts`
+- `backend/src/modules/invoices/invoices.test.ts`
+- `backend/src/modules/availability/availability.test.ts`
+- `backend/src/modules/uploads/uploads.test.ts`
+- `backend/src/modules/features/features.test.ts`
+- `backend/src/modules/analytics/analytics.test.ts`
+- `backend/jest.setup.ts` — global test DB setup/teardown, Prisma test client
+
+**Test environment:**
+- Separate `TEST_DATABASE_URL` env var pointing to a `_test` database
+- `jest.setup.ts` runs `prisma migrate reset --force` before the suite
+- Each test file seeds its own minimal data
+- All tests are isolated — no shared mutable state between tests
+
+**Checklist:**
+- [ ] `npm test` runs all suites without errors
+- [ ] Each module has ≥1 happy path + ≥1 error path test
+- [ ] Auth flow fully tested (register → login → protected route → refresh → logout)
+- [ ] Role enforcement tested (ADMIN-only routes reject non-admins)
+- [ ] Tests run in CI (GitHub Actions or Railway deploy checks)
+
+---
+
 ## ✅ Phase 1 Complete When:
 
-- [ ] All 16 steps above completed and verified
+- [ ] All 22 steps above completed and verified
 - [ ] `npm run test` — all tests pass
 - [ ] `npm run build` — TypeScript compiles with zero errors
 - [ ] `GET /health` returns `200 OK`
 - [ ] All endpoints tested manually via Postman / curl
 - [ ] No hardcoded secrets anywhere in code
+- [ ] `docker compose up -d && npm run dev` starts the full stack locally
 
 ---
 ---
@@ -1746,31 +1980,33 @@ Purpose: post-appointment goodwill message + review request. The 2-hour delay gi
 
 ## Phase 1 Steps — Complete List (including all additions)
 
-All steps to build the backend foundation. Numbers added from previous Q&A rounds.
+All steps to build the backend foundation. See `PHASE1.md` for the definitive per-step file list and checklists.
 
 | Step | What | Status |
 |---|---|---|
 | 1.1 | Project scaffolding (package.json, tsconfig, .env.example, .gitignore) | ✅ Done |
-| 1.2 | Prisma setup + schema (all models) | ⬜ Next |
-| 1.3 | Auth module (JWT access + refresh tokens) | ⬜ |
-| 1.4 | Feature flag system (DB-driven, middleware) | ⬜ |
-| 1.5 | Business type config (labels, default flags) | ⬜ |
-| 1.6 | Artists module (CRUD + role-based access) | ⬜ |
-| 1.7 | Styles module (tattoo styles / hair styles / etc.) | ⬜ |
-| 1.8 | Leads module (inquiry form → lead record) | ⬜ |
-| 1.9 | Quotes module | ⬜ |
-| 1.10 | Bookings module (with time slot availability logic) | ⬜ |
-| 1.11 | Availability & time slot engine | ⬜ |
-| 1.12 | Google Calendar sync (OAuth + event creation) | ⬜ |
-| 1.13 | Invoices module | ⬜ |
-| 1.14 | File upload module (Cloudinary) | ⬜ |
-| 1.15 | Email module (Resend + Handlebars, 7 templates) | ⬜ |
-| 1.16 | WhatsApp automation module (Twilio, 2 messages) | ⬜ |
-| 1.17 | BullMQ job queue setup | ⬜ |
-| 1.18 | Review request automation (24–48h BullMQ job) | ⬜ |
-| 1.19 | Analytics & lead tracking (AnalyticsEvent + GA4 script) | ⬜ |
-| 1.20 | Docker Compose for local dev (postgres + redis) | ⬜ |
-| 1.21 | Seed script (default flags per business type, test data) | ⬜ |
+| 1.2 | Prisma setup + schema (all models incl. ArtistAvailability, AvailabilityBlock, PasswordResetToken) | ⬜ Next |
+| 1.3 | Core Express app (middleware, server, config, logger, apiResponse, errorHandler) | ⬜ |
+| 1.3b | API standards: pagination helper + response envelope | ⬜ |
+| 1.4 | Auth module (JWT, register, login, refresh, logout, forgot/reset password, GET/PATCH me) | ⬜ |
+| 1.4b | Business type config (labels + default flags per BUSINESS_TYPE env var) | ⬜ |
+| 1.5 | Artists module (CRUD + role-based access) | ⬜ |
+| 1.6 | Styles module (tattoo styles / hair styles / etc.) | ⬜ |
+| 1.7 | Leads module (inquiry form → lead record) | ⬜ |
+| 1.8 | Quotes module | ⬜ |
+| 1.9 | Bookings module (status transitions, double-booking prevention) | ⬜ |
+| 1.10 | Invoices module | ⬜ |
+| 1.11 | Email module (Resend + Handlebars, 7 templates, .ics attachment) | ⬜ |
+| 1.12 | Calendar integration (Google Calendar OAuth + event CRUD) | ⬜ |
+| 1.13 | Analytics module (AnalyticsEvent + aggregation endpoints) | ⬜ |
+| 1.14 | File upload module (Cloudinary + Multer) | ⬜ |
+| 1.15 | Feature flag system (DB-driven, middleware-gated) | ⬜ |
+| 1.16 | Seed script (default flags per business type, test data) | ⬜ |
+| 1.17 | WhatsApp automation module (Twilio, 2 messages) | ⬜ |
+| 1.18 | BullMQ job queue infrastructure (Redis connection, worker, retry config) | ⬜ |
+| 1.19 | Review request automation (36h BullMQ delayed job) | ⬜ |
+| 1.20 | Availability & time slot engine | ⬜ |
+| 1.21 | Docker Compose for local dev (postgres + redis) | ⬜ |
 | 1.22 | Integration tests (Supertest, all routes) | ⬜ |
 
 ---

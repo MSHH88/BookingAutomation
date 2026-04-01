@@ -3,14 +3,12 @@
     /* Language and Environment */
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
 
     /* Output */
     "outDir": "./dist",
     "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
 
     /* Strict Type Checking */
@@ -35,13 +33,9 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
 
-    /* Experimental */
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-
     /* Skip Lib Checks */
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "prisma/seed.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
