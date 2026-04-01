@@ -130,8 +130,8 @@ Then open the new file in VS Code and continue from **Step 1** below.
 
 ### Prerequisites before starting
 
-- [ ] Docker Desktop installed and running ([download here](https://www.docker.com/products/docker-desktop/))
 - [ ] Step 1.1 complete (all 3 checks passing)
+- [ ] Docker Desktop installed and running (instructions in Step 0 below)
 
 ### What this step does
 
@@ -145,6 +145,58 @@ Creates the entire PostgreSQL database schema in a single Prisma schema file, pl
 | `backend/prisma/schema.prisma` | Complete database schema — all 15 models, 4 enums, indexes, cascade rules |
 
 **Models:** User, Artist, ArtistAvailability, AvailabilityBlock, TattooStyle, ArtistStyle, Lead, Quote, Booking, Invoice, RefreshToken, PasswordResetToken, EmailTemplate, FeatureFlag, AnalyticsEvent.
+
+---
+
+### 📋 Step 0: Install Docker Desktop (skip if already installed)
+
+Docker Desktop is the app that runs your local PostgreSQL database and Redis. You only install it once.
+
+**Check if Docker is already installed:**
+```bash
+docker --version
+```
+
+If you see something like `Docker version 26.x.x` → skip to Step 1.  
+If you see `zsh: command not found: docker` → follow the steps below.
+
+---
+
+**Download and install Docker Desktop for Mac:**
+
+1. Go to → **https://www.docker.com/products/docker-desktop/**
+2. Click **"Download for Mac"**
+   - If your Mac has an Apple chip (M1/M2/M3/M4) → choose **Apple Silicon**
+   - If your Mac has an Intel chip → choose **Intel Chip**  
+   - _(Not sure? Click  → "About This Mac" → look for "Chip" or "Processor")_
+3. Open the downloaded `.dmg` file
+4. Drag **Docker** into your **Applications** folder
+5. Open **Docker** from Applications (or Spotlight: press `⌘ Space`, type `Docker`, press Enter)
+6. Wait for the Docker whale icon 🐳 to appear in your **menu bar** (top-right of screen) and stop animating
+7. If Docker asks you to accept terms → click **Accept**
+
+**Verify Docker is working:**
+```bash
+docker --version
+```
+
+**Expected output:**
+```
+Docker version 26.x.x, build xxxxxxx
+```
+
+```bash
+docker compose version
+```
+
+**Expected output:**
+```
+Docker Compose version v2.x.x
+```
+
+> ❌ If either command still shows `command not found` — close Terminal completely, reopen it, and try again. Docker adds itself to your PATH when it first launches.
+
+> ⚠️ Docker Desktop must be **open and running** (whale icon in menu bar) every time you use `docker compose`. If the whale icon is not visible, open Docker from Applications first.
 
 ---
 
@@ -573,6 +625,8 @@ The schema at prisma/schema.prisma is valid 🚀
 
 ### 📋 Step 4: Start the local database
 
+> ⚠️ **Before running this step:** make sure Docker Desktop is open and the whale icon 🐳 is visible and still in your Mac menu bar. If it's not there, open Docker from Applications and wait for it to fully start before continuing.
+
 ```bash
 cd ~/Desktop/Automation && docker compose up -d
 ```
@@ -600,6 +654,8 @@ automation-redis-1      redis:7-alpine      Up X seconds (healthy)
 > ⚠️ If either shows `starting` instead of `healthy` — wait 10 more seconds and run `docker compose ps` again. It takes a moment on first run.
 
 > ❌ If either shows `unhealthy` or `exited` — stop and tell me before continuing.
+
+> ❌ If you see `zsh: command not found: docker` — Docker Desktop is not installed or not open. Go back to **Step 0**.
 
 ---
 
@@ -633,7 +689,9 @@ Your database is now in sync with your schema.
 ✔ Generated Prisma Client (v5.x.x) to ./node_modules/@prisma/client in Xms
 ```
 
-> ❌ If you see any errors — stop and tell me before continuing.
+> ❌ If you see `Error: P1001: Can't reach database server at localhost:5432` — Docker is not running or the containers were not started. Go back to **Step 4** and start the containers first, then return here.
+
+> ❌ If you see any other errors — stop and tell me before continuing.
 
 ---
 
@@ -667,6 +725,8 @@ users
 ```
 
 Once confirmed — press **Ctrl+C** in Terminal to stop Prisma Studio.
+
+> ❌ If you see `Error: P1001: Can't reach database server at localhost:5432` — the Docker containers are not running. Go back to **Step 4**, start them, and return here.
 
 ---
 
