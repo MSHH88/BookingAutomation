@@ -105,36 +105,13 @@ npm run db:reset
 
 ### 📋 Step 1: Download the 4 files directly into your Automation folder
 
-Open Terminal. Run **each line below one at a time** — paste one line, press Enter, wait for it to finish, then paste the next.
+Open Terminal. **Copy the entire block below and paste it in one go**, then press Enter.
 
-> ⚠️ **Important:** Copy and run **one line at a time**. Do not copy the whole block at once.
-
-Create the folder (safe even if it already exists):
 ```bash
-mkdir -p ~/Desktop/Automation/backend
+mkdir -p ~/Desktop/Automation/backend && curl -sfL -o ~/Desktop/Automation/backend/package.json "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/package.json" && echo "✅ 1/4 package.json" || echo "❌ FAILED: package.json"; curl -sfL -o ~/Desktop/Automation/backend/tsconfig.json "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/tsconfig.json" && echo "✅ 2/4 tsconfig.json" || echo "❌ FAILED: tsconfig.json"; curl -sfL -o ~/Desktop/Automation/backend/.env.example "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/.env.example" && echo "✅ 3/4 .env.example" || echo "❌ FAILED: .env.example"; curl -sfL -o ~/Desktop/Automation/backend/.gitignore "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/.gitignore" && echo "✅ 4/4 .gitignore" || echo "❌ FAILED: .gitignore"
 ```
 
-Download package.json:
-```bash
-curl -sfL -o ~/Desktop/Automation/backend/package.json "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/package.json" && echo "✅ 1/4 package.json" || echo "❌ FAILED: package.json"
-```
-
-Download tsconfig.json:
-```bash
-curl -sfL -o ~/Desktop/Automation/backend/tsconfig.json "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/tsconfig.json" && echo "✅ 2/4 tsconfig.json" || echo "❌ FAILED: tsconfig.json"
-```
-
-Download .env.example:
-```bash
-curl -sfL -o ~/Desktop/Automation/backend/.env.example "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.env.example" && echo "✅ 3/4 .env.example" || echo "❌ FAILED: .env.example"
-```
-
-Download .gitignore:
-```bash
-curl -sfL -o ~/Desktop/Automation/backend/.gitignore "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.gitignore" && echo "✅ 4/4 .gitignore" || echo "❌ FAILED: .gitignore"
-```
-
-**Expected output after each curl line:**
+**Expected output:**
 ```
 ✅ 1/4 package.json
 ✅ 2/4 tsconfig.json
