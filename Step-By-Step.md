@@ -103,23 +103,245 @@ npm run db:reset
 
 ---
 
-### 📋 Step 1: Download the 4 files directly into your Automation folder
+### 📋 Step 1: Create the 4 files directly in your Automation folder
 
-Open Terminal. **Copy the entire block below and paste it in one go**, then press Enter.
+The repository is private so download links won't work. Instead, the file contents are embedded below — paste each block into Terminal and it will write the file for you automatically.
 
+Open Terminal and run all 4 blocks one after the other (each block creates one file):
+
+---
+
+**1/4 — package.json**
 ```bash
-mkdir -p ~/Desktop/Automation/backend && curl -sfL -o ~/Desktop/Automation/backend/package.json "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/package.json" && echo "✅ 1/4 package.json" || echo "❌ FAILED: package.json"; curl -sfL -o ~/Desktop/Automation/backend/tsconfig.json "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/tsconfig.json" && echo "✅ 2/4 tsconfig.json" || echo "❌ FAILED: tsconfig.json"; curl -sfL -o ~/Desktop/Automation/backend/.env.example "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/.env.example" && echo "✅ 3/4 .env.example" || echo "❌ FAILED: .env.example"; curl -sfL -o ~/Desktop/Automation/backend/.gitignore "https://raw.githubusercontent.com/MSHH88/BookingAutomation/f2b09a6c6e4d198a02938c69e9ff73890ca2062b/backend/.gitignore" && echo "✅ 4/4 .gitignore" || echo "❌ FAILED: .gitignore"
+mkdir -p ~/Desktop/Automation/backend && cat > ~/Desktop/Automation/backend/package.json << 'EOF'
+{
+  "name": "automation-backend",
+  "version": "1.0.0",
+  "description": "Booking Automation backend — multi-client SaaS API",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "bcryptjs": "^3.0.3",
+    "bullmq": "^5.8.0",
+    "cloudinary": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "@googleapis/calendar": "^14.2.0",
+    "google-auth-library": "^10.6.2",
+    "ical-generator": "^10.1.0",
+    "handlebars": "^4.7.8",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.1.1",
+    "resend": "^3.2.0",
+    "twilio": "^5.1.0",
+    "uuid": "^10.0.0",
+    "winston": "^3.13.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.5.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^20.14.5",
+    "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9.5.0",
+    "jest": "^29.7.0",
+    "prisma": "^5.14.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.1.5",
+    "tsx": "^4.15.6",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^8.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src"],
+    "testMatch": ["**/*.test.ts", "**/*.spec.ts"],
+    "collectCoverageFrom": ["src/**/*.ts", "!src/**/*.d.ts"]
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+EOF
+echo "✅ 1/4 package.json"
 ```
 
-**Expected output:**
+---
+
+**2/4 — tsconfig.json**
+```bash
+cat > ~/Desktop/Automation/backend/tsconfig.json << 'EOF'
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}
+EOF
+echo "✅ 2/4 tsconfig.json"
+```
+
+---
+
+**3/4 — .env.example**
+```bash
+cat > ~/Desktop/Automation/backend/.env.example << 'EOF'
+# ============================================================
+# AUTOMATION BACKEND — Environment Variables
+# ============================================================
+# Copy this file to .env and fill in all values.
+# Never commit .env to source control.
+# ============================================================
+
+# ── Server ───────────────────────────────────────────────────
+PORT=3000
+NODE_ENV=development
+LOG_LEVEL=debug
+
+# ── Studio Identity ───────────────────────────────────────────
+STUDIO_NAME=Your Studio Name
+STUDIO_ADMIN_EMAIL=admin@yourdomain.com
+GOOGLE_REVIEW_URL=https://g.page/r/YOUR_GOOGLE_REVIEW_LINK
+
+# ── Business Type ─────────────────────────────────────────────
+# Values: tattoo_studio | hair_salon | barber | restaurant
+BUSINESS_TYPE=tattoo_studio
+
+# ── Database (Neon PostgreSQL) ────────────────────────────────
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
+
+# ── Redis ─────────────────────────────────────────────────────
+REDIS_URL=redis://localhost:6379
+
+# ── JWT ──────────────────────────────────────────────────────
+JWT_ACCESS_SECRET=REPLACE_WITH_STRONG_SECRET_64_CHARS_MIN
+JWT_REFRESH_SECRET=REPLACE_WITH_DIFFERENT_STRONG_SECRET_64_CHARS_MIN
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# ── Allowed Origins (CORS) ────────────────────────────────────
+FRONTEND_URL=http://localhost:5173
+CRM_URL=http://localhost:5174
+
+# ── Resend (Email) ───────────────────────────────────────────
+RESEND_API_KEY=re_REPLACE_WITH_YOUR_RESEND_API_KEY
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+RESEND_FROM_NAME=Your Studio Name
+
+# ── Cloudinary (File Uploads) ─────────────────────────────────
+CLOUDINARY_CLOUD_NAME=REPLACE_WITH_CLOUD_NAME
+CLOUDINARY_API_KEY=REPLACE_WITH_API_KEY
+CLOUDINARY_API_SECRET=REPLACE_WITH_API_SECRET
+
+# ── Twilio (WhatsApp Automation) ──────────────────────────────
+TWILIO_ACCOUNT_SID=ACREPLACE_WITH_YOUR_SID
+TWILIO_AUTH_TOKEN=REPLACE_WITH_YOUR_AUTH_TOKEN
+TWILIO_WHATSAPP_FROM=whatsapp:+1XXXXXXXXXX
+
+# ── Google Calendar ──────────────────────────────────────────
+GOOGLE_CLIENT_ID=REPLACE_WITH_CLIENT_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=REPLACE_WITH_CLIENT_SECRET
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/calendar/callback
+
+# ── Feature Flags ─────────────────────────────────────────────
+BOOKING_ENABLED=true
+QUOTES_ENABLED=true
+ANALYTICS_ENABLED=true
+LEAD_CAPTURE_ENABLED=true
+EMAIL_AUTOMATION_ENABLED=true
+CALENDAR_SYNC_ENABLED=true
+INVOICING_ENABLED=true
+WHATSAPP_CONTACT_ENABLED=true
+3D_MANNEQUIN_ENABLED=true
+REVIEWS_ENABLED=true
+DEPOSIT_ENABLED=false
+EOF
+echo "✅ 3/4 .env.example"
+```
+
+---
+
+**4/4 — .gitignore**
+```bash
+cat > ~/Desktop/Automation/backend/.gitignore << 'EOF'
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+logs/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+coverage/
+*.tsbuildinfo
+EOF
+echo "✅ 4/4 .gitignore"
+```
+
+---
+
+**Expected output after each block:**
 ```
 ✅ 1/4 package.json
 ✅ 2/4 tsconfig.json
 ✅ 3/4 .env.example
 ✅ 4/4 .gitignore
 ```
-
-> ❌ If any line shows FAILED — stop and tell me which file failed before continuing.
 
 **Verify the files landed correctly:**
 ```bash
