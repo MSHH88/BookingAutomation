@@ -373,12 +373,14 @@ This installs all packages listed in `package.json`. Takes about 30–60 seconds
 
 **Expected output:**
 ```
-added 646 packages, and audited 646 packages in Xs
+added 639 packages, and audited 640 packages in Xs
 
 found 0 vulnerabilities
 ```
 
 > ⚠️ If you see `found N vulnerabilities` — stop and tell me before continuing.
+
+> ℹ️ **About `npm warn deprecated` messages** — these are normal and safe to ignore. They come from internal tools used by your dependencies (not your own code), and `npm audit` is the real security check. As long as it says `found 0 vulnerabilities`, your project is secure. Deprecation warnings just mean those internal packages are old but still working.
 
 ---
 
@@ -410,7 +412,26 @@ You can leave all other values blank for now — they are needed for specific mo
 
 ---
 
-### 📋 Step 5: Run the TypeScript type-check
+### 📋 Step 5: Create the src folder and placeholder server file
+
+TypeScript and Jest both need a `src/` directory to exist before they can run. Right now the folder is empty, so we create a one-line placeholder that keeps both tools happy. It will be replaced with the real server code in Step 1.3.
+
+```bash
+mkdir -p ~/Desktop/Automation/backend/src && cat > ~/Desktop/Automation/backend/src/server.ts << 'EOF'
+// Step 1.1 placeholder — replaced with real server in Step 1.3
+export {};
+EOF
+echo "✅ src/server.ts created"
+```
+
+**Expected output:**
+```
+✅ src/server.ts created
+```
+
+---
+
+### 📋 Step 6: Run the TypeScript type-check
 
 ```bash
 cd ~/Desktop/Automation/backend && npm run typecheck
@@ -426,7 +447,7 @@ No error messages = ✅ TypeScript config is valid.
 
 ---
 
-### 📋 Step 6: Run the security audit
+### 📋 Step 7: Run the security audit
 
 ```bash
 cd ~/Desktop/Automation/backend && npm audit
@@ -439,7 +460,7 @@ found 0 vulnerabilities
 
 ---
 
-### 📋 Step 7: Run the test suite
+### 📋 Step 8: Run the test suite
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
