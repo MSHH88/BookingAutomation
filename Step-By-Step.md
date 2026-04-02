@@ -135,14 +135,10 @@ Save the file: `⌘ S`
 cd ~/Desktop/Automation/backend && npx prisma db pull --print 2>&1 | head -5
 ```
 
-Expected output (first two lines):
-```
-Environment variables loaded from .env
-Prisma schema loaded from prisma/schema.prisma
-```
+**If you see `P4001 The introspected database was empty` — that's correct. It means the connection works, your database just has no tables yet. That's expected. Move on to Step 5.**
 
 > ❌ `P1001: Can't reach database server at localhost:5432` — PostgreSQL isn't running. Open pgAdmin, click your server, enter your password. Then try again.  
-> ❌ `P1000: Authentication failed` — wrong password in DATABASE_URL. Open `.env`, fix the password part between `:` and `@localhost`, save, try again.
+> ❌ `P1000: Authentication failed` — wrong password in DATABASE_URL. Open `.env`, fix the password between `:` and `@localhost`, save, try again.
 
 ---
 
