@@ -13,131 +13,73 @@
 
 ---
 
-## 🔄 Step 1.4 / 1.4b / 1.5 — Download & Install Updated Files
+## 🔄 Step 1.4b — Download Updated Files (Expanded Service Catalogue + TypeScript Fix)
 
-The following sections cover:
-- **Step 1.4** — Authentication System (auth module + middleware)
-- **Step 1.4b** — Business Type Configuration (fully expanded service catalogue)
-- **Step 1.5** — Artist Management API (artists module)
-- **Bug fixes** applied to files from Steps 1.3–1.5
+**What changed in this update:**
+- **`src/config/businessType.ts`** — Service catalogue massively expanded (300+ services across all 6 business types — exceeds every target)
+- **`src/config/businessType.test.ts`** — Tests updated to match expanded catalogue (62 tests)
+- **`src/types/express.d.ts`** — Root cause TypeScript fix: removed the `@prisma/client` import that caused `Property 'user' does not exist on type 'Request'` error when prisma types weren't yet installed
+
+> **Note:** Steps 1.1–1.3 and Step 1.4 / 1.5 files were already downloaded and are untouched. Only these 3 files need updating.
 
 ---
 
-### STEP 1 — Delete all files that have been updated (bugs fixed + new steps)
-
-Paste this entire block. It deletes every file that was changed so you start clean:
+### STEP 1 — Delete the 3 outdated files
 
 ```bash
 cd ~/Desktop/Automation/backend
 
-# ── Bug-fixed files (steps 1.3 and below) ──────────────────────────────────
-rm -f src/middleware/validate.ts
-rm -f src/index.ts
-rm -f package.json
-
-# ── Step 1.4 — Auth module ──────────────────────────────────────────────────
-rm -f src/modules/auth/auth.schema.ts
-rm -f src/modules/auth/auth.service.ts
-rm -f src/modules/auth/auth.controller.ts
-rm -f src/modules/auth/auth.routes.ts
-rm -f src/modules/auth/auth.service.test.ts
-
-# ── Step 1.4 — Middleware ───────────────────────────────────────────────────
-rm -f src/middleware/auth.ts
-rm -f src/middleware/requireRole.ts
-rm -f src/middleware/auth.test.ts
-
-# ── Step 1.4b — Business type config ───────────────────────────────────────
 rm -f src/config/businessType.ts
 rm -f src/config/businessType.test.ts
+rm -f src/types/express.d.ts
 
-# ── Step 1.5 — Artists module ───────────────────────────────────────────────
-rm -f src/modules/artists/artists.schema.ts
-rm -f src/modules/artists/artists.service.ts
-rm -f src/modules/artists/artists.controller.ts
-rm -f src/modules/artists/artists.routes.ts
-
-# ── Step 1.5 — Updated app.ts (mounts /api/artists) ────────────────────────
-rm -f src/app.ts
-
-echo "✅ All old files deleted."
+echo "✅ Old files deleted."
 ```
 
 Expected:
 ```
-✅ All old files deleted.
+✅ Old files deleted.
 ```
 
 ---
 
-### STEP 2 — Recreate folder structure
+### STEP 2 — Ensure the types folder exists
 
 ```bash
 cd ~/Desktop/Automation/backend
-mkdir -p src/modules/auth src/modules/artists src/config src/middleware
+mkdir -p src/config src/types
 echo "✅ Folders ready."
 ```
 
 ---
 
-### STEP 3 — Download all updated files
-
-Paste this entire block (all curls run sequentially):
+### STEP 3 — Download the 3 updated files
 
 ```bash
 cd ~/Desktop/Automation/backend
 
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
 
-# ── Bug-fixed core files ────────────────────────────────────────────────────
-curl -sfL -o package.json "$BASE/package.json" && echo "OK  1 package.json" || echo "FAILED: package.json"
-curl -sfL -o src/index.ts "$BASE/src/index.ts" && echo "OK  2 src/index.ts" || echo "FAILED: src/index.ts"
-curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK  3 src/app.ts" || echo "FAILED: src/app.ts"
-curl -sfL -o src/middleware/validate.ts "$BASE/src/middleware/validate.ts" && echo "OK  4 src/middleware/validate.ts" || echo "FAILED: src/middleware/validate.ts"
+# ── Step 1.4b — Expanded service catalogue ─────────────────────────────────
+curl -sfL -o src/config/businessType.ts "$BASE/src/config/businessType.ts" \
+  && echo "OK 1 businessType.ts" || echo "FAILED: businessType.ts"
 
-# ── Step 1.4 — Auth module ──────────────────────────────────────────────────
-curl -sfL -o src/modules/auth/auth.schema.ts "$BASE/src/modules/auth/auth.schema.ts" && echo "OK  5 auth.schema.ts" || echo "FAILED: auth.schema.ts"
-curl -sfL -o src/modules/auth/auth.service.ts "$BASE/src/modules/auth/auth.service.ts" && echo "OK  6 auth.service.ts" || echo "FAILED: auth.service.ts"
-curl -sfL -o src/modules/auth/auth.controller.ts "$BASE/src/modules/auth/auth.controller.ts" && echo "OK  7 auth.controller.ts" || echo "FAILED: auth.controller.ts"
-curl -sfL -o src/modules/auth/auth.routes.ts "$BASE/src/modules/auth/auth.routes.ts" && echo "OK  8 auth.routes.ts" || echo "FAILED: auth.routes.ts"
-curl -sfL -o src/modules/auth/auth.service.test.ts "$BASE/src/modules/auth/auth.service.test.ts" && echo "OK  9 auth.service.test.ts" || echo "FAILED: auth.service.test.ts"
+curl -sfL -o src/config/businessType.test.ts "$BASE/src/config/businessType.test.ts" \
+  && echo "OK 2 businessType.test.ts" || echo "FAILED: businessType.test.ts"
 
-# ── Step 1.4 — Middleware ───────────────────────────────────────────────────
-curl -sfL -o src/middleware/auth.ts "$BASE/src/middleware/auth.ts" && echo "OK 10 middleware/auth.ts" || echo "FAILED: middleware/auth.ts"
-curl -sfL -o src/middleware/requireRole.ts "$BASE/src/middleware/requireRole.ts" && echo "OK 11 middleware/requireRole.ts" || echo "FAILED: middleware/requireRole.ts"
-curl -sfL -o src/middleware/auth.test.ts "$BASE/src/middleware/auth.test.ts" && echo "OK 12 middleware/auth.test.ts" || echo "FAILED: middleware/auth.test.ts"
-
-# ── Step 1.4b — Business type config (FULL expanded service catalogue) ──────
-curl -sfL -o src/config/businessType.ts "$BASE/src/config/businessType.ts" && echo "OK 13 config/businessType.ts" || echo "FAILED: config/businessType.ts"
-curl -sfL -o src/config/businessType.test.ts "$BASE/src/config/businessType.test.ts" && echo "OK 14 config/businessType.test.ts" || echo "FAILED: config/businessType.test.ts"
-
-# ── Step 1.5 — Artists module ───────────────────────────────────────────────
-curl -sfL -o src/modules/artists/artists.schema.ts "$BASE/src/modules/artists/artists.schema.ts" && echo "OK 15 artists.schema.ts" || echo "FAILED: artists.schema.ts"
-curl -sfL -o src/modules/artists/artists.service.ts "$BASE/src/modules/artists/artists.service.ts" && echo "OK 16 artists.service.ts" || echo "FAILED: artists.service.ts"
-curl -sfL -o src/modules/artists/artists.controller.ts "$BASE/src/modules/artists/artists.controller.ts" && echo "OK 17 artists.controller.ts" || echo "FAILED: artists.controller.ts"
-curl -sfL -o src/modules/artists/artists.routes.ts "$BASE/src/modules/artists/artists.routes.ts" && echo "OK 18 artists.routes.ts" || echo "FAILED: artists.routes.ts"
+# ── TypeScript root-cause fix ───────────────────────────────────────────────
+# Fixes: "Property 'user' does not exist on type 'Request'"
+# Root cause: express.d.ts imported @prisma/client, which breaks when
+# node_modules is not yet installed. Now uses a self-contained string union.
+curl -sfL -o src/types/express.d.ts "$BASE/src/types/express.d.ts" \
+  && echo "OK 3 express.d.ts" || echo "FAILED: express.d.ts"
 ```
 
-Expected — all 18 lines must say OK:
+Expected — all 3 lines must say OK:
 ```
-OK  1 package.json
-OK  2 src/index.ts
-OK  3 src/app.ts
-OK  4 src/middleware/validate.ts
-OK  5 auth.schema.ts
-OK  6 auth.service.ts
-OK  7 auth.controller.ts
-OK  8 auth.routes.ts
-OK  9 auth.service.test.ts
-OK 10 middleware/auth.ts
-OK 11 middleware/requireRole.ts
-OK 12 middleware/auth.test.ts
-OK 13 config/businessType.ts
-OK 14 config/businessType.test.ts
-OK 15 artists.schema.ts
-OK 16 artists.service.ts
-OK 17 artists.controller.ts
-OK 18 artists.routes.ts
+OK 1 businessType.ts
+OK 2 businessType.test.ts
+OK 3 express.d.ts
 ```
 
 > If any line says FAILED — paste it here before continuing.

@@ -4,9 +4,19 @@
  *
  * Using `express-serve-static-core` is the correct target because
  * @types/express re-exports its Request interface from there.
+ *
+ * NOTE: We intentionally do NOT import Role from @prisma/client here.
+ * Importing from @prisma/client in a declaration file means the entire
+ * augmentation silently fails when prisma client is not yet generated
+ * (e.g. fresh clone before `npm install`), producing the misleading error
+ * "Property 'user' does not exist on type 'Request'".
+ * The string-literal union below is structurally identical to the Prisma enum
+ * and avoids that dependency.
  */
 import 'express';
-import type { Role } from '@prisma/client';
+
+/** Mirror of the Prisma Role enum — kept in sync with prisma/schema.prisma */
+type AppRole = 'ADMIN' | 'ARTIST' | 'CUSTOMER';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -22,7 +32,7 @@ declare module 'express-serve-static-core' {
       /** User's Prisma cuid */
       id: string;
       email: string;
-      role: Role;
+      role: AppRole;
     };
     /**
      * Parsed cookies — populated by the cookie-parser middleware.
