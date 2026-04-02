@@ -50,6 +50,7 @@ export interface SafeUser {
   id: string;
   email: string;
   name: string;
+  phone: string | null;
   role: Role;
   isActive: boolean;
   createdAt: Date;
@@ -87,6 +88,7 @@ function toSafeUser(user: {
   id: string;
   email: string;
   name: string;
+  phone: string | null;
   role: Role;
   isActive: boolean;
   createdAt: Date;
@@ -96,6 +98,7 @@ function toSafeUser(user: {
     id: user.id,
     email: user.email,
     name: user.name,
+    phone: user.phone,
     role: user.role,
     isActive: user.isActive,
     createdAt: user.createdAt,
@@ -127,6 +130,7 @@ async function buildAuthTokens(user: {
   id: string;
   email: string;
   name: string;
+  phone: string | null;
   role: Role;
   isActive: boolean;
   createdAt: Date;
@@ -159,6 +163,7 @@ export async function register(input: RegisterBody): Promise<AuthTokens> {
     data: {
       email: input.email.toLowerCase(),
       name: input.name.trim(),
+      phone: input.phone ?? null,
       passwordHash,
       role: 'CUSTOMER',
     },
@@ -336,9 +341,10 @@ export async function updateMe(userId: string, input: UpdateMeBody): Promise<Saf
     }
   }
 
-  const updateData: { name?: string; email?: string; passwordHash?: string } = {};
+  const updateData: { name?: string; email?: string; phone?: string | null; passwordHash?: string } = {};
   if (input.name !== undefined) updateData.name = input.name.trim();
   if (input.email !== undefined) updateData.email = input.email.toLowerCase();
+  if ('phone' in input) updateData.phone = input.phone ?? null;
   if (input.newPassword) updateData.passwordHash = await bcrypt.hash(input.newPassword, BCRYPT_ROUNDS);
 
   const updated = await prisma.user.update({

@@ -1,9 +1,10 @@
 # Phase 1 — Backend Foundation & Interoperability Core
 
-> **Status: 1.3 ✅ Done — Next: Step 1.4**  
+> **Status: 1.4b ✅ Done + Gap Audit Fixes Applied — Next: Step 1.6**  
 > This file is the authoritative, self-contained reference for every step in Phase 1.  
 > One step at a time. No step starts until the previous step is verified and signed off.  
-> See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.
+> See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.  
+> See `BUGS_AND_GAPS.md` for the full gap register (2026-04-02 audit).
 
 ---
 
@@ -585,14 +586,16 @@ refresh, forgot/reset password, and current-user endpoints.
 - Refresh token: returned in response body AND set as `httpOnly` cookie
 
 **Checklist:**
-- [ ] All 8 endpoints implemented and returning correct shapes
-- [ ] Passwords hashed with bcrypt cost 12
-- [ ] Access token expires in 15m, refresh token in 7d
-- [ ] Refresh token rotation: old token revoked when new one issued
-- [ ] Password reset token expires in 1h and is single-use
-- [ ] Invalid/expired tokens return 401
-- [ ] `requireRole` returns 403 for insufficient role
-- [ ] Unit tests written and passing (min: register, login, refresh, forgot/reset, me)
+- [x] All 8 endpoints implemented and returning correct shapes
+- [x] Passwords hashed with bcrypt cost 12
+- [x] Access token expires in 15m, refresh token in 7d
+- [x] Refresh token rotation: old token revoked when new one issued
+- [x] Password reset token expires in 1h and is single-use
+- [x] Invalid/expired tokens return 401
+- [x] `requireRole` returns 403 for insufficient role
+- [x] Unit tests written and passing (min: register, login, refresh, forgot/reset, me)
+- [x] BUG-L fixed: optional `phone` field added to register + updateMe
+- [x] BUG-K confirmed fixed: `currentPassword` required when setting new password
 
 ---
 
@@ -787,11 +790,11 @@ templates) is built to support them.
 
 ---
 
-## Step 1.5 — Artist Management API
+## Step 1.5 — Artist Management API ✅ DONE
 
 **What:** Full CRUD for artist profiles, portfolio images (Cloudinary URLs), and style assignments.
 
-**Files to create:**
+**Files created:**
 - `backend/src/modules/artists/artists.schema.ts`
 - `backend/src/modules/artists/artists.service.ts`
 - `backend/src/modules/artists/artists.controller.ts`
@@ -806,16 +809,19 @@ templates) is built to support them.
 | POST | `/api/artists` | ADMIN | Create artist (creates User + Artist) |
 | PATCH | `/api/artists/:id` | ADMIN or own | Update profile, bio, images, availability |
 | DELETE | `/api/artists/:id` | ADMIN | Soft-delete (sets `isActive = false`) |
-| POST | `/api/artists/:id/styles` | ADMIN | Assign styles to artist (replaces existing) |
+| POST | `/api/artists/:id/styles` | ADMIN or own | Assign styles to artist (replaces existing) |
 | GET | `/api/artists/:id/availability` | Public | Get working hours for this artist |
 | PUT | `/api/artists/:id/availability` | ADMIN or own | Set/update working hours |
 
 **Checklist:**
-- [ ] Only `isActive = true` artists returned on public endpoints
-- [ ] ADMIN role enforced on create/delete endpoints
-- [ ] Artist can only edit their own profile (or ADMIN can edit any)
-- [ ] Pagination applied to list endpoint
-- [ ] Integration tests written and passing
+- [x] Only `isActive = true` artists returned on public endpoints
+- [x] ADMIN role enforced on create/delete endpoints
+- [x] Artist can only edit their own profile (or ADMIN can edit any)
+- [x] Pagination applied to list endpoint
+- [x] `breakStart`/`breakEnd` supported in availability (BUG-G)
+- [x] `commissionRate`/`commissionType` in artist profile (BUG-F)
+- [x] Calendar token fields on Artist model (BUG-N, used by Step 1.12)
+- [ ] Integration tests (deferred to Step 1.22)
 
 ---
 

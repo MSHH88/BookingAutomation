@@ -10,6 +10,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { success, error as apiError } from './utils/apiResponse';
 import { AppError } from './errors/AppError';
 import { authRoutes } from './modules/auth/auth.routes';
+import { artistRoutes } from './modules/artists/artists.routes';
 
 const app = express();
 
@@ -93,7 +94,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // ─── 8. API route mounts ──────────────────────────────────────────────────────
 app.use('/api/auth',     authRoutes);       // Step 1.4
-// app.use('/api/artists',  artistRoutes);  // Step 1.5
+app.use('/api/artists',  artistRoutes);     // Step 1.5
 // app.use('/api/leads',    leadRoutes);    // Step 1.7
 // …
 

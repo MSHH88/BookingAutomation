@@ -21,6 +21,10 @@ export const registerSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters').trim(),
     email: z.string().email('Invalid email address'),
     password: passwordSchema,
+    phone: z
+      .string()
+      .regex(/^\+?[0-9\s\-().]{7,20}$/, 'Invalid phone number format')
+      .optional(),
   }),
 });
 
@@ -59,10 +63,15 @@ export const updateMeSchema = z.object({
     .object({
       name: z.string().min(1).max(100).trim().optional(),
       email: z.string().email('Invalid email address').optional(),
+      phone: z
+        .string()
+        .regex(/^\+?[0-9\s\-().]{7,20}$/, 'Invalid phone number format')
+        .optional()
+        .nullable(),
       currentPassword: z.string().min(1).optional(),
       newPassword: passwordSchema.optional(),
     })
-    .refine((d) => !(d.newPassword && !d.currentPassword), {
+    .refine((d: { newPassword?: string; currentPassword?: string }) => !(d.newPassword && !d.currentPassword), {
       message: 'currentPassword is required when setting a new password',
       path: ['currentPassword'],
     }),

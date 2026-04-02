@@ -42,6 +42,7 @@ enum BookingStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+  RESCHEDULED
 }
 
 enum InvoiceStatus {
@@ -51,40 +52,64 @@ enum InvoiceStatus {
   VOID
 }
 
+enum CommissionType {
+  PERCENTAGE
+  FLAT
+}
+
+enum WaitlistStatus {
+  WAITING
+  NOTIFIED
+  BOOKED
+  EXPIRED
+  CANCELLED
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(CUSTOMER)
-  name         String
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  role             Role      @default(CUSTOMER)
+  name             String
+  phone            String?
+  marketingConsent Boolean   @default(false)
+  gdprConsentAt    DateTime?
+  loyaltyBalance   Int       @default(0)
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   artist        Artist?
   refreshTokens RefreshToken[]
   resetTokens   PasswordResetToken[]
+  bookings      Booking[]    @relation("CustomerBookings")
 
   @@map("users")
 }
 
 model Artist {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  slug            String   @unique
-  bio             String?
-  profileImageUrl String?
-  portfolioImages String[]
-  bufferMinutes   Int      @default(30)
-  slotDuration    Int      @default(90)
-  isActive        Boolean  @default(true)
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  slug                  String          @unique
+  bio                   String?
+  profileImageUrl       String?
+  portfolioImages       String[]
+  bufferMinutes         Int             @default(30)
+  slotDuration          Int             @default(90)
+  commissionRate        Decimal?        @db.Decimal(5, 2)
+  commissionType        CommissionType?
+  calendarAccessToken   String?
+  calendarRefreshToken  String?
+  calendarTokenExpiresAt DateTime?
+  isActive              Boolean         @default(true)
 
   user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   availability ArtistAvailability[]
   blocks       AvailabilityBlock[]
   styles       ArtistStyle[]
+  services     ArtistService[]
   leads        Lead[]               @relation("ArtistLeads")
   quotes       Quote[]              @relation("ArtistQuotes")
   bookings     Booking[]            @relation("ArtistBookings")
@@ -94,12 +119,14 @@ model Artist {
 }
 
 model ArtistAvailability {
-  id        String  @id @default(cuid())
-  artistId  String
-  dayOfWeek Int
-  startTime String
-  endTime   String
-  isActive  Boolean @default(true)
+  id         String  @id @default(cuid())
+  artistId   String
+  dayOfWeek  Int
+  startTime  String
+  endTime    String
+  breakStart String?
+  breakEnd   String?
+  isActive   Boolean @default(true)
 
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
@@ -148,28 +175,30 @@ model ArtistStyle {
 }
 
 model Lead {
-  id              String     @id @default(cuid())
-  artistId        String?
-  styleId         String?
-  placement       Json
-  size            String?
-  colorPreference String?
-  referenceImages String[]
-  description     String
-  name            String
-  email           String
-  phone           String
-  preferWhatsApp  Boolean    @default(false)
-  preferredDates  Json?
-  status          LeadStatus @default(NEW)
-  score           Int        @default(0)
-  source          String?
-  utmMedium       String?
-  utmCampaign     String?
-  ipAddress       String?
-  deviceType      String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id               String     @id @default(cuid())
+  artistId         String?
+  styleId          String?
+  customerId       String?
+  placement        Json
+  size             String?
+  colorPreference  String?
+  referenceImages  String[]
+  description      String
+  name             String
+  email            String
+  phone            String
+  preferWhatsApp   Boolean    @default(false)
+  preferredDates   Json?
+  marketingConsent Boolean    @default(false)
+  status           LeadStatus @default(NEW)
+  score            Int        @default(0)
+  source           String?
+  utmMedium        String?
+  utmCampaign      String?
+  ipAddress        String?
+  deviceType       String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   artist          Artist?      @relation("ArtistLeads", fields: [artistId], references: [id], onDelete: SetNull)
   style           TattooStyle? @relation("StyleLeads", fields: [styleId], references: [id], onDelete: SetNull)
@@ -208,31 +237,51 @@ model Quote {
 }
 
 model Booking {
-  id              String        @id @default(cuid())
-  leadId          String        @unique
-  quoteId         String?       @unique
-  artistId        String
-  startAt         DateTime
-  endAt           DateTime
-  status          BookingStatus @default(PENDING)
-  calendarEventId String?
-  icsToken        String?       @unique
-  notes           String?
-  confirmedAt     DateTime?
-  completedAt     DateTime?
-  cancelledAt     DateTime?
-  cancelReason    String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                   String        @id @default(cuid())
+  leadId               String?       @unique
+  quoteId              String?       @unique
+  artistId             String
+  serviceId            String?
+  tableId              String?
+  customerId           String?
+  startAt              DateTime
+  endAt                DateTime
+  status               BookingStatus @default(PENDING)
+  calendarEventId      String?
+  icsToken             String?       @unique
+  notes                String?
+  specialRequests      String?
+  partySize            Int?
+  totalDurationMinutes Int?
+  totalAmount          Decimal?      @db.Decimal(10, 2)
+  depositAmount        Decimal?      @db.Decimal(10, 2)
+  depositPaidAt        DateTime?
+  depositRefunded      Boolean       @default(false)
+  commissionEarned     Decimal?      @db.Decimal(10, 2)
+  policyAcceptedAt     DateTime?
+  policyVersion        String?
+  rescheduledFrom      String?
+  confirmedAt          DateTime?
+  completedAt          DateTime?
+  cancelledAt          DateTime?
+  cancelReason         String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
-  lead    Lead     @relation(fields: [leadId], references: [id], onDelete: Restrict)
-  quote   Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
-  artist  Artist   @relation("ArtistBookings", fields: [artistId], references: [id], onDelete: Restrict)
-  invoice Invoice?
+  lead            Lead?           @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote           Quote?          @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  artist          Artist          @relation("ArtistBookings", fields: [artistId], references: [id], onDelete: Restrict)
+  service         Service?        @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  table           Table?          @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  customer        User?           @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: SetNull)
+  invoice         Invoice?
+  services        BookingService[]
+  waitlistEntries WaitlistEntry[]
 
   @@index([artistId, startAt])
   @@index([status])
   @@index([startAt, endAt])
+  @@index([customerId])
   @@map("bookings")
 }
 
@@ -330,4 +379,136 @@ model AnalyticsEvent {
   @@index([leadId])
   @@index([createdAt])
   @@map("analytics_events")
+}
+
+// ─── Service Catalogue ────────────────────────────────────────────────────────
+
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  services Service[]
+
+  @@index([isActive])
+  @@map("service_categories")
+}
+
+model Service {
+  id                 String   @id @default(cuid())
+  categoryId         String
+  name               String
+  description        String?
+  durationMinutes    Int
+  priceFrom          Decimal? @db.Decimal(10, 2)
+  bufferMinutes      Int      @default(0)
+  rebookIntervalDays Int?
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  category        ServiceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  artists         ArtistService[]
+  bookings        Booking[]
+  bookingServices BookingService[]
+
+  @@index([categoryId, isActive])
+  @@index([isActive])
+  @@map("services")
+}
+
+model ArtistService {
+  artistId  String
+  serviceId String
+
+  artist  Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([artistId, serviceId])
+  @@map("artist_services")
+}
+
+model BookingService {
+  id              String  @id @default(cuid())
+  bookingId       String
+  serviceId       String
+  price           Decimal @db.Decimal(10, 2)
+  durationMinutes Int
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([bookingId])
+  @@map("booking_services")
+}
+
+// ─── Table / Restaurant ───────────────────────────────────────────────────────
+
+model Table {
+  id        String   @id @default(cuid())
+  name      String
+  capacity  Int
+  location  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([isActive])
+  @@map("tables")
+}
+
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
+
+model WaitlistEntry {
+  id            String        @id @default(cuid())
+  bookingId     String?
+  artistId      String?
+  serviceId     String?
+  name          String
+  email         String
+  phone         String
+  requestedDate DateTime?
+  notes         String?
+  status        WaitlistStatus @default(WAITING)
+  notifiedAt    DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([email])
+  @@index([artistId])
+  @@map("waitlist_entries")
+}
+
+// ─── Studio Settings (singleton) ──────────────────────────────────────────────
+
+model StudioSettings {
+  id                      String   @id @default(cuid())
+  studioName              String
+  studioEmail             String?
+  studioPhone             String?
+  studioAddress           String?
+  studioTimezone          String   @default("Europe/London")
+  currency                String   @default("GBP")
+  depositPercentage       Decimal  @default(20) @db.Decimal(5, 2)
+  depositFixedAmount      Decimal? @db.Decimal(10, 2)
+  cancellationHours       Int      @default(24)
+  cancellationFeePercent  Decimal  @default(0) @db.Decimal(5, 2)
+  cancellationPolicyText  String?
+  maxCoversPerSlot        Int?
+  slotIntervalMinutes     Int      @default(15)
+  googleReviewUrl         String?
+  bookingPageUrl          String?
+  updatedAt               DateTime @updatedAt
+
+  @@map("studio_settings")
 }

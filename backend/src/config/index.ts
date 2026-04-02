@@ -58,6 +58,11 @@ export interface AppConfig {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_REDIRECT_URI: string;
+
+  // Stripe
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+  STRIPE_PUBLISHABLE_KEY: string;
 }
 
 // ─── Loader ───────────────────────────────────────────────────────────────────
@@ -150,6 +155,10 @@ function loadConfig(): AppConfig {
     GOOGLE_CLIENT_ID: optional('GOOGLE_CLIENT_ID', ''),
     GOOGLE_CLIENT_SECRET: optional('GOOGLE_CLIENT_SECRET', ''),
     GOOGLE_REDIRECT_URI: optional('GOOGLE_REDIRECT_URI', ''),
+
+    STRIPE_SECRET_KEY: optional('STRIPE_SECRET_KEY', ''),
+    STRIPE_WEBHOOK_SECRET: optional('STRIPE_WEBHOOK_SECRET', ''),
+    STRIPE_PUBLISHABLE_KEY: optional('STRIPE_PUBLISHABLE_KEY', ''),
   };
 
   // ── Fail fast if any required vars are missing ────────────────────────────
