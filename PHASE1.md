@@ -1,6 +1,6 @@
 # Phase 1 — Backend Foundation & Interoperability Core
 
-> **Status: 1.2 ✅ Done — Next: Step 1.3**  
+> **Status: 1.3 ✅ Done — Next: Step 1.4**  
 > This file is the authoritative, self-contained reference for every step in Phase 1.  
 > One step at a time. No step starts until the previous step is verified and signed off.  
 > See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.
@@ -323,14 +323,14 @@ createdAt   DateTime @default(now())
 
 ---
 
-## Step 1.3 — Core Express App Setup
+## Step 1.3 — Core Express App Setup ✅ DONE
 
 **What:** Express application entry point with all global middleware. Health endpoint. Graceful shutdown.
 
 **Why:** Security headers, CORS, rate limiting, and error handling must be in place before any route
 is added. This prevents security gaps and ensures consistent behaviour across the whole API.
 
-**Files to create:**
+**Files created (spec):**
 - `backend/src/app.ts` — Express app, all middleware, all route mounts, exported
 - `backend/src/server.ts` — imports `app`, calls `listen()`, handles SIGTERM/SIGINT shutdown
 - `backend/src/config/index.ts` — reads and validates ALL env vars at startup; throws if required var missing
@@ -338,6 +338,13 @@ is added. This prevents security gaps and ensures consistent behaviour across th
 - `backend/src/utils/apiResponse.ts` — `success()`, `error()`, `paginated()` helpers
 - `backend/src/utils/paginate.ts` — wraps Prisma count + findMany, returns pagination meta
 - `backend/src/middleware/errorHandler.ts` — global Express error handler; maps known errors to HTTP codes
+
+**Additional files created (required for full implementation):**
+- `backend/src/types/express.d.ts` — augments Express.Request with `id` + `startTime`
+- `backend/src/errors/AppError.ts` — typed operational error class (used by errorHandler + all modules)
+- `backend/src/lib/prisma.ts` — singleton PrismaClient (hot-reload safe via global cache)
+- `backend/src/lib/redis.ts` — singleton ioredis client with lazy connect + graceful disconnect
+- `backend/src/middleware/requestLogger.ts` — UUID correlation ID, X-Request-Id header, duration logging
 
 **Middleware stack (in order):**
 1. `helmet()` — security headers
@@ -352,15 +359,16 @@ is added. This prevents security gaps and ensures consistent behaviour across th
 - `GET /health` → `{ success: true, data: { status: "ok", timestamp, env } }`
 
 **Checklist:**
-- [ ] `src/app.ts` created and reviewed
-- [ ] `src/server.ts` with graceful shutdown (closes DB + Redis before exit)
-- [ ] `src/config/index.ts` validates all env vars — process exits on missing required var
-- [ ] `src/utils/logger.ts` — debug/info/warn/error levels, `LOG_LEVEL` env var respected
-- [ ] `src/utils/apiResponse.ts` — consistent response shape on all endpoints
-- [ ] `src/utils/paginate.ts` — tested with simple Prisma mock
-- [ ] `src/middleware/errorHandler.ts` — maps `ZodError` → 400, `PrismaNotFound` → 404, unknown → 500
-- [ ] `npm run dev` starts server without errors
-- [ ] `GET /health` returns 200 with correct body
+- [x] `src/app.ts` created and reviewed
+- [x] `src/server.ts` with graceful shutdown (closes DB + Redis before exit)
+- [x] `src/config/index.ts` validates all env vars — process exits on missing required var
+- [x] `src/utils/logger.ts` — debug/info/warn/error levels, `LOG_LEVEL` env var respected
+- [x] `src/utils/apiResponse.ts` — consistent response shape on all endpoints
+- [x] `src/utils/paginate.ts` — tested with simple Prisma mock
+- [x] `src/middleware/errorHandler.ts` — maps `ZodError` → 400, `PrismaNotFound` → 404, unknown → 500
+- [x] `tsc --noEmit` passes with zero errors
+- [ ] `npm run dev` starts server without errors *(requires .env with DATABASE_URL + JWT secrets)*
+- [ ] `GET /health` returns 200 with correct body *(manual verify when .env is configured)*
 
 ---
 
