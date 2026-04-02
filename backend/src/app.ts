@@ -40,11 +40,13 @@ app.use(
 );
 
 // ─── 3. Rate limiting ─────────────────────────────────────────────────────────
+// /health is skipped so load-balancer probes never consume quota or trigger 429.
 const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,                  // max requests per window per IP
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  skip: (req: Request) => req.path === '/health',
   handler: (_req: Request, res: Response) => {
     res.status(429).json(
       apiError('RATE_LIMIT_EXCEEDED', 'Too many requests — please try again later.'),
@@ -60,8 +62,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 
 // ─── 6. Health check ──────────────────────────────────────────────────────────
-// Intentionally placed BEFORE authenticated route mounts so load-balancer
-// health probes never trigger auth middleware or rate-limit counts.
+// Placed after security/CORS/body-parser middleware but exempt from rate limiting
+// (via the skip function above) so load-balancer health probes are always served.
 app.get('/health', (_req: Request, res: Response) => {
   res.json(
     success({

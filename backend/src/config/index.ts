@@ -103,6 +103,9 @@ function loadConfig(): AppConfig {
   }
 
   // ── Build config — required vars are collected, missing checked below ────
+  const jwtAccessSecret = required('JWT_ACCESS_SECRET');
+  const jwtRefreshSecret = required('JWT_REFRESH_SECRET');
+
   const cfg: AppConfig = {
     PORT: port,
     NODE_ENV: nodeEnv,
@@ -117,8 +120,8 @@ function loadConfig(): AppConfig {
 
     REDIS_URL: optional('REDIS_URL', 'redis://localhost:6379'),
 
-    JWT_ACCESS_SECRET: required('JWT_ACCESS_SECRET'),
-    JWT_REFRESH_SECRET: required('JWT_REFRESH_SECRET'),
+    JWT_ACCESS_SECRET: jwtAccessSecret,
+    JWT_REFRESH_SECRET: jwtRefreshSecret,
     JWT_ACCESS_EXPIRES_IN: optional('JWT_ACCESS_EXPIRES_IN', '15m'),
     JWT_REFRESH_EXPIRES_IN: optional('JWT_REFRESH_EXPIRES_IN', '7d'),
 
@@ -154,6 +157,30 @@ function loadConfig(): AppConfig {
     console.error(
       '[Config] Server cannot start. Missing required environment variables:\n' +
         missing.map((k) => `  - ${k}`).join('\n'),
+    );
+    process.exit(1);
+  }
+
+  // ── Enforce minimum JWT secret length (security requirement) ──────────────
+  // Short secrets are vulnerable to brute-force attacks on HS256/HS512 tokens.
+  // Use: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+  const MIN_JWT_SECRET_LENGTH = 32;
+  const jwtSecretErrors: string[] = [];
+  if (jwtAccessSecret.length < MIN_JWT_SECRET_LENGTH) {
+    jwtSecretErrors.push(
+      `JWT_ACCESS_SECRET must be at least ${MIN_JWT_SECRET_LENGTH} characters (currently ${jwtAccessSecret.length})`,
+    );
+  }
+  if (jwtRefreshSecret.length < MIN_JWT_SECRET_LENGTH) {
+    jwtSecretErrors.push(
+      `JWT_REFRESH_SECRET must be at least ${MIN_JWT_SECRET_LENGTH} characters (currently ${jwtRefreshSecret.length})`,
+    );
+  }
+  if (jwtSecretErrors.length > 0) {
+    console.error(
+      '[Config] Insecure JWT configuration:\n' +
+        jwtSecretErrors.map((e) => `  - ${e}`).join('\n') +
+        '\n  Generate a strong secret: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"',
     );
     process.exit(1);
   }

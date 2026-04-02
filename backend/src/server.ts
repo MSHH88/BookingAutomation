@@ -29,6 +29,19 @@ server.listen(config.PORT, () => {
   });
 });
 
+// Handle server-level errors (e.g. EADDRINUSE) so the failure is diagnosed
+// clearly before the process exits rather than routing through uncaughtException.
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    logger.error(`Port ${config.PORT} is already in use. Is another server process running?`, {
+      code: err.code,
+    });
+  } else {
+    logger.error('HTTP server error', { code: err.code, error: err.message });
+  }
+  process.exit(1);
+});
+
 // ─── Graceful shutdown ────────────────────────────────────────────────────────
 
 /**
@@ -38,7 +51,21 @@ server.listen(config.PORT, () => {
  */
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
+/**
+ * Guard against re-entrant shutdown calls.
+ * Multiple signals (e.g. SIGTERM followed by SIGINT in a container) or an
+ * uncaughtException firing during shutdown would otherwise call server.close()
+ * and prisma.$disconnect() twice, causing harmless but noisy errors.
+ */
+let isShuttingDown = false;
+
 async function gracefulShutdown(signal: string): Promise<void> {
+  if (isShuttingDown) {
+    logger.warn(`Duplicate shutdown signal ignored: ${signal}`);
+    return;
+  }
+  isShuttingDown = true;
+
   logger.info(`${signal} received — initiating graceful shutdown`);
 
   // 1. Stop accepting new TCP connections

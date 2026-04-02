@@ -46,7 +46,7 @@ type PrismaDelegate = {
  *   { where: { isActive: true }, orderBy: { createdAt: 'desc' } },
  *   { page: req.query.page, limit: req.query.limit },
  * );
- * res.json(apiPaginated(result.data, result.meta));
+ * res.json(paginated(result.data, result.meta));
  */
 export async function paginate<T>(
   delegate: PrismaDelegate,

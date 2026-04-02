@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+import { logger } from '../utils/logger';
 
 let client: Redis | null = null;
 
@@ -25,9 +26,9 @@ function createClient(): Redis {
   });
 
   redis.on('error', (err: Error) => {
-    // Log but don't crash — Redis being unavailable degrades caching/queues,
-    // but the core API remains functional.
-    console.error(`[Redis] ${err.message}`);
+    // Log through Winston so Redis errors appear in structured prod log streams
+    // (Datadog, CloudWatch, etc.) rather than only raw stdout.
+    logger.error(`[Redis] ${err.message}`, { errorName: err.name });
   });
 
   return redis;

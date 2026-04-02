@@ -14,6 +14,7 @@ import { config } from '../config/index';
  *
  * Error mapping:
  *  ZodError                          → 400 VALIDATION_ERROR  (with field-level details)
+ *  PrismaClientValidationError       → 400 BAD_REQUEST       (invalid query arguments)
  *  PrismaClientKnownRequestError
  *    P2025 (not found)               → 404 NOT_FOUND
  *    P2002 (unique constraint)       → 409 CONFLICT
@@ -28,6 +29,10 @@ export function errorHandler(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction, // Required signature for Express error handlers
 ): void {
+  // req.id may be undefined if the error was thrown before requestLogger ran
+  // (e.g. a CORS rejection). Use a safe fallback so logs are always valid.
+  const requestId = req.id || '<no-request-id>';
+
   // ── Zod validation errors ──────────────────────────────────────────────────
   if (err instanceof ZodError) {
     res.status(400).json(
@@ -41,6 +46,16 @@ export function errorHandler(
         })),
       ),
     );
+    return;
+  }
+
+  // ── Prisma validation errors (invalid query arguments) ────────────────────
+  // Thrown when Prisma receives arguments that don't match the schema
+  // (e.g. wrong field type). This is always a client/developer error → 400.
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    res
+      .status(400)
+      .json(apiError('BAD_REQUEST', 'Invalid request — check your request body and parameters'));
     return;
   }
 
@@ -59,7 +74,7 @@ export function errorHandler(
           .json(apiError('BAD_REQUEST', 'Invalid reference — related record not found'));
         return;
       default:
-        // Fall through to the generic handler below
+        // Unknown Prisma error — fall through to the generic 500 handler below
         break;
     }
   }
@@ -68,7 +83,7 @@ export function errorHandler(
   if (err instanceof AppError) {
     if (!err.isOperational) {
       logger.error('Non-operational AppError', {
-        requestId: req.id,
+        requestId,
         error: err.message,
         stack: err.stack,
       });
@@ -83,7 +98,7 @@ export function errorHandler(
   const errorObj = err instanceof Error ? err : new Error(String(err));
 
   logger.error('Unhandled error', {
-    requestId: req.id,
+    requestId,
     error: errorObj.message,
     stack: errorObj.stack,
   });
