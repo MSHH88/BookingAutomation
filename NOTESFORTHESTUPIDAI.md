@@ -44,6 +44,23 @@ When a step is done and we move to the next, the old step content is replaced â€
 
 ---
 
+### Rule 4 â€” ALWAYS include EVERY file in the download prompt
+When writing the curl block, include every single file that exists in the repo for that step.
+Do NOT pick only the "main" files and skip helpers/utilities.
+
+How to know what files to include:
+- List all files in the relevant directory: `find backend/src -type f | sort`
+- Every file in that list goes into the curl block.
+- One curl line per file, no exceptions.
+
+The second mistake was including only 6 of 13 files in the Step 1.3 curl prompt.
+The missing files (logger.ts, apiResponse.ts, requestLogger.ts, AppError.ts, prisma.ts, express.d.ts, index.ts)
+caused 7 TypeScript errors when the user ran `npm run typecheck` on their machine.
+The user had to report back the errors before the AI corrected it.
+This should have been caught by listing all files in the repo before writing the prompt.
+
+---
+
 ## This file
 This file exists because the user had to correct the AI multiple times for the same mistakes.
 It took the user writing an angry message before the AI finally understood.
