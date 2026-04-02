@@ -2,12 +2,14 @@ import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 import { config } from './config/index';
 import { requestLogger } from './middleware/requestLogger';
 import { errorHandler } from './middleware/errorHandler';
 import { success, error as apiError } from './utils/apiResponse';
 import { AppError } from './errors/AppError';
+import { authRoutes } from './modules/auth/auth.routes';
 
 const app = express();
 
@@ -55,13 +57,18 @@ const globalRateLimiter = rateLimit({
 });
 app.use(globalRateLimiter);
 
-// ─── 4. Body parsers ──────────────────────────────────────────────────────────
+// ─── 4. Cookie parser ─────────────────────────────────────────────────────────
+// Must come before body parser so cookies are available in all route handlers.
+// Required for reading the httpOnly refreshToken cookie on /api/auth/refresh.
+app.use(cookieParser());
+
+// ─── 5. Body parsers ──────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 
-// ─── 5. Request logger + correlation ID ──────────────────────────────────────
+// ─── 6. Request logger + correlation ID ──────────────────────────────────────
 app.use(requestLogger);
 
-// ─── 6. Health check ──────────────────────────────────────────────────────────
+// ─── 7. Health check ──────────────────────────────────────────────────────────
 // Placed after security/CORS/body-parser middleware but exempt from rate limiting
 // (via the skip function above) so load-balancer health probes are always served.
 app.get('/health', (_req: Request, res: Response) => {
@@ -74,18 +81,18 @@ app.get('/health', (_req: Request, res: Response) => {
   );
 });
 
-// ─── 7. API route mounts (added per step) ────────────────────────────────────
-// app.use('/api/auth',     authRoutes);      // Step 1.4
-// app.use('/api/artists',  artistRoutes);    // Step 1.5
-// app.use('/api/leads',    leadRoutes);      // Step 1.6
+// ─── 8. API route mounts ──────────────────────────────────────────────────────
+app.use('/api/auth',     authRoutes);       // Step 1.4
+// app.use('/api/artists',  artistRoutes);  // Step 1.5
+// app.use('/api/leads',    leadRoutes);    // Step 1.7
 // …
 
-// ─── 8. 404 — unknown route ───────────────────────────────────────────────────
+// ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
   res.status(404).json(apiError('NOT_FOUND', 'Route not found'));
 });
 
-// ─── 9. Global error handler (MUST be last) ───────────────────────────────────
+// ─── 10. Global error handler (MUST be last) ──────────────────────────────────
 app.use(errorHandler);
 
 export { app };
