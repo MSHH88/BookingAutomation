@@ -12,8 +12,8 @@
 **Goal:** Build a robust, scalable, platform-agnostic API that can power a tattoo studio, barber
 shop, salon, or restaurant — just by changing configuration and the frontend skin.
 
-**Total steps:** 22  
-**Completion criteria:** All 22 steps done + full test suite passing + clean build + health endpoint live.
+**Total steps:** 25  
+**Completion criteria:** All 25 steps done + full test suite passing + clean build + health endpoint live.
 
 ---
 
@@ -85,12 +85,16 @@ email         String   @unique
 passwordHash  String
 role          Role     @default(CUSTOMER)  // ADMIN | ARTIST | CUSTOMER
 name          String
+phone         String?
+preferWhatsApp Boolean @default(false)
 isActive      Boolean  @default(true)
 createdAt     DateTime @default(now())
 updatedAt     DateTime @updatedAt
 artist        Artist?
 refreshTokens RefreshToken[]
 resetTokens   PasswordResetToken[]
+bookings      Booking[]  // customer's own bookings
+leads         Lead[]     // customer's own leads
 ```
 
 #### `Artist`
@@ -108,6 +112,7 @@ isActive        Boolean  @default(true)
 availability    ArtistAvailability[]
 blocks          AvailabilityBlock[]
 styles          ArtistStyle[]
+services        ArtistService[]       // which services this artist performs
 leads           Lead[]
 bookings        Booking[]
 ```
@@ -157,6 +162,61 @@ revokedAt DateTime?
 createdAt DateTime @default(now())
 ```
 
+#### `ServiceCategory`
+```
+id          String    @id @default(cuid())
+name        String
+description String?
+sortOrder   Int       @default(0)
+isActive    Boolean   @default(true)
+services    Service[]
+createdAt   DateTime  @default(now())
+updatedAt   DateTime  @updatedAt
+```
+
+#### `Service`
+```
+id               String          @id @default(cuid())
+categoryId       String
+category         ServiceCategory @relation(...)
+name             String
+description      String?
+durationMinutes  Int
+priceFrom        Decimal?        @db.Decimal(10,2)  // null = price on request
+imageUrl         String?
+isActive         Boolean         @default(true)
+sortOrder        Int             @default(0)
+artists          ArtistService[]
+bookings         Booking[]
+createdAt        DateTime        @default(now())
+updatedAt        DateTime        @updatedAt
+```
+
+#### `ArtistService`
+```
+artistId   String
+artist     Artist   @relation(...)
+serviceId  String
+service    Service  @relation(...)
+customPrice Decimal? @db.Decimal(10,2)  // override studio price for this artist
+@@id([artistId, serviceId])
+```
+
+#### `Table`
+```
+// Restaurant only — gated by TABLE_SELECTION_ENABLED flag
+id          String     @id @default(cuid())
+name        String     // "Table 1", "Window Booth", etc.
+capacity    Int        // max party size
+minCapacity Int        @default(1)
+isActive    Boolean    @default(true)
+positionX   Float?     // for visual floor plan rendering (CRM)
+positionY   Float?
+bookings    Booking[]
+createdAt   DateTime   @default(now())
+updatedAt   DateTime   @updatedAt
+```
+
 #### `TattooStyle`
 ```
 id              String   @id @default(cuid())
@@ -178,14 +238,17 @@ style    TattooStyle  @relation(...)
 
 #### `Lead`
 ```
+// Tattoo-studio inquiry or general contact form
 id              String     @id @default(cuid())
+customerId      String?    // if customer was logged in
+customer        User?      @relation(...)
 artistId        String?
 artist          Artist?    @relation(...)
 styleId         String?
 style           TattooStyle? @relation(...)
-placement       Json       // { generalArea, specificArea, refinement }
-size            String?    // null if "whole area"
-colorPreference String?    // "COLOR" | "BLACK_AND_WHITE" | "UNSURE"
+placement       Json?      // { generalArea, specificArea, refinement } — tattoo only
+size            String?    // null if "whole area" — tattoo only
+colorPreference String?    // "COLOR" | "BLACK_AND_WHITE" | "UNSURE" — tattoo only
 referenceImages String[]   // Cloudinary URLs
 description     String
 name            String
@@ -232,22 +295,38 @@ booking      Booking?
 #### `Booking`
 ```
 id              String        @id @default(cuid())
-leadId          String        @unique
-lead            Lead          @relation(...)
+// leadId is NULLABLE — instant bookings (salon/barber/nail/masseuse/restaurant)
+// do not require a lead; only tattoo quote-flow bookings set this
+leadId          String?       @unique
+lead            Lead?         @relation(...)
 quoteId         String?       @unique
 quote           Quote?        @relation(...)
+customerId      String?       // logged-in customer who made the booking
+customer        User?         @relation(...)
 artistId        String
 artist          Artist        @relation(...)
+serviceId       String?       // which service was booked (salon/barber/etc.)
+service         Service?      @relation(...)
+// Restaurant fields (gated by TABLE_SELECTION_ENABLED / PARTY_SIZE_ENABLED)
+tableId         String?
+table           Table?        @relation(...)
+partySize       Int?          // restaurant party size
+specialRequests String?       // free-text special requests (all types)
 startAt         DateTime
 endAt           DateTime
 status          BookingStatus @default(PENDING)
 calendarEventId String?       // Google Calendar event ID
 icsToken        String?       // unique token for .ics download URL
-notes           String?
+notes           String?       // internal notes (staff-only)
+// Deposit tracking
+depositAmount   Decimal?      @db.Decimal(10,2)
+depositPaidAt   DateTime?
+depositRefunded Boolean       @default(false)
 confirmedAt     DateTime?
 completedAt     DateTime?
 cancelledAt     DateTime?
 cancelReason    String?
+rescheduledFrom DateTime?     // original startAt if rescheduled
 createdAt       DateTime      @default(now())
 updatedAt       DateTime      @updatedAt
 invoice         Invoice?
@@ -301,7 +380,8 @@ updatedAt   DateTime @updatedAt
 id          String   @id @default(cuid())
 leadId      String?
 lead        Lead?    @relation(...)
-eventType   String   // "LEAD_CREATED" | "BOOKING_CONFIRMED" | "PAGE_VIEW" etc.
+bookingId   String?
+eventType   String   // "LEAD_CREATED" | "BOOKING_CONFIRMED" | "PAGE_VIEW" | "SERVICE_VIEWED" etc.
 payload     Json?
 sessionId   String?
 ipAddress   String?
@@ -313,6 +393,9 @@ utmCampaign String?
 createdAt   DateTime @default(now())
 ```
 
+> **Schema migration note (added in gap-fill pass):**
+> The original schema had `Booking.leadId` as `@unique` and non-nullable. It is now **nullable** (`String?`) to support instant bookings (salon/barber/nail/masseuse/restaurant) which create Bookings without a Lead. Additionally `ServiceCategory`, `Service`, `ArtistService`, and `Table` models were added to support the service menu CRM and restaurant table selection — these are required for Steps 1.24 and 1.25. A `prisma migrate dev --name add_service_table_models` will be needed before those steps.
+
 **Checklist:**
 - [x] `backend/prisma/schema.prisma` created with all models above
 - [x] All enums defined
@@ -320,6 +403,7 @@ createdAt   DateTime @default(now())
 - [x] `prisma validate` passes with zero errors
 - [x] `prisma migrate dev --name init` runs successfully against local Docker DB
 - [x] `prisma generate` produces the Prisma Client
+- [ ] Migration `add_service_table_models` run after adding Service/ServiceCategory/Table/ArtistService (Step 1.24 prerequisite)
 
 ---
 
@@ -442,7 +526,9 @@ defaults, and service catalogue templates. All modules use this — never hardco
 | `client` | Client | Client | Client | Client | Client | Guest |
 | `deposit` | Deposit | Deposit | Deposit | Deposit | Prepayment | Prepayment |
 
-**Feature flags (23):** `BOOKING_ENABLED`, `CALENDAR_ENABLED`, `ICS_DOWNLOAD_ENABLED`,
+**Feature flags (28, updated in gap-fill pass):**
+
+*Original 23:* `BOOKING_ENABLED`, `CALENDAR_ENABLED`, `ICS_DOWNLOAD_ENABLED`,
 `DEPOSIT_REQUIRED`, `DEPOSIT_PARTIAL_ENABLED`, `LEAD_CAPTURE_ENABLED`, `QUOTE_SYSTEM_ENABLED`,
 `INSTANT_BOOKING_ENABLED`, `MANNEQUIN_ENABLED`, `REFERENCE_IMAGES_ENABLED`,
 `SERVICE_MENU_ENABLED`, `PRICE_LIST_VISIBLE`, `TABLE_SELECTION_ENABLED`, `PARTY_SIZE_ENABLED`,
@@ -450,8 +536,146 @@ defaults, and service catalogue templates. All modules use this — never hardco
 `EMAIL_REMINDERS_ENABLED`, `SMS_REMINDERS_ENABLED`, `WHATSAPP_CONTACT_ENABLED`,
 `REVIEW_REQUEST_ENABLED`, `ANALYTICS_ENABLED`, `LEAD_SCORING_ENABLED`
 
+*Added (5 new):*
+- `ONLINE_PAYMENT_ENABLED` — Stripe card payment (deposit or full payment at booking time)
+- `WAITING_LIST_ENABLED` — customers can join a waiting list if no slots available
+- `RECURRING_BOOKING_ENABLED` — customer can mark a booking as recurring (weekly/biweekly)
+- `CANCELLATION_FEE_ENABLED` — late cancellation / no-show charge (uses card on file)
+- `GIFT_VOUCHER_ENABLED` — sell and redeem gift vouchers / gift cards
+
+> **Action required:** `businessType.ts` must be updated to add the 5 new flags to `FEATURE_FLAG_KEYS`,
+> `defaultFeatureFlags`, and tests (do this as part of Step 1.24 when the flag code is needed).
+
 **Service catalogue templates** — default categories + services for all 6 types (seed data).
-All prices, durations, and services are editable in the CRM.
+All prices, durations, and services are editable in the CRM via the Service Management API (Step 1.24).
+
+---
+
+### Per-Type Booking Flows
+
+These flows define the exact steps a customer takes for each business type. They are the "red thread"
+through the frontend pages and are documented here so every module (API, frontend, CRM, email
+templates) is built to support them.
+
+---
+
+#### 🖋 Tattoo Studio — Quote-led flow (LEAD_CAPTURE_ENABLED + QUOTE_SYSTEM_ENABLED)
+
+```
+1.  Browse Artists        → choose preferred artist (or "no preference")
+2.  Choose Style          → pick from tattoo styles (Hyperrealistic, Japanese, etc.)
+3.  Body Placement        → 3D mannequin: select body area + sub-area + refinement
+4.  Size                  → select size band (small / medium / large / whole area)
+5.  Reference Images      → upload up to 10 inspiration photos (Cloudinary)
+6.  Description           → free text: describe the idea
+7.  Contact Details       → name, email, phone, preferWhatsApp, up to 3 preferred dates
+8.  Submit Lead           → creates Lead (NEW), queues inquiry emails + optional WhatsApp Msg 1
+    ── ARTIST SIDE ──
+9.  Review Lead           → CRM: artist views placement, images, description
+10. Send Quote            → CRM: price, estimated hours, notes, validity → queues quote-sent email
+11. Customer Accepts      → quote accept endpoint → creates Booking (PENDING), lead → BOOKED
+12. Deposit (optional)    → if DEPOSIT_REQUIRED: Stripe payment widget for deposit amount
+13. Booking Confirmed     → admin/artist confirms → calendar event, booking-confirmed email + .ics
+14. Reminder              → email + WhatsApp 24h before appointment
+15. Appointment           → marking COMPLETED auto-creates Invoice, queues review request
+16. Review Request        → 36h delay: email + optional WhatsApp
+17. Invoice Sent          → artist sends invoice from CRM
+```
+
+---
+
+#### ✂️ Barber — Instant booking flow (INSTANT_BOOKING_ENABLED + SERVICE_MENU_ENABLED)
+
+```
+1.  Choose Barber         → select from active barbers (or "first available")
+2.  Choose Service        → pick from service menu (Clipper Cut, Fade, Beard Trim, Combo, etc.)
+3.  Choose Date           → calendar picker showing available days
+4.  Choose Time Slot      → time slots calculated by availability engine
+5.  Special Requests      → optional free text (if SPECIAL_REQUESTS_ENABLED)
+6.  Contact Details       → name, email, phone, preferWhatsApp
+7.  Deposit (optional)    → if DEPOSIT_REQUIRED: Stripe widget
+8.  Confirm Booking       → creates Booking directly (no Lead/Quote), status PENDING → auto-CONFIRMED
+9.  Booking Confirmed     → booking-confirmed email + .ics attachment
+10. Reminder              → email + optional WhatsApp 24h before
+11. Appointment           → mark COMPLETE → auto-creates Invoice, queues review request
+12. Review Request        → 36h delay: email + optional WhatsApp
+```
+
+---
+
+#### 💇 Hair Salon — Instant booking flow (INSTANT_BOOKING_ENABLED + SERVICE_MENU_ENABLED)
+
+```
+1.  Choose Stylist         → select active stylist (or "any available")
+2.  Choose Service         → pick from service menu (Cut & Blowdry, Balayage, Keratin, etc.)
+3.  Choose Date            → calendar picker
+4.  Choose Time Slot       → slots from availability engine (duration from selected service)
+5.  Special Requests       → optional note (e.g., "allergic to X product")
+6.  Contact Details        → name, email, phone, preferWhatsApp
+7.  Deposit (optional)     → if DEPOSIT_REQUIRED: Stripe widget
+8.  Confirm Booking        → creates Booking (no Lead/Quote), auto-CONFIRMED
+9.  Booking Confirmed      → booking-confirmed email + .ics
+10. Reminder               → email + WhatsApp 24h before
+11. Appointment            → COMPLETE → Invoice, review request queued
+12. Review Request         → 36h delay
+```
+
+---
+
+#### 💅 Nail Salon — Instant booking flow (same pattern as hair salon)
+
+```
+1.  Choose Nail Artist     → select from active nail artists
+2.  Choose Service         → pick from nail menu (Gel Manicure, Acrylic Set, Nail Art, etc.)
+3.  Choose Date & Time     → calendar → slots
+4.  Special Requests       → optional
+5.  Contact Details        → name, email, phone, preferWhatsApp
+6.  Deposit (optional)     → Stripe
+7.  Confirm Booking        → Booking created, auto-CONFIRMED
+8.  Confirmation Email     → + .ics
+9.  Reminder               → 24h email + WhatsApp
+10. Appointment            → COMPLETE → Invoice → review request
+```
+
+---
+
+#### 🧘 Masseuse / Spa — Instant booking flow
+
+```
+1.  Choose Therapist       → select therapist (or "any available")
+2.  Choose Treatment       → pick from treatments (Swedish 60min, Deep Tissue, Hot Stone, etc.)
+3.  Choose Date & Time     → calendar → slots
+4.  Special Requests       → health notes, pressure preferences
+5.  Contact Details        → name, email, phone, preferWhatsApp
+6.  Prepayment (optional)  → Stripe
+7.  Confirm Booking        → Booking created, auto-CONFIRMED
+8.  Session Confirmed      → booking-confirmed email + .ics
+9.  Reminder               → 24h email + WhatsApp
+10. Session                → COMPLETE → Invoice → review request
+```
+
+---
+
+#### 🍽 Restaurant — Table reservation flow
+
+```
+1.  Select Date            → calendar (available days highlighted)
+2.  Select Time            → available sitting times for that date
+3.  Party Size             → number of guests (PARTY_SIZE_ENABLED)
+4.  Choose Table           → visual table map shows free/occupied tables (TABLE_SELECTION_ENABLED)
+                             or auto-assigned if flag off
+5.  Occasion               → optional: Birthday / Anniversary / Business (Special Occasions menu)
+6.  Special Requests       → dietary requirements, allergies, notes
+7.  Contact Details        → name, email, phone, preferWhatsApp
+8.  Deposit (optional)     → Stripe (especially for large groups / private dining)
+9.  Confirm Reservation    → Booking created, auto-CONFIRMED
+10. Confirmation Email     → booking-confirmed email + .ics (guests can add to calendar)
+11. Reminder               → email + WhatsApp 24h before
+12. Day-of WhatsApp        → "We look forward to seeing you tonight at [TIME]"
+13. Post-visit             → WhatsApp / email review request 2h after reservation end time
+```
+
+---
 
 **Checklist:**
 - [x] Module validates `BUSINESS_TYPE` at import time — process exits on invalid value
@@ -462,6 +686,7 @@ All prices, durations, and services are editable in the CRM.
 - [x] `getLabels()`, `getDefaultFlags()`, `getServiceTemplate()` helpers exported
 - [x] Unit tests: 32 tests — all 6 types, label correctness, flag business-logic checks, catalogue checks
 - [x] `tsc --noEmit` clean, `npm test` 62/62 passing
+- [ ] Add 5 new feature flags to `businessType.ts` (ONLINE_PAYMENT_ENABLED, WAITING_LIST_ENABLED, RECURRING_BOOKING_ENABLED, CANCELLATION_FEE_ENABLED, GIFT_VOUCHER_ENABLED) — do this before Step 1.24
 
 ---
 
@@ -691,8 +916,12 @@ booking confirmations.
 - `backend/src/modules/email/templates/quote-sent.hbs`
 - `backend/src/modules/email/templates/booking-confirmed.hbs`
 - `backend/src/modules/email/templates/booking-reminder.hbs`
+- `backend/src/modules/email/templates/booking-cancelled.hbs`
+- `backend/src/modules/email/templates/booking-rescheduled.hbs`
+- `backend/src/modules/email/templates/deposit-received.hbs`
 - `backend/src/modules/email/templates/review-request.hbs`
 - `backend/src/modules/email/templates/invoice.hbs`
+- `backend/src/modules/email/templates/welcome.hbs`
 
 **Email triggers:**
 
@@ -703,18 +932,27 @@ booking confirmations.
 | Quote sent | `quote-sent` | Customer |
 | Booking confirmed | `booking-confirmed` + .ics | Customer |
 | 24h before appointment | `booking-reminder` | Customer |
+| Booking cancelled | `booking-cancelled` | Customer |
+| Booking rescheduled | `booking-rescheduled` | Customer |
+| Deposit payment received | `deposit-received` | Customer |
 | 24–48h post-appointment | `review-request` | Customer |
 | Invoice sent | `invoice` | Customer |
+| New customer account | `welcome` | Customer |
 
 **Template variables** (available in all templates):
 `{{ studioName }}`, `{{ customerName }}`, `{{ artistName }}`, `{{ date }}`, `{{ time }}`, `{{ googleReviewUrl }}`
 
 **Checklist:**
-- [ ] All 7 templates created and styled (HTML + inline CSS — no external CSS)
+- [ ] All 11 templates created and styled (HTML + inline CSS — no external CSS)
 - [ ] `.ics` file generated and attached to `booking-confirmed` using `ical-generator`
 - [ ] Queue processes jobs without blocking API
 - [ ] Failed jobs retry 3 times with exponential backoff (2s, 4s, 8s)
 - [ ] DB `EmailTemplate` records override `.hbs` content when present (CRM editing)
+- [ ] `booking-reminder` fires 24h before `startAt` via a BullMQ delayed job (scheduled in Step 1.9 on confirm)
+- [ ] `booking-cancelled` queued when booking status → CANCELLED
+- [ ] `booking-rescheduled` queued when booking is rescheduled
+- [ ] `deposit-received` queued when `Booking.depositPaidAt` is set
+- [ ] `welcome` queued on new CUSTOMER account registration
 - [ ] Tests for service and queue written and passing
 
 ---
@@ -769,11 +1007,14 @@ interface ICalendarAdapter {
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/analytics/overview` | Totals: leads, bookings, revenue, conversion rate, avg value |
+| GET | `/api/analytics/overview` | Totals: leads, bookings, revenue, conversion rate, avg value, no-show rate, cancellation rate |
 | GET | `/api/analytics/leads` | Leads by status, by source, by day/week/month |
-| GET | `/api/analytics/bookings` | Bookings by status, by artist, by date |
-| GET | `/api/analytics/revenue` | Revenue by month, by artist, outstanding invoices |
-| GET | `/api/analytics/artists` | Per-artist: leads, bookings, revenue, conversion rate |
+| GET | `/api/analytics/bookings` | Bookings by status, by artist, by date, no-shows, cancellations |
+| GET | `/api/analytics/revenue` | Revenue by month, by artist, by service type, outstanding invoices, avg spend per customer |
+| GET | `/api/analytics/artists` | Per-artist: leads, bookings, revenue, conversion rate, no-show rate |
+| GET | `/api/analytics/services` | Most-booked services, revenue by service, avg duration accuracy |
+| GET | `/api/analytics/peak-times` | Peak hours, peak days, busiest months |
+| GET | `/api/analytics/customers` | New vs returning customers, repeat rate, lifetime value top customers |
 
 **Query params (all endpoints):** `?from=YYYY-MM-DD&to=YYYY-MM-DD`
 
@@ -832,20 +1073,38 @@ interface ICalendarAdapter {
 | GET | `/api/features` | ADMIN | List all feature flags |
 | PATCH | `/api/features/:key` | ADMIN | Toggle flag on/off |
 
-**10 flags (seeded enabled by default):**
+**28 flags (seeded per business type from `businessType.ts` — not all ON for every type):**
 
 | Key | Controls |
 |---|---|
 | `BOOKING_ENABLED` | Entire booking flow |
-| `QUOTES_ENABLED` | Quote generation and sending |
-| `ANALYTICS_ENABLED` | Analytics dashboard |
-| `LEAD_CAPTURE_ENABLED` | Public inquiry form |
-| `EMAIL_AUTOMATION_ENABLED` | All automated emails |
-| `CALENDAR_SYNC_ENABLED` | Google Calendar sync |
-| `INVOICING_ENABLED` | Invoice generation and sending |
-| `WHATSAPP_CONTACT_ENABLED` | WhatsApp preference + automation |
-| `3D_MANNEQUIN_ENABLED` | Interactive body placement tool |
-| `REVIEWS_ENABLED` | Customer review system |
+| `CALENDAR_ENABLED` | Google Calendar sync |
+| `ICS_DOWNLOAD_ENABLED` | .ics calendar download link in emails |
+| `DEPOSIT_REQUIRED` | Deposit must be paid before booking confirms |
+| `DEPOSIT_PARTIAL_ENABLED` | Configurable % deposit (vs fixed) |
+| `LEAD_CAPTURE_ENABLED` | Public inquiry / lead form (tattoo + general) |
+| `QUOTE_SYSTEM_ENABLED` | Artist generates a quote before booking |
+| `INSTANT_BOOKING_ENABLED` | Direct booking without lead/quote step |
+| `MANNEQUIN_ENABLED` | 3D body placement tool on inquiry form |
+| `REFERENCE_IMAGES_ENABLED` | Upload reference photos on inquiry |
+| `SERVICE_MENU_ENABLED` | Service categories + items visible on site |
+| `PRICE_LIST_VISIBLE` | Show prices publicly (vs "from" / on request) |
+| `TABLE_SELECTION_ENABLED` | Visual table map for restaurant reservations |
+| `PARTY_SIZE_ENABLED` | Party size question on reservation form |
+| `SPECIAL_REQUESTS_ENABLED` | Free-text notes / requests field on booking |
+| `PORTFOLIO_ENABLED` | Artist/stylist portfolio gallery visible on site |
+| `GALLERY_UPLOAD_ENABLED` | Staff can upload to portfolio via CRM |
+| `EMAIL_REMINDERS_ENABLED` | Automated email reminder 24h before |
+| `SMS_REMINDERS_ENABLED` | SMS reminder (future: Twilio SMS — see Step 1.17) |
+| `WHATSAPP_CONTACT_ENABLED` | WhatsApp automation via Twilio |
+| `REVIEW_REQUEST_ENABLED` | Post-appointment review request |
+| `ANALYTICS_ENABLED` | First-party AnalyticsEvent tracking |
+| `LEAD_SCORING_ENABLED` | Rule-based lead score visible in CRM |
+| `ONLINE_PAYMENT_ENABLED` | Stripe card payment for deposits or full payment |
+| `WAITING_LIST_ENABLED` | Customers can join waiting list when fully booked |
+| `RECURRING_BOOKING_ENABLED` | Repeat bookings (weekly/bi-weekly cadence) |
+| `CANCELLATION_FEE_ENABLED` | Charge late cancellation / no-show fee via Stripe |
+| `GIFT_VOUCHER_ENABLED` | Sell and redeem gift vouchers / gift cards |
 
 **Middleware behaviour:**
 - Flag enabled → request continues
@@ -853,7 +1112,7 @@ interface ICalendarAdapter {
 - Flags cached in memory for 60 seconds (avoids a DB query on every request)
 
 **Checklist:**
-- [ ] All 10 flags seeded
+- [ ] All 28 flags seeded with correct per-type defaults from `businessType.ts`
 - [ ] `requireFeature` middleware works correctly on enabled and disabled flags
 - [ ] Toggle endpoint works; cache invalidated on change
 - [ ] Tests written and passing
@@ -870,13 +1129,16 @@ interface ICalendarAdapter {
 **Data to seed:**
 - 1 Admin user (`admin@studio.com` / `Admin1234!`)
 - 3 Artist users with full profiles, bios, `ArtistAvailability` (Mon–Fri 10:00–18:00), portfolio placeholder URLs
-- All 12 tattoo styles with descriptions and placeholder images
+- All 12 tattoo styles with descriptions and placeholder images (tattoo_studio type)
 - Artist ↔ Style assignments (each artist assigned 4–6 styles)
-- All 10 feature flags (default per `BUSINESS_TYPE` from `businessType.ts`)
-- 7 email templates (matching the 7 `.hbs` templates)
+- **ServiceCategory + Service records** seeded from `getServiceTemplate(BUSINESS_TYPE)` in `businessType.ts` (editable in CRM after seeding)
+- ArtistService join records (all artists assigned to all seeded services)
+- **Table records** (restaurant type only): 10 tables with names, capacities, placeholder positions
+- All 28 feature flags seeded with per-type defaults from `getDefaultFlags(BUSINESS_TYPE)`
+- 11 email templates (matching the 11 `.hbs` templates, subjects and placeholder HTML)
 - 5 Leads in various statuses (NEW, QUOTED, BOOKED, COMPLETED, CANCELLED)
 - 2 Quotes (SENT, ACCEPTED)
-- 2 Bookings (CONFIRMED, COMPLETED)
+- 2 Bookings (CONFIRMED, COMPLETED) — one with `serviceId` set, one without (tattoo)
 - 1 Invoice (UNPAID)
 
 **Checklist:**
@@ -900,12 +1162,24 @@ interface ICalendarAdapter {
 **Message 1 — Lead submitted** (immediate, only if `lead.preferWhatsApp = true`):
 > *"Hi [Name]! 👋 Thanks for reaching out to [STUDIO_NAME]. We've received your inquiry and [Artist] will be in touch shortly. — [STUDIO_NAME]"*
 
-**Message 2 — Booking completed** (2-hour delay):
+**Message 2 — Booking confirmed** (immediate on confirm, if `preferWhatsApp = true`):
+> *"Hi [Name]! ✅ Your [appointment/session/reservation] at [STUDIO_NAME] is confirmed for [DATE] at [TIME] with [Artist]. See you then! — [STUDIO_NAME]"*
+
+**Message 3 — Appointment reminder** (24h before `startAt`, if `preferWhatsApp = true`):
+> *"Hi [Name]! 🗓 Just a reminder — your [appointment] at [STUDIO_NAME] is tomorrow at [TIME] with [Artist]. Reply CANCEL to cancel. — [STUDIO_NAME]"*
+
+**Message 4 — Post-visit review request** (2-hour delay after COMPLETE, if `preferWhatsApp = true`):
 > *"Hi [Name]! 🙏 Thank you for visiting [STUDIO_NAME] today! We'd love a Google review: [GOOGLE_REVIEW_URL] — [STUDIO_NAME]"*
+
+**Message 5 — Day-of reminder for restaurant** (2h before reservation `startAt`, restaurant type only):
+> *"Hi [Name]! 🍽 Looking forward to seeing you at [STUDIO_NAME] tonight at [TIME] (party of [PARTY_SIZE]). — [STUDIO_NAME]"*
 
 **Checklist:**
 - [ ] Message 1 queued on lead submit (when `preferWhatsApp = true` + flag enabled)
-- [ ] Message 2 queued with 2-hour delay on booking complete
+- [ ] Message 2 queued on booking CONFIRM (when `preferWhatsApp = true` + flag enabled)
+- [ ] Message 3 queued as a delayed job on booking CONFIRM (delay = `startAt - 24h`)
+- [ ] Message 4 queued with 2-hour delay on booking COMPLETE
+- [ ] Message 5 queued for restaurant type on confirm (delay = `startAt - 2h`)
 - [ ] Twilio errors handled gracefully (logged, do NOT fail the parent request)
 - [ ] Feature flag checked before sending
 - [ ] Tests written and passing
@@ -1086,6 +1360,10 @@ and cover happy paths + key error cases for every module.
 - `backend/src/modules/uploads/uploads.test.ts`
 - `backend/src/modules/features/features.test.ts`
 - `backend/src/modules/analytics/analytics.test.ts`
+- `backend/src/modules/services/services.test.ts`
+- `backend/src/modules/tables/tables.test.ts`
+- `backend/src/modules/payments/payments.test.ts`
+- `backend/src/modules/customers/customers.test.ts`
 
 **Test standards:**
 - Each test file seeds its own minimal fixture data
@@ -1105,9 +1383,154 @@ and cover happy paths + key error cases for every module.
 
 ---
 
+## Step 1.23 — Payment Integration (Stripe)
+
+**What:** Stripe-powered online payment for deposits and full pre-payment. Creates a PaymentIntent
+on booking creation (when `ONLINE_PAYMENT_ENABLED` + `DEPOSIT_REQUIRED`), confirms payment, and
+records it on the `Booking` record. Supports card-on-file for late cancellation / no-show charges
+(`CANCELLATION_FEE_ENABLED`).
+
+**Why:** This is the #1 gap vs competitors (Fresha, Vagaro, Treatwell). Without online payment,
+businesses cannot collect deposits, reduce no-shows, or offer a fully automated booking experience.
+Every type (salon, barber, nail, masseuse, restaurant, tattoo) may require a deposit.
+
+**Files to create:**
+- `backend/src/modules/payments/payments.service.ts` — Stripe client, createPaymentIntent, confirmPayment, captureDeposit, chargeCardOnFile
+- `backend/src/modules/payments/payments.controller.ts`
+- `backend/src/modules/payments/payments.routes.ts`
+- `backend/src/modules/payments/payments.webhook.ts` — Stripe webhook handler (signature verification)
+
+**Endpoints:**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/api/payments/intent` | Auth | Create Stripe PaymentIntent for booking deposit |
+| POST | `/api/payments/confirm` | Public (Stripe) | Webhook: payment confirmed → set `depositPaidAt` on Booking, queue `deposit-received` email |
+| POST | `/api/payments/cancel-fee` | ADMIN | Charge cancellation fee to stored card |
+
+**Flow (deposit on booking):**
+1. Customer reaches "Confirm Booking" step with `DEPOSIT_REQUIRED = true`
+2. Frontend calls `POST /api/payments/intent` → backend creates Stripe PaymentIntent, returns `clientSecret`
+3. Frontend renders Stripe payment element → customer enters card
+4. Stripe calls webhook on success → booking confirmed, `depositPaidAt` set, `deposit-received` email queued
+
+**Checklist:**
+- [ ] Stripe client initialised with `STRIPE_SECRET_KEY` env var
+- [ ] Webhook signature verified using `STRIPE_WEBHOOK_SECRET`
+- [ ] `depositPaidAt` set on Booking atomically in webhook handler
+- [ ] `deposit-received` email queued on successful payment
+- [ ] Cancellation fee charge works when `CANCELLATION_FEE_ENABLED = true`
+- [ ] Tests written and passing (Stripe events mocked with `stripe-mock` or fixtures)
+
+---
+
+## Step 1.24 — Service & Table Management API
+
+**What:** Full CRUD for `ServiceCategory`, `Service`, `ArtistService` (price overrides per artist),
+and `Table` (restaurants). These are the CRM-editable records seeded from `businessType.ts`
+templates. Studio owners manage their menu and pricing from the CRM — no developer required.
+
+**Why:** Every non-tattoo booking type requires selecting a service before picking a time slot.
+Without this API, the CRM cannot edit prices, add new services, or manage restaurant tables.
+This step also updates `businessType.ts` with the 5 new feature flags added in the gap-fill pass.
+
+**Files to create:**
+- `backend/src/modules/services/services.schema.ts`
+- `backend/src/modules/services/services.service.ts`
+- `backend/src/modules/services/services.controller.ts`
+- `backend/src/modules/services/services.routes.ts`
+- `backend/src/modules/tables/tables.schema.ts`
+- `backend/src/modules/tables/tables.service.ts`
+- `backend/src/modules/tables/tables.controller.ts`
+- `backend/src/modules/tables/tables.routes.ts`
+
+**Also update:**
+- `backend/src/config/businessType.ts` — add 5 new flags (ONLINE_PAYMENT_ENABLED, WAITING_LIST_ENABLED, RECURRING_BOOKING_ENABLED, CANCELLATION_FEE_ENABLED, GIFT_VOUCHER_ENABLED) with per-type defaults
+
+**Endpoints — Services:**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/service-categories` | Public | List active categories (with nested services) |
+| POST | `/api/service-categories` | ADMIN | Create category |
+| PATCH | `/api/service-categories/:id` | ADMIN | Update category |
+| DELETE | `/api/service-categories/:id` | ADMIN | Soft-delete category |
+| GET | `/api/services` | Public | List all active services |
+| POST | `/api/services` | ADMIN | Create service |
+| PATCH | `/api/services/:id` | ADMIN | Update service (name, price, duration, image, isActive) |
+| DELETE | `/api/services/:id` | ADMIN | Soft-delete service |
+| PUT | `/api/artists/:id/services` | ADMIN | Set which services an artist offers (with optional price overrides) |
+
+**Endpoints — Tables (restaurant only, gated by `TABLE_SELECTION_ENABLED`):**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/tables` | Public | List active tables with capacity |
+| GET | `/api/tables/availability` | Public | Tables available for `?date=&time=&partySize=` |
+| POST | `/api/tables` | ADMIN | Create table (name, capacity, floor-plan position) |
+| PATCH | `/api/tables/:id` | ADMIN | Update table |
+| DELETE | `/api/tables/:id` | ADMIN | Soft-delete table |
+
+**`GET /api/tables/availability` logic:**
+1. Load all active tables
+2. Load all CONFIRMED + PENDING bookings for the requested date/time window (sitting duration)
+3. Filter tables where `capacity >= partySize` and no overlapping booking exists
+4. Return available tables with their `positionX/Y` for floor-plan rendering
+
+**Checklist:**
+- [ ] Service CRUD implemented and tested
+- [ ] Table CRUD implemented and tested
+- [ ] `GET /api/tables/availability` returns correct available tables
+- [ ] Artist price overrides work (ArtistService.customPrice shown on booking form)
+- [ ] `businessType.ts` updated with 5 new flags, tests updated and passing
+- [ ] `prisma migrate dev --name add_service_table_models` run
+
+---
+
+## Step 1.25 — Customer Portal API
+
+**What:** Customer-facing endpoints so logged-in customers can view their own booking history,
+manage upcoming bookings (reschedule/cancel), and manage their profile. Powers the "My Bookings"
+section of the public frontend.
+
+**Why:** This is standard across all competitor platforms (Fresha, Vagaro, Booksy). Without it,
+customers have no self-service — every change requires contacting the studio. This also enables
+repeat-booking UX (book again from history) which increases revenue.
+
+**Files to create:**
+- `backend/src/modules/customers/customers.schema.ts`
+- `backend/src/modules/customers/customers.service.ts`
+- `backend/src/modules/customers/customers.controller.ts`
+- `backend/src/modules/customers/customers.routes.ts`
+
+**Endpoints (all require `CUSTOMER` role or own-record check):**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/me/bookings` | CUSTOMER | List own bookings (past + upcoming, paginated) |
+| GET | `/api/me/bookings/:id` | CUSTOMER | Single booking detail |
+| POST | `/api/me/bookings/:id/cancel` | CUSTOMER | Cancel own upcoming booking (respects cancellation window) |
+| POST | `/api/me/bookings/:id/reschedule` | CUSTOMER | Request reschedule (creates a reschedule request, notifies staff) |
+| GET | `/api/me/leads` | CUSTOMER | List own inquiry leads (tattoo studio type) |
+| PATCH | `/api/me/profile` | CUSTOMER | Update own name, phone, preferWhatsApp |
+
+**Business rules:**
+- Customer can only cancel/reschedule bookings where `startAt > now() + cancellationWindowHours` (configurable, default 24h)
+- If `CANCELLATION_FEE_ENABLED` and customer cancels inside the window → trigger cancellation fee charge
+- Rescheduling creates a staff notification rather than auto-confirming (staff must re-confirm)
+
+**Checklist:**
+- [ ] Customers can only access their own records (no cross-customer data access)
+- [ ] Cancellation window enforced
+- [ ] Cancellation fee triggered when applicable (`CANCELLATION_FEE_ENABLED`)
+- [ ] Rescheduling request notifies staff via email
+- [ ] Tests written and passing
+
+---
+
 ## ✅ Phase 1 Complete When
 
-- [ ] All 22 steps above verified by checklist
+- [ ] All 25 steps above verified by checklist
 - [ ] `npm run build` — TypeScript compiles with zero errors and zero warnings
 - [ ] `npm test` — all tests pass, 0 failures
 - [ ] `docker compose up -d && npm run dev` — full stack starts cleanly
