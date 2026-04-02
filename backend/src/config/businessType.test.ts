@@ -245,31 +245,31 @@ describe('serviceCatalogTemplates', () => {
     expect(categories).toContain('Flash Tattoo');
   });
 
-  it('barber catalogue includes Haircut, Beard, and Combo Deals categories', () => {
+  it('barber catalogue includes Haircut, Beard & Shave, and Combo Deals categories', () => {
     const categories = getServiceTemplate('barber').map((c) => c.name);
     expect(categories).toContain('Haircut');
-    expect(categories).toContain('Beard');
+    expect(categories).toContain('Beard & Shave');
     expect(categories).toContain('Combo Deals');
   });
 
-  it('nail_salon catalogue includes Manicure, Pedicure, Nail Art and Extensions', () => {
+  it('nail_salon catalogue includes Manicure, Pedicure, Nail Art and Nail Extensions & Overlays', () => {
     const categories = getServiceTemplate('nail_salon').map((c) => c.name);
     expect(categories).toContain('Manicure');
     expect(categories).toContain('Pedicure');
     expect(categories).toContain('Nail Art');
-    expect(categories).toContain('Extensions');
+    expect(categories).toContain('Nail Extensions & Overlays');
   });
 
-  it('masseuse catalogue includes Relaxation, Therapeutic, and Specialist', () => {
+  it('masseuse catalogue includes Relaxation Massage, Therapeutic & Deep Tissue, and Specialist Treatments', () => {
     const categories = getServiceTemplate('masseuse').map((c) => c.name);
-    expect(categories).toContain('Relaxation');
-    expect(categories).toContain('Therapeutic');
-    expect(categories).toContain('Specialist');
+    expect(categories).toContain('Relaxation Massage');
+    expect(categories).toContain('Therapeutic & Deep Tissue');
+    expect(categories).toContain('Specialist Treatments');
   });
 
-  it('restaurant catalogue includes Table Reservations and Private Dining', () => {
+  it('restaurant catalogue includes Standard Dining and Private Dining', () => {
     const categories = getServiceTemplate('restaurant').map((c) => c.name);
-    expect(categories).toContain('Table Reservations');
+    expect(categories).toContain('Standard Dining');
     expect(categories).toContain('Private Dining');
   });
 });
