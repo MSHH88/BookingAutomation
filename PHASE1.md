@@ -416,31 +416,52 @@ refresh, forgot/reset password, and current-user endpoints.
 
 ---
 
-## Step 1.4b — Business Type Configuration
+## Step 1.4b — Business Type Configuration ✅
 
-**What:** Config module that reads `BUSINESS_TYPE` from env and exports a label map + default feature
-flag defaults. All modules that render human-readable labels use this — never hardcoded strings.
+**What:** Config module that reads `BUSINESS_TYPE` from env and exports a label map, feature flag
+defaults, and service catalogue templates. All modules use this — never hardcoded strings.
 
-**Files to create:**
+**Files:**
 - `backend/src/config/businessType.ts`
+- `backend/src/config/businessType.test.ts`
 
-**Supported types:** `tattoo_studio` | `hair_salon` | `barber` | `restaurant`
+**Supported types:** `tattoo_studio` | `hair_salon` | `barber` | `nail_salon` | `masseuse` | `restaurant`
 
-**Label keys:** `artists`, `artist`, `styles`, `style`, `portfolio`, `quote`, `mannequin`, `booking`
+**Label keys (16):** `artists`, `artist`, `styles`, `style`, `portfolio`, `quote`, `mannequin`,
+`booking`, `services`, `service`, `serviceCategory`, `client`, `clients`, `deposit`, `appointment`, `review`
 
-| Key | tattoo_studio | hair_salon | barber | restaurant |
-|---|---|---|---|---|
-| `artists` | Artists | Stylists | Barbers | Staff |
-| `styles` | Tattoo Styles | Hair Styles | Cuts & Styles | Menu |
-| `portfolio` | Portfolio | Gallery | Gallery | Photo Gallery |
-| `quote` | Quote | Estimate | Estimate | N/A |
-| `mannequin` | Body Placement | N/A | N/A | N/A |
+| Key | tattoo_studio | hair_salon | barber | nail_salon | masseuse | restaurant |
+|---|---|---|---|---|---|---|
+| `artists` | Artists | Stylists | Barbers | Nail Artists | Therapists | Staff |
+| `styles` | Tattoo Styles | Hair Styles | Cuts & Styles | Nail Styles | Massage Types | Menu |
+| `portfolio` | Portfolio | Gallery | Gallery | Gallery | Gallery | Photo Gallery |
+| `quote` | Quote | Estimate | Estimate | Estimate | Estimate | N/A |
+| `mannequin` | Body Placement | N/A | N/A | N/A | N/A | N/A |
+| `booking` | Booking | Appointment | Appointment | Appointment | Session | Reservation |
+| `services` | Services | Treatments | Services | Nail Services | Treatments | Menu |
+| `client` | Client | Client | Client | Client | Client | Guest |
+| `deposit` | Deposit | Deposit | Deposit | Deposit | Prepayment | Prepayment |
+
+**Feature flags (23):** `BOOKING_ENABLED`, `CALENDAR_ENABLED`, `ICS_DOWNLOAD_ENABLED`,
+`DEPOSIT_REQUIRED`, `DEPOSIT_PARTIAL_ENABLED`, `LEAD_CAPTURE_ENABLED`, `QUOTE_SYSTEM_ENABLED`,
+`INSTANT_BOOKING_ENABLED`, `MANNEQUIN_ENABLED`, `REFERENCE_IMAGES_ENABLED`,
+`SERVICE_MENU_ENABLED`, `PRICE_LIST_VISIBLE`, `TABLE_SELECTION_ENABLED`, `PARTY_SIZE_ENABLED`,
+`SPECIAL_REQUESTS_ENABLED`, `PORTFOLIO_ENABLED`, `GALLERY_UPLOAD_ENABLED`,
+`EMAIL_REMINDERS_ENABLED`, `SMS_REMINDERS_ENABLED`, `WHATSAPP_CONTACT_ENABLED`,
+`REVIEW_REQUEST_ENABLED`, `ANALYTICS_ENABLED`, `LEAD_SCORING_ENABLED`
+
+**Service catalogue templates** — default categories + services for all 6 types (seed data).
+All prices, durations, and services are editable in the CRM.
 
 **Checklist:**
-- [ ] Module validates `BUSINESS_TYPE` at import time — process exits on invalid value
-- [ ] Label map exported and typed with TypeScript
-- [ ] Default feature flag set exported (used by seed script)
-- [ ] Unit tests: all 4 business types return correct labels
+- [x] Module validates `BUSINESS_TYPE` at import time — process exits on invalid value
+- [x] Label map exported and typed with TypeScript (16 keys, 6 types)
+- [x] Feature flag defaults exported per type (23 flags, seed script ready)
+- [x] Service catalogue templates exported per type (default seed data, fully editable)
+- [x] `isBusinessType()` type guard exported
+- [x] `getLabels()`, `getDefaultFlags()`, `getServiceTemplate()` helpers exported
+- [x] Unit tests: 32 tests — all 6 types, label correctness, flag business-logic checks, catalogue checks
+- [x] `tsc --noEmit` clean, `npm test` 62/62 passing
 
 ---
 
