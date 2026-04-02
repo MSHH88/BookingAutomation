@@ -159,6 +159,15 @@ export const deleteArtistSchema = z.object({
   }),
 });
 
+/**
+ * GET /api/artists/:id/availability — get working hours.
+ */
+export const getAvailabilitySchema = z.object({
+  params: z.object({
+    id: z.string().min(1, 'Artist ID is required'),
+  }),
+});
+
 // ─── Inferred types ───────────────────────────────────────────────────────────
 
 export type CreateArtistBody = z.infer<typeof createArtistSchema>['body'];

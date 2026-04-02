@@ -16,6 +16,7 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError, AnyZodObject } from 'zod';
+import type { ParsedQs } from 'qs';
 
 export function validate(schema: AnyZodObject) {
   return (req: Request, _res: Response, next: NextFunction): void => {
@@ -31,9 +32,11 @@ export function validate(schema: AnyZodObject) {
     }
 
     // Assign the validated (and coerced/trimmed) values back to the request
-    // so controllers receive clean, typed data.
+    // so controllers receive clean, typed data from all three sources.
     const data = result.data as z.infer<typeof schema>;
     if (data.body !== undefined) req.body = data.body as Record<string, unknown>;
+    if (data.query !== undefined) req.query = data.query as ParsedQs;
+    if (data.params !== undefined) req.params = data.params as Record<string, string>;
 
     next();
   };

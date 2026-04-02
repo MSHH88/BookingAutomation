@@ -58,6 +58,7 @@ const baseUser = {
   id: 'user_cuid_1',
   email: 'alice@example.com',
   name: 'Alice',
+  phone: null,
   passwordHash: '$2a$12$hash',
   role: 'CUSTOMER' as const,
   isActive: true,

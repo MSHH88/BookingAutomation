@@ -26,6 +26,7 @@ import {
   listArtistsSchema,
   getArtistBySlugSchema,
   deleteArtistSchema,
+  getAvailabilitySchema,
 } from './artists.schema';
 
 const router = Router();
@@ -46,6 +47,7 @@ router.get(
 
 router.get(
   '/:id/availability',
+  validate(getAvailabilitySchema),
   ctrl.getAvailability,
 );
 

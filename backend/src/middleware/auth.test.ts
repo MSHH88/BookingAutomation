@@ -1,9 +1,9 @@
 /**
  * Unit tests for requireAuth and requireRole middleware.
  *
- * jwt.verify is mocked to control token behaviour without needing
- * valid secrets.  The auth.service module is also mocked so we don't
- * need a real JWT implementation here — we only test middleware logic.
+ * bcryptjs and prisma are fully mocked.  The auth.service module is imported
+ * statically after mocks are set up (jest.mock is hoisted, so static imports
+ * see the mocked versions).
  */
 
 // ─── Set env vars before config is loaded ────────────────────────────────────
@@ -29,6 +29,8 @@ import { Request, Response } from 'express';
 import { requireAuth } from './auth';
 import { requireRole } from './requireRole';
 import { AppError } from '../errors/AppError';
+import { login } from '../modules/auth/auth.service';
+import { prisma } from '../lib/prisma';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -51,15 +53,11 @@ function mockRes(): Response {
 
 describe('requireAuth', () => {
   it('calls next() and sets req.user for a valid Bearer token', async () => {
-    // Use the real service to create a valid token
-    // Import service after mocks are set up
-    const { login } = await import('../modules/auth/auth.service');
-    const { prisma } = await import('../lib/prisma');
-
     const baseUser = {
       id: 'u1',
       email: 'test@example.com',
       name: 'Test',
+      phone: null,
       passwordHash: '$2a$12$h',
       role: 'CUSTOMER' as const,
       isActive: true,

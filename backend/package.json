@@ -72,6 +72,11 @@
       "**/*.test.ts",
       "**/*.spec.ts"
     ],
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", {
+        "diagnostics": { "ignoreCodes": [151002] }
+      }]
+    },
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/**/*.d.ts"

@@ -10,6 +10,7 @@
  *  - Set / replace weekly availability windows
  */
 import bcrypt from 'bcryptjs';
+import type { Prisma } from '@prisma/client';
 
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
@@ -47,7 +48,7 @@ export async function listArtists(query: ListArtistsQuery, isAdmin = false) {
     where['isActive'] = query.isActive === 'true';
   }
 
-  return paginate<ArtistPublic>(
+  return paginate<ArtistListItem>(
     prisma.artist,
     {
       where,
@@ -251,7 +252,7 @@ export async function getAvailability(artistId: string) {
   if (!artist) throw new AppError(404, 'NOT_FOUND', 'Artist not found');
 
   return prisma.artistAvailability.findMany({
-    where: { artistId },
+    where: { artistId, isActive: true },
     orderBy: { dayOfWeek: 'asc' },
     select: {
       id: true,
@@ -335,6 +336,7 @@ const artistDetailSelect = {
     where: { isActive: true },
     orderBy: { dayOfWeek: 'asc' as const },
     select: {
+      id: true,
       dayOfWeek: true,
       startTime: true,
       endTime: true,
@@ -347,4 +349,11 @@ const artistDetailSelect = {
 
 // ─── Inferred return types (for controller typing) ────────────────────────────
 
-export type ArtistPublic = Awaited<ReturnType<typeof getArtistBySlug>>;
+/** Type for a single item returned by the public artist list. */
+export type ArtistListItem = Prisma.ArtistGetPayload<{ select: typeof artistPublicSelect }>;
+
+/** Type for the full artist detail response (single artist / admin ops). */
+export type ArtistDetail = Prisma.ArtistGetPayload<{ select: typeof artistDetailSelect }>;
+
+/** @deprecated Use ArtistDetail instead. Kept for backwards compatibility. */
+export type ArtistPublic = ArtistDetail;

@@ -14,7 +14,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { config } from '../../config/index';
 import * as authService from './auth.service';
-import { success } from '../../utils/apiResponse';
+import { success, error as apiError } from '../../utils/apiResponse';
 import type {
   RegisterBody,
   LoginBody,
@@ -114,12 +114,9 @@ export async function refreshToken(
     const rawToken = extractRefreshToken(req);
 
     if (!rawToken) {
-      res.status(401).json({
-        success: false,
-        data: null,
-        meta: null,
-        error: { code: 'INVALID_TOKEN', message: 'No refresh token provided', details: null },
-      });
+      res.status(401).json(
+        apiError('INVALID_TOKEN', 'No refresh token provided'),
+      );
       return;
     }
 
