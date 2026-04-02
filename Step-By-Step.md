@@ -11,7 +11,7 @@
 
 ---
 
-## 🔄 Step 1.3 — Express App Setup
+## ✅ Step 1.3 — Done
 
 ### Step 0.5 — Wipe old src/ and start clean
 
@@ -124,9 +124,9 @@ Make sure your `.env` has `DATABASE_URL`, `JWT_ACCESS_SECRET`, and `JWT_REFRESH_
 cd ~/Desktop/Automation/backend && npm run dev
 ```
 
-Expected:
+Expected (timestamp will differ):
 ```
-🚀 Server running on port 3000
+14:06:07 [info] Server started {"port":3000,"env":"development","pid":XXXXX}
 ```
 
 ---
