@@ -1,6 +1,6 @@
 # Phase 1 — Backend Foundation & Interoperability Core
 
-> **Status: 1.1 ✅ Done — Next: Step 1.2**  
+> **Status: 1.2 ✅ Done — Next: Step 1.3**  
 > This file is the authoritative, self-contained reference for every step in Phase 1.  
 > One step at a time. No step starts until the previous step is verified and signed off.  
 > See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.
@@ -66,7 +66,7 @@ Returns `503 Feature Disabled` when flag is OFF.
 
 ---
 
-## Step 1.2 — Database Schema (Prisma)
+## Step 1.2 — Database Schema (Prisma) ✅ DONE
 
 **What:** Design and write the entire PostgreSQL schema using Prisma ORM.
 
@@ -314,12 +314,12 @@ createdAt   DateTime @default(now())
 ```
 
 **Checklist:**
-- [ ] `backend/prisma/schema.prisma` created with all models above
-- [ ] All enums defined
-- [ ] All relations correct (no dangling foreign keys)
-- [ ] `prisma validate` passes with zero errors
-- [ ] `prisma migrate dev --name init` runs successfully against local Docker DB
-- [ ] `prisma generate` produces the Prisma Client
+- [x] `backend/prisma/schema.prisma` created with all models above
+- [x] All enums defined
+- [x] All relations correct (no dangling foreign keys)
+- [x] `prisma validate` passes with zero errors
+- [x] `prisma migrate dev --name init` runs successfully against local Docker DB
+- [x] `prisma generate` produces the Prisma Client
 
 ---
 
