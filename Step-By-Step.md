@@ -13,11 +13,20 @@
 
 ## 🔄 Step 1.3 — Express App Setup
 
-### Step 1 — Create required folders
+### Step 0.5 — Wipe old src/ and start clean
+
+You already downloaded some files in the previous (broken) prompt. Run this to delete the entire `src/` folder and recreate it fresh so there are zero duplicates:
 
 ```bash
 cd ~/Desktop/Automation/backend
+rm -rf src
 mkdir -p src/config src/errors src/lib src/middleware src/types src/utils
+echo "Clean slate. src/ deleted and recreated."
+```
+
+Expected:
+```
+Clean slate. src/ deleted and recreated.
 ```
 
 ---
