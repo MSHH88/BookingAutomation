@@ -12,8 +12,11 @@
 **Goal:** Build a robust, scalable, platform-agnostic API that can power a tattoo studio, barber
 shop, salon, or restaurant — just by changing configuration and the frontend skin.
 
-**Total steps:** 25  
-**Completion criteria:** All 25 steps done + full test suite passing + clean build + health endpoint live.
+**Total steps:** 29  
+**Completion criteria:** All 29 steps done + full test suite passing + clean build + health endpoint live.
+
+> **Gap Audit 2 (2026-04-02):** 19 additional gaps identified vs Fresha, Vagaro, Booksy, Square, OpenTable, Mindbody.
+> Full register: see `BUGS_AND_GAPS.md`. Gaps added to this plan as Steps 1.26–1.29 + field additions.
 
 ---
 
@@ -80,21 +83,24 @@ be correct before any code touches the database.
 
 #### `User`
 ```
-id            String   @id @default(cuid())
-email         String   @unique
-passwordHash  String
-role          Role     @default(CUSTOMER)  // ADMIN | ARTIST | CUSTOMER
-name          String
-phone         String?
-preferWhatsApp Boolean @default(false)
-isActive      Boolean  @default(true)
-createdAt     DateTime @default(now())
-updatedAt     DateTime @updatedAt
-artist        Artist?
-refreshTokens RefreshToken[]
-resetTokens   PasswordResetToken[]
-bookings      Booking[]  // customer's own bookings
-leads         Lead[]     // customer's own leads
+id                 String    @id @default(cuid())
+email              String    @unique
+passwordHash       String
+role               Role      @default(CUSTOMER)  // ADMIN | ARTIST | CUSTOMER
+name               String
+phone              String?
+preferWhatsApp     Boolean   @default(false)
+marketingConsent   Boolean   @default(false)   // GDPR (Gap 23 — BUG-D)
+gdprConsentAt      DateTime?                   // GDPR (Gap 23 — BUG-D)
+loyaltyBalance     Int       @default(0)        // Phase 2 (Gap 16 — add when LOYALTY feature built)
+isActive           Boolean   @default(true)
+createdAt          DateTime  @default(now())
+updatedAt          DateTime  @updatedAt
+artist             Artist?
+refreshTokens      RefreshToken[]
+resetTokens        PasswordResetToken[]
+bookings           Booking[]  // customer's own bookings
+leads              Lead[]     // customer's own leads
 ```
 
 #### `Artist`
@@ -108,6 +114,13 @@ profileImageUrl String?
 portfolioImages String[]
 bufferMinutes   Int      @default(30)   // gap between bookings
 slotDuration    Int      @default(90)   // default slot length in minutes
+commissionRate  Decimal? @db.Decimal(5,2)  // % or flat rate (Gap 17 — BUG-F)
+commissionType  String?  // "PERCENTAGE" | "FLAT" | "BOOTH_RENT" (Gap 17 — BUG-F)
+// Google Calendar OAuth tokens (Step 1.12 — BUG-N)
+calendarProvider     String?  // "google" | "outlook"
+calendarAccessToken  String?  // encrypted
+calendarRefreshToken String?  // encrypted
+calendarTokenExpiresAt DateTime?
 isActive        Boolean  @default(true)
 availability    ArtistAvailability[]
 blocks          AvailabilityBlock[]
@@ -125,6 +138,8 @@ artist      Artist   @relation(...)
 dayOfWeek   Int      // 0=Sun, 1=Mon, ... 6=Sat
 startTime   String   // "09:00"
 endTime     String   // "17:00"
+breakStart  String?  // e.g. "13:00" — recurring daily break (Gap 24 — BUG-G)
+breakEnd    String?  // e.g. "14:00" — recurring daily break (Gap 24 — BUG-G)
 isActive    Boolean  @default(true)
 @@unique([artistId, dayOfWeek])
 ```
@@ -186,6 +201,7 @@ priceFrom        Decimal?        @db.Decimal(10,2)  // null = price on request
 imageUrl         String?
 isActive         Boolean         @default(true)
 sortOrder        Int             @default(0)
+rebookIntervalDays Int?          // days until rebook reminder (Gap 19 — BUG: BUG-E)
 artists          ArtistService[]
 bookings         Booking[]
 createdAt        DateTime        @default(now())
@@ -255,6 +271,7 @@ name            String
 email           String
 phone           String
 preferWhatsApp  Boolean    @default(false)
+marketingConsent Boolean   @default(false)  // GDPR consent at inquiry time (Gap 23)
 preferredDates  Json?      // Array of up to 3 preferred DateTime strings
 status          LeadStatus @default(NEW)
 score           Int        @default(0)
@@ -314,6 +331,8 @@ partySize       Int?          // restaurant party size
 specialRequests String?       // free-text special requests (all types)
 startAt         DateTime
 endAt           DateTime
+totalDurationMinutes Int?     // sum of all service durations (multi-service — Gap 22)
+totalAmount     Decimal?      @db.Decimal(10,2)  // sum of all service prices (multi-service — Gap 22)
 status          BookingStatus @default(PENDING)
 calendarEventId String?       // Google Calendar event ID
 icsToken        String?       // unique token for .ics download URL
@@ -322,6 +341,10 @@ notes           String?       // internal notes (staff-only)
 depositAmount   Decimal?      @db.Decimal(10,2)
 depositPaidAt   DateTime?
 depositRefunded Boolean       @default(false)
+// Cancellation policy acceptance (Gap 25 — BUG-C — required when CANCELLATION_FEE_ENABLED)
+policyAcceptedAt DateTime?
+policyVersion   String?
+commissionEarned Decimal?     @db.Decimal(10,2)  // staff commission (Gap 17 — BUG-C)
 confirmedAt     DateTime?
 completedAt     DateTime?
 cancelledAt     DateTime?
@@ -330,6 +353,7 @@ rescheduledFrom DateTime?     // original startAt if rescheduled
 createdAt       DateTime      @default(now())
 updatedAt       DateTime      @updatedAt
 invoice         Invoice?
+services        BookingService[]  // multi-service line items (Gap 22)
 ```
 
 **BookingStatus enum:** `PENDING | CONFIRMED | COMPLETED | CANCELLED | NO_SHOW`
@@ -354,7 +378,59 @@ updatedAt   DateTime      @updatedAt
 
 **InvoiceStatus enum:** `UNPAID | PAID | OVERDUE | VOID`
 
-#### `EmailTemplate`
+#### `BookingService` *(Gap 22 — multi-service booking)*
+```
+// Join table: one booking can include multiple services
+id              String   @id @default(cuid())
+bookingId       String
+booking         Booking  @relation(...)
+serviceId       String
+service         Service  @relation(...)
+quantity        Int      @default(1)
+priceAtBooking  Decimal  @db.Decimal(10,2)  // snapshot of price at time of booking
+durationMinutes Int                          // snapshot of duration at time of booking
+@@index([bookingId])
+```
+
+#### `WaitlistEntry` *(Gap 21 — WAITING_LIST_ENABLED)*
+```
+id             String    @id @default(cuid())
+customerId     String?
+customer       User?     @relation(...)
+name           String
+email          String
+phone          String
+artistId       String?   // preferred artist (optional)
+serviceId      String?   // preferred service (optional)
+requestedDate  DateTime? // preferred date (optional)
+notifiedAt     DateTime? // set when slot availability email is sent
+createdAt      DateTime  @default(now())
+@@index([email])
+@@index([serviceId])
+@@index([artistId])
+```
+
+#### `StudioSettings` *(Gap 27 — Step 1.29)*
+```
+id                         String   @id @default(cuid())
+businessName               String
+address                    String?
+phone                      String?
+email                      String?
+timezone                   String   @default("Europe/London")
+currency                   String   @default("GBP")
+googleReviewUrl            String?
+cancellationPolicyText     String?  // displayed to customers at booking + required for CANCELLATION_FEE_ENABLED
+minAdvanceBookingHours     Int      @default(2)
+maxAdvanceBookingDays      Int      @default(90)
+logoUrl                    String?
+coverImageUrl              String?
+maxCoversLunch             Int?     // restaurant covers limit (Gap 29)
+maxCoversDinner            Int?     // restaurant covers limit (Gap 29)
+sittingDurationMinutes     Int      @default(90) // restaurant sitting duration
+updatedAt                  DateTime @updatedAt
+```
+
 ```
 id        String   @id @default(cuid())
 key       String   @unique  // e.g. "booking-confirmed"
@@ -395,15 +471,35 @@ createdAt   DateTime @default(now())
 
 > **Schema migration note (added in gap-fill pass):**
 > The original schema had `Booking.leadId` as `@unique` and non-nullable. It is now **nullable** (`String?`) to support instant bookings (salon/barber/nail/masseuse/restaurant) which create Bookings without a Lead. Additionally `ServiceCategory`, `Service`, `ArtistService`, and `Table` models were added to support the service menu CRM and restaurant table selection — these are required for Steps 1.24 and 1.25. A `prisma migrate dev --name add_service_table_models` will be needed before those steps.
+>
+> **Gap Audit 2 additions (2026-04-02):**
+> - `BookingService` join table added (multi-service bookings — Gap 22)
+> - `WaitlistEntry` model added (waitlist — Gap 21)
+> - `StudioSettings` singleton model added (Gap 27)
+> - `User.marketingConsent`, `User.gdprConsentAt` added (GDPR — Gap 23)
+> - `Lead.marketingConsent` added (GDPR — Gap 23)
+> - `ArtistAvailability.breakStart`/`breakEnd` added (recurring breaks — Gap 24)
+> - `Artist.commissionRate`/`commissionType` added (commission tracking — Gap 17)
+> - `Artist.calendarAccessToken`/`calendarRefreshToken` added (Google Calendar OAuth — BUG-N)
+> - `Booking.policyAcceptedAt`/`policyVersion` added (cancellation policy consent — Gap 25)
+> - `Booking.totalDurationMinutes`/`totalAmount` added (multi-service — Gap 22)
+> - `Booking.commissionEarned` added (Gap 17)
+> - `Service.rebookIntervalDays` added (rebook reminder — Gap 19)
+> - `User.loyaltyBalance` added as placeholder for Phase 2 loyalty feature (Gap 16)
+>
+> **⚠ Current code state:** `backend/prisma/schema.prisma` does NOT yet include the Gap Audit 2 additions.
+> See `BUGS_AND_GAPS.md` (BUG-A through BUG-N) for the full list of schema gaps to fix before migrating.
 
 **Checklist:**
-- [x] `backend/prisma/schema.prisma` created with all models above
+- [x] `backend/prisma/schema.prisma` created with all original models
 - [x] All enums defined
 - [x] All relations correct (no dangling foreign keys)
 - [x] `prisma validate` passes with zero errors
 - [x] `prisma migrate dev --name init` runs successfully against local Docker DB
 - [x] `prisma generate` produces the Prisma Client
+- [ ] Schema updated with Gap Audit 2 additions (BUG-A to BUG-N in `BUGS_AND_GAPS.md`)
 - [ ] Migration `add_service_table_models` run after adding Service/ServiceCategory/Table/ArtistService (Step 1.24 prerequisite)
+- [ ] Migration `add_gap_audit2_fields` run with all new fields / models from this audit
 
 ---
 
@@ -686,7 +782,8 @@ templates) is built to support them.
 - [x] `getLabels()`, `getDefaultFlags()`, `getServiceTemplate()` helpers exported
 - [x] Unit tests: 32 tests — all 6 types, label correctness, flag business-logic checks, catalogue checks
 - [x] `tsc --noEmit` clean, `npm test` 62/62 passing
-- [ ] Add 5 new feature flags to `businessType.ts` (ONLINE_PAYMENT_ENABLED, WAITING_LIST_ENABLED, RECURRING_BOOKING_ENABLED, CANCELLATION_FEE_ENABLED, GIFT_VOUCHER_ENABLED) — do this before Step 1.24
+- [ ] ⚠️ **BUG-H:** Add 5 new feature flags to `businessType.ts` (ONLINE_PAYMENT_ENABLED, WAITING_LIST_ENABLED, RECURRING_BOOKING_ENABLED, CANCELLATION_FEE_ENABLED, GIFT_VOUCHER_ENABLED) with per-type defaults — do this before Step 1.24
+- [ ] ⚠️ **BUG-I:** Add 7 more flags from Gap Audit 2 (LOYALTY_ENABLED, FORMS_ENABLED, REBOOK_REMINDER_ENABLED, TIP_COLLECTION_ENABLED, GDPR_ENABLED, DAILY_REPORT_ENABLED, COVERS_MANAGEMENT_ENABLED) — add as each feature is built (Steps 1.26–1.29)
 
 ---
 
@@ -922,6 +1019,12 @@ booking confirmations.
 - `backend/src/modules/email/templates/review-request.hbs`
 - `backend/src/modules/email/templates/invoice.hbs`
 - `backend/src/modules/email/templates/welcome.hbs`
+- `backend/src/modules/email/templates/rebook-reminder.hbs` *(Gap 19 — Step 1.27)*
+- `backend/src/modules/email/templates/waitlist-available.hbs` *(Gap 21 — Step 1.28)*
+- `backend/src/modules/email/templates/consent-form.hbs` *(Gap 18/26 — Step 1.26)*
+- `backend/src/modules/email/templates/aftercare-instructions.hbs` *(Gap 26 — tattoo only — Step 1.26)*
+- `backend/src/modules/email/templates/daily-summary.hbs` *(Gap 28 — Phase 2)*
+- `backend/src/modules/email/templates/weekly-summary.hbs` *(Gap 28 — Phase 2)*
 
 **Email triggers:**
 
@@ -938,12 +1041,20 @@ booking confirmations.
 | 24–48h post-appointment | `review-request` | Customer |
 | Invoice sent | `invoice` | Customer |
 | New customer account | `welcome` | Customer |
+| `Service.rebookIntervalDays` after COMPLETE | `rebook-reminder` | Customer *(Gap 19 — Step 1.27)* |
+| Slot opens on waitlist | `waitlist-available` | Waitlisted customer *(Gap 21 — Step 1.28)* |
+| Booking confirmed (form required) | `consent-form` | Customer *(Gap 18 — Step 1.26)* |
+| Booking marked COMPLETE (tattoo) | `aftercare-instructions` | Customer *(Gap 26 — Step 1.26)* |
+| Daily CRON 6pm | `daily-summary` | STUDIO_ADMIN_EMAIL *(Gap 28 — Phase 2)* |
+| Weekly CRON Mon 7am | `weekly-summary` | STUDIO_ADMIN_EMAIL *(Gap 28 — Phase 2)* |
 
 **Template variables** (available in all templates):
 `{{ studioName }}`, `{{ customerName }}`, `{{ artistName }}`, `{{ date }}`, `{{ time }}`, `{{ googleReviewUrl }}`
 
 **Checklist:**
-- [ ] All 11 templates created and styled (HTML + inline CSS — no external CSS)
+- [ ] All 15 templates (core Phase 1 scope) created and styled (HTML + inline CSS — no external CSS)
+- [ ] `rebook-reminder.hbs`, `waitlist-available.hbs`, `consent-form.hbs`, `aftercare-instructions.hbs` created in Step 1.27, 1.28, 1.26 respectively
+- [ ] `daily-summary.hbs`, `weekly-summary.hbs` created in Phase 2
 - [ ] `.ics` file generated and attached to `booking-confirmed` using `ical-generator`
 - [ ] Queue processes jobs without blocking API
 - [ ] Failed jobs retry 3 times with exponential backoff (2s, 4s, 8s)
@@ -1073,7 +1184,7 @@ interface ICalendarAdapter {
 | GET | `/api/features` | ADMIN | List all feature flags |
 | PATCH | `/api/features/:key` | ADMIN | Toggle flag on/off |
 
-**28 flags (seeded per business type from `businessType.ts` — not all ON for every type):**
+**35 flags (seeded per business type from `businessType.ts` — not all ON for every type):**
 
 | Key | Controls |
 |---|---|
@@ -1105,6 +1216,16 @@ interface ICalendarAdapter {
 | `RECURRING_BOOKING_ENABLED` | Repeat bookings (weekly/bi-weekly cadence) |
 | `CANCELLATION_FEE_ENABLED` | Charge late cancellation / no-show fee via Stripe |
 | `GIFT_VOUCHER_ENABLED` | Sell and redeem gift vouchers / gift cards |
+| `FORMS_ENABLED` | Intake / consent forms (Gap 18 — Step 1.26) |
+| `REBOOK_REMINDER_ENABLED` | Automated rebook reminder after service interval (Gap 19 — Step 1.27) |
+| `TIP_COLLECTION_ENABLED` | Tip / gratuity at checkout via Stripe (Gap 20) |
+| `GDPR_ENABLED` | GDPR consent, data export, account deletion (Gap 23) |
+| `COVERS_MANAGEMENT_ENABLED` | Restaurant max covers limit per sitting (Gap 29) |
+| `LOYALTY_ENABLED` | Customer loyalty points system (Gap 16 — Phase 2) |
+| `DAILY_REPORT_ENABLED` | Daily summary email to studio owner (Gap 28 — Phase 2) |
+
+> **Note:** Flags 29–35 are added to `FEATURE_FLAG_KEYS` as their respective features are built.
+> `LOYALTY_ENABLED` and `DAILY_REPORT_ENABLED` are Phase 2 scope — add to `businessType.ts` before Phase 2 Step that implements them.
 
 **Middleware behaviour:**
 - Flag enabled → request continues
@@ -1112,7 +1233,7 @@ interface ICalendarAdapter {
 - Flags cached in memory for 60 seconds (avoids a DB query on every request)
 
 **Checklist:**
-- [ ] All 28 flags seeded with correct per-type defaults from `businessType.ts`
+- [ ] All 35 flags seeded with correct per-type defaults from `businessType.ts`
 - [ ] `requireFeature` middleware works correctly on enabled and disabled flags
 - [ ] Toggle endpoint works; cache invalidated on change
 - [ ] Tests written and passing
@@ -1174,12 +1295,16 @@ interface ICalendarAdapter {
 **Message 5 — Day-of reminder for restaurant** (2h before reservation `startAt`, restaurant type only):
 > *"Hi [Name]! 🍽 Looking forward to seeing you at [STUDIO_NAME] tonight at [TIME] (party of [PARTY_SIZE]). — [STUDIO_NAME]"*
 
+**Message 6 — Rebook reminder** (delayed by `Service.rebookIntervalDays` after COMPLETE, if `REBOOK_REMINDER_ENABLED = true`):
+> *"Hi [Name]! 👋 It's been [N] weeks since your last [SERVICE] at [STUDIO_NAME]. Ready to book your next appointment? [BOOKING_URL] — [STUDIO_NAME]"*
+
 **Checklist:**
 - [ ] Message 1 queued on lead submit (when `preferWhatsApp = true` + flag enabled)
 - [ ] Message 2 queued on booking CONFIRM (when `preferWhatsApp = true` + flag enabled)
 - [ ] Message 3 queued as a delayed job on booking CONFIRM (delay = `startAt - 24h`)
 - [ ] Message 4 queued with 2-hour delay on booking COMPLETE
 - [ ] Message 5 queued for restaurant type on confirm (delay = `startAt - 2h`)
+- [ ] Message 6 queued when booking COMPLETE if `REBOOK_REMINDER_ENABLED = true` (delay = `Service.rebookIntervalDays * 24h`) — implemented in Step 1.27
 - [ ] Twilio errors handled gracefully (logged, do NOT fail the parent request)
 - [ ] Feature flag checked before sending
 - [ ] Tests written and passing
@@ -1266,7 +1391,8 @@ customer-facing booking calendar and the CRM schedule view.
 2. Load all `CONFIRMED` and `PENDING` bookings in the date range for this artist
 3. Load all `AvailabilityBlock` records in the date range for this artist
 4. For each day: subtract booked ranges (+ `artist.bufferMinutes`) and blocked ranges from working hours
-5. Divide remaining time into slots of `artist.slotDuration` minutes
+5. Also subtract the recurring break window (`breakStart`–`breakEnd`) if defined on `ArtistAvailability` *(Gap 24)*
+6. Divide remaining time into slots of `artist.slotDuration` minutes
 
 **Edge cases to handle:**
 - Artist has no `ArtistAvailability` for a day → day returns empty slots
@@ -1528,9 +1654,153 @@ repeat-booking UX (book again from history) which increases revenue.
 
 ---
 
-## ✅ Phase 1 Complete When
+## Step 1.26 — Intake / Consent Forms API *(Gap 18, 26)*
 
-- [ ] All 25 steps above verified by checklist
+**What:** Dynamic form template system for pre-appointment intake forms and consent forms. Required legally for hair salons (patch test consent), masseuse/spa (health questionnaire), tattoo studios (age verification + medical consent), and nail salons (nail health questionnaire).
+
+**Files to create:**
+- `backend/src/modules/forms/forms.schema.ts`
+- `backend/src/modules/forms/forms.service.ts`
+- `backend/src/modules/forms/forms.controller.ts`
+- `backend/src/modules/forms/forms.routes.ts`
+
+**New models (added to schema in Step 1.2 spec):**
+- `FormTemplate` — template with fields JSON array, businessTypes[], requiresSignature flag
+- `FormSubmission` — customer submission per booking, with answers JSON and `signedAt`
+
+**Endpoints:**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/forms` | ADMIN | List all form templates |
+| POST | `/api/forms` | ADMIN | Create form template |
+| PATCH | `/api/forms/:id` | ADMIN | Update template |
+| GET | `/api/forms/booking/:bookingId` | CUSTOMER/ADMIN | Get form to fill for a booking |
+| POST | `/api/forms/booking/:bookingId/submit` | CUSTOMER | Submit completed form |
+| GET | `/api/forms/submissions/:bookingId` | ADMIN/ARTIST | View submitted form for a booking |
+
+**Automation hooks:**
+- On `Booking CONFIRMED`: if `FORMS_ENABLED` and template required for business type → queue `consent-form.hbs` email with secure form link
+- On tattoo `Booking COMPLETED`: queue `aftercare-instructions.hbs` email
+- Booking cannot proceed to CONFIRMED state via customer portal if required form is not submitted
+
+**Checklist:**
+- [ ] `FORMS_ENABLED` flag added to `businessType.ts`
+- [ ] Form templates seeded for all 6 types (patch test, health questionnaire, tattoo consent, nail health)
+- [ ] Consent form link in `booking-confirmed` email when form is required
+- [ ] Aftercare instructions email triggered on tattoo completion
+- [ ] Customer submission stored with `ipAddress` and `signedAt` (legal evidence)
+- [ ] CRM shows form submissions per booking
+- [ ] Tests written and passing
+
+---
+
+## Step 1.27 — Rebook Reminder Automation *(Gap 19)*
+
+**What:** BullMQ delayed job that fires `Service.rebookIntervalDays` after a booking is marked COMPLETE. Sends a rebook prompt email (and optional WhatsApp) to bring the customer back.
+
+**Files to create:**
+- `backend/src/modules/rebook/rebook.queue.ts` — enqueue delayed rebook job (called from bookings.service.ts on completion)
+- `backend/src/modules/rebook/rebook.processor.ts` — send `rebook-reminder.hbs` email + optional WhatsApp Message 6
+
+**Logic:**
+- Enqueued by `bookings.service.ts` on completion if `service.rebookIntervalDays` is set and `REBOOK_REMINDER_ENABLED = true`
+- Delay = `service.rebookIntervalDays * 24 * 60 * 60 * 1000`
+- Job is idempotent (deduplicated by `bookingId + rebook`)
+
+**Default rebook intervals by service type:**
+| Service Type | Interval |
+|---|---|
+| Barber cuts | 28 days |
+| Acrylic infill | 21 days |
+| Gel manicure | 14 days |
+| Massage | 14 days |
+| Hair colour | 56 days (8 weeks) |
+| Blowdry | 7 days |
+
+**Checklist:**
+- [ ] `REBOOK_REMINDER_ENABLED` flag added to `businessType.ts`
+- [ ] `Service.rebookIntervalDays` field added to schema (Step 1.2)
+- [ ] `rebook-reminder.hbs` email template created (Step 1.11)
+- [ ] Job enqueued with correct delay on booking COMPLETE
+- [ ] WhatsApp Message 6 sent if applicable
+- [ ] Job is idempotent (safe to re-process)
+- [ ] Tests written and passing
+
+---
+
+## Step 1.28 — Waitlist API *(Gap 21)*
+
+**What:** Customers can join a waitlist when no slots are available. When a booking is cancelled, the system automatically notifies the first waitlist entry for the same service/artist/date.
+
+**Files to create:**
+- `backend/src/modules/waitlist/waitlist.schema.ts`
+- `backend/src/modules/waitlist/waitlist.service.ts`
+- `backend/src/modules/waitlist/waitlist.controller.ts`
+- `backend/src/modules/waitlist/waitlist.routes.ts`
+
+**Endpoints:**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/api/waitlist` | Public | Join the waitlist (gated by `WAITING_LIST_ENABLED`) |
+| GET | `/api/waitlist` | ADMIN | List all waitlist entries with filters |
+| DELETE | `/api/waitlist/:id` | ADMIN | Remove entry from waitlist |
+
+**Automation hook:**
+- When a `Booking` is cancelled: query `WaitlistEntry` records matching `serviceId` (and optionally `artistId` / `requestedDate`)
+- Notify the first matching unnotified entry via `waitlist-available.hbs` email + optional WhatsApp
+- Set `WaitlistEntry.notifiedAt` to prevent duplicate notifications
+
+**Checklist:**
+- [ ] `WAITING_LIST_ENABLED` flag already in `businessType.ts` — verify it's there (BUG-H fix)
+- [ ] `WaitlistEntry` model added to schema (Step 1.2)
+- [ ] `waitlist-available.hbs` email template created (Step 1.11)
+- [ ] Cancellation hook in `bookings.service.ts` triggers waitlist notification
+- [ ] Entry marked as notified to avoid duplicate sends
+- [ ] Tests written and passing
+
+---
+
+## Step 1.29 — Studio Settings API *(Gap 27)*
+
+**What:** Editable business settings stored in the database. Powers email templates, WhatsApp messages, invoices, booking policies, and cancellation fees. Studio owners manage these from the CRM — no developer or `.env` change required.
+
+**Files to create:**
+- `backend/src/modules/settings/settings.schema.ts`
+- `backend/src/modules/settings/settings.service.ts`
+- `backend/src/modules/settings/settings.controller.ts`
+- `backend/src/modules/settings/settings.routes.ts`
+
+**Endpoints:**
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/settings` | Public | Get all published settings (businessName, address, timezone, currency, etc.) |
+| PATCH | `/api/settings` | ADMIN | Update settings |
+
+**Key fields exposed on public endpoint:** `businessName`, `address`, `phone`, `email`, `timezone`, `currency`, `logoUrl`, `cancellationPolicyText`, `minAdvanceBookingHours`, `maxAdvanceBookingDays`
+
+**Business rules:**
+- `cancellationPolicyText` is displayed to customers at booking confirmation when `CANCELLATION_FEE_ENABLED = true` — `policyAcceptedAt` must be set on `Booking` for the fee to be legally chargeable
+- `maxCoversLunch` / `maxCoversDinner` used by table availability engine (Gap 29) when `COVERS_MANAGEMENT_ENABLED = true`
+- Settings are cached for 5 minutes (Redis) to avoid a DB query on every email render
+
+**Seed data:**
+- Default `StudioSettings` record seeded in Step 1.16 with values from `STUDIO_NAME`, `STUDIO_ADMIN_EMAIL`, `GOOGLE_REVIEW_URL` env vars (these become editable from CRM after seeding)
+
+**Checklist:**
+- [ ] `StudioSettings` model added to schema (Step 1.2)
+- [ ] Settings seeded in Step 1.16 using env vars as initial values
+- [ ] All email templates + WhatsApp messages use settings via service helper (not `config.STUDIO_NAME` directly)
+- [ ] Cancellation policy check: `CANCELLATION_FEE_ENABLED` requires `cancellationPolicyText` to be non-empty before flag can be enabled
+- [ ] Tests written and passing
+
+---
+
+
+
+- [ ] All 29 steps above verified by checklist
 - [ ] `npm run build` — TypeScript compiles with zero errors and zero warnings
 - [ ] `npm test` — all tests pass, 0 failures
 - [ ] `docker compose up -d && npm run dev` — full stack starts cleanly
@@ -1538,6 +1808,7 @@ repeat-booking UX (book again from history) which increases revenue.
 - [ ] All endpoints tested manually via Postman / curl
 - [ ] `npm audit` — 0 vulnerabilities
 - [ ] No hardcoded secrets anywhere in source code
+- [ ] `BUGS_AND_GAPS.md` — all BUG-A through BUG-N items marked ✅ Fixed
 - [ ] PLAN.md Phase 1 status updated to ✅
 
 ---

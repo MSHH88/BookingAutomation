@@ -767,13 +767,15 @@ redis:
 
 ## ✅ Phase 1 Complete When:
 
-- [ ] All 22 steps above completed and verified
+> **Authoritative reference:** PHASE1.md. This section is a summary only.
+- [ ] All 29 steps completed and verified (see PHASE1.md — authoritative)
 - [ ] `npm run test` — all tests pass
 - [ ] `npm run build` — TypeScript compiles with zero errors
 - [ ] `GET /health` returns `200 OK`
 - [ ] All endpoints tested manually via Postman / curl
 - [ ] No hardcoded secrets anywhere in code
 - [ ] `docker compose up -d && npm run dev` starts the full stack locally
+- [ ] `BUGS_AND_GAPS.md` — all BUG-A through BUG-N items marked ✅ Fixed
 
 ---
 ---
@@ -782,6 +784,17 @@ redis:
 
 > **Goal:** Build the studio management dashboard (CRM) that gives admins and artists full control over every aspect of the business — leads, quotes, bookings, invoices, artists, styles, email templates, feature flags, and user roles.  
 > **Why second:** The CRM depends only on Phase 1 (backend) being stable and complete. Building the CRM before the customer-facing frontend ensures every admin workflow, every role, and every data management action is tested with real API calls. When the frontend (Phase 3) is built, it connects to a backend that already has a full admin layer proving it works. The CRM is also the primary tool for the studio owner from day one — they need it before customers do.
+>
+> **Gap Audit 2 — Phase 2 scope items (from `BUGS_AND_GAPS.md`):**
+> The following features are confirmed Phase 2 scope (backend Phase 1 schema already prepared):
+> - **Multi-location / Multi-branch support** (Gap 14) — `Location` model; `locationId` on Artist + Booking; location-scoped analytics
+> - **Membership / Session Packages** (Gap 15) — `Package` + `CustomerPackage` models; Stripe subscriptions; `PACKAGES_ENABLED` flag
+> - **Loyalty Points System** (Gap 16) — `LoyaltyTransaction` model; `User.loyaltyBalance`; earning rules; redemption at checkout; `LOYALTY_ENABLED` flag
+> - **Staff Commission Tracking** (Gap 17) — Commission totals in analytics dashboard (fields are already in schema by Phase 1 end)
+> - **Tip / Gratuity** (Gap 20) — `Invoice.tipAmount`; tip selection in Stripe PaymentIntent; `TIP_COLLECTION_ENABLED` flag
+> - **Daily / Weekly Summary Reports** (Gap 28) — CRON job; `daily-summary.hbs` + `weekly-summary.hbs` emails; `DAILY_REPORT_ENABLED` flag
+> - **Product / Retail Sales** (Gap 31) — `Product`, `ProductCategory` models; `InvoiceItem` can reference product; `RETAIL_SALES_ENABLED` flag
+> - **Staff Mobile-Responsive CRM** (Gap 32) — explicitly mobile-responsive CRM views for staff
 
 ---
 
@@ -1193,6 +1206,9 @@ interface MannequinProps {
 
 > **Goal:** Build the interactive 3D mannequin using Three.js / React Three Fiber that customers use to select body placement for their tattoo. This is the single biggest UI differentiator vs every competitor — no booking platform in the world has this.  
 > **Why fourth:** The mannequin is a self-contained visual component. It is built after the backend (Phase 1), CRM (Phase 2), and frontend foundation (Phase 3) are all solid. Building it last means the integration point is already proven (Step 3.5 slot exists and waits), and the team can focus entirely on getting the 3D experience perfect without pressure from other moving parts.
+>
+> **Gap Audit 2 — Phase 4 / Future scope items:**
+> - **Instagram / Google Business / Facebook Booking Integration** (Gap 30) — public booking endpoint CORS-enabled for embed widgets; API key / embed token system; Google Reserve API; Facebook Appointments API. These make the platform accessible from every channel where customers already are.
 
 ---
 
