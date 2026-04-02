@@ -60,6 +60,16 @@ app.use(globalRateLimiter);
 // ─── 4. Cookie parser ─────────────────────────────────────────────────────────
 // Must come before body parser so cookies are available in all route handlers.
 // Required for reading the httpOnly refreshToken cookie on /api/auth/refresh.
+//
+// CSRF note: Traditional CSRF tokens are not needed here because:
+//  (a) The refresh-token cookie is set with SameSite=Strict — browsers will NOT
+//      attach it to cross-origin requests, neutralising CSRF at the browser level.
+//  (b) All state-changing, sensitive endpoints (/api/auth/logout, all /api/*
+//      protected routes) additionally require an Authorization: Bearer <jwt>
+//      header, which a CSRF attacker cannot forge.
+//  (c) The API only accepts Content-Type: application/json bodies; browsers
+//      cannot submit that type cross-origin without a CORS pre-flight, which our
+//      CORS policy will reject for unknown origins.
 app.use(cookieParser());
 
 // ─── 5. Body parsers ──────────────────────────────────────────────────────────
