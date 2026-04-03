@@ -21,7 +21,23 @@ The tests were failing because of **one missing step**: the Prisma client must b
 
 ---
 
-### STEP 1 — Regenerate the Prisma client ⚠️ THIS WAS THE MISSING STEP
+### STEP 1 — Install dependencies first ⚠️ MUST RUN BEFORE ANYTHING ELSE
+
+`prisma` is installed as a local package — it is **not** a global command. You must install `node_modules` before `npx prisma generate` will work.
+
+```bash
+cd ~/Desktop/Automation/backend && npm install
+```
+
+Expected: finishes with no errors. Audit warnings are fine to ignore.
+
+> If this step shows errors — paste the output here before continuing.
+
+---
+
+### STEP 2 — Regenerate the Prisma client ⚠️ THIS WAS THE MISSING STEP
+
+Now that `node_modules` exist, regenerate the Prisma client to pick up the `phone` field that was added to the schema:
 
 ```bash
 cd ~/Desktop/Automation/backend && npx prisma generate
@@ -33,16 +49,6 @@ Expected output ends with something like:
 ```
 
 > If this step shows errors — paste the output here before continuing.
-
----
-
-### STEP 2 — Install / update dependencies (confirm up to date)
-
-```bash
-cd ~/Desktop/Automation/backend && npm install
-```
-
-Expected: finishes with no errors. Audit warnings are fine to ignore.
 
 ---
 
