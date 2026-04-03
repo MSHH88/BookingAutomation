@@ -6,63 +6,115 @@
 ---
 
 ## ✅ Step 1.1 — Done
-
 ## ✅ Step 1.2 — Done
-
-## ✅ Step 1.3 — Done (files downloaded in previous session)
-
----
-
-## ✅ Step 1.4b — Files Already Downloaded
-
-The 3 updated files (`businessType.ts`, `businessType.test.ts`, `express.d.ts`) are already in place.
-
-The tests were failing because of **one missing step**: the Prisma client must be regenerated after the schema was updated to add `phone` to the User model. Without this, TypeScript does not know `phone` exists and throws a type error.
+## ✅ Step 1.3 — Done
 
 ---
 
-### STEP 1 — Install dependencies first ⚠️ MUST RUN BEFORE ANYTHING ELSE
+## Step 1.4 / 1.4b / 1.5 — Download All Updated Files
 
-`prisma` is installed as a local package — it is **not** a global command. You must install `node_modules` before `npx prisma generate` will work.
+---
+
+### STEP 1 — Delete all old files
+
+Removes every file that will be replaced so you have no outdated copies.
 
 ```bash
-cd ~/Desktop/Automation/backend && npm install
+cd ~/Desktop/Automation/backend && \
+rm -f \
+  package.json \
+  tsconfig.json \
+  prisma/schema.prisma \
+  src/app.ts \
+  src/server.ts \
+  src/index.ts \
+  src/config/index.ts \
+  src/config/businessType.ts \
+  src/config/businessType.test.ts \
+  src/errors/AppError.ts \
+  src/lib/prisma.ts \
+  src/lib/redis.ts \
+  src/middleware/auth.ts \
+  src/middleware/auth.test.ts \
+  src/middleware/errorHandler.ts \
+  src/middleware/requestLogger.ts \
+  src/middleware/requireRole.ts \
+  src/middleware/validate.ts \
+  src/modules/artists/artists.controller.ts \
+  src/modules/artists/artists.routes.ts \
+  src/modules/artists/artists.schema.ts \
+  src/modules/artists/artists.service.ts \
+  src/modules/auth/auth.controller.ts \
+  src/modules/auth/auth.routes.ts \
+  src/modules/auth/auth.schema.ts \
+  src/modules/auth/auth.service.ts \
+  src/modules/auth/auth.service.test.ts \
+  src/types/express.d.ts \
+  src/utils/apiResponse.ts \
+  src/utils/logger.ts \
+  src/utils/paginate.ts && echo "ALL OLD FILES DELETED"
 ```
 
-Expected: finishes with no errors. Audit warnings are fine to ignore.
-
-> If this step shows errors — paste the output here before continuing.
+Expected: `ALL OLD FILES DELETED`
 
 ---
 
-### STEP 2 — Regenerate the Prisma client ⚠️ THIS WAS THE MISSING STEP
-
-Now that `node_modules` exist, regenerate the Prisma client to pick up the `phone` field that was added to the schema:
+### STEP 2 — Download all 31 updated files
 
 ```bash
-cd ~/Desktop/Automation/backend && npx prisma generate
+cd ~/Desktop/Automation/backend && \
+mkdir -p prisma src/config src/errors src/lib src/middleware src/modules/artists src/modules/auth src/types src/utils && \
+BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
+curl -sfL -o package.json                                "$BASE/package.json"                                && echo "OK  1/31 package.json"                    || echo "FAILED: package.json" && \
+curl -sfL -o tsconfig.json                               "$BASE/tsconfig.json"                               && echo "OK  2/31 tsconfig.json"                   || echo "FAILED: tsconfig.json" && \
+curl -sfL -o prisma/schema.prisma                        "$BASE/prisma/schema.prisma"                        && echo "OK  3/31 prisma/schema.prisma"             || echo "FAILED: prisma/schema.prisma" && \
+curl -sfL -o src/app.ts                                  "$BASE/src/app.ts"                                  && echo "OK  4/31 src/app.ts"                      || echo "FAILED: src/app.ts" && \
+curl -sfL -o src/server.ts                               "$BASE/src/server.ts"                               && echo "OK  5/31 src/server.ts"                   || echo "FAILED: src/server.ts" && \
+curl -sfL -o src/index.ts                                "$BASE/src/index.ts"                                && echo "OK  6/31 src/index.ts"                    || echo "FAILED: src/index.ts" && \
+curl -sfL -o src/config/index.ts                         "$BASE/src/config/index.ts"                         && echo "OK  7/31 src/config/index.ts"             || echo "FAILED: src/config/index.ts" && \
+curl -sfL -o src/config/businessType.ts                  "$BASE/src/config/businessType.ts"                  && echo "OK  8/31 src/config/businessType.ts"       || echo "FAILED: src/config/businessType.ts" && \
+curl -sfL -o src/config/businessType.test.ts             "$BASE/src/config/businessType.test.ts"             && echo "OK  9/31 src/config/businessType.test.ts"  || echo "FAILED: src/config/businessType.test.ts" && \
+curl -sfL -o src/errors/AppError.ts                      "$BASE/src/errors/AppError.ts"                      && echo "OK 10/31 src/errors/AppError.ts"           || echo "FAILED: src/errors/AppError.ts" && \
+curl -sfL -o src/lib/prisma.ts                           "$BASE/src/lib/prisma.ts"                           && echo "OK 11/31 src/lib/prisma.ts"               || echo "FAILED: src/lib/prisma.ts" && \
+curl -sfL -o src/lib/redis.ts                            "$BASE/src/lib/redis.ts"                            && echo "OK 12/31 src/lib/redis.ts"                || echo "FAILED: src/lib/redis.ts" && \
+curl -sfL -o src/middleware/auth.ts                      "$BASE/src/middleware/auth.ts"                      && echo "OK 13/31 src/middleware/auth.ts"           || echo "FAILED: src/middleware/auth.ts" && \
+curl -sfL -o src/middleware/auth.test.ts                 "$BASE/src/middleware/auth.test.ts"                 && echo "OK 14/31 src/middleware/auth.test.ts"      || echo "FAILED: src/middleware/auth.test.ts" && \
+curl -sfL -o src/middleware/errorHandler.ts              "$BASE/src/middleware/errorHandler.ts"              && echo "OK 15/31 src/middleware/errorHandler.ts"   || echo "FAILED: src/middleware/errorHandler.ts" && \
+curl -sfL -o src/middleware/requestLogger.ts             "$BASE/src/middleware/requestLogger.ts"             && echo "OK 16/31 src/middleware/requestLogger.ts"  || echo "FAILED: src/middleware/requestLogger.ts" && \
+curl -sfL -o src/middleware/requireRole.ts               "$BASE/src/middleware/requireRole.ts"               && echo "OK 17/31 src/middleware/requireRole.ts"    || echo "FAILED: src/middleware/requireRole.ts" && \
+curl -sfL -o src/middleware/validate.ts                  "$BASE/src/middleware/validate.ts"                  && echo "OK 18/31 src/middleware/validate.ts"       || echo "FAILED: src/middleware/validate.ts" && \
+curl -sfL -o src/modules/artists/artists.controller.ts   "$BASE/src/modules/artists/artists.controller.ts"   && echo "OK 19/31 artists.controller.ts"           || echo "FAILED: artists.controller.ts" && \
+curl -sfL -o src/modules/artists/artists.routes.ts       "$BASE/src/modules/artists/artists.routes.ts"       && echo "OK 20/31 artists.routes.ts"               || echo "FAILED: artists.routes.ts" && \
+curl -sfL -o src/modules/artists/artists.schema.ts       "$BASE/src/modules/artists/artists.schema.ts"       && echo "OK 21/31 artists.schema.ts"               || echo "FAILED: artists.schema.ts" && \
+curl -sfL -o src/modules/artists/artists.service.ts      "$BASE/src/modules/artists/artists.service.ts"      && echo "OK 22/31 artists.service.ts"              || echo "FAILED: artists.service.ts" && \
+curl -sfL -o src/modules/auth/auth.controller.ts         "$BASE/src/modules/auth/auth.controller.ts"         && echo "OK 23/31 auth.controller.ts"              || echo "FAILED: auth.controller.ts" && \
+curl -sfL -o src/modules/auth/auth.routes.ts             "$BASE/src/modules/auth/auth.routes.ts"             && echo "OK 24/31 auth.routes.ts"                  || echo "FAILED: auth.routes.ts" && \
+curl -sfL -o src/modules/auth/auth.schema.ts             "$BASE/src/modules/auth/auth.schema.ts"             && echo "OK 25/31 auth.schema.ts"                  || echo "FAILED: auth.schema.ts" && \
+curl -sfL -o src/modules/auth/auth.service.ts            "$BASE/src/modules/auth/auth.service.ts"            && echo "OK 26/31 auth.service.ts"                 || echo "FAILED: auth.service.ts" && \
+curl -sfL -o src/modules/auth/auth.service.test.ts       "$BASE/src/modules/auth/auth.service.test.ts"       && echo "OK 27/31 auth.service.test.ts"            || echo "FAILED: auth.service.test.ts" && \
+curl -sfL -o src/types/express.d.ts                      "$BASE/src/types/express.d.ts"                      && echo "OK 28/31 src/types/express.d.ts"          || echo "FAILED: src/types/express.d.ts" && \
+curl -sfL -o src/utils/apiResponse.ts                    "$BASE/src/utils/apiResponse.ts"                    && echo "OK 29/31 src/utils/apiResponse.ts"         || echo "FAILED: src/utils/apiResponse.ts" && \
+curl -sfL -o src/utils/logger.ts                         "$BASE/src/utils/logger.ts"                         && echo "OK 30/31 src/utils/logger.ts"              || echo "FAILED: src/utils/logger.ts" && \
+curl -sfL -o src/utils/paginate.ts                       "$BASE/src/utils/paginate.ts"                       && echo "OK 31/31 src/utils/paginate.ts"            || echo "FAILED: src/utils/paginate.ts"
 ```
 
-Expected output ends with something like:
+Expected: all 31 lines show `OK N/31`. If any show `FAILED` — stop and paste the output here.
+
+---
+
+### STEP 3 — Install, generate Prisma client, run tests
+
+```bash
+cd ~/Desktop/Automation/backend && npm install && npx prisma generate && npm test
+```
+
+Expected:
 ```
 ✔ Generated Prisma Client (v5.x.x) to ./node_modules/@prisma/client in XXXms
-```
 
-> If this step shows errors — paste the output here before continuing.
-
----
-
-### STEP 3 — Run all tests
-
-```bash
-cd ~/Desktop/Automation/backend && npm test
-```
-
-Expected (62 tests must pass):
-```
-PASS src/config/businessType.test.ts
-PASS src/modules/auth/auth.service.test.ts
-PASS src/middleware/auth.test.ts
+PASS  src/config/businessType.test.ts
+PASS  src/modules/auth/auth.service.test.ts
+PASS  src/middleware/auth.test.ts
 
 Test Suites: 3 passed, 3 total
 Tests:       62 passed, 62 total
@@ -78,23 +130,7 @@ Tests:       62 passed, 62 total
 cd ~/Desktop/Automation/backend && npm run typecheck
 ```
 
-Expected: **no output**, exit code 0. Any output means a type error — paste it before continuing.
-
----
-
-### ✅ VERIFICATION — Did everything work?
-
-If STEP 3 shows **3 passed, 62 passed** and STEP 4 produces **no output**, then Step 1.4b is complete and you are ready to move on.
-
-**Checklist:**
-- [ ] `PASS src/config/businessType.test.ts`
-- [ ] `PASS src/modules/auth/auth.service.test.ts`
-- [ ] `PASS src/middleware/auth.test.ts`
-- [ ] `Tests: 62 passed, 62 total`
-- [ ] `npm run typecheck` produced no output
-
-If all 5 are ✅ — **move on to STEP 5 (Build) below.**
-If anything is ❌ — paste the output here before continuing.
+Expected: **no output**, exit code 0. Any output = type error — paste it before continuing.
 
 ---
 
@@ -115,8 +151,6 @@ Make sure your `.env` has these filled in:
 - `JWT_ACCESS_SECRET`
 - `JWT_REFRESH_SECRET`
 - `BUSINESS_TYPE` (one of: `tattoo_studio`, `hair_salon`, `barber`, `nail_salon`, `masseuse`, `restaurant`)
-
-Then:
 
 ```bash
 cd ~/Desktop/Automation/backend && npm run dev
@@ -155,18 +189,17 @@ Expected:
 
 ---
 
-### STEP 9 — Test auth endpoints
+### STEP 9 — Test auth register endpoint
 
 ```bash
-# Register
 curl -s -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","password":"Password123!","name":"Test User","role":"OWNER"}' | jq .
+  -d '{"email":"test@test.com","password":"Password123!","name":"Test User"}' | jq .
 ```
 
 Expected:
 ```json
-{"success":true,"data":{"user":{"id":"...","email":"test@test.com","name":"Test User","role":"OWNER","phone":null,"createdAt":"..."},"accessToken":"..."}}
+{"success":true,"data":{"user":{"id":"...","email":"test@test.com","name":"Test User","role":"CUSTOMER","phone":null,"createdAt":"..."},"accessToken":"..."}}
 ```
 
 ---
@@ -185,23 +218,4 @@ Expected:
 ---
 
 All 10 steps passing = Steps 1.4 / 1.4b / 1.5 complete. ✅
-
----
-
-## Bug Fix Summary (all applied in this session)
-
-| # | File | Bug Fixed |
-|---|------|-----------|
-| BUG-1 | `src/middleware/validate.ts` | `req.query` and `req.params` were never updated with Zod-coerced values — only `req.body` was. Zod transforms on query params (e.g. pagination coercion) were silently discarded. |
-| BUG-2 | `src/modules/artists/artists.service.ts` | `artistDetailSelect.availability` was missing `id: true`, so the artist detail endpoint returned availability items without IDs. |
-| BUG-3 | `src/modules/artists/artists.service.ts` | `getAvailability` had no `isActive` filter, returning inactive records while the detail endpoint only returned active ones. |
-| BUG-4 | `src/modules/artists/artists.routes.ts` | `GET /:id/availability` was the only parameterised route without `validate()`. Wired up `getAvailabilitySchema`. |
-| BUG-4a | `src/modules/artists/artists.schema.ts` | Added missing `getAvailabilitySchema` for the `/:id/availability` route param. |
-| BUG-5 | `src/modules/auth/auth.controller.ts` | `refreshToken` handler manually built the error envelope object instead of using `apiError()`. Missing `apiError` import added. |
-| BUG-6 | `src/modules/artists/artists.service.ts` | `paginate` used the wrong type (the detail shape). Added accurate `ArtistListItem` and `ArtistDetail` types via `Prisma.ArtistGetPayload`. |
-| BUG-7 | `src/modules/auth/auth.service.test.ts` | `baseUser` fixture missing `phone: null`; `toSafeUser()` would return `phone: undefined` instead of `null`. |
-| BUG-8 | `src/middleware/auth.test.ts` | Same `phone: null` fix. Converted dynamic `await import()` calls to static imports (dynamic import breaks under ts-jest). |
-| BUG-9 | `src/index.ts` | Replaced empty `export {}` stub with `export { app }` barrel export for integration tests. |
-| BUG-10 | `package.json` | Suppressed ts-jest TS151002 warning via `diagnostics.ignoreCodes` in the transform config. |
-| BUG-CATALOGUE | `src/config/businessType.ts` | Massively expanded service catalogue from ~30 services to **300+ services** across all 6 business types — hair salon, barber, masseuse, nail salon, tattoo studio, restaurant. Every possible service is now included. |
 
