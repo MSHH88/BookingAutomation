@@ -86,9 +86,31 @@ rm -f \
 Then the curl download block comes immediately after.
 Never write a curl download block without a `rm -f` block above it.
 
+### Rule 6 — ALWAYS include `npx prisma migrate dev` in the guide when schema changes exist
+`npx prisma generate` only builds the TypeScript client — it does NOT apply schema changes to the real database.
+Any time `schema.prisma` has new columns or tables, `npx prisma migrate dev` MUST be run to apply them to the DB.
+The guide must always include this step BEFORE starting the server.
+If this step is missing, every real HTTP request that touches a new column will crash with:
+`The column "X" does not exist in the current database.`
+Tests will still pass (they mock Prisma), hiding the problem until the server is run.
+
+Format in the guide:
+```bash
+npx prisma migrate dev --name init
+```
+Note: if the DB already has data from a previous partial migration, Prisma may prompt to reset — type `y` in development.
+
+---
+
+### Rule 7 — ALWAYS include `.env.example` in the download steps
+`.env.example` is the only reference file that shows the user what to put in their `.env`.
+If it is not in the curl download block, the user's local `.env` will stay outdated.
+In the previous guide, `.env.example` was missing from all download steps, so the user's `.env`
+only listed 4 business types (`tattoo_studio | hair_salon | barber | restaurant`) instead of all 6.
+Every time files are downloaded, `.env.example` must be included in the `rm -f` + curl blocks.
+
 ---
 
 ## This file
 This file exists because the user had to correct the AI multiple times for the same mistakes.
-It took the user writing an angry message before the AI finally understood.
 These notes are here so the AI reads them before touching Step-By-Step.md and never repeats these mistakes.
