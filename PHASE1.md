@@ -1,6 +1,6 @@
 # Phase 1 — Backend Foundation & Interoperability Core
 
-> **Status: 1.5 ✅ Done + BUG-H/BUG-I ✅ Fixed — Next: Step 1.6**  
+> **Status: 1.6 ✅ Done + BUG-H/BUG-I ✅ Fixed — Next: Step 1.7**  
 > This file is the authoritative, self-contained reference for every step in Phase 1.  
 > One step at a time. No step starts until the previous step is verified and signed off.  
 > See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.  
@@ -848,32 +848,57 @@ templates) is built to support them.
 
 ---
 
-## Step 1.6 — Tattoo Style Management API
+## Step 1.6 — Style / Specialty Management API (Multi-Type) ✅ DONE
 
-**What:** CRUD for tattoo styles. Styles are shown on the frontend and fully manageable from CRM.
+**What:** CRUD for styles/specialties — the named categories artists offer. Works for ALL 6 business
+types via the label system: "Tattoo Styles" (tattoo_studio), "Hair Styles" (hair_salon),
+"Cuts & Styles" (barber), "Nail Styles" (nail_salon), "Massage Types" (masseuse), "Menu" (restaurant).
+The same API serves every type — only the seed data and UI labels differ.
 
-**Files to create:**
+> **Architecture note:** You do NOT need separate `/api/tattoo-styles`, `/api/hair-styles`,
+> `/api/barber-cuts` endpoints. ONE `/api/styles` endpoint serves all business types. The frontend
+> uses the `LabelKey` system to display the correct terminology. Switching business type in the CRM
+> changes `BUSINESS_TYPE` env — the API adapts automatically.
+
+**Also created in this step:** `src/middleware/requireFeature.ts` — middleware factory used by Step 1.7+
+to gate routes behind feature flags (returns `503 Feature Disabled` when flag is OFF).
+
+**Files created:**
+- `backend/src/middleware/requireFeature.ts`
 - `backend/src/modules/styles/styles.schema.ts`
 - `backend/src/modules/styles/styles.service.ts`
 - `backend/src/modules/styles/styles.controller.ts`
 - `backend/src/modules/styles/styles.routes.ts`
+- `backend/src/modules/styles/styles.service.test.ts`
 
 **Endpoints:**
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/api/styles` | Public | List all active styles |
+| GET | `/api/styles` | Public | List all active styles (filterable by `?isActive=true/false`) |
+| GET | `/api/styles/:id` | Public | Single style by ID |
 | POST | `/api/styles` | ADMIN | Create style |
 | PATCH | `/api/styles/:id` | ADMIN | Update style |
-| DELETE | `/api/styles/:id` | ADMIN | Soft-delete style |
+| DELETE | `/api/styles/:id` | ADMIN | Soft-delete style (isActive = false) |
 
-**12 styles to seed:**
-Hyperrealistic, Old School, Japanese, Traditional, Neo-Traditional, Blackwork, Dotwork, Geometric, Watercolor, Tribal, Illustrative, Chicano
+**Seed data — driven by `BUSINESS_TYPE` env at startup:**
+
+| Business Type | Styles (12 per type) |
+|---|---|
+| `tattoo_studio` | Hyperrealistic, Old School, Japanese, Traditional, Neo-Traditional, Blackwork, Dotwork, Geometric, Watercolor, Tribal, Illustrative, Chicano |
+| `hair_salon` | Balayage, Highlights, Keratin Treatment, Cut & Blowdry, Ombré, Curly Cut, Brazilian Blowout, Updo, Extensions, Toner, Colour Correction, Fringe Trim |
+| `barber` | Skin Fade, Taper Fade, Classic Cut, Buzz Cut, Pompadour, Mohawk, Line Up, Beard Trim, Hot Towel Shave, Scissor Cut, Dreadlocks, Fringe |
+| `nail_salon` | Gel Manicure, Acrylic Set, Nail Art, French Tips, Ombré Nails, Gel Pedicure, Chrome Powder, Dip Powder, Sculpted Nails, Paraffin Wax, Nail Repair, Builder Gel |
+| `masseuse` | Swedish Massage, Deep Tissue, Hot Stone, Sports Massage, Aromatherapy, Reflexology, Thai Massage, Prenatal, Lymphatic Drainage, Couple's Massage, Trigger Point, Facial Massage |
+| `restaurant` | Styles are seeded as empty (restaurant uses `ServiceCategory` instead — `STYLES_ENABLED=false`) |
 
 **Checklist:**
-- [ ] All 12 styles seeded
-- [ ] All endpoints implemented
-- [ ] Tests written and passing
+- [x] `requireFeature` middleware created and exported
+- [x] All 5 endpoints implemented (list, getById, create, update, softDelete)
+- [x] Seed data covers all 6 business types, driven by `BUSINESS_TYPE` env
+- [x] GET `/api/styles` supports `?isActive=true/false` filter
+- [x] Soft-delete returns 204 (no body)
+- [x] Tests written and passing
 
 ---
 
