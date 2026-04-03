@@ -13,80 +13,30 @@
 
 ---
 
-## 🔄 Step 1.4b — Download Updated Files (Expanded Service Catalogue + TypeScript Fix)
+## ✅ Step 1.4b — Files Already Downloaded
 
-**What changed in this update:**
-- **`src/config/businessType.ts`** — Service catalogue massively expanded (300+ services across all 6 business types — exceeds every target)
-- **`src/config/businessType.test.ts`** — Tests updated to match expanded catalogue (62 tests)
-- **`src/types/express.d.ts`** — Root cause TypeScript fix: removed the `@prisma/client` import that caused `Property 'user' does not exist on type 'Request'` error when prisma types weren't yet installed
+The 3 updated files (`businessType.ts`, `businessType.test.ts`, `express.d.ts`) are already in place.
 
-> **Note:** Steps 1.1–1.3 and Step 1.4 / 1.5 files were already downloaded and are untouched. Only these 3 files need updating.
+The tests were failing because of **one missing step**: the Prisma client must be regenerated after the schema was updated to add `phone` to the User model. Without this, TypeScript does not know `phone` exists and throws a type error.
 
 ---
 
-### STEP 1 — Delete the 3 outdated files
+### STEP 1 — Regenerate the Prisma client ⚠️ THIS WAS THE MISSING STEP
 
 ```bash
-cd ~/Desktop/Automation/backend
-
-rm -f src/config/businessType.ts
-rm -f src/config/businessType.test.ts
-rm -f src/types/express.d.ts
-
-echo "✅ Old files deleted."
+cd ~/Desktop/Automation/backend && npx prisma generate
 ```
 
-Expected:
+Expected output ends with something like:
 ```
-✅ Old files deleted.
+✔ Generated Prisma Client (v5.x.x) to ./node_modules/@prisma/client in XXXms
 ```
+
+> If this step shows errors — paste the output here before continuing.
 
 ---
 
-### STEP 2 — Ensure the types folder exists
-
-```bash
-cd ~/Desktop/Automation/backend
-mkdir -p src/config src/types
-echo "✅ Folders ready."
-```
-
----
-
-### STEP 3 — Download the 3 updated files
-
-```bash
-cd ~/Desktop/Automation/backend
-
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
-
-# ── Step 1.4b — Expanded service catalogue ─────────────────────────────────
-curl -sfL -o src/config/businessType.ts "$BASE/src/config/businessType.ts" \
-  && echo "OK 1 businessType.ts" || echo "FAILED: businessType.ts"
-
-curl -sfL -o src/config/businessType.test.ts "$BASE/src/config/businessType.test.ts" \
-  && echo "OK 2 businessType.test.ts" || echo "FAILED: businessType.test.ts"
-
-# ── TypeScript root-cause fix ───────────────────────────────────────────────
-# Fixes: "Property 'user' does not exist on type 'Request'"
-# Root cause: express.d.ts imported @prisma/client, which breaks when
-# node_modules is not yet installed. Now uses a self-contained string union.
-curl -sfL -o src/types/express.d.ts "$BASE/src/types/express.d.ts" \
-  && echo "OK 3 express.d.ts" || echo "FAILED: express.d.ts"
-```
-
-Expected — all 3 lines must say OK:
-```
-OK 1 businessType.ts
-OK 2 businessType.test.ts
-OK 3 express.d.ts
-```
-
-> If any line says FAILED — paste it here before continuing.
-
----
-
-### STEP 4 — Install / update dependencies
+### STEP 2 — Install / update dependencies (confirm up to date)
 
 ```bash
 cd ~/Desktop/Automation/backend && npm install
@@ -96,7 +46,7 @@ Expected: finishes with no errors. Audit warnings are fine to ignore.
 
 ---
 
-### STEP 5 — Run all tests
+### STEP 3 — Run all tests
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
@@ -116,7 +66,7 @@ Tests:       62 passed, 62 total
 
 ---
 
-### STEP 6 — Type-check (must be silent)
+### STEP 4 — Type-check (must be silent)
 
 ```bash
 cd ~/Desktop/Automation/backend && npm run typecheck
@@ -126,7 +76,23 @@ Expected: **no output**, exit code 0. Any output means a type error — paste it
 
 ---
 
-### STEP 7 — Build
+### ✅ VERIFICATION — Did everything work?
+
+If STEP 3 shows **3 passed, 62 passed** and STEP 4 produces **no output**, then Step 1.4b is complete and you are ready to move on.
+
+**Checklist:**
+- [ ] `PASS src/config/businessType.test.ts`
+- [ ] `PASS src/modules/auth/auth.service.test.ts`
+- [ ] `PASS src/middleware/auth.test.ts`
+- [ ] `Tests: 62 passed, 62 total`
+- [ ] `npm run typecheck` produced no output
+
+If all 5 are ✅ — **move on to STEP 5 (Build) below.**
+If anything is ❌ — paste the output here before continuing.
+
+---
+
+### STEP 5 — Build
 
 ```bash
 cd ~/Desktop/Automation/backend && npm run build
@@ -136,7 +102,7 @@ Expected: compiles to `dist/` with no errors.
 
 ---
 
-### STEP 8 — Start the server
+### STEP 6 — Start the server
 
 Make sure your `.env` has these filled in:
 - `DATABASE_URL`
@@ -157,7 +123,7 @@ Expected:
 
 ---
 
-### STEP 9 — Verify health endpoint
+### STEP 7 — Verify health endpoint
 
 ```bash
 curl http://localhost:3000/health
@@ -170,7 +136,7 @@ Expected:
 
 ---
 
-### STEP 10 — Verify 404 handler
+### STEP 8 — Verify 404 handler
 
 ```bash
 curl http://localhost:3000/api/doesnotexist
@@ -183,7 +149,7 @@ Expected:
 
 ---
 
-### STEP 11 — Test auth endpoints
+### STEP 9 — Test auth endpoints
 
 ```bash
 # Register
@@ -199,7 +165,7 @@ Expected:
 
 ---
 
-### STEP 12 — Test artists endpoint
+### STEP 10 — Test artists endpoint
 
 ```bash
 curl -s http://localhost:3000/api/artists | jq .
@@ -212,7 +178,7 @@ Expected:
 
 ---
 
-All 12 steps passing = Steps 1.4 / 1.4b / 1.5 complete. ✅
+All 10 steps passing = Steps 1.4 / 1.4b / 1.5 complete. ✅
 
 ---
 
