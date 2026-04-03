@@ -6,50 +6,67 @@
 ---
 
 ## ✅ Steps 1.1 → 1.5 + Full reinstall — Done (31 files, 62/62 tests passing)
-## ✅ Two post-reinstall issues found and fixed (see below)
+## ✅ Two post-reinstall issues found and fixed
+## ✅ Step 1.6 — requireFeature middleware + Styles module — Done (78/78 tests passing)
 
 ---
 
-## Issues Found and Fixed
+## Step 1.6 — Files Created / Updated
 
-**Issue 1** — `users.phone` does not exist in the database → `/api/auth/register` returned 500.
-> Root cause: `npx prisma migrate dev` was never run after reinstall. `prisma generate` only builds the TypeScript client — it does **not** apply schema changes to the real database. Every new column (`phone`, `breakStart`, `breakEnd`, `commissionRate`, etc.) must be applied with a migration before the server can use them.
-
-**Issue 2** — `.env` BUSINESS_TYPE comment only listed 4 types (`tattoo_studio | hair_salon | barber | restaurant`), missing `nail_salon` and `masseuse`.
-> Root cause: `backend/.env.example` was not included in the download steps, so the local copy was outdated.
-
----
-
-## Files Changed to Fix Both Issues
-
-Only **1 file** was changed in the repository:
-
-| File | What changed |
-|------|-------------|
-| `backend/.env.example` | BUSINESS_TYPE comment updated to list all 6 types: `tattoo_studio \| hair_salon \| barber \| nail_salon \| masseuse \| restaurant` |
+| # | File | Status |
+|---|------|--------|
+| 1 | `backend/src/middleware/requireFeature.ts` | **NEW** — feature-flag gate middleware |
+| 2 | `backend/src/modules/styles/styles.schema.ts` | **NEW** — Zod request schemas |
+| 3 | `backend/src/modules/styles/styles.service.ts` | **NEW** — business logic |
+| 4 | `backend/src/modules/styles/styles.controller.ts` | **NEW** — HTTP handlers |
+| 5 | `backend/src/modules/styles/styles.routes.ts` | **NEW** — Express router |
+| 6 | `backend/src/modules/styles/styles.service.test.ts` | **NEW** — unit tests (16 tests) |
+| 7 | `backend/src/app.ts` | **UPDATED** — mounts `/api/styles` |
 
 ---
 
-### STEP 1 — Delete the outdated file
+### STEP 1 — Delete the outdated files
 
 ```bash
 cd ~/Desktop/Automation/backend && \
-rm -f .env.example && echo "OLD FILE DELETED"
+rm -f src/middleware/requireFeature.ts \
+      src/modules/styles/styles.schema.ts \
+      src/modules/styles/styles.service.ts \
+      src/modules/styles/styles.controller.ts \
+      src/modules/styles/styles.routes.ts \
+      src/modules/styles/styles.service.test.ts \
+      src/app.ts && echo "OLD FILES DELETED"
 ```
 
-Expected: `OLD FILE DELETED`
+Expected: `OLD FILES DELETED`
 
 ---
 
-### STEP 2 — Download the fixed file
+### STEP 2 — Download the new/updated files
 
 ```bash
 cd ~/Desktop/Automation/backend && \
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
-curl -sfL -o .env.example "$BASE/.env.example" && echo "OK 1/1 .env.example" || echo "FAILED: .env.example"
+mkdir -p src/middleware src/modules/styles && \
+curl -sfL -o src/middleware/requireFeature.ts "$BASE/src/middleware/requireFeature.ts" && echo "OK 1/7 requireFeature.ts" || echo "FAILED: requireFeature.ts" && \
+curl -sfL -o src/modules/styles/styles.schema.ts "$BASE/src/modules/styles/styles.schema.ts" && echo "OK 2/7 styles.schema.ts" || echo "FAILED: styles.schema.ts" && \
+curl -sfL -o src/modules/styles/styles.service.ts "$BASE/src/modules/styles/styles.service.ts" && echo "OK 3/7 styles.service.ts" || echo "FAILED: styles.service.ts" && \
+curl -sfL -o src/modules/styles/styles.controller.ts "$BASE/src/modules/styles/styles.controller.ts" && echo "OK 4/7 styles.controller.ts" || echo "FAILED: styles.controller.ts" && \
+curl -sfL -o src/modules/styles/styles.routes.ts "$BASE/src/modules/styles/styles.routes.ts" && echo "OK 5/7 styles.routes.ts" || echo "FAILED: styles.routes.ts" && \
+curl -sfL -o src/modules/styles/styles.service.test.ts "$BASE/src/modules/styles/styles.service.test.ts" && echo "OK 6/7 styles.service.test.ts" || echo "FAILED: styles.service.test.ts" && \
+curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK 7/7 app.ts" || echo "FAILED: app.ts"
 ```
 
-Expected: `OK 1/1 .env.example`
+Expected:
+```
+OK 1/7 requireFeature.ts
+OK 2/7 styles.schema.ts
+OK 3/7 styles.service.ts
+OK 4/7 styles.controller.ts
+OK 5/7 styles.routes.ts
+OK 6/7 styles.service.test.ts
+OK 7/7 app.ts
+```
 
 ---
 
@@ -165,10 +182,22 @@ curl -s http://localhost:3000/api/artists | jq .
 
 Expected:
 ```json
-{"success":true,"data":[],"meta":{"page":1,"pageSize":20,"total":0,"totalPages":0},"error":null}
+{"success":true,"data":[],"meta":{"page":1,"limit":20,"total":0,"totalPages":0},"error":null}
 ```
 
 ---
 
-## ✅ All 9 steps passing = Both issues fixed. Steps 1.1 → 1.5 + post-reinstall fixes fully complete. ✅
+### STEP 10 — Test styles endpoint (Step 1.6)
 
+```bash
+curl -s http://localhost:3000/api/styles | jq .
+```
+
+Expected:
+```json
+{"success":true,"data":[],"meta":{"page":1,"limit":20,"total":0,"totalPages":0},"error":null}
+```
+
+---
+
+## ✅ All 10 steps passing = Step 1.6 complete. Steps 1.1 → 1.6 fully verified. ✅

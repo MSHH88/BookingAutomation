@@ -8,7 +8,7 @@
  *   - barber        → "Cuts & Styles"
  *   - nail_salon    → "Nail Styles"
  *   - masseuse      → "Massage Types"
- *   - restaurant    → "Menu" (or disabled via STYLES_ENABLED=false)
+ *   - restaurant    → "Menu"
  *
  * The underlying Prisma model is `TattooStyle` (@@map("tattoo_styles")).
  * The model name is a legacy artefact from the initial schema — functionally

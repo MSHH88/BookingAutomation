@@ -115,7 +115,10 @@ export async function createStyle(input: CreateStyleBody) {
  * If `name` is being changed, check for uniqueness conflict first.
  */
 export async function updateStyle(id: string, input: UpdateStyleBody) {
-  const style = await prisma.tattooStyle.findUnique({ where: { id } });
+  const style = await prisma.tattooStyle.findUnique({
+    where: { id },
+    select: { id: true, name: true },
+  });
   if (!style) throw new AppError(404, 'NOT_FOUND', 'Style not found');
 
   // Check name uniqueness when renaming
@@ -147,11 +150,15 @@ export async function updateStyle(id: string, input: UpdateStyleBody) {
  * this style will still display correctly.
  */
 export async function deleteStyle(id: string) {
-  const style = await prisma.tattooStyle.findUnique({ where: { id } });
+  const style = await prisma.tattooStyle.findUnique({
+    where: { id },
+    select: { id: true },
+  });
   if (!style) throw new AppError(404, 'NOT_FOUND', 'Style not found');
 
   await prisma.tattooStyle.update({
     where: { id },
     data: { isActive: false },
+    select: { id: true },
   });
 }

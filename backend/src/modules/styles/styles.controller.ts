@@ -20,8 +20,8 @@ function isAdmin(req: Request): boolean {
 
 /**
  * GET /api/styles
- * Public: lists active styles.
- * Admin (with JWT + ADMIN role): can filter by isActive.
+ * Public endpoint — always returns active styles only.
+ * Admins manage styles via POST/PATCH/DELETE (auth-gated routes).
  */
 export async function listStyles(
   req: Request,
@@ -39,8 +39,8 @@ export async function listStyles(
 
 /**
  * GET /api/styles/:id
- * Public: returns a single active style.
- * Admin: can see inactive styles too.
+ * Public endpoint — returns a single active style only.
+ * Admins can toggle isActive via PATCH.
  */
 export async function getStyleById(
   req: Request,
