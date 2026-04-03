@@ -5,27 +5,32 @@
 
 ---
 
-## ✅ Step 1.1 — Done
-## ✅ Step 1.2 — Done
-## ✅ Step 1.3 — Done
-## ✅ Step 1.4 / 1.4b / 1.5 — Full reinstall done (31 files, 62/62 tests passing)
+## ✅ Steps 1.1 → 1.5 + Full reinstall — Done (31 files, 62/62 tests passing)
+## ✅ Two post-reinstall issues found and fixed (see below)
 
 ---
 
-## Fixes — Two issues found after reinstall
+## Issues Found and Fixed
 
-**Issue 1** — `users.phone` does not exist in the database.
-> Root cause: `npx prisma migrate dev` was never run. `prisma generate` only builds the TypeScript client — it does NOT apply schema changes to the real database. Every new column in `schema.prisma` (phone, breakStart, breakEnd, commissionRate, etc.) must be applied with a migration before the server can use them.
+**Issue 1** — `users.phone` does not exist in the database → `/api/auth/register` returned 500.
+> Root cause: `npx prisma migrate dev` was never run after reinstall. `prisma generate` only builds the TypeScript client — it does **not** apply schema changes to the real database. Every new column (`phone`, `breakStart`, `breakEnd`, `commissionRate`, etc.) must be applied with a migration before the server can use them.
 
-**Issue 2** — `.env` BUSINESS_TYPE comment only listed 4 types (`tattoo_studio | hair_salon | barber | restaurant`).
-> Root cause: `.env.example` was never included in the download steps, so the user's local file was outdated. The correct file lists all 6 types.
-
-**Files changed to fix both issues:**
-- `backend/.env.example` — was missing from download steps; added now so you have the correct template
+**Issue 2** — `.env` BUSINESS_TYPE comment only listed 4 types (`tattoo_studio | hair_salon | barber | restaurant`), missing `nail_salon` and `masseuse`.
+> Root cause: `backend/.env.example` was not included in the download steps, so the local copy was outdated.
 
 ---
 
-### STEP 1 — Delete old .env.example
+## Files Changed to Fix Both Issues
+
+Only **1 file** was changed in the repository:
+
+| File | What changed |
+|------|-------------|
+| `backend/.env.example` | BUSINESS_TYPE comment updated to list all 6 types: `tattoo_studio \| hair_salon \| barber \| nail_salon \| masseuse \| restaurant` |
+
+---
+
+### STEP 1 — Delete the outdated file
 
 ```bash
 cd ~/Desktop/Automation/backend && \
@@ -36,7 +41,7 @@ Expected: `OLD FILE DELETED`
 
 ---
 
-### STEP 2 — Download updated .env.example
+### STEP 2 — Download the fixed file
 
 ```bash
 cd ~/Desktop/Automation/backend && \
@@ -165,5 +170,5 @@ Expected:
 
 ---
 
-All 9 steps passing = Issues fixed. Steps 1.4 / 1.4b / 1.5 fully complete. ✅
+## ✅ All 9 steps passing = Both issues fixed. Steps 1.1 → 1.5 + post-reinstall fixes fully complete. ✅
 
