@@ -1,6 +1,6 @@
 # Phase 1 — Backend Foundation & Interoperability Core
 
-> **Status: 1.4b ✅ Done + Gap Audit Fixes Applied — Next: Step 1.6**  
+> **Status: 1.5 ✅ Done + BUG-H/BUG-I ✅ Fixed — Next: Step 1.6**  
 > This file is the authoritative, self-contained reference for every step in Phase 1.  
 > One step at a time. No step starts until the previous step is verified and signed off.  
 > See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.  
@@ -255,38 +255,61 @@ style    TattooStyle  @relation(...)
 
 #### `Lead`
 ```
-// Tattoo-studio inquiry or general contact form
+// Universal inquiry / contact form — works for ALL business types
+// Tattoo-specific fields (placement, styleId, etc.) are nullable; gated by MANNEQUIN_ENABLED
+// God-mode CRM visibility only — ADMIN role required to read any lead
 id              String     @id @default(cuid())
+businessType    String     // "tattoo_studio" | "hair_salon" | "barber" | "nail_salon" | "masseuse" | "restaurant"
 customerId      String?    // if customer was logged in
 customer        User?      @relation(...)
 artistId        String?
 artist          Artist?    @relation(...)
+serviceId       String?    // which service the customer was interested in (non-tattoo types)
+service         Service?   @relation(...)
+// ── Tattoo-only fields (null for all other business types) ──────────────────
 styleId         String?
 style           TattooStyle? @relation(...)
 placement       Json?      // { generalArea, specificArea, refinement } — tattoo only
 size            String?    // null if "whole area" — tattoo only
 colorPreference String?    // "COLOR" | "BLACK_AND_WHITE" | "UNSURE" — tattoo only
-referenceImages String[]   // Cloudinary URLs
-description     String
+referenceImages String[]   // Cloudinary URLs (any type can upload inspiration photos)
+// ── Universal contact + demographic fields ───────────────────────────────────
+description     String     // what the customer wants / general enquiry message
 name            String
 email           String
 phone           String
+country         String?    // customer's home country (optional, captured at form time)
 preferWhatsApp  Boolean    @default(false)
 marketingConsent Boolean   @default(false)  // GDPR consent at inquiry time (Gap 23)
 preferredDates  Json?      // Array of up to 3 preferred DateTime strings
+// ── Lead pipeline ────────────────────────────────────────────────────────────
 status          LeadStatus @default(NEW)
 score           Int        @default(0)
-source          String?    // UTM source
-utmMedium       String?
-utmCampaign     String?
+// ── Tracking & attribution ───────────────────────────────────────────────────
+source          String?    // UTM source (e.g. "instagram", "google")
+utmMedium       String?    // UTM medium (e.g. "cpc", "social")
+utmCampaign     String?    // UTM campaign name
+pageVisited     String?    // the page/URL the lead form was submitted from
 ipAddress       String?
-deviceType      String?
+deviceType      String?    // "mobile" | "desktop" | "tablet"
 createdAt       DateTime   @default(now())
 updatedAt       DateTime   @updatedAt
 quotes          Quote[]
 booking         Booking?
 analyticsEvents AnalyticsEvent[]
 ```
+
+> **Universal Lead Capture:** The `Lead` model captures enquiries for ALL business types.
+> `businessType` records which type it came from. Tattoo-specific fields (`placement`, `styleId`,
+> `colorPreference`) are always `null` for non-tattoo types. The `serviceId` field covers the
+> "which service were you interested in" question for salon, barber, nail, masseuse, and restaurant types.
+> `country` captures the customer's home country — useful for analytics (tourists vs locals).
+> All leads are **ADMIN-only** in the CRM (god mode — invisible to ARTISTs unless explicitly shared).
+>
+> **⚠ Schema note:** In `schema.prisma`, `placement` must be `Json?` (nullable) not `Json` — non-tattoo
+> leads must be able to submit without it. Verify this is `Json?` before running Step 1.7.
+> Also add `businessType String` and `country String?` and `pageVisited String?` fields to the schema
+> and run `prisma migrate dev --name add_universal_lead_fields` as part of Step 1.7.
 
 **LeadStatus enum:** `NEW | CONTACTED | QUOTED | BOOKED | COMPLETED | CANCELLED | LOST`
 
@@ -779,14 +802,14 @@ templates) is built to support them.
 **Checklist:**
 - [x] Module validates `BUSINESS_TYPE` at import time — process exits on invalid value
 - [x] Label map exported and typed with TypeScript (16 keys, 6 types)
-- [x] Feature flag defaults exported per type (23 flags, seed script ready)
+- [x] Feature flag defaults exported per type (35 flags total — BUG-H + BUG-I fixed, seed script ready)
 - [x] Service catalogue templates exported per type (default seed data, fully editable)
 - [x] `isBusinessType()` type guard exported
 - [x] `getLabels()`, `getDefaultFlags()`, `getServiceTemplate()` helpers exported
 - [x] Unit tests: 32 tests — all 6 types, label correctness, flag business-logic checks, catalogue checks
 - [x] `tsc --noEmit` clean, `npm test` 62/62 passing
-- [ ] ⚠️ **BUG-H:** Add 5 new feature flags to `businessType.ts` (ONLINE_PAYMENT_ENABLED, WAITING_LIST_ENABLED, RECURRING_BOOKING_ENABLED, CANCELLATION_FEE_ENABLED, GIFT_VOUCHER_ENABLED) with per-type defaults — do this before Step 1.24
-- [ ] ⚠️ **BUG-I:** Add 7 more flags from Gap Audit 2 (LOYALTY_ENABLED, FORMS_ENABLED, REBOOK_REMINDER_ENABLED, TIP_COLLECTION_ENABLED, GDPR_ENABLED, DAILY_REPORT_ENABLED, COVERS_MANAGEMENT_ENABLED) — add as each feature is built (Steps 1.26–1.29)
+- [x] ✅ **BUG-H FIXED:** 5 new feature flags added to `businessType.ts` (ONLINE_PAYMENT_ENABLED, WAITING_LIST_ENABLED, RECURRING_BOOKING_ENABLED, CANCELLATION_FEE_ENABLED, GIFT_VOUCHER_ENABLED) with per-type defaults — all 6 types covered
+- [x] ✅ **BUG-I FIXED:** 7 more flags from Gap Audit 2 added (LOYALTY_ENABLED, FORMS_ENABLED, REBOOK_REMINDER_ENABLED, TIP_COLLECTION_ENABLED, GDPR_ENABLED, DAILY_REPORT_ENABLED, COVERS_MANAGEMENT_ENABLED) — all 6 types covered
 
 ---
 
@@ -854,9 +877,19 @@ Hyperrealistic, Old School, Japanese, Traditional, Neo-Traditional, Blackwork, D
 
 ---
 
-## Step 1.7 — Lead Capture API
+## Step 1.7 — Lead Capture API (Universal — All Business Types)
 
-**What:** Receives customer inquiries from the frontend. Creates a Lead record, queues notification emails, and optionally queues a WhatsApp welcome message.
+**What:** Receives customer inquiries from the frontend for **ALL 6 business types**. Every enquiry
+form submission — whether it's a tattoo inquiry, hair appointment request, restaurant contact, or
+general "interested in your service" — creates a Lead record. All leads are stored in the CRM
+**god-mode lead category** (ADMIN-only visibility). CSV export allows downloading all lead data.
+
+> **This is universal lead intelligence, not just tattoo leads.**
+> For every business type, when a visitor submits any form (inquiry, booking interest, contact),
+> a Lead is created capturing: name, email, phone, country, which service they were interested in,
+> which page they came from, UTM attribution, device, IP, and marketing consent.
+> This gives the studio owner a complete picture of every lead across all channels — regardless
+> of business type.
 
 **Files to create:**
 - `backend/src/modules/leads/leads.schema.ts`
@@ -869,26 +902,62 @@ Hyperrealistic, Old School, Japanese, Traditional, Neo-Traditional, Blackwork, D
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | POST | `/api/leads` | Public | Submit inquiry (gated by `LEAD_CAPTURE_ENABLED`) |
-| GET | `/api/leads` | ADMIN/ARTIST | List leads with filters + pagination |
-| GET | `/api/leads/:id` | ADMIN/ARTIST | Full lead detail |
-| PATCH | `/api/leads/:id/status` | ADMIN/ARTIST | Update status |
-| PATCH | `/api/leads/:id/score` | ADMIN | Update score |
+| GET | `/api/leads` | **ADMIN only** | List all leads with filters + pagination (god mode) |
+| GET | `/api/leads/:id` | **ADMIN only** | Full lead detail (god mode) |
+| GET | `/api/leads/export` | **ADMIN only** | Download all leads as CSV file |
+| PATCH | `/api/leads/:id/status` | **ADMIN only** | Update lead status |
+| PATCH | `/api/leads/:id/score` | **ADMIN only** | Update lead score |
+
+> **God Mode — ADMIN only:** All lead endpoints (list, detail, export) require the `ADMIN` role.
+> Artists cannot see leads unless the ADMIN explicitly shares one. This is intentional — the
+> lead database is the studio owner's strategic intelligence asset.
 
 **On `POST /api/leads`:**
-1. Validate with Zod (all required fields)
-2. Create `Lead` record
-3. Create `AnalyticsEvent` record (`LEAD_CREATED`)
-4. Queue `inquiry-received` email to customer
-5. Queue `inquiry-notification` email to artist + `STUDIO_ADMIN_EMAIL`
-6. If `preferWhatsApp = true` AND `WHATSAPP_CONTACT_ENABLED`: queue WhatsApp Message 1
+1. Read `BUSINESS_TYPE` from env — auto-set on the created Lead record
+2. Validate with Zod (business-type-aware: tattoo requires placement; others do not)
+3. Create `Lead` record (with `businessType`, `country`, `pageVisited`, all UTM fields)
+4. Create `AnalyticsEvent` record (`LEAD_CREATED`)
+5. Queue `inquiry-received` email to customer
+6. Queue `inquiry-notification` email to artist (if `artistId` set) + `STUDIO_ADMIN_EMAIL`
+7. If `preferWhatsApp = true` AND `WHATSAPP_CONTACT_ENABLED`: queue WhatsApp Message 1
+
+**Query filters on `GET /api/leads`:**
+- `?status=NEW|CONTACTED|...` — filter by pipeline status
+- `?businessType=tattoo_studio|hair_salon|...` — filter by type
+- `?source=instagram` — filter by UTM source
+- `?from=YYYY-MM-DD&to=YYYY-MM-DD` — date range
+- `?artistId=X` — leads for a specific artist
+- `?country=GB` — filter by country
+
+**CSV export `GET /api/leads/export`:**
+- Response: `Content-Type: text/csv`, `Content-Disposition: attachment; filename="leads-[date].csv"`
+- Columns: `id`, `createdAt`, `businessType`, `name`, `email`, `phone`, `country`, `source`,
+  `utmMedium`, `utmCampaign`, `pageVisited`, `deviceType`, `ipAddress`, `serviceInterest`,
+  `artistName`, `status`, `score`, `marketingConsent`, `description`
+- Supports same query filters as list endpoint
+- No sensitive data (no passwordHash, no tokens)
 
 **Status pipeline:**
 `NEW → CONTACTED → QUOTED → BOOKED → COMPLETED → CANCELLED | LOST`
 
+**⚠ Prerequisite:** Before coding Step 1.7, run a schema migration to add the new universal fields
+to the `leads` table:
+- `businessType String` (required)
+- `country String?`
+- `pageVisited String?`
+- `serviceId String?` (FK to Service, for non-tattoo interest capture)
+- Ensure `placement` is `Json?` (nullable) not `Json` (non-nullable)
+
+Run: `npx prisma migrate dev --name add_universal_lead_fields`
+
 **Checklist:**
-- [ ] All fields stored correctly including `placement` JSON
+- [ ] Schema migration run (`add_universal_lead_fields`) — `placement Json?`, `businessType`, `country`, `pageVisited`, `serviceId` added
+- [ ] Zod schema is business-type-aware (`placement` only required when `MANNEQUIN_ENABLED`)
+- [ ] `businessType` auto-populated from env on every lead submission
 - [ ] All 3 async jobs queued on submission
-- [ ] Status transitions validated (no backwards jumps without ADMIN role)
+- [ ] CSV export returns correctly formatted CSV with all columns
+- [ ] All lead endpoints require ADMIN role (artists cannot list/read leads)
+- [ ] Status transitions validated
 - [ ] Tests written and passing
 
 ---

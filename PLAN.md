@@ -1,8 +1,8 @@
 # BookingAutomation — Master Development Plan
 
-> **Status: PLAN LOCKED — All decisions confirmed and elaborated. Ready to start Phase 1, Step 1.1.**
+> **Status: PLAN UPDATED — Phase 1 Steps 1.1–1.5 Complete + BUG-H/BUG-I Fixed. Next: Step 1.6.**
 > We proceed **one step at a time**, completing and verifying each step before moving on.
-> Last updated: 2026-04-01 — Phase order revised: Phase 1 Backend → Phase 2 CRM → Phase 3 Frontend → Phase 4 3D Mannequin.
+> Last updated: 2026-04-03 — Universal Lead Capture added; single-API architecture confirmed.
 
 ---
 
@@ -10,6 +10,45 @@
 
 Build a **market-leading, fully automated booking and CRM system** that surpasses every existing solution (Fresha, Vagaro, Booksy, etc.).  
 The system is built for tattoo studios first, but the **backend and core logic are 100% interchangeable** — swap out the frontend/CRM skin and it becomes a barber shop, salon, or restaurant booking system with zero re-engineering.
+
+---
+
+## Core Architecture Decision: One API for All Business Types
+
+> **One API. All business types. Zero separate codebases.**
+
+This is the most important architectural decision in the project. Here is exactly how it works:
+
+### How business types are handled
+
+The `BUSINESS_TYPE` environment variable (`tattoo_studio | hair_salon | barber | nail_salon | masseuse | restaurant`) is set **once per deployment** in `.env`. The entire API, CRM, and frontend adapt to that type automatically.
+
+- **The `Artist` model is universal.** For barber = "Barber", for hair_salon = "Stylist", for masseuse = "Therapist". The data model is identical — only the labels change (configured in `businessType.ts`).
+- **The `Service/ServiceCategory` models are universal.** They cover ALL service types for ALL business types. Barber services (Clipper Cut, Fade), Salon services (Balayage, Keratin), Restaurant menu items (Starters, Mains) — all use the same models.
+- **Feature flags control what is shown.** `MANNEQUIN_ENABLED` = tattoo only. `TABLE_SELECTION_ENABLED` = restaurant only. `QUOTE_SYSTEM_ENABLED` = tattoo only. Each type gets the right flags enabled out of the box.
+- **`TattooStyle` model is tattoo-only.** Tattoo styles (Japanese, Realism, Blackwork) are a tattoo-specific concept. For all other types, "styles" = services (already covered by `Service/ServiceCategory`).
+- **Labels change, data models do not.** "Artist" → "Barber". "Services" → "Treatments". "Booking" → "Reservation". These are just strings — the database schema is identical.
+
+### You do NOT need separate APIs per business type
+
+No separate barber API, salon API, nail API. The single API handles all 6 types.
+To run a hair salon: set `BUSINESS_TYPE=hair_salon` in `.env`, run the seed script, deploy.
+To run a barber shop: set `BUSINESS_TYPE=barber`. Done. Same code, different config.
+
+### One CRM for all types
+
+The CRM is designed to work with any `BUSINESS_TYPE`. When `BUSINESS_TYPE=barber`, the CRM shows "Barbers" instead of "Artists", "Services" instead of "Styles", etc. Feature-flagged sections (mannequin, tables, quote system) simply don't render when their flag is OFF. **Phase 2 may add multi-tenant support** (managing multiple business types in one CRM instance simultaneously), but in Phase 1, each deployment = one business type.
+
+### Universal Lead Capture (god mode — ADMIN only)
+
+For **every** business type, every customer enquiry is captured as a `Lead` record. This includes:
+- Name, email, phone, country of origin
+- Which service they were interested in
+- Which page they visited, UTM attribution, device, IP
+- Marketing consent, GDPR consent status
+- Business type it came from (so leads from a multi-site portfolio are distinguishable)
+
+All leads are **ADMIN-only** in the CRM (god mode). Artists cannot see the lead database unless the admin shares individual leads. The lead database is the studio owner's strategic intelligence asset — downloadable as CSV at any time.
 
 ---
 
