@@ -11,7 +11,7 @@
 
 ---
 
-## Step 1.6 — Files Created / Updated
+## Step 1.6 — Files Created
 
 | # | File | Status |
 |---|------|--------|
@@ -21,7 +21,6 @@
 | 4 | `backend/src/modules/styles/styles.controller.ts` | **NEW** — HTTP handlers |
 | 5 | `backend/src/modules/styles/styles.routes.ts` | **NEW** — Express router |
 | 6 | `backend/src/modules/styles/styles.service.test.ts` | **NEW** — unit tests (16 tests) |
-| 7 | `backend/src/app.ts` | **UPDATED** — mounts `/api/styles` |
 
 ---
 
@@ -34,8 +33,7 @@ rm -f src/middleware/requireFeature.ts \
       src/modules/styles/styles.service.ts \
       src/modules/styles/styles.controller.ts \
       src/modules/styles/styles.routes.ts \
-      src/modules/styles/styles.service.test.ts \
-      src/app.ts && echo "OLD FILES DELETED"
+      src/modules/styles/styles.service.test.ts && echo "OLD FILES DELETED"
 ```
 
 Expected: `OLD FILES DELETED`
@@ -48,24 +46,22 @@ Expected: `OLD FILES DELETED`
 cd ~/Desktop/Automation/backend && \
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
 mkdir -p src/middleware src/modules/styles && \
-curl -sfL -o src/middleware/requireFeature.ts "$BASE/src/middleware/requireFeature.ts" && echo "OK 1/7 requireFeature.ts" || echo "FAILED: requireFeature.ts" && \
-curl -sfL -o src/modules/styles/styles.schema.ts "$BASE/src/modules/styles/styles.schema.ts" && echo "OK 2/7 styles.schema.ts" || echo "FAILED: styles.schema.ts" && \
-curl -sfL -o src/modules/styles/styles.service.ts "$BASE/src/modules/styles/styles.service.ts" && echo "OK 3/7 styles.service.ts" || echo "FAILED: styles.service.ts" && \
-curl -sfL -o src/modules/styles/styles.controller.ts "$BASE/src/modules/styles/styles.controller.ts" && echo "OK 4/7 styles.controller.ts" || echo "FAILED: styles.controller.ts" && \
-curl -sfL -o src/modules/styles/styles.routes.ts "$BASE/src/modules/styles/styles.routes.ts" && echo "OK 5/7 styles.routes.ts" || echo "FAILED: styles.routes.ts" && \
-curl -sfL -o src/modules/styles/styles.service.test.ts "$BASE/src/modules/styles/styles.service.test.ts" && echo "OK 6/7 styles.service.test.ts" || echo "FAILED: styles.service.test.ts" && \
-curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK 7/7 app.ts" || echo "FAILED: app.ts"
+curl -sfL -o src/middleware/requireFeature.ts "$BASE/src/middleware/requireFeature.ts" && echo "OK 1/6 requireFeature.ts" || echo "FAILED: requireFeature.ts" && \
+curl -sfL -o src/modules/styles/styles.schema.ts "$BASE/src/modules/styles/styles.schema.ts" && echo "OK 2/6 styles.schema.ts" || echo "FAILED: styles.schema.ts" && \
+curl -sfL -o src/modules/styles/styles.service.ts "$BASE/src/modules/styles/styles.service.ts" && echo "OK 3/6 styles.service.ts" || echo "FAILED: styles.service.ts" && \
+curl -sfL -o src/modules/styles/styles.controller.ts "$BASE/src/modules/styles/styles.controller.ts" && echo "OK 4/6 styles.controller.ts" || echo "FAILED: styles.controller.ts" && \
+curl -sfL -o src/modules/styles/styles.routes.ts "$BASE/src/modules/styles/styles.routes.ts" && echo "OK 5/6 styles.routes.ts" || echo "FAILED: styles.routes.ts" && \
+curl -sfL -o src/modules/styles/styles.service.test.ts "$BASE/src/modules/styles/styles.service.test.ts" && echo "OK 6/6 styles.service.test.ts" || echo "FAILED: styles.service.test.ts"
 ```
 
 Expected:
 ```
-OK 1/7 requireFeature.ts
-OK 2/7 styles.schema.ts
-OK 3/7 styles.service.ts
-OK 4/7 styles.controller.ts
-OK 5/7 styles.routes.ts
-OK 6/7 styles.service.test.ts
-OK 7/7 app.ts
+OK 1/6 requireFeature.ts
+OK 2/6 styles.schema.ts
+OK 3/6 styles.service.ts
+OK 4/6 styles.controller.ts
+OK 5/6 styles.routes.ts
+OK 6/6 styles.service.test.ts
 ```
 
 ---
