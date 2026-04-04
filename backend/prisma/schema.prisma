@@ -179,7 +179,8 @@ model Lead {
   artistId         String?
   styleId          String?
   customerId       String?
-  placement        Json
+  serviceId        String?
+  placement        Json?
   size             String?
   colorPreference  String?
   referenceImages  String[]
@@ -192,7 +193,11 @@ model Lead {
   marketingConsent Boolean    @default(false)
   status           LeadStatus @default(NEW)
   score            Int        @default(0)
+  businessType     String     @default("tattoo_studio")
+  country          String?
+  pageVisited      String?
   source           String?
+  utmSource        String?
   utmMedium        String?
   utmCampaign      String?
   ipAddress        String?
@@ -202,6 +207,7 @@ model Lead {
 
   artist          Artist?      @relation("ArtistLeads", fields: [artistId], references: [id], onDelete: SetNull)
   style           TattooStyle? @relation("StyleLeads", fields: [styleId], references: [id], onDelete: SetNull)
+  service         Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   quotes          Quote[]
   booking         Booking?
   analyticsEvents AnalyticsEvent[]
@@ -210,6 +216,8 @@ model Lead {
   @@index([artistId, status])
   @@index([email])
   @@index([createdAt])
+  @@index([businessType])
+  @@index([country])
   @@map("leads")
 }
 
@@ -415,6 +423,7 @@ model Service {
   artists         ArtistService[]
   bookings        Booking[]
   bookingServices BookingService[]
+  leads           Lead[]
 
   @@index([categoryId, isActive])
   @@index([isActive])
