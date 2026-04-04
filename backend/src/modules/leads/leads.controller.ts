@@ -24,6 +24,9 @@ import type {
 /** Extract real client IP, respecting X-Forwarded-For in production. */
 function getClientIp(req: Request): string | undefined {
   const forwarded = req.headers['x-forwarded-for'];
+  if (Array.isArray(forwarded)) {
+    return forwarded[0]?.split(',')[0]?.trim();
+  }
   if (typeof forwarded === 'string') {
     return forwarded.split(',')[0]?.trim();
   }

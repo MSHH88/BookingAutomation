@@ -132,6 +132,9 @@ export const exportLeadsSchema = z.object({
   query: z.object({
     status:       z.enum(['NEW', 'CONTACTED', 'QUOTED', 'BOOKED', 'COMPLETED', 'CANCELLED', 'LOST']).optional(),
     businessType: z.enum(['tattoo_studio', 'hair_salon', 'barber', 'nail_salon', 'masseuse', 'restaurant']).optional(),
+    source:       z.string().trim().max(100).optional(),
+    country:      z.string().trim().max(100).optional(),
+    artistId:     z.string().trim().max(50).optional(),
     from:         z.string().optional(),
     to:           z.string().optional(),
   }),

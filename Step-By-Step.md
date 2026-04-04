@@ -8,6 +8,7 @@
 ## ✅ Steps 1.1 → 1.5 + Full reinstall — Done (31 files, 62/62 tests passing)
 ## ✅ Two post-reinstall issues found and fixed
 ## ✅ Step 1.6 — requireFeature middleware + Styles module — Done (78/78 tests passing)
+## ✅ Step 1.7 — Leads module (Universal Lead Capture API) — Done (115/115 tests passing)
 
 ---
 
@@ -197,3 +198,159 @@ Expected:
 ---
 
 ## ✅ All 10 steps passing = Step 1.6 complete. Steps 1.1 → 1.6 fully verified. ✅
+
+---
+
+## Step 1.7 — Files Created / Updated
+
+| # | File | Status |
+|---|------|--------|
+| 1 | `backend/src/modules/leads/leads.schema.ts` | **NEW** — Zod request schemas (business-type-aware) |
+| 2 | `backend/src/modules/leads/leads.service.ts` | **NEW** — business logic + CSV export |
+| 3 | `backend/src/modules/leads/leads.controller.ts` | **NEW** — HTTP handlers |
+| 4 | `backend/src/modules/leads/leads.routes.ts` | **NEW** — Express router (6 endpoints) |
+| 5 | `backend/src/modules/leads/leads.service.test.ts` | **NEW** — unit tests (33 tests) |
+| 6 | `backend/src/app.ts` | **UPDATED** — mounts `/api/leads` |
+
+---
+
+### STEP 1 — Delete the outdated files
+
+```bash
+cd ~/Desktop/Automation/backend && \
+rm -f src/modules/leads/leads.schema.ts \
+      src/modules/leads/leads.service.ts \
+      src/modules/leads/leads.controller.ts \
+      src/modules/leads/leads.routes.ts \
+      src/modules/leads/leads.service.test.ts \
+      src/app.ts && echo "OLD FILES DELETED"
+```
+
+Expected: `OLD FILES DELETED`
+
+---
+
+### STEP 2 — Download the new/updated files
+
+```bash
+cd ~/Desktop/Automation/backend && \
+BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
+mkdir -p src/modules/leads && \
+curl -sfL -o src/modules/leads/leads.schema.ts "$BASE/src/modules/leads/leads.schema.ts" && echo "OK 1/6 leads.schema.ts" || echo "FAILED: leads.schema.ts" && \
+curl -sfL -o src/modules/leads/leads.service.ts "$BASE/src/modules/leads/leads.service.ts" && echo "OK 2/6 leads.service.ts" || echo "FAILED: leads.service.ts" && \
+curl -sfL -o src/modules/leads/leads.controller.ts "$BASE/src/modules/leads/leads.controller.ts" && echo "OK 3/6 leads.controller.ts" || echo "FAILED: leads.controller.ts" && \
+curl -sfL -o src/modules/leads/leads.routes.ts "$BASE/src/modules/leads/leads.routes.ts" && echo "OK 4/6 leads.routes.ts" || echo "FAILED: leads.routes.ts" && \
+curl -sfL -o src/modules/leads/leads.service.test.ts "$BASE/src/modules/leads/leads.service.test.ts" && echo "OK 5/6 leads.service.test.ts" || echo "FAILED: leads.service.test.ts" && \
+curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK 6/6 app.ts" || echo "FAILED: app.ts"
+```
+
+Expected:
+```
+OK 1/6 leads.schema.ts
+OK 2/6 leads.service.ts
+OK 3/6 leads.controller.ts
+OK 4/6 leads.routes.ts
+OK 5/6 leads.service.test.ts
+OK 6/6 app.ts
+```
+
+---
+
+### STEP 3 — Run the schema migration
+
+> Skip this step if you already ran `npx prisma migrate dev --name add_universal_lead_fields` in a previous session and see all lead fields in your database.
+
+```bash
+cd ~/Desktop/Automation/backend && npx prisma migrate dev --name add_universal_lead_fields
+```
+
+Expected output (roughly):
+```
+Prisma schema loaded from prisma/schema.prisma
+✔ Generated Prisma Client
+Your database is now in sync with your schema.
+```
+
+> If it asks **"We need to reset the PostgreSQL database"** — type `y` and press Enter. This is fine in development.
+
+---
+
+### STEP 4 — Run tests
+
+```bash
+cd ~/Desktop/Automation/backend && npm test
+```
+
+Expected:
+```
+Tests: 115 passed, 115 total
+```
+
+---
+
+### STEP 5 — Restart dev server
+
+```bash
+cd ~/Desktop/Automation/backend && npm run dev
+```
+
+Expected:
+```
+[info] Server started {"port":3000,"env":"development","pid":XXXXX}
+```
+
+---
+
+### STEP 6 — Test submit a lead (public endpoint)
+
+```bash
+curl -s -X POST http://localhost:3000/api/leads \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test Customer",
+    "email": "customer@test.com",
+    "phone": "+441234567890",
+    "description": "Interested in a full sleeve tattoo",
+    "placement": {"area": "left_arm"},
+    "source": "instagram"
+  }' | jq .
+```
+
+Expected:
+```json
+{"success":true,"data":{"id":"...","name":"Test Customer","email":"customer@test.com","status":"NEW","score":0,"businessType":"tattoo_studio",...}}
+```
+
+---
+
+### STEP 7 — Test listing leads (ADMIN only — needs auth token)
+
+First register/login as ADMIN to get a token, then:
+
+```bash
+curl -s http://localhost:3000/api/leads \
+  -H "Authorization: Bearer <YOUR_ADMIN_TOKEN>" | jq .
+```
+
+Expected:
+```json
+{"success":true,"data":[...],"meta":{"page":1,"limit":20,"total":1,...}}
+```
+
+---
+
+### STEP 8 — Test CSV export
+
+```bash
+curl -s http://localhost:3000/api/leads/export \
+  -H "Authorization: Bearer <YOUR_ADMIN_TOKEN>"
+```
+
+Expected: CSV file download with headers:
+```
+id,name,email,phone,country,status,score,businessType,...
+```
+
+---
+
+## ✅ All 8 steps passing = Step 1.7 complete. Steps 1.1 → 1.7 fully verified. ✅

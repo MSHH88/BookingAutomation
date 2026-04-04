@@ -394,6 +394,15 @@ describe('exportLeadsCsv', () => {
     expect(filename).toMatch(/^leads-export-\d{4}-\d{2}-\d{2}\.csv$/);
   });
 
+  it('formats Date values as ISO 8601 strings in CSV (BUG-A fix)', async () => {
+    mockLeadFindMany.mockResolvedValueOnce([exportLead]);
+
+    const { csv } = await leadsService.exportLeadsCsv({});
+
+    // createdAt should appear as ISO string, not locale-dependent toString()
+    expect(csv).toContain('2026-04-01T10:00:00.000Z');
+  });
+
   it('returns only header row when no leads match', async () => {
     mockLeadFindMany.mockResolvedValueOnce([]);
 
@@ -435,6 +444,33 @@ describe('exportLeadsCsv', () => {
 
     const findArgs = mockLeadFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
     expect(findArgs.where.businessType).toBe('barber');
+  });
+
+  it('applies source filter (case-insensitive) (BUG-B fix)', async () => {
+    mockLeadFindMany.mockResolvedValueOnce([]);
+
+    await leadsService.exportLeadsCsv({ source: 'instagram' });
+
+    const findArgs = mockLeadFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
+    expect(findArgs.where.source).toEqual({ equals: 'instagram', mode: 'insensitive' });
+  });
+
+  it('applies country filter (case-insensitive) (BUG-B fix)', async () => {
+    mockLeadFindMany.mockResolvedValueOnce([]);
+
+    await leadsService.exportLeadsCsv({ country: 'GB' });
+
+    const findArgs = mockLeadFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
+    expect(findArgs.where.country).toEqual({ equals: 'GB', mode: 'insensitive' });
+  });
+
+  it('applies artistId filter (BUG-B fix)', async () => {
+    mockLeadFindMany.mockResolvedValueOnce([]);
+
+    await leadsService.exportLeadsCsv({ artistId: 'artist_xyz' });
+
+    const findArgs = mockLeadFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
+    expect(findArgs.where.artistId).toBe('artist_xyz');
   });
 });
 

@@ -369,6 +369,9 @@ export async function exportLeadsCsv(
 
   if (query.status)       where.status       = query.status;
   if (query.businessType) where.businessType = query.businessType;
+  if (query.artistId)     where.artistId     = query.artistId;
+  if (query.country)      where.country      = { equals: query.country, mode: 'insensitive' };
+  if (query.source)       where.source       = { equals: query.source,  mode: 'insensitive' };
 
   if (query.from || query.to) {
     const range = buildDateRange(query.from, query.to);
@@ -415,7 +418,7 @@ export async function exportLeadsCsv(
 
   const escapeCell = (val: unknown): string => {
     if (val === null || val === undefined) return '';
-    const s = String(val);
+    const s = val instanceof Date ? val.toISOString() : String(val);
     if (s.includes(',') || s.includes('\n') || s.includes('"')) {
       return `"${s.replace(/"/g, '""')}"`;
     }
