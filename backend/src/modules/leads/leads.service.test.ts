@@ -185,7 +185,7 @@ describe('createLead', () => {
     expect(createArgs.data.email).toBe('bob@example.com');
   });
 
-  it('sets placement to Prisma.DbNull when not provided', async () => {
+  it('sets placement to Prisma.JsonNull when not provided', async () => {
     const bodyWithoutPlacement = { ...baseCreateBody };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (bodyWithoutPlacement as any).placement;
@@ -196,7 +196,7 @@ describe('createLead', () => {
     await leadsService.createLead(bodyWithoutPlacement);
 
     const createArgs = mockLeadCreate.mock.calls[0][0] as { data: Record<string, unknown> };
-    // Prisma.DbNull is a symbol-like object — check it's not null/undefined
+    // Prisma.JsonNull is a symbol-like object — check it's not null/undefined
     expect(createArgs.data.placement).toBeDefined();
     expect(createArgs.data.placement).not.toBeNull();
   });

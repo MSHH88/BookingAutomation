@@ -205,12 +205,13 @@ Expected:
 
 | # | File | Status |
 |---|------|--------|
-| 1 | `backend/src/modules/leads/leads.schema.ts` | **NEW** — Zod request schemas (business-type-aware) |
-| 2 | `backend/src/modules/leads/leads.service.ts` | **NEW** — business logic + CSV export |
-| 3 | `backend/src/modules/leads/leads.controller.ts` | **NEW** — HTTP handlers |
-| 4 | `backend/src/modules/leads/leads.routes.ts` | **NEW** — Express router (6 endpoints) |
-| 5 | `backend/src/modules/leads/leads.service.test.ts` | **NEW** — unit tests (33 tests) |
-| 6 | `backend/src/app.ts` | **UPDATED** — mounts `/api/leads` |
+| 1 | `backend/prisma/schema.prisma` | **UPDATED** — adds `country`, `pageVisited`, `source`, `serviceId` fields to Lead model |
+| 2 | `backend/src/modules/leads/leads.schema.ts` | **NEW** — Zod request schemas (business-type-aware) |
+| 3 | `backend/src/modules/leads/leads.service.ts` | **NEW** — business logic + CSV export |
+| 4 | `backend/src/modules/leads/leads.controller.ts` | **NEW** — HTTP handlers |
+| 5 | `backend/src/modules/leads/leads.routes.ts` | **NEW** — Express router (6 endpoints) |
+| 6 | `backend/src/modules/leads/leads.service.test.ts` | **NEW** — unit tests (37 tests) |
+| 7 | `backend/src/app.ts` | **UPDATED** — mounts `/api/leads` |
 
 ---
 
@@ -218,7 +219,8 @@ Expected:
 
 ```bash
 cd ~/Desktop/Automation/backend && \
-rm -f src/modules/leads/leads.schema.ts \
+rm -f prisma/schema.prisma \
+      src/modules/leads/leads.schema.ts \
       src/modules/leads/leads.service.ts \
       src/modules/leads/leads.controller.ts \
       src/modules/leads/leads.routes.ts \
@@ -235,30 +237,32 @@ Expected: `OLD FILES DELETED`
 ```bash
 cd ~/Desktop/Automation/backend && \
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
-mkdir -p src/modules/leads && \
-curl -sfL -o src/modules/leads/leads.schema.ts "$BASE/src/modules/leads/leads.schema.ts" && echo "OK 1/6 leads.schema.ts" || echo "FAILED: leads.schema.ts" && \
-curl -sfL -o src/modules/leads/leads.service.ts "$BASE/src/modules/leads/leads.service.ts" && echo "OK 2/6 leads.service.ts" || echo "FAILED: leads.service.ts" && \
-curl -sfL -o src/modules/leads/leads.controller.ts "$BASE/src/modules/leads/leads.controller.ts" && echo "OK 3/6 leads.controller.ts" || echo "FAILED: leads.controller.ts" && \
-curl -sfL -o src/modules/leads/leads.routes.ts "$BASE/src/modules/leads/leads.routes.ts" && echo "OK 4/6 leads.routes.ts" || echo "FAILED: leads.routes.ts" && \
-curl -sfL -o src/modules/leads/leads.service.test.ts "$BASE/src/modules/leads/leads.service.test.ts" && echo "OK 5/6 leads.service.test.ts" || echo "FAILED: leads.service.test.ts" && \
-curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK 6/6 app.ts" || echo "FAILED: app.ts"
+mkdir -p prisma src/modules/leads && \
+curl -sfL -o prisma/schema.prisma "$BASE/prisma/schema.prisma" && echo "OK 1/7 schema.prisma" || echo "FAILED: schema.prisma" && \
+curl -sfL -o src/modules/leads/leads.schema.ts "$BASE/src/modules/leads/leads.schema.ts" && echo "OK 2/7 leads.schema.ts" || echo "FAILED: leads.schema.ts" && \
+curl -sfL -o src/modules/leads/leads.service.ts "$BASE/src/modules/leads/leads.service.ts" && echo "OK 3/7 leads.service.ts" || echo "FAILED: leads.service.ts" && \
+curl -sfL -o src/modules/leads/leads.controller.ts "$BASE/src/modules/leads/leads.controller.ts" && echo "OK 4/7 leads.controller.ts" || echo "FAILED: leads.controller.ts" && \
+curl -sfL -o src/modules/leads/leads.routes.ts "$BASE/src/modules/leads/leads.routes.ts" && echo "OK 5/7 leads.routes.ts" || echo "FAILED: leads.routes.ts" && \
+curl -sfL -o src/modules/leads/leads.service.test.ts "$BASE/src/modules/leads/leads.service.test.ts" && echo "OK 6/7 leads.service.test.ts" || echo "FAILED: leads.service.test.ts" && \
+curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK 7/7 app.ts" || echo "FAILED: app.ts"
 ```
 
 Expected:
 ```
-OK 1/6 leads.schema.ts
-OK 2/6 leads.service.ts
-OK 3/6 leads.controller.ts
-OK 4/6 leads.routes.ts
-OK 5/6 leads.service.test.ts
-OK 6/6 app.ts
+OK 1/7 schema.prisma
+OK 2/7 leads.schema.ts
+OK 3/7 leads.service.ts
+OK 4/7 leads.controller.ts
+OK 5/7 leads.routes.ts
+OK 6/7 leads.service.test.ts
+OK 7/7 app.ts
 ```
 
 ---
 
 ### STEP 3 — Run the schema migration
 
-> Skip this step if you already ran `npx prisma migrate dev --name add_universal_lead_fields` in a previous session and see all lead fields in your database.
+This adds the new Lead fields (`country`, `pageVisited`, `source`, `serviceId`, etc.) to your database and regenerates the Prisma client.
 
 ```bash
 cd ~/Desktop/Automation/backend && npx prisma migrate dev --name add_universal_lead_fields

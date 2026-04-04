@@ -179,8 +179,8 @@ function queueWhatsAppMessage(leadId: string, phone: string): void {
 /** Coerce a `Record<string, unknown> | null | undefined` to a Prisma nullable JSON value. */
 function toNullableJson(
   val: Record<string, unknown> | null | undefined,
-): Prisma.InputJsonValue | typeof Prisma.DbNull {
-  return val !== undefined && val !== null ? (val as Prisma.InputJsonValue) : Prisma.DbNull;
+): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  return val !== undefined && val !== null ? (val as Prisma.InputJsonValue) : Prisma.JsonNull;
 }
 
 /**
