@@ -1,360 +1,401 @@
-# BookingAutomation — Step-By-Step Guide
+# BookingAutomation — Operational Testing Guide
 
-> Run every command from: `~/Desktop/Automation/backend` unless told otherwise.
+> **Run every command from:** `~/Desktop/Automation/backend` unless told otherwise.  
 > Copy and paste each block exactly. Wait for it to finish before running the next one.
 
 ---
 
-## ✅ Steps 1.1 → 1.5 + Full reinstall — Done (31 files, 62/62 tests passing)
-## ✅ Two post-reinstall issues found and fixed
-## ✅ Step 1.6 — requireFeature middleware + Styles module — Done (78/78 tests passing)
-## ✅ Step 1.7 — Leads module (Universal Lead Capture API) — Done (115/115 tests passing)
+## ⚠️ The Golden Rule — Two Terminals
+
+You always need **two separate terminal windows open at the same time**:
+
+| Terminal | What runs | Port |
+|----------|-----------|------|
+| **Terminal A** | `npm run dev` — the API backend server | `3000` |
+| **Terminal B** | Your curl commands / Prisma Studio | — |
+
+**If Terminal A is not running, every curl command returns nothing.** The `-s` flag on curl suppresses the "connection refused" error message, so silence = server is down.
 
 ---
 
-## Step 1.6 — Files Created
+## Part 1 — Start Your Server
 
-| # | File | Status |
-|---|------|--------|
-| 1 | `backend/src/middleware/requireFeature.ts` | **NEW** — feature-flag gate middleware |
-| 2 | `backend/src/modules/styles/styles.schema.ts` | **NEW** — Zod request schemas |
-| 3 | `backend/src/modules/styles/styles.service.ts` | **NEW** — business logic |
-| 4 | `backend/src/modules/styles/styles.controller.ts` | **NEW** — HTTP handlers |
-| 5 | `backend/src/modules/styles/styles.routes.ts` | **NEW** — Express router |
-| 6 | `backend/src/modules/styles/styles.service.test.ts` | **NEW** — unit tests (16 tests) |
-
----
-
-### STEP 1 — Delete the outdated files
-
-```bash
-cd ~/Desktop/Automation/backend && \
-rm -f src/middleware/requireFeature.ts \
-      src/modules/styles/styles.schema.ts \
-      src/modules/styles/styles.service.ts \
-      src/modules/styles/styles.controller.ts \
-      src/modules/styles/styles.routes.ts \
-      src/modules/styles/styles.service.test.ts && echo "OLD FILES DELETED"
-```
-
-Expected: `OLD FILES DELETED`
-
----
-
-### STEP 2 — Download the new/updated files
-
-```bash
-cd ~/Desktop/Automation/backend && \
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
-mkdir -p src/middleware src/modules/styles && \
-curl -sfL -o src/middleware/requireFeature.ts "$BASE/src/middleware/requireFeature.ts" && echo "OK 1/6 requireFeature.ts" || echo "FAILED: requireFeature.ts" && \
-curl -sfL -o src/modules/styles/styles.schema.ts "$BASE/src/modules/styles/styles.schema.ts" && echo "OK 2/6 styles.schema.ts" || echo "FAILED: styles.schema.ts" && \
-curl -sfL -o src/modules/styles/styles.service.ts "$BASE/src/modules/styles/styles.service.ts" && echo "OK 3/6 styles.service.ts" || echo "FAILED: styles.service.ts" && \
-curl -sfL -o src/modules/styles/styles.controller.ts "$BASE/src/modules/styles/styles.controller.ts" && echo "OK 4/6 styles.controller.ts" || echo "FAILED: styles.controller.ts" && \
-curl -sfL -o src/modules/styles/styles.routes.ts "$BASE/src/modules/styles/styles.routes.ts" && echo "OK 5/6 styles.routes.ts" || echo "FAILED: styles.routes.ts" && \
-curl -sfL -o src/modules/styles/styles.service.test.ts "$BASE/src/modules/styles/styles.service.test.ts" && echo "OK 6/6 styles.service.test.ts" || echo "FAILED: styles.service.test.ts"
-```
-
-Expected:
-```
-OK 1/6 requireFeature.ts
-OK 2/6 styles.schema.ts
-OK 3/6 styles.service.ts
-OK 4/6 styles.controller.ts
-OK 5/6 styles.routes.ts
-OK 6/6 styles.service.test.ts
-```
-
----
-
-### STEP 3 — Fix your local .env BUSINESS_TYPE comment
-
-Open your `.env` file and find this line:
-```
-# Values: tattoo_studio | hair_salon | barber | restaurant
-```
-
-Replace it with:
-```
-# Values: tattoo_studio | hair_salon | barber | nail_salon | masseuse | restaurant
-```
-
-The `BUSINESS_TYPE=` value itself stays the same — only the comment above it changes.
-
----
-
-### STEP 4 — Run the database migration
-
-This applies the full schema to your PostgreSQL database for the first time.
-It creates all tables and columns including `phone`, `breakStart`, `breakEnd`, and all other new fields.
-
-Stop the dev server first if it is running (Ctrl+C in the server terminal window), then run:
-
-```bash
-cd ~/Desktop/Automation/backend && npx prisma migrate dev --name init
-```
-
-Expected output (roughly):
-```
-Prisma schema loaded from prisma/schema.prisma
-Datasource "db": PostgreSQL database "...", schema "public"
-
-✔ Generated Prisma Client
-
-The following migration(s) have been applied:
-
-migrations/
-  └─ 20260403_init/
-    └─ migration.sql
-
-✔ Generated Prisma Client (v5.x.x) to ./node_modules/@prisma/client in XXXms
-
-Your database is now in sync with your schema.
-```
-
-> If it asks **"We need to reset the PostgreSQL database"** — type `y` and press Enter. This is fine in development.
-> If you see any error — stop and paste the full output here before continuing.
-
----
-
-### STEP 5 — Restart the dev server
+### Terminal A — Start the API backend (keep this running always)
 
 ```bash
 cd ~/Desktop/Automation/backend && npm run dev
 ```
 
-Expected:
+**You will see:**
 ```
-[info] Server started {"port":3000,"env":"development","pid":XXXXX}
+[info] Server started {"port":3000,"env":"development","pid":12345}
 ```
+
+> Leave this terminal open. Never close it while testing. If the server crashes, re-run this command.
 
 ---
 
-### STEP 6 — Verify health endpoint
+### Terminal B — Verify the server is alive
+
+Open a **new terminal window** and run:
 
 ```bash
 curl http://localhost:3000/health
 ```
 
-Expected:
+**You will see:**
 ```json
-{"success":true,"data":{"status":"ok","timestamp":"...","env":"development"},"meta":null,"error":null}
+{"success":true,"data":{"status":"ok","timestamp":"2026-04-04T18:30:00.000Z","env":"development"},"meta":null,"error":null}
 ```
+
+> If you get nothing — Terminal A's server is not running. Go back and start it.
 
 ---
 
-### STEP 7 — Verify 404 handler
+## Part 2 — Create Your First User
 
-```bash
-curl http://localhost:3000/api/doesnotexist
-```
+### Step 2.1 — Register a new user
 
-Expected:
-```json
-{"success":false,"data":null,"meta":null,"error":{"code":"NOT_FOUND","message":"Route not found","details":null}}
-```
+**All** new users start as `CUSTOMER`. You register them via the API — never create them manually in Prisma Studio.
 
----
-
-### STEP 8 — Test auth register endpoint
+In **Terminal B**, run:
 
 ```bash
 curl -s -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","password":"Password123!","name":"Test User"}' | jq .
+  -d '{
+    "email": "admin@test.com",
+    "password": "Admin123!",
+    "name": "My Admin"
+  }' | jq .
 ```
 
-Expected:
+> Replace `admin@test.com`, `Admin123!`, and `My Admin` with whatever you want.  
+> The password must be at least 8 characters. **Remember this password — you will use it to log in.**
+
+**You will see something like:**
 ```json
-{"success":true,"data":{"user":{"id":"...","email":"test@test.com","name":"Test User","role":"CUSTOMER","phone":null,"createdAt":"..."},"accessToken":"..."}}
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbHVpNXh...",
+    "refreshToken": "a3f8b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0",
+    "user": {
+      "id": "clui5xyz1234abcd",
+      "email": "admin@test.com",
+      "name": "My Admin",
+      "role": "CUSTOMER",
+      "phone": null,
+      "isActive": true,
+      "createdAt": "2026-04-04T18:30:00.000Z",
+      "updatedAt": "2026-04-04T18:30:00.000Z"
+    }
+  }
+}
+```
+
+**Note the `id` field** (e.g. `clui5xyz1234abcd`) — you may need it.  
+**Note the `accessToken`** — this is a 15-minute token. You can use it now but it expires.
+
+---
+
+### Step 2.2 — Promote the user to ADMIN in Prisma Studio
+
+You cannot promote yourself via the API (by design — only admins can promote others). Instead, do it directly in the database:
+
+1. Open a **third terminal window** and run:
+   ```bash
+   cd ~/Desktop/Automation/backend && npx prisma studio
+   ```
+2. Open your browser at **http://localhost:5555**
+3. Click **User** in the left sidebar
+4. Find your user row (look for the email `admin@test.com`)
+5. Click on that row to open it
+6. Find the **`role`** field — it currently says `CUSTOMER`
+7. Click the dropdown and change it to **`ADMIN`**
+8. Click **Save 1 change** (green button at the top right)
+9. You can now close Prisma Studio (Ctrl+C in that terminal)
+
+> ⚠️ **Do NOT touch the `passwordHash` field.** It looks like `$2b$12$abc123...` — leave it exactly as is. Changing it will break login.
+
+---
+
+### Step 2.3 — Log in to get a fresh token
+
+Now log in with your email and the plain-text password you chose in Step 2.1:
+
+```bash
+curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@test.com",
+    "password": "Admin123!"
+  }' | jq .
+```
+
+> Use YOUR email and YOUR password here — the ones from Step 2.1.
+
+**You will see:**
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbHVpNXh...",
+    "refreshToken": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+    "user": {
+      "id": "clui5xyz1234abcd",
+      "email": "admin@test.com",
+      "name": "My Admin",
+      "role": "ADMIN",
+      ...
+    }
+  }
+}
+```
+
+> Notice `"role": "ADMIN"` — the promotion worked.
+
+---
+
+## Part 3 — Using Your Token
+
+The `accessToken` is what you put in every protected API request. It looks like:
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbHVpNXh...
+```
+
+**It expires after 15 minutes.** If you get a `401 INVALID_TOKEN` error, just log in again (Step 2.3) to get a new one.
+
+### How to use the token in a curl command
+
+Add this header to any request that requires authentication:
+```
+-H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+**Example — get your own profile:**
+```bash
+curl -s http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbHVpNXh..." | jq .
+```
+
+Replace the token with YOUR actual token from the login response.
+
+**You will see:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "clui5xyz1234abcd",
+    "email": "admin@test.com",
+    "name": "My Admin",
+    "role": "ADMIN",
+    "phone": null,
+    "isActive": true,
+    "createdAt": "2026-04-04T18:30:00.000Z",
+    "updatedAt": "2026-04-04T18:30:00.000Z"
+  }
+}
 ```
 
 ---
 
-### STEP 9 — Test artists endpoint
+## Part 4 — Save Your Token as a Shell Variable (Easier Workflow)
+
+Instead of copy-pasting the token into every command, save it to a variable in Terminal B:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@test.com","password":"Admin123!"}' | jq -r '.data.accessToken')
+
+echo $TOKEN
+```
+
+> Replace the email and password with yours. If `jq` is not installed, run `brew install jq` on Mac.
+
+You will see the raw token string printed. Now you can use `$TOKEN` in any command:
+
+```bash
+curl -s http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+> **Note:** `$TOKEN` only lasts 15 minutes, and only in this terminal session. If you open a new terminal or wait too long, re-run the `TOKEN=...` command above to get a fresh one.
+
+---
+
+## Part 5 — Test the Main API Endpoints
+
+All commands below use `$TOKEN`. Run the token-save command from Part 4 first.
+
+---
+
+### 5.1 — Public: Check health
+
+```bash
+curl -s http://localhost:3000/health | jq .
+```
+
+Expected: `"status": "ok"`
+
+---
+
+### 5.2 — Public: List artists
 
 ```bash
 curl -s http://localhost:3000/api/artists | jq .
 ```
 
-Expected:
-```json
-{"success":true,"data":[],"meta":{"page":1,"limit":20,"total":0,"totalPages":0},"error":null}
-```
+Expected: `"data": []` (empty until you create artists)
 
 ---
 
-### STEP 10 — Test styles endpoint (Step 1.6)
+### 5.3 — Public: List styles (tattoo styles, etc.)
 
 ```bash
 curl -s http://localhost:3000/api/styles | jq .
 ```
 
-Expected:
-```json
-{"success":true,"data":[],"meta":{"page":1,"limit":20,"total":0,"totalPages":0},"error":null}
-```
+Expected: `"data": []` (empty until you create styles)
 
 ---
 
-## ✅ All 10 steps passing = Step 1.6 complete. Steps 1.1 → 1.6 fully verified. ✅
-
----
-
-## Step 1.7 — Files Created / Updated
-
-| # | File | Status |
-|---|------|--------|
-| 1 | `backend/prisma/schema.prisma` | **UPDATED** — adds `country`, `pageVisited`, `source`, `serviceId` fields to Lead model |
-| 2 | `backend/src/modules/leads/leads.schema.ts` | **NEW** — Zod request schemas (business-type-aware) |
-| 3 | `backend/src/modules/leads/leads.service.ts` | **NEW** — business logic + CSV export |
-| 4 | `backend/src/modules/leads/leads.controller.ts` | **NEW** — HTTP handlers |
-| 5 | `backend/src/modules/leads/leads.routes.ts` | **NEW** — Express router (6 endpoints) |
-| 6 | `backend/src/modules/leads/leads.service.test.ts` | **NEW** — unit tests (37 tests) |
-| 7 | `backend/src/app.ts` | **UPDATED** — mounts `/api/leads` |
-
----
-
-### STEP 1 — Delete the outdated files
-
-```bash
-cd ~/Desktop/Automation/backend && \
-rm -f prisma/schema.prisma \
-      src/modules/leads/leads.schema.ts \
-      src/modules/leads/leads.service.ts \
-      src/modules/leads/leads.controller.ts \
-      src/modules/leads/leads.routes.ts \
-      src/modules/leads/leads.service.test.ts \
-      src/app.ts && echo "OLD FILES DELETED"
-```
-
-Expected: `OLD FILES DELETED`
-
----
-
-### STEP 2 — Download the new/updated files
-
-```bash
-cd ~/Desktop/Automation/backend && \
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend" && \
-mkdir -p prisma src/modules/leads && \
-curl -sfL -o prisma/schema.prisma "$BASE/prisma/schema.prisma" && echo "OK 1/7 schema.prisma" || echo "FAILED: schema.prisma" && \
-curl -sfL -o src/modules/leads/leads.schema.ts "$BASE/src/modules/leads/leads.schema.ts" && echo "OK 2/7 leads.schema.ts" || echo "FAILED: leads.schema.ts" && \
-curl -sfL -o src/modules/leads/leads.service.ts "$BASE/src/modules/leads/leads.service.ts" && echo "OK 3/7 leads.service.ts" || echo "FAILED: leads.service.ts" && \
-curl -sfL -o src/modules/leads/leads.controller.ts "$BASE/src/modules/leads/leads.controller.ts" && echo "OK 4/7 leads.controller.ts" || echo "FAILED: leads.controller.ts" && \
-curl -sfL -o src/modules/leads/leads.routes.ts "$BASE/src/modules/leads/leads.routes.ts" && echo "OK 5/7 leads.routes.ts" || echo "FAILED: leads.routes.ts" && \
-curl -sfL -o src/modules/leads/leads.service.test.ts "$BASE/src/modules/leads/leads.service.test.ts" && echo "OK 6/7 leads.service.test.ts" || echo "FAILED: leads.service.test.ts" && \
-curl -sfL -o src/app.ts "$BASE/src/app.ts" && echo "OK 7/7 app.ts" || echo "FAILED: app.ts"
-```
-
-Expected:
-```
-OK 1/7 schema.prisma
-OK 2/7 leads.schema.ts
-OK 3/7 leads.service.ts
-OK 4/7 leads.controller.ts
-OK 5/7 leads.routes.ts
-OK 6/7 leads.service.test.ts
-OK 7/7 app.ts
-```
-
----
-
-### STEP 3 — Run the schema migration
-
-This adds the new Lead fields (`country`, `pageVisited`, `source`, `serviceId`, etc.) to your database and regenerates the Prisma client.
-
-```bash
-cd ~/Desktop/Automation/backend && npx prisma migrate dev --name add_universal_lead_fields
-```
-
-Expected output (roughly):
-```
-Prisma schema loaded from prisma/schema.prisma
-✔ Generated Prisma Client
-Your database is now in sync with your schema.
-```
-
-> If it asks **"We need to reset the PostgreSQL database"** — type `y` and press Enter. This is fine in development.
-
----
-
-### STEP 4 — Run tests
-
-```bash
-cd ~/Desktop/Automation/backend && npm test
-```
-
-Expected:
-```
-Tests: 115 passed, 115 total
-```
-
----
-
-### STEP 5 — Restart dev server
-
-```bash
-cd ~/Desktop/Automation/backend && npm run dev
-```
-
-Expected:
-```
-[info] Server started {"port":3000,"env":"development","pid":XXXXX}
-```
-
----
-
-### STEP 6 — Test submit a lead (public endpoint)
+### 5.4 — Public: Submit a lead (contact form)
 
 ```bash
 curl -s -X POST http://localhost:3000/api/leads \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Test Customer",
-    "email": "customer@test.com",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
     "phone": "+441234567890",
-    "description": "Interested in a full sleeve tattoo",
-    "placement": {"area": "left_arm"},
+    "description": "Interested in a sleeve tattoo",
     "source": "instagram"
   }' | jq .
 ```
 
-Expected:
-```json
-{"success":true,"data":{"id":"...","name":"Test Customer","email":"customer@test.com","status":"NEW","score":0,"businessType":"tattoo_studio",...}}
-```
+Expected: a lead object with `"status": "NEW"`
 
 ---
 
-### STEP 7 — Test listing leads (ADMIN only — needs auth token)
-
-First register/login as ADMIN to get a token, then:
+### 5.5 — Admin: List all leads
 
 ```bash
 curl -s http://localhost:3000/api/leads \
-  -H "Authorization: Bearer <YOUR_ADMIN_TOKEN>" | jq .
+  -H "Authorization: Bearer $TOKEN" | jq .
 ```
 
-Expected:
-```json
-{"success":true,"data":[...],"meta":{"page":1,"limit":20,"total":1,...}}
-```
+Expected: paginated list of leads including the one from step 5.4.
 
 ---
 
-### STEP 8 — Test CSV export
+### 5.6 — Admin: Export leads as CSV
 
 ```bash
 curl -s http://localhost:3000/api/leads/export \
-  -H "Authorization: Bearer <YOUR_ADMIN_TOKEN>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
-Expected: CSV file download with headers:
-```
-id,name,email,phone,country,status,score,businessType,...
+Expected: CSV text output with column headers like `id,name,email,phone,...`
+
+To save it to a file:
+```bash
+curl -s http://localhost:3000/api/leads/export \
+  -H "Authorization: Bearer $TOKEN" -o leads.csv && echo "Saved to leads.csv"
 ```
 
 ---
 
-## ✅ All 8 steps passing = Step 1.7 complete. Steps 1.1 → 1.7 fully verified. ✅
+### 5.7 — Admin: Create a style
+
+```bash
+curl -s -X POST http://localhost:3000/api/styles \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "name": "Traditional",
+    "description": "Classic bold lines and colours"
+  }' | jq .
+```
+
+Expected: the new style object with an `id`.
+
+---
+
+### 5.8 — Admin: Create an artist
+
+```bash
+curl -s -X POST http://localhost:3000/api/artists \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "name": "Alex Ink",
+    "bio": "Specialist in traditional and neo-trad",
+    "instagram": "@alexink"
+  }' | jq .
+```
+
+Expected: the new artist object with an `id`.
+
+---
+
+## Part 6 — Common Errors and Fixes
+
+| What you see | What it means | Fix |
+|---|---|---|
+| No output at all | Server is not running | Start Terminal A: `npm run dev` |
+| `"code": "INVALID_CREDENTIALS"` | Wrong email or password | Use the exact email/password from Step 2.1 |
+| `"code": "INVALID_TOKEN"` | Token expired (15 min) | Re-run the `TOKEN=...` command from Part 4 |
+| `"code": "FORBIDDEN"` | Your role is not ADMIN | Go back to Step 2.2 and promote the user in Prisma Studio |
+| `"code": "VALIDATION_ERROR"` | Missing or wrong field in JSON body | Check the error details for which field is wrong |
+| `jq: command not found` | jq not installed | Run `brew install jq` in Terminal B |
+
+---
+
+## Part 7 — Roles Explained
+
+| Role | Who it is | What they can do |
+|---|---|---|
+| `CUSTOMER` | A regular user / client | View public endpoints, manage their own profile |
+| `ARTIST` | A tattoo artist / staff member | Everything CUSTOMER can do, plus manage their own bookings and availability |
+| `ADMIN` | Studio owner / manager | Full access to all API endpoints — leads, artists, styles, settings, exports |
+
+> **How to change a role:** Only via Prisma Studio (http://localhost:5555 while `npx prisma studio` is running). Find the user in the `User` table, change the `role` field, and save.
+
+> **Note:** A `SUPER_ADMIN` tier is planned for a future phase when multiple studios exist. For now `ADMIN` is the highest role.
+
+---
+
+## Part 8 — Quick Reference Card
+
+```bash
+# ── Start everything ─────────────────────────────────────────────────────────
+# Terminal A (leave open):
+cd ~/Desktop/Automation/backend && npm run dev
+
+# Terminal B (for commands):
+# Optional — open database GUI:
+cd ~/Desktop/Automation/backend && npx prisma studio
+# Then open http://localhost:5555 in your browser
+
+# ── Get / refresh your admin token ───────────────────────────────────────────
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@test.com","password":"Admin123!"}' | jq -r '.data.accessToken')
+echo "Token saved: ${TOKEN:0:30}..."
+
+# ── Health check ──────────────────────────────────────────────────────────────
+curl -s http://localhost:3000/health | jq .data.status
+
+# ── Who am I? ────────────────────────────────────────────────────────────────
+curl -s http://localhost:3000/api/auth/me -H "Authorization: Bearer $TOKEN" | jq .data
+
+# ── List leads (admin) ───────────────────────────────────────────────────────
+curl -s http://localhost:3000/api/leads -H "Authorization: Bearer $TOKEN" | jq .
+
+# ── Submit a lead (public) ───────────────────────────────────────────────────
+curl -s -X POST http://localhost:3000/api/leads \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","email":"t@t.com","description":"Test enquiry"}' | jq .
+```
