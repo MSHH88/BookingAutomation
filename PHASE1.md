@@ -1,6 +1,6 @@
 # Phase 1 — Backend Foundation & Interoperability Core
 
-> **Status: 1.6 ✅ Done + BUG-H/BUG-I ✅ Fixed — Next: Step 1.7**  
+> **Status: 1.8 ✅ Done — Next: Step 1.9**  
 > This file is the authoritative, self-contained reference for every step in Phase 1.  
 > One step at a time. No step starts until the previous step is verified and signed off.  
 > See `PLAN.md` for architecture decisions, tech stack reasoning, and project vision.  
@@ -1020,10 +1020,10 @@ Run: `npx prisma migrate dev --name add_universal_lead_fields`
 - Expired quotes cannot be accepted
 
 **Checklist:**
-- [ ] Quote creation validates lead exists and is in correct status
-- [ ] Accepting a quote creates a Booking atomically (Prisma transaction)
-- [ ] Expired quotes return 409 on accept
-- [ ] Tests written and passing
+- [x] Quote creation validates lead exists and is in correct status
+- [x] Accepting a quote creates a Booking atomically (Prisma transaction)
+- [x] Expired quotes return 409 on accept
+- [x] Tests written and passing (40/40)
 
 ---
 
