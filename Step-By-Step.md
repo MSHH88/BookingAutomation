@@ -8,30 +8,39 @@
 
 ---
 
-## Files in this step
+## ⚠️ CRITICAL — curl format rules (read once, never forget)
 
-### NEW folder (create once)
-```
-backend/src/modules/quotes/
-```
-
-### NEW files (brand-new — 5 files)
-| File | Description |
-|------|-------------|
-| `backend/src/modules/quotes/quotes.schema.ts` | Zod validation schemas — 4 bugs fixed here |
-| `backend/src/modules/quotes/quotes.service.ts` | Business logic — 2 bugs fixed here |
-| `backend/src/modules/quotes/quotes.controller.ts` | HTTP handlers |
-| `backend/src/modules/quotes/quotes.routes.ts` | Express router |
-| `backend/src/modules/quotes/quotes.service.test.ts` | 40 unit tests |
-
-### MODIFIED existing file (delete then re-download — 1 file)
-| File | What changed |
-|------|-------------|
-| `backend/src/app.ts` | Added `quoteRoutes` import and `/api/quotes` route mount |
+**NEVER use backslash `\` line continuation in curl commands.**  
+Copying multi-line curl from a document into zsh on macOS inserts invisible characters and causes `zsh: parse error near ')'`.  
+**Always write every curl as a single unbroken line.** That is the only format used in this guide.
 
 ---
 
-## STEP 1 — Create the new folder
+## Files in this step — ALL 6 MUST BE DOWNLOADED
+
+| # | File | Type | Notes |
+|---|------|------|-------|
+| 1 | `backend/src/app.ts` | MODIFIED | Adds `/api/quotes` route mount |
+| 2 | `backend/src/modules/quotes/quotes.schema.ts` | NEW | Zod schemas — BUG-1 & BUG-2 fixed |
+| 3 | `backend/src/modules/quotes/quotes.service.ts` | NEW | Business logic — BUG-3 & BUG-4 fixed |
+| 4 | `backend/src/modules/quotes/quotes.controller.ts` | NEW | HTTP handlers |
+| 5 | `backend/src/modules/quotes/quotes.routes.ts` | NEW | Express router |
+| 6 | `backend/src/modules/quotes/quotes.service.test.ts` | NEW | **40 unit tests — DO NOT SKIP** |
+
+> **Missing file 6 is why tests show 115 instead of 155.** Every file must be downloaded.
+
+---
+
+## STEP 1 — Delete everything from a previous attempt (clean slate)
+
+```bash
+rm -rf ~/Desktop/Automation/backend/src/modules/quotes
+rm -f ~/Desktop/Automation/backend/src/app.ts
+```
+
+---
+
+## STEP 2 — Create the quotes folder
 
 ```bash
 mkdir -p ~/Desktop/Automation/backend/src/modules/quotes
@@ -39,45 +48,33 @@ mkdir -p ~/Desktop/Automation/backend/src/modules/quotes
 
 ---
 
-## STEP 2 — Delete the existing file that was changed
-
-> Run this so the old `app.ts` on your machine is removed before the fresh download.
+## STEP 3 — Download all 6 files (single-line curl — copy one line at a time)
 
 ```bash
-rm ~/Desktop/Automation/backend/src/app.ts
+curl -o ~/Desktop/Automation/backend/src/app.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts"
 ```
-
----
-
-## STEP 3 — Download all 6 files
-
-Run all six commands in your terminal. Each command saves the file to the correct path.
 
 ```bash
-# 1 — app.ts (modified: added /api/quotes route)
-curl -o ~/Desktop/Automation/backend/src/app.ts \
-  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts"
-
-# 2 — quotes.schema.ts (new — BUG-1 & BUG-2 fixed: implicit-any on refine callbacks)
-curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.schema.ts \
-  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.schema.ts"
-
-# 3 — quotes.service.ts (new — BUG-3 & BUG-4 fixed: tx typed + select added)
-curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts \
-  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.ts"
-
-# 4 — quotes.controller.ts (new)
-curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.controller.ts \
-  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.controller.ts"
-
-# 5 — quotes.routes.ts (new)
-curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.routes.ts \
-  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.routes.ts"
-
-# 6 — quotes.service.test.ts (new — 40 tests)
-curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts \
-  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.test.ts"
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.schema.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.schema.ts"
 ```
+
+```bash
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.ts"
+```
+
+```bash
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.controller.ts"
+```
+
+```bash
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.routes.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.routes.ts"
+```
+
+```bash
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.test.ts"
+```
+
+> ✅ Verify: after all 6 curl commands each shows `100 xxxxx` in the progress line (non-zero bytes). If any shows `100    0` the file is empty — re-run that curl.
 
 ---
 
@@ -89,11 +86,11 @@ cd ~/Desktop/Automation/backend && npm test
 
 **Expected output:**
 ```
-Test Suites: X passed, X total
-Tests:       155 passed, 155 total   ← 40 new quote tests added
+Test Suites: 6 passed, 6 total
+Tests:       155 passed, 155 total   ← 115 existing + 40 new quote tests
 ```
 
-All 155 tests should pass. Zero failures.
+All 155 tests must pass. Zero failures. If still 115, the test file (file 6) is missing — re-run step 1 and step 3 in full.
 
 ---
 
