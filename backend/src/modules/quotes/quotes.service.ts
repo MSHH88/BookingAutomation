@@ -464,11 +464,12 @@ export async function acceptQuote(
   const startAt = new Date(body.startAt);
   const endAt   = new Date(body.endAt);
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // 1. Accept the quote
     await tx.quote.update({
-      where: { id },
-      data:  { status: 'ACCEPTED', respondedAt: new Date() },
+      where:  { id },
+      data:   { status: 'ACCEPTED', respondedAt: new Date() },
+      select: { id: true },
     });
 
     // 2. Create Booking (PENDING)
@@ -484,12 +485,14 @@ export async function acceptQuote(
         totalAmount:          quote.price,
         totalDurationMinutes: quote.hours ? Math.round(quote.hours * 60) : null,
       },
+      select: { id: true },
     });
 
     // 3. Advance lead to BOOKED
     await tx.lead.update({
-      where: { id: quote.leadId },
-      data:  { status: 'BOOKED' },
+      where:  { id: quote.leadId },
+      data:   { status: 'BOOKED' },
+      select: { id: true },
     });
   });
 

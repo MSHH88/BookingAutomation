@@ -105,25 +105,28 @@ export const getQuoteByIdSchema = z.object({
 
 // ─── PATCH /api/quotes/:id ────────────────────────────────────────────────────
 
+/** Intermediate shape used to give the refine callback a concrete type. */
+const updateQuoteBody = z.object({
+  price:      positiveDecimal.optional(),
+  hours:      z.number().positive().finite().optional(),
+  notes:      optStr(),
+  validUntil: isoDateTime('validUntil').optional(),
+});
+
+type UpdateQuoteBodyRaw = z.infer<typeof updateQuoteBody>;
+
 export const updateQuoteSchema = z.object({
   params: z.object({
     id: z.string().min(1, 'Quote ID is required'),
   }),
-  body: z
-    .object({
-      price:      positiveDecimal.optional(),
-      hours:      z.number().positive().finite().optional(),
-      notes:      optStr(),
-      validUntil: isoDateTime('validUntil').optional(),
-    })
-    .refine(
-      (b) =>
-        b.price      !== undefined ||
-        b.hours      !== undefined ||
-        b.notes      !== undefined ||
-        b.validUntil !== undefined,
-      { message: 'At least one field (price, hours, notes, validUntil) must be provided' },
-    ),
+  body: updateQuoteBody.refine(
+    (b: UpdateQuoteBodyRaw) =>
+      b.price      !== undefined ||
+      b.hours      !== undefined ||
+      b.notes      !== undefined ||
+      b.validUntil !== undefined,
+    { message: 'At least one field (price, hours, notes, validUntil) must be provided' },
+  ),
 });
 
 // ─── PATCH /api/quotes/:id/send ───────────────────────────────────────────────
@@ -136,26 +139,32 @@ export const sendQuoteSchema = z.object({
 
 // ─── PATCH /api/quotes/:id/accept ─────────────────────────────────────────────
 
+/** Intermediate shape for the accept body to give the refine callback a concrete type. */
+const acceptQuoteBody = z.object({
+  /**
+   * Appointment start and end times provided by admin at acceptance time.
+   * Creates the Booking record immediately so no separate scheduling step is needed.
+   */
+  startAt: isoDateTime('startAt'),
+  endAt:   isoDateTime('endAt'),
+
+  /** Optional admin notes to attach to the new Booking. */
+  notes: optStr(),
+});
+
+type AcceptQuoteBodyRaw = z.infer<typeof acceptQuoteBody>;
+
 export const acceptQuoteSchema = z.object({
   params: z.object({
     id: z.string().min(1, 'Quote ID is required'),
   }),
-  body: z
-    .object({
-      /**
-       * Appointment start and end times provided by admin at acceptance time.
-       * Creates the Booking record immediately so no separate scheduling step is needed.
-       */
-      startAt: isoDateTime('startAt'),
-      endAt:   isoDateTime('endAt'),
-
-      /** Optional admin notes to attach to the new Booking. */
-      notes: optStr(),
-    })
-    .refine((b) => new Date(b.endAt) > new Date(b.startAt), {
+  body: acceptQuoteBody.refine(
+    (b: AcceptQuoteBodyRaw) => new Date(b.endAt) > new Date(b.startAt),
+    {
       message: 'endAt must be after startAt',
       path:    ['endAt'],
-    }),
+    },
+  ),
 });
 
 // ─── PATCH /api/quotes/:id/reject ─────────────────────────────────────────────
