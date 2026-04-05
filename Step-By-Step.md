@@ -151,3 +151,79 @@ DRAFT ──► SENT ──► ACCEPTED  (creates Booking atomically; lead → B
 | All others | `false` |
 
 If the flag is `false`, all quote endpoints return `503 Feature Disabled`.
+
+---
+
+# Step 1.9 — Booking Management API — Setup Guide
+
+> **What this step adds**
+> - A new `bookings` module with 6 REST endpoints (list, get, confirm, complete, cancel, reschedule)
+> - Full booking lifecycle: `PENDING → CONFIRMED → COMPLETED / CANCELLED / RESCHEDULED`
+> - Scheduling conflict detection on confirm and reschedule
+> - Atomic Invoice creation on booking completion (Prisma transaction)
+> - Feature-flagged: `BOOKING_ENABLED` (on by default for all business types)
+
+---
+
+## ⚠️ CRITICAL — curl rules (never forget, every step)
+
+**ALL files in ONE curl block below — copy the whole block, paste once.**
+**Never use backslash `\` line continuation in curl commands.**
+Every curl is a single unbroken line. No exceptions.
+
+---
+
+## Files in this step — ALL 6 MUST BE DOWNLOADED
+
+| # | File | Type | Notes |
+|---|------|------|-------|
+| 1 | `backend/src/app.ts` | MODIFIED | Adds `/api/bookings` route mount |
+| 2 | `backend/src/modules/bookings/bookings.schema.ts` | NEW | Zod schemas |
+| 3 | `backend/src/modules/bookings/bookings.service.ts` | NEW | Business logic |
+| 4 | `backend/src/modules/bookings/bookings.controller.ts` | NEW | HTTP handlers |
+| 5 | `backend/src/modules/bookings/bookings.routes.ts` | NEW | Express router |
+| 6 | `backend/src/modules/bookings/bookings.service.test.ts` | NEW | **36 unit tests — DO NOT SKIP** |
+
+> ⚠️ **FILE 6 IS THE TEST FILE. SKIPPING IT = WRONG TEST COUNT FOREVER.**
+
+---
+
+## STEP 1 — Delete previous attempt (clean slate)
+
+```bash
+rm -rf ~/Desktop/Automation/backend/src/modules/bookings && rm -f ~/Desktop/Automation/backend/src/app.ts
+```
+
+---
+
+## STEP 2 — Create the bookings folder
+
+```bash
+mkdir -p ~/Desktop/Automation/backend/src/modules/bookings
+```
+
+---
+
+## STEP 3 — Download ALL 6 files (copy this entire block at once)
+
+```bash
+curl -o ~/Desktop/Automation/backend/src/app.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" && curl -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.schema.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.schema.ts" && curl -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" && curl -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.controller.ts" && curl -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.routes.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.routes.ts" && curl -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts"
+```
+
+> ✅ Verify: each of the 6 curl commands shows a non-zero byte count. If any shows `100    0` — the file is empty, re-run step 1 and step 3 in full.
+
+---
+
+## STEP 4 — Run the tests
+
+```bash
+cd ~/Desktop/Automation/backend && npm test
+```
+
+**Expected output:**
+```
+Test Suites: 7 passed, 7 total
+Tests:       191 passed, 191 total   ← 155 existing + 36 new booking tests
+```
+
+All 191 tests must pass. Zero failures. If still 155, the test file (file 6) is missing — re-run step 1 and step 3 in full.

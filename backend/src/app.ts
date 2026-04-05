@@ -13,7 +13,8 @@ import { authRoutes }  from './modules/auth/auth.routes';
 import { artistRoutes } from './modules/artists/artists.routes';
 import { styleRoutes }  from './modules/styles/styles.routes';
 import { leadRoutes }   from './modules/leads/leads.routes';
-import { quoteRoutes }  from './modules/quotes/quotes.routes';
+import { quoteRoutes }   from './modules/quotes/quotes.routes';
+import { bookingRoutes } from './modules/bookings/bookings.routes';
 
 const app = express();
 
@@ -101,6 +102,7 @@ app.use('/api/artists',  artistRoutes);     // Step 1.5
 app.use('/api/styles',   styleRoutes);      // Step 1.6
 app.use('/api/leads',    leadRoutes);       // Step 1.7
 app.use('/api/quotes',   quoteRoutes);      // Step 1.8
+app.use('/api/bookings', bookingRoutes);    // Step 1.9
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
