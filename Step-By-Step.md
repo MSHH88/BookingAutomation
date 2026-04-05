@@ -10,28 +10,28 @@
 
 ## Files in this step
 
-### NEW folder
+### NEW folder (create once)
 ```
 backend/src/modules/quotes/
 ```
 
-### NEW files (download all 5)
+### NEW files (brand-new — 5 files)
 | File | Description |
 |------|-------------|
-| `backend/src/modules/quotes/quotes.schema.ts` | Zod validation schemas for all 7 endpoints |
-| `backend/src/modules/quotes/quotes.service.ts` | Business logic — all service functions |
-| `backend/src/modules/quotes/quotes.controller.ts` | HTTP handlers — thin layer over service |
-| `backend/src/modules/quotes/quotes.routes.ts` | Express router with auth + role + feature guards |
-| `backend/src/modules/quotes/quotes.service.test.ts` | 40 unit tests covering all service functions |
+| `backend/src/modules/quotes/quotes.schema.ts` | Zod validation schemas — 4 bugs fixed here |
+| `backend/src/modules/quotes/quotes.service.ts` | Business logic — 2 bugs fixed here |
+| `backend/src/modules/quotes/quotes.controller.ts` | HTTP handlers |
+| `backend/src/modules/quotes/quotes.routes.ts` | Express router |
+| `backend/src/modules/quotes/quotes.service.test.ts` | 40 unit tests |
 
-### MODIFIED files (download and replace)
+### MODIFIED existing file (delete then re-download — 1 file)
 | File | What changed |
 |------|-------------|
 | `backend/src/app.ts` | Added `quoteRoutes` import and `/api/quotes` route mount |
 
 ---
 
-## STEP 1 — Create the quotes module folder
+## STEP 1 — Create the new folder
 
 ```bash
 mkdir -p ~/Desktop/Automation/backend/src/modules/quotes
@@ -39,68 +39,49 @@ mkdir -p ~/Desktop/Automation/backend/src/modules/quotes
 
 ---
 
-## STEP 2 — Download and place `quotes.schema.ts`
+## STEP 2 — Delete the existing file that was changed
 
-Place the file at:
-```
-backend/src/modules/quotes/quotes.schema.ts
-```
+> Run this so the old `app.ts` on your machine is removed before the fresh download.
 
----
-
-## STEP 3 — Download and place `quotes.service.ts`
-
-Place the file at:
-```
-backend/src/modules/quotes/quotes.service.ts
+```bash
+rm ~/Desktop/Automation/backend/src/app.ts
 ```
 
 ---
 
-## STEP 4 — Download and place `quotes.controller.ts`
+## STEP 3 — Download all 6 files
 
-Place the file at:
-```
-backend/src/modules/quotes/quotes.controller.ts
+Run all six commands in your terminal. Each command saves the file to the correct path.
+
+```bash
+# 1 — app.ts (modified: added /api/quotes route)
+curl -o ~/Desktop/Automation/backend/src/app.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts"
+
+# 2 — quotes.schema.ts (new — BUG-1 & BUG-2 fixed: implicit-any on refine callbacks)
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.schema.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.schema.ts"
+
+# 3 — quotes.service.ts (new — BUG-3 & BUG-4 fixed: tx typed + select added)
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.ts"
+
+# 4 — quotes.controller.ts (new)
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.controller.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.controller.ts"
+
+# 5 — quotes.routes.ts (new)
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.routes.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.routes.ts"
+
+# 6 — quotes.service.test.ts (new — 40 tests)
+curl -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.test.ts"
 ```
 
 ---
 
-## STEP 5 — Download and place `quotes.routes.ts`
-
-Place the file at:
-```
-backend/src/modules/quotes/quotes.routes.ts
-```
-
----
-
-## STEP 6 — Download and place `quotes.service.test.ts`
-
-Place the file at:
-```
-backend/src/modules/quotes/quotes.service.test.ts
-```
-
----
-
-## STEP 7 — Replace `app.ts`
-
-Replace the entire file at:
-```
-backend/src/app.ts
-```
-
-> **What was added:** one import line and one route mount:
-> ```typescript
-> import { quoteRoutes }  from './modules/quotes/quotes.routes';  // new
-> // ...
-> app.use('/api/quotes',   quoteRoutes);      // Step 1.8 — new
-> ```
-
----
-
-## STEP 8 — Run the tests
+## STEP 4 — Run the tests
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
