@@ -159,7 +159,7 @@ If the flag is `false`, all quote endpoints return `503 Feature Disabled`.
 > **What this step adds**
 > - A new `bookings` module with 6 REST endpoints (list, get, confirm, complete, cancel, reschedule)
 > - Full booking lifecycle: `PENDING → CONFIRMED → COMPLETED / CANCELLED / RESCHEDULED`
-> - Scheduling conflict detection on confirm and reschedule
+> - Scheduling conflict detection on confirm and reschedule (checks CONFIRMED **and** RESCHEDULED slots)
 > - Atomic Invoice creation on booking completion (Prisma transaction)
 > - Feature-flagged: `BOOKING_ENABLED` (on by default for all business types)
 
@@ -179,10 +179,10 @@ Every curl is a single unbroken line. No exceptions.
 |---|------|------|-------|
 | 1 | `backend/src/app.ts` | MODIFIED | Adds `/api/bookings` route mount |
 | 2 | `backend/src/modules/bookings/bookings.schema.ts` | NEW | Zod schemas |
-| 3 | `backend/src/modules/bookings/bookings.service.ts` | NEW | Business logic |
+| 3 | `backend/src/modules/bookings/bookings.service.ts` | NEW | Business logic — BUG-1 & BUG-2 fixed |
 | 4 | `backend/src/modules/bookings/bookings.controller.ts` | NEW | HTTP handlers |
 | 5 | `backend/src/modules/bookings/bookings.routes.ts` | NEW | Express router |
-| 6 | `backend/src/modules/bookings/bookings.service.test.ts` | NEW | **36 unit tests — DO NOT SKIP** |
+| 6 | `backend/src/modules/bookings/bookings.service.test.ts` | NEW | **39 unit tests — DO NOT SKIP** |
 
 > ⚠️ **FILE 6 IS THE TEST FILE. SKIPPING IT = WRONG TEST COUNT FOREVER.**
 
@@ -223,7 +223,67 @@ cd ~/Desktop/Automation/backend && npm test
 **Expected output:**
 ```
 Test Suites: 7 passed, 7 total
-Tests:       191 passed, 191 total   ← 155 existing + 36 new booking tests
+Tests:       194 passed, 194 total   ← 155 existing + 39 new booking tests
 ```
 
-All 191 tests must pass. Zero failures. If still 155, the test file (file 6) is missing — re-run step 1 and step 3 in full.
+All 194 tests must pass. Zero failures. If still 155, the test file (file 6) is missing — re-run step 1 and step 3 in full.
+
+---
+
+## Bug fixes applied in this step
+
+The following bugs were found and fixed during the audit. All fixed files are included in the downloads above.
+
+| Bug | File | Description | Fix |
+|-----|------|-------------|-----|
+| BUG-1 | `bookings.service.ts` | `cancelBooking` only allowed `PENDING` and `CONFIRMED` to be cancelled. A `RESCHEDULED` booking (non-terminal status) could not be cancelled, breaking the stated lifecycle rule "CANCELLED at any non-terminal status". | Added `'RESCHEDULED'` to `cancellableStatuses`. |
+| BUG-2 | `bookings.service.ts` | Conflict detection in `confirmBooking` and `rescheduleBooking` only queried `status: 'CONFIRMED'`. A `RESCHEDULED` booking is still an active booking at its new times; omitting it from the check created a scheduling hole where two bookings could occupy the same slot. | Changed `status: 'CONFIRMED'` to `status: { in: ['CONFIRMED', 'RESCHEDULED'] }` in both functions. |
+
+---
+
+## Endpoints added by this step
+
+| Method | Path | Auth | Feature flag | Description |
+|--------|------|------|-------------|-------------|
+| `GET` | `/api/bookings` | ARTIST / ADMIN | `BOOKING_ENABLED` | List bookings (ARTIST: own only; ADMIN: all, filterable) |
+| `GET` | `/api/bookings/:id` | ARTIST / ADMIN | `BOOKING_ENABLED` | Full booking detail |
+| `PATCH` | `/api/bookings/:id/confirm` | ARTIST / ADMIN | `BOOKING_ENABLED` | Confirm PENDING → conflict check + email + calendar |
+| `PATCH` | `/api/bookings/:id/complete` | ARTIST / ADMIN | `BOOKING_ENABLED` | Complete CONFIRMED → Invoice created atomically |
+| `PATCH` | `/api/bookings/:id/cancel` | ARTIST / ADMIN | `BOOKING_ENABLED` | Cancel PENDING / CONFIRMED / RESCHEDULED → email |
+| `PATCH` | `/api/bookings/:id/reschedule` | ARTIST / ADMIN | `BOOKING_ENABLED` | Reschedule CONFIRMED → conflict check + email |
+
+---
+
+## Booking lifecycle
+
+```
+PENDING ──► CONFIRMED ──► COMPLETED   (Invoice created atomically)
+        │             ├──► CANCELLED
+        │             ├──► RESCHEDULED ──► CANCELLED
+        │             └──► NO_SHOW
+        └──────────────────► CANCELLED
+```
+
+Terminal statuses (no further transitions): `COMPLETED`, `CANCELLED`, `NO_SHOW`
+
+---
+
+## Role permissions
+
+| Role | List | Get | Confirm | Complete | Cancel | Reschedule |
+|------|------|-----|---------|----------|--------|------------|
+| CUSTOMER | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| ARTIST | ✓ (own) | ✓ (own) | ✓ (own) | ✓ (own) | ✓ (own) | ✓ (own) |
+| ADMIN | ✓ (all) | ✓ (all) | ✓ | ✓ | ✓ | ✓ |
+
+---
+
+## Feature flag
+
+`BOOKING_ENABLED` is set in `backend/src/config/businessType.ts`.
+
+| Business type | Value |
+|---|---|
+| All types | `true` ✅ |
+
+If the flag is `false`, all booking endpoints return `503 Feature Disabled`.

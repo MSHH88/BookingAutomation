@@ -105,7 +105,8 @@ const baseBooking = {
   services: [],
 };
 
-const confirmedBooking = { ...baseBooking, status: 'CONFIRMED' as const, confirmedAt: new Date() };
+const confirmedBooking   = { ...baseBooking, status: 'CONFIRMED'   as const, confirmedAt: new Date() };
+const rescheduledBooking = { ...confirmedBooking, status: 'RESCHEDULED' as const, startAt: NEW_START, endAt: NEW_END, rescheduledFrom: 'booking_1' };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -279,6 +280,19 @@ describe('confirmBooking', () => {
     mockBookingFindUnique.mockResolvedValue(baseBooking);
     mockBookingFindFirst.mockResolvedValue({
       id:      'booking_conflict',
+      startAt: FUTURE_START,
+      endAt:   FUTURE_END,
+    });
+
+    await expect(
+      bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN'),
+    ).rejects.toMatchObject({ statusCode: 409, code: 'SCHEDULING_CONFLICT' });
+  });
+
+  it('throws 409 SCHEDULING_CONFLICT if overlapping RESCHEDULED booking exists (BUG-2)', async () => {
+    mockBookingFindUnique.mockResolvedValue(baseBooking);
+    mockBookingFindFirst.mockResolvedValue({
+      id:      'booking_rescheduled_conflict',
       startAt: FUTURE_START,
       endAt:   FUTURE_END,
     });
@@ -473,6 +487,15 @@ describe('cancelBooking', () => {
     expect(result.status).toBe('CANCELLED');
   });
 
+  it('cancels a RESCHEDULED booking (BUG-1)', async () => {
+    mockBookingFindUnique.mockResolvedValue(rescheduledBooking);
+    mockBookingUpdate.mockResolvedValue({ ...cancelledResult });
+
+    const result = await bookingsService.cancelBooking('booking_1', cancelBody, 'admin_1', 'ADMIN');
+
+    expect(result.status).toBe('CANCELLED');
+  });
+
   it('throws 409 if booking is already COMPLETED', async () => {
     mockBookingFindUnique.mockResolvedValue({ ...baseBooking, status: 'COMPLETED' });
 
@@ -564,6 +587,19 @@ describe('rescheduleBooking', () => {
     mockBookingFindUnique.mockResolvedValue(confirmedBooking);
     mockBookingFindFirst.mockResolvedValue({
       id:      'booking_conflict',
+      startAt: NEW_START,
+      endAt:   NEW_END,
+    });
+
+    await expect(
+      bookingsService.rescheduleBooking('booking_1', rescheduleBody, 'admin_1', 'ADMIN'),
+    ).rejects.toMatchObject({ statusCode: 409, code: 'SCHEDULING_CONFLICT' });
+  });
+
+  it('throws 409 SCHEDULING_CONFLICT if new slot overlaps a RESCHEDULED booking (BUG-2)', async () => {
+    mockBookingFindUnique.mockResolvedValue(confirmedBooking);
+    mockBookingFindFirst.mockResolvedValue({
+      id:      'booking_rescheduled_conflict',
       startAt: NEW_START,
       endAt:   NEW_END,
     });

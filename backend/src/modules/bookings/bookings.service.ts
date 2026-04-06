@@ -257,10 +257,11 @@ export async function confirmBooking(
   }
 
   // ── Conflict detection ────────────────────────────────────────────────────
+  // Check CONFIRMED and RESCHEDULED bookings — both represent active time slots.
   const conflict = await prisma.booking.findFirst({
     where: {
       artistId: booking.artistId,
-      status:   'CONFIRMED',
+      status:   { in: ['CONFIRMED', 'RESCHEDULED'] },
       id:       { not: id },
       startAt:  { lt: booking.endAt },
       endAt:    { gt: booking.startAt },
@@ -463,7 +464,7 @@ export async function cancelBooking(
     }
   }
 
-  const cancellableStatuses: string[] = ['PENDING', 'CONFIRMED'];
+  const cancellableStatuses: string[] = ['PENDING', 'CONFIRMED', 'RESCHEDULED'];
   if (!cancellableStatuses.includes(booking.status)) {
     throw new AppError(
       409,
@@ -541,10 +542,11 @@ export async function rescheduleBooking(
   const newEnd   = new Date(body.endAt);
 
   // ── Conflict detection on new time slot ───────────────────────────────────
+  // Check CONFIRMED and RESCHEDULED bookings — both represent active time slots.
   const conflict = await prisma.booking.findFirst({
     where: {
       artistId: booking.artistId,
-      status:   'CONFIRMED',
+      status:   { in: ['CONFIRMED', 'RESCHEDULED'] },
       id:       { not: id },
       startAt:  { lt: newEnd },
       endAt:    { gt: newStart },
