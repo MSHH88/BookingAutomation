@@ -349,8 +349,14 @@ export async function getAvailableSlots(
     slotDurationMins = service.durationMinutes;
   }
 
-  const bufferMins = artist.bufferMinutes;
+  const bufferMins = Math.max(0, artist.bufferMinutes);
   const stepMins   = slotDurationMins + bufferMins; // advance per slot
+
+  // Guard: zero or non-positive slot duration / step produces no bookable slots
+  // and would cause an infinite loop in the candidate generation below.
+  if (slotDurationMins <= 0 || stepMins <= 0) {
+    return [];
+  }
 
   // ── 3. Parse date (UTC midnight) and derive day-of-week ───────────────────
   const [y, m, d] = date.split('-').map(Number) as [number, number, number];

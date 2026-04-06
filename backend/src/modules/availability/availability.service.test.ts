@@ -634,4 +634,29 @@ describe('getAvailableSlots', () => {
     const slots = await svc.getAvailableSlots(baseQuery);
     expect(slots).toEqual([]);
   });
+
+  it('returns empty array when slotDuration is zero (prevents infinite loop)', async () => {
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_1', slotDuration: 0, bufferMinutes: 0 });
+
+    const slots = await svc.getAvailableSlots(baseQuery);
+    expect(slots).toEqual([]);
+    // Schedule and block/booking queries must NOT be reached
+    expect(mockAvailFindUnique).not.toHaveBeenCalled();
+  });
+
+  it('returns empty array when effective step is zero (negative buffer equals slot duration)', async () => {
+    // slotDuration=30, bufferMinutes=-30 → stepMins = 30 + max(0,-30) = 30 > 0 (guard clamps)
+    // slotDuration=30, bufferMinutes=-60 → bufferMins clamped to 0 → step=30 > 0, slots returned
+    // This test verifies the Math.max(0, bufferMinutes) clamp is applied
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_1', slotDuration: 60, bufferMinutes: -999 });
+    mockAvailFindUnique.mockResolvedValue({ ...simpleSched, startTime: '09:00', endTime: '10:00' });
+    mockBlockFindMany.mockResolvedValue([]);
+    mockBookingFindMany.mockResolvedValue([]);
+
+    const slots = await svc.getAvailableSlots(baseQuery);
+    // bufferMinutes clamped to 0 → step=60 → one slot 09:00–10:00
+    expect(slots).toHaveLength(1);
+    expect(slots[0]?.startAt).toBe('2026-06-15T09:00:00.000Z');
+    expect(slots[0]?.endAt).toBe('2026-06-15T10:00:00.000Z');
+  });
 });

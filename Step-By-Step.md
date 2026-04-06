@@ -20,9 +20,9 @@ A full Availability Management API that powers the booking widget. This is the e
 | 3 | `backend/src/modules/availability/availability.service.ts` | NEW | Business logic + slot engine |
 | 4 | `backend/src/modules/availability/availability.controller.ts` | NEW | HTTP handlers |
 | 5 | `backend/src/modules/availability/availability.routes.ts` | NEW | Express router |
-| 6 | `backend/src/modules/availability/availability.service.test.ts` | NEW | **35 unit tests — DO NOT SKIP** |
+| 6 | `backend/src/modules/availability/availability.service.test.ts` | NEW | **37 unit tests — DO NOT SKIP** |
 
-> **Missing file 6 means 35 fewer tests.** Every file must be downloaded.
+> **Missing file 6 means 37 fewer tests.** Every file must be downloaded.
 
 ---
 
@@ -80,7 +80,7 @@ Expected output:
 
 ```
 Test Suites: 10 passed, 10 total
-Tests:       300 passed, 300 total
+Tests:       302 passed, 302 total
 ```
 
 ---
