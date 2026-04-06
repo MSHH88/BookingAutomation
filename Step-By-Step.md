@@ -32,11 +32,12 @@ Copying multi-line curl from a document into zsh on macOS inserts invisible char
 
 ---
 
-## STEP 1 — Delete everything from a previous attempt (clean slate)
+## STEP 1 — Delete old files (clean slate)
+
+Run this block first to wipe any files from a previous attempt or from Steps 1.4–1.9:
 
 ```bash
-rm -rf ~/Desktop/Automation/backend/src/modules/invoices
-rm -f ~/Desktop/Automation/backend/src/app.ts
+rm -rf ~/Desktop/Automation/backend/src/modules/invoices && rm -f ~/Desktop/Automation/backend/src/app.ts
 ```
 
 ---
@@ -89,18 +90,6 @@ Expected output:
 Test Suites: 8 passed, 8 total
 Tests:       223 passed, 223 total
 ```
-
----
-
-## If you need to REPLACE outdated files from a previous step
-
-If you already have files from Steps 1.4–1.9 on your machine and only need to update the files changed by this step, run the delete curl first:
-
-```bash
-rm -f ~/Desktop/Automation/backend/src/app.ts && rm -rf ~/Desktop/Automation/backend/src/modules/invoices
-```
-
-Then re-run STEP 3 above.
 
 ---
 

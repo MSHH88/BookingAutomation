@@ -258,10 +258,10 @@ describe('sendInvoice', () => {
   };
 
   it('ADMIN: sets sentAt on UNPAID invoice and returns detail', async () => {
-    // First findUnique (ownership/status check)
+    // First findUnique (ownership/status check in sendInvoice)
     mockInvoiceFindUnique
       .mockResolvedValueOnce(invoiceForSend)
-      // Second findUnique (re-fetch detail after update)
+      // Second findUnique (detail re-fetch after update)
       .mockResolvedValueOnce({ ...baseInvoice, sentAt: NOW });
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 

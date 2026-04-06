@@ -159,7 +159,7 @@ function parseDateFilter(raw: string | undefined, endOfDay = false): Date | unde
  */
 export async function listInvoices(
   query: ListInvoicesQuery,
-): Promise<PaginatedResult<unknown>> {
+): Promise<PaginatedResult<InvoiceListItem>> {
   const where: Prisma.InvoiceWhereInput = {};
 
   if (query.status) where.status = query.status;
@@ -173,7 +173,7 @@ export async function listInvoices(
     };
   }
 
-  return paginate(
+  return paginate<InvoiceListItem>(
     prisma.invoice,
     { where, select: invoiceListSelect, orderBy: { createdAt: 'desc' } },
     { page: query.page, limit: query.limit },
@@ -265,7 +265,16 @@ export async function sendInvoice(
     customerName:  invoice.booking.customer?.name  ?? null,
   });
 
-  return getInvoiceById(id, actorId, actorRole);
+  const updated = await prisma.invoice.findUnique({
+    where:  { id },
+    select: invoiceDetailSelect,
+  });
+
+  if (!updated) {
+    throw new AppError(500, 'INTERNAL_ERROR', `Invoice '${id}' not found after send`);
+  }
+
+  return updated;
 }
 
 /**
@@ -322,7 +331,6 @@ export async function markInvoicePaid(
 
   logger.info('Invoice marked paid', { invoiceId: id, paidAt });
 
-  // Re-fetch through getInvoiceById with ADMIN context (no scoping check needed)
   const updated = await prisma.invoice.findUnique({
     where:  { id },
     select: invoiceDetailSelect,
