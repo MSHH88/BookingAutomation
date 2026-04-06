@@ -179,9 +179,9 @@ Every curl is a single unbroken line. No exceptions.
 |---|------|------|-------|
 | 1 | `backend/src/app.ts` | MODIFIED | Adds `/api/bookings` route mount |
 | 2 | `backend/src/modules/bookings/bookings.schema.ts` | NEW | Zod schemas |
-| 3 | `backend/src/modules/bookings/bookings.service.ts` | NEW | Business logic — BUG-1 & BUG-2 fixed |
-| 4 | `backend/src/modules/bookings/bookings.controller.ts` | NEW | HTTP handlers |
-| 5 | `backend/src/modules/bookings/bookings.routes.ts` | NEW | Express router |
+| 3 | `backend/src/modules/bookings/bookings.service.ts` | NEW | Business logic — BUG-A through BUG-F fixed |
+| 4 | `backend/src/modules/bookings/bookings.controller.ts` | NEW | HTTP handlers — BUG-D fixed |
+| 5 | `backend/src/modules/bookings/bookings.routes.ts` | NEW | Express router — BUG-E fixed |
 | 6 | `backend/src/modules/bookings/bookings.service.test.ts` | NEW | **39 unit tests — DO NOT SKIP** |
 
 > ⚠️ **FILE 6 IS THE TEST FILE. SKIPPING IT = WRONG TEST COUNT FOREVER.**
@@ -236,8 +236,12 @@ The following bugs were found and fixed during the audit. All fixed files are in
 
 | Bug | File | Description | Fix |
 |-----|------|-------------|-----|
-| BUG-1 | `bookings.service.ts` | `cancelBooking` only allowed `PENDING` and `CONFIRMED` to be cancelled. A `RESCHEDULED` booking (non-terminal status) could not be cancelled, breaking the stated lifecycle rule "CANCELLED at any non-terminal status". | Added `'RESCHEDULED'` to `cancellableStatuses`. |
-| BUG-2 | `bookings.service.ts` | Conflict detection in `confirmBooking` and `rescheduleBooking` only queried `status: 'CONFIRMED'`. A `RESCHEDULED` booking is still an active booking at its new times; omitting it from the check created a scheduling hole where two bookings could occupy the same slot. | Changed `status: 'CONFIRMED'` to `status: { in: ['CONFIRMED', 'RESCHEDULED'] }` in both functions. |
+| BUG-A | `bookings.service.ts` | `cancelBooking` user-facing error message said "Only PENDING or CONFIRMED bookings can be cancelled" but `RESCHEDULED` was already added to `cancellableStatuses`. Incorrect message returned to API consumers. | Updated message to "PENDING, CONFIRMED, or RESCHEDULED". |
+| BUG-B | `bookings.service.ts` | `cancelBooking` JSDoc comment said "Booking must be PENDING or CONFIRMED" — stale after BUG-1 fix. | Updated to "PENDING, CONFIRMED, or RESCHEDULED". |
+| BUG-C | `bookings.service.ts` | Module-level JSDoc comment said "Only PENDING or CONFIRMED bookings can be cancelled" — stale after BUG-1 fix. | Updated. |
+| BUG-D | `bookings.controller.ts` | `cancelBooking` handler JSDoc said "Cancels a PENDING or CONFIRMED booking" — stale. | Updated to "PENDING, CONFIRMED, or RESCHEDULED". |
+| BUG-E | `bookings.routes.ts` | Router table comment and cancel route comment said "PENDING/CONFIRMED" — stale. | Updated to "PENDING/CONFIRMED/RESCHEDULED". |
+| BUG-F | `bookings.service.ts` | `completeBooking` used `return updated!` (non-null assertion) after the re-fetch. If the booking was somehow deleted between the transaction commit and the re-fetch, the `!` would propagate `undefined` as a `BookingDetail`, causing a silent runtime error. | Replaced with an explicit null check that throws `AppError(500, 'INTERNAL_ERROR', ...)`. |
 
 ---
 

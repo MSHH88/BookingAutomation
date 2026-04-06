@@ -15,7 +15,7 @@
  *  - Confirm checks for overlapping CONFIRMED bookings for the same artist
  *  - Reschedule re-runs the same conflict check on new times
  *  - Completing a booking creates an Invoice atomically (Prisma transaction)
- *  - Only PENDING or CONFIRMED bookings can be cancelled
+ *  - Only PENDING, CONFIRMED, or RESCHEDULED bookings can be cancelled
  *  - Only PENDING bookings can be confirmed
  *  - Only CONFIRMED bookings can be completed or rescheduled
  *  - Invoice amount: uses booking.totalAmount, falls back to quote.price, or 0
@@ -422,7 +422,11 @@ export async function completeBooking(
     select: bookingDetailSelect,
   });
 
-  return updated!;
+  if (!updated) {
+    throw new AppError(500, 'INTERNAL_ERROR', `Booking ${id} not found after completion`);
+  }
+
+  return updated;
 }
 
 // ─── cancelBooking ────────────────────────────────────────────────────────────
@@ -431,7 +435,7 @@ export async function completeBooking(
  * Cancels a PENDING or CONFIRMED booking.
  *
  * Business rules:
- *  1. Booking must be PENDING or CONFIRMED (not COMPLETED, CANCELLED, NO_SHOW)
+ *  1. Booking must be PENDING, CONFIRMED, or RESCHEDULED (not COMPLETED, CANCELLED, NO_SHOW)
  *  2. cancelReason is required
  *  3. Sets status → CANCELLED and cancelledAt → now
  *
@@ -469,7 +473,7 @@ export async function cancelBooking(
     throw new AppError(
       409,
       'INVALID_STATUS_TRANSITION',
-      `Cannot cancel a booking with status ${booking.status}. Only PENDING or CONFIRMED bookings can be cancelled.`,
+      `Cannot cancel a booking with status ${booking.status}. Only PENDING, CONFIRMED, or RESCHEDULED bookings can be cancelled.`,
     );
   }
 

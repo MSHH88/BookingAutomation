@@ -7,7 +7,7 @@
  * | GET    | /api/bookings/:id             | ARTIST/ADMIN | BOOKING_ENABLED  | Booking detail (ARTISTs: own only)                    |
  * | PATCH  | /api/bookings/:id/confirm     | ARTIST/ADMIN | BOOKING_ENABLED  | Confirm PENDING → conflict check + email + calendar   |
  * | PATCH  | /api/bookings/:id/complete    | ARTIST/ADMIN | BOOKING_ENABLED  | Complete CONFIRMED → Invoice + review job             |
- * | PATCH  | /api/bookings/:id/cancel      | ARTIST/ADMIN | BOOKING_ENABLED  | Cancel PENDING/CONFIRMED → email + delete calendar    |
+ * | PATCH  | /api/bookings/:id/cancel      | ARTIST/ADMIN | BOOKING_ENABLED  | Cancel PENDING/CONFIRMED/RESCHEDULED → email + delete calendar    |
  * | PATCH  | /api/bookings/:id/reschedule  | ARTIST/ADMIN | BOOKING_ENABLED  | Reschedule CONFIRMED → conflict check + email         |
  *
  * All routes are gated by BOOKING_ENABLED (true for all business types by default).
@@ -78,7 +78,7 @@ router.patch(
 
 /**
  * PATCH /api/bookings/:id/cancel
- * PENDING or CONFIRMED → CANCELLED. Requires cancelReason.
+ * PENDING, CONFIRMED, or RESCHEDULED → CANCELLED. Requires cancelReason.
  */
 router.patch(
   '/:id/cancel',

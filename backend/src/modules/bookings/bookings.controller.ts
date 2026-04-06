@@ -114,7 +114,7 @@ export async function completeBooking(
 
 /**
  * PATCH /api/bookings/:id/cancel
- * ARTIST or ADMIN. Cancels a PENDING or CONFIRMED booking.
+ * ARTIST or ADMIN. Cancels a PENDING, CONFIRMED, or RESCHEDULED booking.
  *
  * Requires cancelReason in the request body.
  * Triggers booking-cancelled email + calendar event deletion (log stubs in Phase 1).
