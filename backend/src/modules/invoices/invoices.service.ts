@@ -145,7 +145,7 @@ function parseDateFilter(raw: string | undefined, endOfDay = false): Date | unde
   if (!raw) return undefined;
   const d = new Date(raw);
   if (isNaN(d.getTime())) return undefined;
-  if (endOfDay) d.setHours(23, 59, 59, 999);
+  if (endOfDay) d.setUTCHours(23, 59, 59, 999);
   return d;
 }
 
