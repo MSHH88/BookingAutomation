@@ -15,7 +15,8 @@ import { styleRoutes }  from './modules/styles/styles.routes';
 import { leadRoutes }   from './modules/leads/leads.routes';
 import { quoteRoutes }   from './modules/quotes/quotes.routes';
 import { bookingRoutes } from './modules/bookings/bookings.routes';
-import { invoiceRoutes } from './modules/invoices/invoices.routes';
+import { invoiceRoutes }  from './modules/invoices/invoices.routes';
+import { captureRoutes } from './modules/capture/capture.routes';
 
 const app = express();
 
@@ -105,6 +106,7 @@ app.use('/api/leads',    leadRoutes);       // Step 1.7
 app.use('/api/quotes',   quoteRoutes);      // Step 1.8
 app.use('/api/bookings', bookingRoutes);    // Step 1.9
 app.use('/api/invoices', invoiceRoutes);    // Step 1.10
+app.use('/api/capture', captureRoutes);    // Step 1.11
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
