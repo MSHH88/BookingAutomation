@@ -7,27 +7,30 @@
  * Coverage:
  *  ✓ hasValidMagicBytes — JPEG valid, PNG valid, WebP valid,
  *                          JPEG wrong first byte → false,
- *                          PNG wrong second byte → false,
+ *                          JPEG wrong second byte → false,
+ *                          PNG wrong magic bytes → false,
  *                          WebP wrong RIFF prefix → false,
  *                          WebP wrong WEBP marker (bytes 8-11) → false,
- *                          WebP buffer too small → false,
- *                          unknown mimetype → false
+ *                          WebP buffer too small (< 12 bytes) → false,
+ *                          unknown mimetype → false,
+ *                          JPEG buffer too small (< 3 bytes) → false
  *
  *  ✓ uploadImages — empty array returns [],
  *                    single JPEG upload returns UploadResult,
  *                    single PNG upload returns UploadResult,
  *                    single WebP upload returns UploadResult,
  *                    multiple files uploaded in parallel,
+ *                    passes correct folder option to cloudinary,
  *                    invalid JPEG magic bytes → 400 INVALID_FILE_CONTENT,
  *                    invalid PNG magic bytes → 400 INVALID_FILE_CONTENT,
  *                    invalid WebP RIFF prefix → 400 INVALID_FILE_CONTENT,
  *                    invalid WebP WEBP marker → 400 INVALID_FILE_CONTENT,
+ *                    stops at first invalid file — does not call cloudinary,
+ *                    filename included in INVALID_FILE_CONTENT error message,
  *                    Cloudinary error → 502 UPLOAD_FAILED,
  *                    Cloudinary null result → 502 UPLOAD_FAILED,
  *                    Cloudinary error message is propagated,
- *                    result shape includes all UploadResult fields,
- *                    upload uses correct folder option,
- *                    magic-byte check rejects before calling cloudinary
+ *                    result shape includes all UploadResult fields
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────

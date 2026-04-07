@@ -118,7 +118,7 @@ function uploadToCloudinary(file: Express.Multer.File): Promise<UploadResult> {
         transformation: [{ quality: 'auto:good', fetch_format: 'auto' }],
       },
       (error, result) => {
-        if (error ?? !result) {
+        if (error || !result) {
           reject(
             new AppError(
               502,
