@@ -65,6 +65,14 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ─── Mock WhatsApp service (prevents real BullMQ/Redis imports) ───────────────
+
+jest.mock('../whatsapp/whatsapp.service', () => ({
+  enqueueBookingConfirmed:   jest.fn().mockResolvedValue(undefined),
+  enqueuePostVisitReview:    jest.fn().mockResolvedValue(undefined),
+  enqueueRestaurantReminder: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as bookingsService from './bookings.service';

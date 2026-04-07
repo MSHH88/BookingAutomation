@@ -50,6 +50,12 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ─── Mock WhatsApp service (prevents real BullMQ/Redis imports) ───────────────
+
+jest.mock('../whatsapp/whatsapp.service', () => ({
+  enqueueLeadInquiry: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test (after mocks) ─────────────────────────────────
 
 import * as leadsService from './leads.service';

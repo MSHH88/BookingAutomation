@@ -14,7 +14,7 @@
  *  2. inquiry-received email to customer         (stub — Phase 2 hooks Resend)
  *  3. inquiry-notification email to ADMIN        (stub — Phase 2 hooks Resend)
  *  4. inquiry-notification to artistId if set    (stub — Phase 2 hooks Resend)
- *  5. WhatsApp Message 1 if preferWhatsApp + flag (stub — Phase 2 hooks Twilio)
+ *  5. WhatsApp Message 1 if preferWhatsApp + flag (BullMQ queue — Step 1.17)
  *
  * The stubs emit structured log lines so Phase 2 can wire real providers with
  * zero structural changes to this service.
@@ -27,6 +27,7 @@ import { paginate }        from '../../utils/paginate';
 import { logger }          from '../../utils/logger';
 import { config }          from '../../config/index';
 import { getDefaultFlags } from '../../config/businessType';
+import { enqueueLeadInquiry } from '../whatsapp/whatsapp.service';
 import type {
   CreateLeadBody,
   ListLeadsQuery,
@@ -166,14 +167,6 @@ function queueInquiryNotificationEmail(leadId: string, artistId?: string | null)
   });
 }
 
-/**
- * Queue WhatsApp Message 1 to the lead's phone number.
- * Phase 2 will replace this log stub with a Twilio BullMQ job.
- */
-function queueWhatsAppMessage(leadId: string, phone: string): void {
-  logger.info('WhatsApp job queued (stub)', { job: 'whatsapp-message-1', leadId, phone });
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Coerce a `Record<string, unknown> | null | undefined` to a Prisma nullable JSON value. */
@@ -302,9 +295,16 @@ export async function createLead(
       // 3. Email to ADMIN + artist
       queueInquiryNotificationEmail(created.id, created.artistId);
 
-      // 4. WhatsApp (opt-in + feature flag)
+      // 4. WhatsApp (opt-in + feature flag) — real BullMQ enqueue (Step 1.17)
       if (created.preferWhatsApp && flags['WHATSAPP_CONTACT_ENABLED']) {
-        queueWhatsAppMessage(created.id, created.phone);
+        void enqueueLeadInquiry({
+          phone:          created.phone,
+          customerName:   created.name,
+          preferWhatsApp: created.preferWhatsApp,
+          studioName:     config.STUDIO_NAME,
+          leadId:         created.id,
+          artistId:       created.artistId ?? undefined,
+        });
       }
     } catch (err) {
       logger.error('Lead side-effect error', { err, leadId: created.id });

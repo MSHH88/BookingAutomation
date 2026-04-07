@@ -33,6 +33,12 @@ import { prisma }         from '../../lib/prisma';
 import { AppError }       from '../../errors/AppError';
 import { paginate, PaginatedResult } from '../../utils/paginate';
 import { logger }         from '../../utils/logger';
+import { config }         from '../../config';
+import {
+  enqueueBookingConfirmed,
+  enqueuePostVisitReview,
+  enqueueRestaurantReminder,
+} from '../whatsapp/whatsapp.service';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -80,7 +86,7 @@ const bookingDetailSelect = {
     select: { id: true, name: true, email: true, phone: true },
   },
   lead: {
-    select: { id: true, name: true, email: true, phone: true, status: true },
+    select: { id: true, name: true, email: true, phone: true, status: true, preferWhatsApp: true },
   },
   quote: {
     select: { id: true, price: true, hours: true, status: true },
@@ -287,6 +293,32 @@ export async function confirmBooking(
   logger.info('Email job queued (stub)', { job: 'booking-confirmed', bookingId: id });
   logger.info('Calendar event queued (stub)', { job: 'calendar-create', bookingId: id });
 
+  // ── WhatsApp — Message 2 (confirmed) + Message 3 (reminder) ─────────────
+  // Fire-and-forget: queue errors are caught inside the enqueue helpers.
+  // WhatsApp opt-in is stored on the Lead record; skip when no lead is linked.
+  void enqueueBookingConfirmed({
+    phone:          updated.lead?.phone ?? updated.customer?.phone ?? null,
+    customerName:   updated.customer?.name ?? updated.lead?.name ?? 'Customer',
+    preferWhatsApp: updated.lead?.preferWhatsApp ?? false,
+    studioName:     config.STUDIO_NAME,
+    artistName:     updated.artist.user.name,
+    startAt:        updated.startAt.toISOString(),
+    bookingId:      id,
+  });
+
+  // ── WhatsApp — Message 5 (restaurant reminder 2 h before) ───────────────
+  if (config.BUSINESS_TYPE === 'restaurant') {
+    void enqueueRestaurantReminder({
+      phone:          updated.lead?.phone ?? updated.customer?.phone ?? null,
+      customerName:   updated.customer?.name ?? updated.lead?.name ?? 'Customer',
+      preferWhatsApp: updated.lead?.preferWhatsApp ?? false,
+      studioName:     config.STUDIO_NAME,
+      startAt:        updated.startAt.toISOString(),
+      partySize:      updated.partySize ?? undefined,
+      bookingId:      id,
+    });
+  }
+
   return updated;
 }
 
@@ -415,7 +447,18 @@ export async function completeBooking(
 
   // ── Side-effects — log stubs (Phase 2 wires BullMQ) ──────────────────────
   logger.info('Email job queued (stub)', { job: 'review-request', bookingId: id, delayHours: 36 });
-  logger.info('WhatsApp job queued (stub)', { job: 'whatsapp-msg-2', bookingId: id, delayHours: 2 });
+
+  // ── WhatsApp — Message 4 (post-visit review, +2 h) ───────────────────────
+  // Fire-and-forget: queue errors are caught inside the enqueue helper.
+  // WhatsApp opt-in is stored on the Lead record; skip when no lead is linked.
+  void enqueuePostVisitReview({
+    phone:           booking.lead?.phone ?? booking.customer?.phone ?? null,
+    customerName:    booking.customer?.name ?? booking.lead?.name ?? 'Customer',
+    preferWhatsApp:  booking.lead?.preferWhatsApp ?? false,
+    studioName:      config.STUDIO_NAME,
+    googleReviewUrl: config.GOOGLE_REVIEW_URL || '',
+    bookingId:       id,
+  });
 
   const updated = await prisma.booking.findUnique({
     where:  { id },
