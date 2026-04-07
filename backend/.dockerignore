@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .dockerignore — BookingAutomation backend
+# Excludes files that must not be copied into the Docker build context.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Dev artifacts
+node_modules
+dist
+coverage
+
+# Environment files — secrets must NOT be baked into the image
+.env
+.env.*
+!.env.example
+
+# TypeScript source maps (not needed at runtime)
+**/*.map
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+
+# Editors / OS
+.DS_Store
+.idea
+.vscode
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Git
+.git
+.gitignore
+
+# Local dev scripts
+Makefile

@@ -1,107 +1,132 @@
-# Step 1.20 — Appointment Reminder Automation — Setup Guide
+# Step 1.21 — Docker Compose (Local Dev Environment) — Setup Guide
 
 **What this step adds:**
 
-A production-grade automated appointment-reminder pipeline that fires a
-personalised email to every customer 24 hours before their confirmed booking.
-Every major booking platform (Fresha, Booksy, Square Appointments, Acuity
-Scheduling, Mindbody) sends exactly this touchpoint — it is the single most
-effective tool for reducing no-show rates, with studios reporting a 25–40 %
-improvement once automated reminders are active.
+A production-grade local development environment that starts PostgreSQL 16 and
+Redis 7 with a single command.  Every major booking platform runs exactly this
+infrastructure under the hood — Fresha, Booksy, Mindbody, Acuity, and Square
+Appointments all use PostgreSQL as their primary store and Redis as their async
+job / caching layer.
 
 The module provides:
 
-1. **BullMQ delayed queue** (`reminders.queue.ts`) — schedules a
-   `booking-reminder` job at booking-confirm time with a configurable lead
-   time (default 24 h, overridable via `REMINDER_HOURS_BEFORE`). Uses a
-   **deterministic job ID** (`booking-reminder-{bookingId}`) so the pending
-   job can be found and removed by booking ID alone. Gated by the
-   `EMAIL_REMINDERS_ENABLED` feature flag.
-2. **Stateless job processor** (`reminders.processor.ts`) — picks up the job
-   ~24 h before the appointment, calls
-   `sendEmail('booking-reminder', customerEmail, vars)` via the existing
-   Notifications module, and logs every outcome for observability.
-3. **Job cancellation** — `cancelBookingReminder(bookingId)` is called in
-   `bookings.service.ts` whenever a booking is **cancelled or rescheduled**,
-   removing the pending reminder so the customer never receives a reminder for
-   an appointment that no longer exists at the original time.
-4. **Reschedule re-enqueue** — when a booking is rescheduled the old reminder
-   is cancelled and a new one is immediately scheduled for the new `startAt`.
-5. **Zero-downtime error handling** — if the `booking-reminder` email template
-   is missing or inactive the job completes silently (no dead-letter spam);
-   all other errors trigger BullMQ's 3-attempt exponential back-off.
-6. **Graceful shutdown** — `server.ts` now closes the WhatsApp, Review, and
-   Reminder workers + queues in order, draining in-flight jobs before exit.
-7. **bookings.service.ts** — `confirmBooking` wires `enqueueBookingReminder`;
-   `cancelBooking` wires `cancelBookingReminder`; `rescheduleBooking` wires
-   cancel + re-enqueue.
-8. **bookings.service.test.ts** — mock added for `reminders.queue` so the
-   test suite runs cleanly with zero Redis open-handle warnings.
+1. **`docker-compose.yml`** (enhanced, repo root) — core services always on;
+   dev-tool services behind `--profile tools`; fully-containerised backend
+   behind `--profile app`.  Named volumes + internal bridge network.
+2. **`docker/redis/redis.conf`** — Redis 7 tuned for BullMQ: RDB + AOF
+   persistence so queued jobs survive container restarts; `noeviction` policy
+   so Redis never silently drops job data under memory pressure.
+3. **`backend/Dockerfile`** — production-grade multi-stage build (deps →
+   builder → runner).  Non-root user, minimal runtime image, HEALTHCHECK via
+   the `/health` endpoint, Prisma client generated at build time.
+4. **`backend/.dockerignore`** — excludes `node_modules`, `dist`, all `.env`
+   files (except `.env.example`), test files, and editor artefacts from the
+   build context.
+5. **`backend/.env.example`** — updated with `EMAIL_REMINDERS_ENABLED`,
+   `REMINDER_HOURS_BEFORE`, `REVIEW_REQUEST_ENABLED`, and the full supported
+   `BUSINESS_TYPE` value list.
 
 ---
 
-## New / modified files — ALL 6 MUST BE DOWNLOADED
+## New / modified files — ALL 5 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
-| 1 | `backend/src/modules/reminders/reminders.queue.ts` | NEW | Queue + enqueueBookingReminder + cancelBookingReminder |
-| 2 | `backend/src/modules/reminders/reminders.processor.ts` | NEW | Worker + processReminderJob + startReminderWorker |
-| 3 | `backend/src/modules/reminders/reminders.queue.test.ts` | NEW | **39 unit tests — DO NOT SKIP** |
-| 4 | `backend/src/modules/bookings/bookings.service.ts` | MODIFIED | Wires reminder on confirm, cancel, and reschedule |
-| 5 | `backend/src/modules/bookings/bookings.service.test.ts` | MODIFIED | Adds reminders.queue mock — eliminates Redis open-handle warnings |
-| 6 | `backend/src/server.ts` | MODIFIED | Starts reminder worker + graceful shutdown for reminder queue |
+| 1 | `docker-compose.yml` | MODIFIED | Enhanced: profiles, networking, redis.conf mount, healthchecks |
+| 2 | `docker/redis/redis.conf` | NEW | BullMQ-optimised Redis config (AOF + noeviction) |
+| 3 | `backend/Dockerfile` | NEW | Production multi-stage build |
+| 4 | `backend/.dockerignore` | NEW | Excludes secrets + dev artefacts from build context |
+| 5 | `backend/.env.example` | MODIFIED | Added REMINDER_HOURS_BEFORE, EMAIL_REMINDERS_ENABLED, REVIEW_REQUEST_ENABLED, full BUSINESS_TYPE list |
 
-> **Missing file 3 means 38 fewer tests and broken coverage.**
-> **Missing file 5 causes Redis ECONNREFUSED errors + open-handle warnings every test run.**
-> All 6 files must be downloaded.
+> **Missing file 2 causes `docker compose up` to fail** — the redis service
+> mounts `./docker/redis/redis.conf` and will not start without it.
+> All 5 files must be downloaded.
 
 ---
 
 ## STEP 1 — Delete old files (clean slate)
 
 ```bash
-rm -rf ~/Desktop/Automation/backend/src/modules/reminders && rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && rm -f ~/Desktop/Automation/backend/src/server.ts
+rm -f ~/Desktop/Automation/docker-compose.yml && \
+rm -f ~/Desktop/Automation/backend/Dockerfile && \
+rm -f ~/Desktop/Automation/backend/.dockerignore && \
+rm -f ~/Desktop/Automation/backend/.env.example
 ```
 
 ---
 
-## STEP 2 — Create the reminders folder
+## STEP 2 — Create the docker/redis folder
 
 ```bash
-mkdir -p ~/Desktop/Automation/backend/src/modules/reminders
+mkdir -p ~/Desktop/Automation/docker/redis
 ```
 
 ---
 
-## STEP 3 — Download all 6 files (one copy-paste block)
+## STEP 3 — Download all 5 files (one copy-paste block)
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reminders/reminders.queue.ts" -o ~/Desktop/Automation/backend/src/modules/reminders/reminders.queue.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reminders/reminders.processor.ts" -o ~/Desktop/Automation/backend/src/modules/reminders/reminders.processor.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reminders/reminders.queue.test.ts" -o ~/Desktop/Automation/backend/src/modules/reminders/reminders.queue.test.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/server.ts" -o ~/Desktop/Automation/backend/src/server.ts
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/docker-compose.yml" -o ~/Desktop/Automation/docker-compose.yml && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/docker/redis/redis.conf" -o ~/Desktop/Automation/docker/redis/redis.conf && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/Dockerfile" -o ~/Desktop/Automation/backend/Dockerfile && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.dockerignore" -o ~/Desktop/Automation/backend/.dockerignore && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.env.example" -o ~/Desktop/Automation/backend/.env.example
 ```
 
 ---
 
-## STEP 4 — Verify all 6 files were downloaded (bytes > 0)
+## STEP 4 — Verify all 5 files were downloaded (bytes > 0)
 
 ```bash
-wc -c ~/Desktop/Automation/backend/src/modules/reminders/reminders.queue.ts ~/Desktop/Automation/backend/src/modules/reminders/reminders.processor.ts ~/Desktop/Automation/backend/src/modules/reminders/reminders.queue.test.ts ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts ~/Desktop/Automation/backend/src/server.ts
+wc -c \
+  ~/Desktop/Automation/docker-compose.yml \
+  ~/Desktop/Automation/docker/redis/redis.conf \
+  ~/Desktop/Automation/backend/Dockerfile \
+  ~/Desktop/Automation/backend/.dockerignore \
+  ~/Desktop/Automation/backend/.env.example
 ```
 
-All 6 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
+All 5 files must show a byte count > 0.  If any shows 0 bytes or is missing,
+re-run STEP 3.
 
 ---
 
-## STEP 5 — Run typecheck
+## STEP 5 — Start the local dev infrastructure
 
 ```bash
-cd ~/Desktop/Automation/backend && npm run typecheck
+cd ~/Desktop/Automation && docker compose up -d
 ```
 
-Expected: **no errors printed, exit 0.**
+Expected: Docker pulls `postgres:16-alpine` and `redis:7-alpine` (first run
+only), creates the containers, and exits with both services **healthy**.
+
+Check health status:
+
+```bash
+docker compose ps
+```
+
+Both `bookingautomation_postgres` and `bookingautomation_redis` must show
+`(healthy)` in the Status column before continuing.
 
 ---
 
-## STEP 6 — Run the full test suite
+## STEP 6 — Run the API with hot-reload
+
+```bash
+cd ~/Desktop/Automation/backend && npm run dev
+```
+
+Expected: the API starts on `http://localhost:3000`.  Open a browser and visit
+`http://localhost:3000/health` — you should see:
+
+```json
+{ "success": true, "data": { "status": "ok", ... } }
+```
+
+---
+
+## STEP 7 — Run the full test suite
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
@@ -111,65 +136,93 @@ Expected output:
 
 ```
 Test Suites: 18 passed, 18 total
-Tests:       581 passed, 581 total
+Tests:       579 passed, 579 total
+```
+
+> Note: the test suite runs with mocked Redis (no real Docker connection
+> needed).  The test count does not change in Step 1.21 — this step adds
+> infrastructure files only, not application code.
+
+---
+
+## Optional: run dev tools (Adminer + MailHog)
+
+```bash
+cd ~/Desktop/Automation && docker compose --profile tools up -d
+```
+
+| Tool | URL | Purpose |
+|------|-----|---------|
+| Adminer | http://localhost:8080 | PostgreSQL GUI (System: PostgreSQL, Server: postgres, User: postgres, Password: postgres) |
+| MailHog | http://localhost:8025 | Web inbox for all outbound dev emails |
+
+---
+
+## Optional: run the full stack inside Docker
+
+```bash
+# 1. Ensure backend/.env exists (copy the example and fill in JWT secrets at minimum)
+cp ~/Desktop/Automation/backend/.env.example ~/Desktop/Automation/backend/.env
+
+# 2. Build + start everything
+cd ~/Desktop/Automation && docker compose --profile app up -d --build
+```
+
+---
+
+## STEP 8 — Stop the infrastructure
+
+```bash
+cd ~/Desktop/Automation && docker compose down
+```
+
+To also wipe all data volumes (**DESTRUCTIVE — deletes all local DB data**):
+
+```bash
+cd ~/Desktop/Automation && docker compose down -v
 ```
 
 ---
 
 ## Architecture notes
 
-- **EMAIL_REMINDERS_ENABLED feature flag** — the queue helpers return
-  immediately (without touching Redis) when this flag is OFF, so disabling
-  the feature costs zero overhead and never blocks the booking-confirm /
-  cancel / reschedule flows.
-- **24-hour default** — used by Fresha, Booksy, Square Appointments, Acuity,
-  and Mindbody as their default reminder lead-time.  Override with
-  `REMINDER_HOURS_BEFORE=48` (or any positive integer) in `.env` if needed.
-- **Deterministic job ID** — `booking-reminder-{bookingId}` makes cancellation
-  O(1): the queue lookup requires only the booking ID, with no secondary index
-  or scan.  BullMQ silently discards duplicate-ID enqueue calls, so
-  re-confirming the same booking cannot schedule a duplicate reminder.
-- **Stateless processor** — all data needed to send the email is embedded in
-  the job payload at enqueue-time.  The processor requires zero DB lookups,
-  making retries cheap and safe with no risk of stale data.
-- **Template key `booking-reminder`** — the email body is stored in the
-  `EmailTemplate` DB table (managed via the Notifications module from Step
-  1.15).  If the template does not exist or is inactive, the job silently
-  completes so the dead-letter queue is never flooded.
-- **Reschedule race safety** — cancel is called before re-enqueue, eliminating
-  the theoretical race where two reminders exist briefly for the same booking.
-- **Graceful shutdown** — server.ts closes workers and queues in dependency
-  order (workers first, then queues) to drain in-flight jobs before exit,
-  preventing message loss on rolling deployments.
-- **Producer / processor split** — `reminders.queue.ts` (producer) and
-  `reminders.processor.ts` (consumer) are separate files so the heavy
-  Resend / Handlebars / Prisma dependency chain is never loaded in tests
-  that only exercise the enqueue / cancel helpers.
+- **PostgreSQL 16** — matches the version used in Neon (production) and
+  Supabase so migration behaviour is identical locally and in CI.
+- **Redis 7** — matches the version required by BullMQ 5.x.  The custom
+  `redis.conf` enables AOF persistence so delayed appointment-reminder and
+  review-request jobs survive a `docker compose restart` without being lost.
+- **`noeviction` policy** — the only correct `maxmemory-policy` for BullMQ.
+  Any LRU/LFU policy risks silently evicting job data; `noeviction` forces
+  Redis to return an explicit error instead, which BullMQ then surfaces so the
+  issue is visible rather than hidden.
+- **Named volumes** — `postgres_data` and `redis_data` survive `docker compose
+  down` (data is preserved) but are removed by `docker compose down -v`
+  (clean-slate reset).
+- **Internal bridge network** — all services share the `bookingautomation`
+  network.  The `backend` service uses `postgres:5432` / `redis:6379` as
+  hostnames (Docker DNS resolution); your local `npm run dev` uses
+  `localhost:5432` / `localhost:6379` (port-forwarded by Docker).
+- **Profiles** — `tools` (Adminer + MailHog) and `app` (Node.js backend) are
+  opt-in so `docker compose up -d` is always fast and lightweight.
+- **Multi-stage Dockerfile** — the `deps` stage caches production
+  `node_modules` independently of source changes; the `builder` stage compiles
+  TypeScript and runs `prisma generate`; the `runner` stage copies only the
+  compiled `dist/`, production `node_modules`, and Prisma client — keeping the
+  final image minimal.
+- **Non-root container user** — the `runner` stage drops privileges to a
+  dedicated `expressjs` user (UID 1001) following Docker security best
+  practices used by Vercel, Railway, and Render.
 
 ---
 
-## Email template variables
+## Environment variables — local dev defaults
 
-The processor calls `sendEmail('booking-reminder', customerEmail, vars)`.
-Your `booking-reminder` email template should include these Handlebars variables:
+When using `docker compose up -d` and running the API with `npm run dev`, add
+these to `backend/.env`:
 
-| Variable | Example value | Notes |
-|----------|---------------|-------|
-| `{{ customerName }}` | `Jane Smith` | Customer's name |
-| `{{ studioName }}` | `Black Rose Studio` | Your studio name |
-| `{{ artistName }}` | `Alex Ink` | Performing artist |
-| `{{ serviceName }}` | `Full Sleeve Tattoo` | Service booked (fallback: "appointment") |
-| `{{ bookingDate }}` | `Monday, 14 April 2025` | Formatted in en-GB, UTC |
-| `{{ bookingTime }}` | `14:30` | HH:MM, UTC |
-| `{{ studioAddress }}` | `42 Ink Lane, London` | Empty string if not set |
-| `{{ bookingId }}` | `cla000…` | Booking reference |
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/automation_dev
+REDIS_URL=redis://localhost:6379
+```
 
----
-
-## Environment variables required
-
-| Variable | Example | Notes |
-|----------|---------|-------|
-| `REDIS_URL` | `redis://localhost:6379` | BullMQ connection (same as WhatsApp + Review queues) |
-| `REMINDER_HOURS_BEFORE` | `24` | Optional — hours before appointment to send reminder (default: 24) |
-
+See `backend/.env.example` for the full variable reference.
