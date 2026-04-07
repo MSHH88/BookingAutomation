@@ -111,6 +111,34 @@ Both `bookingautomation_postgres` and `bookingautomation_redis` must show
 
 ---
 
+## STEP 5b — Apply database migrations (first time only)
+
+> **Skip this step** if your `backend/.env` already points to your Neon cloud
+> database — you ran migrations there in earlier steps.
+>
+> **Run this step** if you want to use the local Docker PostgreSQL for development.
+
+Set the local database URL in `backend/.env`:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/automation_dev
+```
+
+Then apply all Prisma migrations to the Docker PostgreSQL:
+
+```bash
+cd ~/Desktop/Automation/backend && npm run db:migrate
+```
+
+Expected output ends with something like:
+```
+✔ Generated Prisma Client
+```
+and a list of applied migrations.  This only needs to run once per fresh
+volume (or after `docker compose down -v`).
+
+---
+
 ## STEP 6 — Run the API with hot-reload
 
 ```bash
@@ -145,7 +173,7 @@ Tests:       579 passed, 579 total
 
 ---
 
-## Optional: run dev tools (Adminer + MailHog)
+## Optional: run dev tools (Adminer + Mailpit)
 
 ```bash
 cd ~/Desktop/Automation && docker compose --profile tools up -d
@@ -154,7 +182,7 @@ cd ~/Desktop/Automation && docker compose --profile tools up -d
 | Tool | URL | Purpose |
 |------|-----|---------|
 | Adminer | http://localhost:8080 | PostgreSQL GUI (System: PostgreSQL, Server: postgres, User: postgres, Password: postgres) |
-| MailHog | http://localhost:8025 | Web inbox for all outbound dev emails |
+| Mailpit | http://localhost:8025 | Web inbox for all outbound dev emails (multi-arch, ARM64 compatible) |
 
 ---
 
@@ -202,7 +230,7 @@ cd ~/Desktop/Automation && docker compose down -v
   network.  The `backend` service uses `postgres:5432` / `redis:6379` as
   hostnames (Docker DNS resolution); your local `npm run dev` uses
   `localhost:5432` / `localhost:6379` (port-forwarded by Docker).
-- **Profiles** — `tools` (Adminer + MailHog) and `app` (Node.js backend) are
+- **Profiles** — `tools` (Adminer + Mailpit) and `app` (Node.js backend) are
   opt-in so `docker compose up -d` is always fast and lightweight.
 - **Multi-stage Dockerfile** — the `deps` stage caches production
   `node_modules` independently of source changes; the `builder` stage compiles
