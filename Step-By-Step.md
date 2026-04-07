@@ -1,81 +1,81 @@
-# Step 1.17 — WhatsApp Automation Module — Setup Guide
+# Step 1.18 — Analytics & Reporting Dashboard — Setup Guide
 
 **What this step adds:**
 
-A production-grade WhatsApp Automation Engine that sends customers the right
-message at the right moment — inquiry acknowledgement, booking confirmation,
-appointment reminder, post-visit review request, and restaurant table reminder.
-Every top booking platform (Fresha, Booksy, Vagaro, Mindbody) includes automated
-WhatsApp/SMS touchpoints as a core revenue-retention feature.
+A production-grade Analytics & Reporting module that gives admins a
+data-driven view of every key metric across the booking system — lead
+funnel conversion, booking breakdown, revenue trends, and raw event
+tracking.  Every top booking platform (Fresha, Booksy, Vagaro, Mindbody)
+surfaces these exact six metric categories in their "Insights" dashboards.
 
 The module provides:
 
-1. **BullMQ Queue + Worker** — Twilio messages are delivered via a persistent
-   Redis-backed job queue with 3-attempt exponential back-off, so transient
-   network failures never lose a message.
-2. **Five automated message templates** — each triggered at the optimal moment
-   with a configurable delay.
-3. **Double opt-in gate** — messages are only sent when the customer's
-   `preferWhatsApp` flag is `true` AND the `WHATSAPP_CONTACT_ENABLED` feature
-   flag is active (GDPR Article 6 compliance + Twilio policy).
-4. **Admin test-send endpoint** — `POST /api/whatsapp/send-test` lets admins
-   verify Twilio credentials and connectivity without going through the full
-   booking flow.
-5. **Graceful shutdown** — the Worker waits for in-flight Twilio calls to
-   complete before the process exits, preventing mid-delivery kills.
+1. **Event tracking** — `POST /api/analytics/events` (public, no auth)
+   records any frontend event (page views, form interactions, etc.) and
+   attaches it to a lead when a valid `leadId` is supplied.
+2. **KPI overview** — `GET /api/analytics/overview` returns leads, bookings
+   (by status), revenue totals, waitlist counts, and WhatsApp messages sent
+   for a configurable date range (default: last 30 days).
+3. **Lead funnel + attribution** — `GET /api/analytics/leads` returns the
+   full NEW→LOST pipeline funnel, top UTM sources, countries, device types,
+   and score statistics.
+4. **Booking breakdown** — `GET /api/analytics/bookings` returns counts
+   by status, artist, service and day-of-week, plus no-show and
+   cancellation rates.
+5. **Revenue metrics** — `GET /api/analytics/revenue` returns paid /
+   outstanding / overdue totals, a monthly trend, and top-10 services by
+   revenue.
+6. **Raw event log** — `GET /api/analytics/events` returns a paginated,
+   filterable log of every `AnalyticsEvent` row.
 
 ---
 
-## New / modified files — ALL 10 MUST BE DOWNLOADED
+## New / modified files — ALL 2 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
-| 1 | `backend/src/server.ts` | MODIFIED | Starts WhatsApp Worker + closes it on shutdown |
-| 2 | `backend/src/lib/twilio.ts` | NEW | Twilio client singleton + sendWhatsAppMessage |
-| 3 | `backend/src/modules/whatsapp/whatsapp.schema.ts` | NEW | Zod schema for send-test endpoint |
-| 4 | `backend/src/modules/whatsapp/whatsapp.queue.ts` | NEW | BullMQ Queue, Worker, message factory |
-| 5 | `backend/src/modules/whatsapp/whatsapp.service.ts` | NEW | Enqueue helpers + testSendWhatsApp |
-| 6 | `backend/src/modules/whatsapp/whatsapp.controller.ts` | NEW | HTTP handler for send-test |
-| 7 | `backend/src/modules/whatsapp/whatsapp.routes.ts` | NEW | Express router (1 admin endpoint) |
-| 8 | `backend/src/modules/whatsapp/whatsapp.service.test.ts` | NEW | **40 unit tests — DO NOT SKIP** |
-| 9 | `backend/src/modules/leads/leads.service.ts` | MODIFIED | Calls enqueueLeadInquiry on lead create |
-| 10 | `backend/src/modules/bookings/bookings.service.ts` | MODIFIED | Calls enqueueBookingConfirmed / enqueuePostVisitReview / enqueueRestaurantReminder |
+| 1 | `backend/src/app.ts` | MODIFIED | Mounts /api/analytics router |
+| 2 | `backend/src/modules/analytics/analytics.schema.ts` | NEW | Zod schemas for all 6 endpoints |
+| 3 | `backend/src/modules/analytics/analytics.service.ts` | NEW | All DB aggregations + trackEvent |
+| 4 | `backend/src/modules/analytics/analytics.controller.ts` | NEW | HTTP handlers |
+| 5 | `backend/src/modules/analytics/analytics.routes.ts` | NEW | Express router (6 endpoints) |
+| 6 | `backend/src/modules/analytics/analytics.service.test.ts` | NEW | **38 unit tests — DO NOT SKIP** |
 
-> **Missing file 8 means 40 fewer tests and broken coverage.** All 10 files must be downloaded.
+> **Missing file 6 means 38 fewer tests and broken coverage.** All 6 files must be downloaded.
 
 ---
 
 ## STEP 1 — Delete old files (clean slate)
 
 ```bash
-rm -f ~/Desktop/Automation/backend/src/server.ts && rm -f ~/Desktop/Automation/backend/src/lib/twilio.ts && rm -rf ~/Desktop/Automation/backend/src/modules/whatsapp && rm -f ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts && rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts
+rm -f ~/Desktop/Automation/backend/src/app.ts && rm -rf ~/Desktop/Automation/backend/src/modules/analytics
 ```
 
 ---
 
-## STEP 2 — Create the whatsapp folder
+## STEP 2 — Create the analytics folder
 
 ```bash
-mkdir -p ~/Desktop/Automation/backend/src/modules/whatsapp
+mkdir -p ~/Desktop/Automation/backend/src/modules/analytics
 ```
 
 ---
 
-## STEP 3 — Download all 10 files (one copy-paste block)
+## STEP 3 — Download all 6 files (one copy-paste block)
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/server.ts" -o ~/Desktop/Automation/backend/src/server.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/lib/twilio.ts" -o ~/Desktop/Automation/backend/src/lib/twilio.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.schema.ts" -o ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.schema.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.queue.ts" -o ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.queue.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.service.ts" -o ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.controller.ts" -o ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.controller.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.routes.ts" -o ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.routes.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.service.test.ts" -o ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.service.test.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/leads/leads.service.ts" -o ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" -o ~/Desktop/Automation/backend/src/app.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/analytics/analytics.schema.ts" -o ~/Desktop/Automation/backend/src/modules/analytics/analytics.schema.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/analytics/analytics.service.ts" -o ~/Desktop/Automation/backend/src/modules/analytics/analytics.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/analytics/analytics.controller.ts" -o ~/Desktop/Automation/backend/src/modules/analytics/analytics.controller.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/analytics/analytics.routes.ts" -o ~/Desktop/Automation/backend/src/modules/analytics/analytics.routes.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/analytics/analytics.service.test.ts" -o ~/Desktop/Automation/backend/src/modules/analytics/analytics.service.test.ts
 ```
 
 ---
 
-## STEP 4 — Verify all 10 files were downloaded (bytes > 0)
+## STEP 4 — Verify all 6 files were downloaded (bytes > 0)
 
 ```bash
-wc -c ~/Desktop/Automation/backend/src/server.ts ~/Desktop/Automation/backend/src/lib/twilio.ts ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.schema.ts ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.queue.ts ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.service.ts ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.controller.ts ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.routes.ts ~/Desktop/Automation/backend/src/modules/whatsapp/whatsapp.service.test.ts ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts
+wc -c ~/Desktop/Automation/backend/src/app.ts ~/Desktop/Automation/backend/src/modules/analytics/analytics.schema.ts ~/Desktop/Automation/backend/src/modules/analytics/analytics.service.ts ~/Desktop/Automation/backend/src/modules/analytics/analytics.controller.ts ~/Desktop/Automation/backend/src/modules/analytics/analytics.routes.ts ~/Desktop/Automation/backend/src/modules/analytics/analytics.service.test.ts
 ```
 
-All 10 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
+All 6 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
 
 ---
 
@@ -98,8 +98,8 @@ cd ~/Desktop/Automation/backend && npm test
 Expected output:
 
 ```
-Test Suites: 15 passed, 15 total
-Tests:       480 passed, 480 total
+Test Suites: 16 passed, 16 total
+Tests:       518 passed, 518 total
 ```
 
 ---
@@ -108,70 +108,99 @@ Tests:       480 passed, 480 total
 
 | Method | Path | Auth | Feature Flag | Description |
 |--------|------|------|--------------|-------------|
-| POST | `/api/whatsapp/send-test` | ADMIN | WHATSAPP_CONTACT_ENABLED | Send a test WhatsApp message via Twilio |
+| POST | `/api/analytics/events` | None | ANALYTICS_ENABLED | Track a frontend event |
+| GET  | `/api/analytics/overview` | ADMIN | ANALYTICS_ENABLED | KPI summary dashboard |
+| GET  | `/api/analytics/leads` | ADMIN | ANALYTICS_ENABLED | Lead funnel + attribution |
+| GET  | `/api/analytics/bookings` | ADMIN | ANALYTICS_ENABLED | Booking breakdown |
+| GET  | `/api/analytics/revenue` | ADMIN | ANALYTICS_ENABLED | Revenue metrics + monthly trend |
+| GET  | `/api/analytics/events` | ADMIN | ANALYTICS_ENABLED | Paginated raw event log |
 
 ---
 
-## Automated messages triggered in this step
+## Query parameters
 
-| Message | Trigger | Delay | Job name |
-|---------|---------|-------|----------|
-| 1 — Inquiry acknowledgement | Lead created (opt-in) | Immediate | `lead-inquiry` |
-| 2 — Booking confirmation | Booking → CONFIRMED | Immediate | `booking-confirmed` |
-| 3 — Appointment reminder | Booking → CONFIRMED | startAt − 24 h | `appointment-reminder` |
-| 4 — Post-visit review | Booking → COMPLETED | + 2 h | `post-visit-review` |
-| 5 — Restaurant table reminder | Booking → CONFIRMED (restaurant) | startAt − 2 h | `restaurant-reminder` |
+### All admin GET endpoints accept date range filters
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `from` | ISO-8601 string | 30 days ago | Range start (inclusive) |
+| `to` | ISO-8601 string | now | Range end (inclusive, set to end of day UTC) |
 
----
+### GET /api/analytics/leads additional filters
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `artistId` | CUID | Filter to a specific artist |
+| `businessType` | string | Filter to a specific business type |
 
-## Environment variables required
+### GET /api/analytics/bookings additional filter
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `artistId` | CUID | Filter to a specific artist |
 
-Add these to your `.env` file (server will start without them, but WhatsApp messages will be skipped):
-
-```
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_auth_token
-TWILIO_WHATSAPP_FROM=+14155238886
-```
-
-> The `TWILIO_WHATSAPP_FROM` number must be a Twilio WhatsApp-enabled number
-> (Sandbox number `+14155238886` is used for development; use your approved
-> WhatsApp Sender for production).
+### GET /api/analytics/events additional filters
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `eventType` | string | — | Filter by event type (case-insensitive) |
+| `leadId` | CUID | — | Filter to events linked to a specific lead |
+| `page` | integer | 1 | Page number |
+| `limit` | integer | 20 | Results per page (max 100) |
 
 ---
 
 ## Architecture notes
 
-- **Fire-and-forget** — all enqueue helpers catch errors internally so that a
-  Redis outage never fails a booking or lead creation.
-- **Stateless job payload** — all data needed to build the message is embedded
-  in the job data at enqueue time.  The processor needs no DB lookups, making
-  retries fast and cheap.
-- **Double gate** — both `preferWhatsApp` (per-customer opt-in) and
-  `WHATSAPP_CONTACT_ENABLED` (per-instance feature flag) must be active before
-  any message is enqueued.
-- **Empty review URL guard** — `enqueuePostVisitReview` silently skips when
-  `GOOGLE_REVIEW_URL` is not configured; customers never receive a broken link.
-- **UTC formatting** — message date/time strings are formatted in UTC so
-  output is consistent regardless of server timezone.
-- **Graceful shutdown** — the BullMQ Worker finishes in-flight Twilio calls
-  before the process exits (SIGTERM → Worker.close() → Queue.close() → exit).
+- **ANALYTICS_ENABLED feature flag** — all 6 endpoints are gated so the
+  module can be disabled per deployment with a single flag flip.
+- **Public POST /events** — intentionally requires no authentication so
+  the frontend can track anonymous visitor events (page views, form starts)
+  before any user session exists.
+- **Soft leadId link** — when `POST /events` receives an unknown `leadId`,
+  the event is still persisted with `leadId = null` rather than returning a
+  4xx.  This prevents stale frontend state from breaking tracking.
+- **DB-side aggregations** — all counts and group-bys run in the database
+  via Prisma `groupBy`.  JS post-processing is limited to formatting and
+  name lookups.  This keeps queries fast even at millions of rows.
+- **Single Promise.all per endpoint** — all DB round-trips within an
+  endpoint execute concurrently, minimising latency for the dashboard.
+- **UTC date arithmetic** — end-of-day filtering always uses `setUTCHours`
+  so results are consistent regardless of server timezone.
+- **30-day default range** — matches the default dashboard view of
+  Fresha, Booksy and Vagaro.
 
 ---
 
-## Request / Response example
+## Request / Response examples
 
-### Test Twilio connectivity (admin)
+### Track a page view (anonymous)
 
 ```
-POST /api/whatsapp/send-test
-Authorization: Bearer <admin_token>
+POST /api/analytics/events
 Content-Type: application/json
 
 {
-  "to": "+447700900001",
-  "message": "Hello from Black Rose Studio! 👋 WhatsApp is configured correctly."
+  "eventType": "page_view",
+  "sessionId": "sess_abc123",
+  "payload": { "page": "/booking" },
+  "utmSource": "instagram",
+  "utmMedium": "social"
 }
+```
+
+Response `201 Created`:
+
+```json
+{
+  "success": true,
+  "data": { "recorded": true },
+  "meta": null,
+  "error": null
+}
+```
+
+### Get KPI overview (admin)
+
+```
+GET /api/analytics/overview?from=2024-01-01&to=2024-01-31
+Authorization: Bearer <admin_token>
 ```
 
 Response `200 OK`:
@@ -180,25 +209,15 @@ Response `200 OK`:
 {
   "success": true,
   "data": {
-    "to": "+447700900001",
-    "messageSid": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    "period": { "from": "2024-01-01T00:00:00.000Z", "to": "2024-01-31T23:59:59.999Z" },
+    "leads":    { "total": 120, "today": 4, "conversionRate": 28.3 },
+    "bookings": { "total": 34, "today": 2, "pending": 5, "confirmed": 12, "completed": 15, "cancelled": 2, "noShow": 0 },
+    "revenue":  { "totalPaid": 8450.00, "outstanding": 1200.00, "overdue": 350.00, "currency": "GBP" },
+    "waitlist": { "active": 7, "notified": 2 },
+    "whatsapp": { "messagesSent": 0 }
   },
   "meta": null,
   "error": null
-}
-```
-
-Error `503` when Twilio is not configured:
-
-```json
-{
-  "success": false,
-  "data": null,
-  "meta": null,
-  "error": {
-    "code": "WHATSAPP_NOT_CONFIGURED",
-    "message": "Twilio WhatsApp is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_WHATSAPP_FROM."
-  }
 }
 ```
 
