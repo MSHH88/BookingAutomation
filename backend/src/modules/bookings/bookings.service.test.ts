@@ -83,6 +83,14 @@ jest.mock('../reviews/reviews.queue', () => ({
   enqueueReviewRequest: jest.fn().mockResolvedValue(undefined),
 }));
 
+// bookings.service.ts imports enqueueBookingReminder/cancelBookingReminder from
+// reminders.queue.ts, which opens a Redis connection at module load.  Mock the
+// entire module so tests run without a live Redis instance.
+jest.mock('../reminders/reminders.queue', () => ({
+  enqueueBookingReminder: jest.fn().mockResolvedValue(undefined),
+  cancelBookingReminder:  jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as bookingsService from './bookings.service';

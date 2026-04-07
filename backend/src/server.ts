@@ -17,6 +17,8 @@ import { disconnectRedis } from './lib/redis';
 import { startWhatsAppWorker, whatsappQueue } from './modules/whatsapp/whatsapp.queue';
 import { startReviewWorker }                  from './modules/reviews/reviews.processor';
 import { reviewQueue }                        from './modules/reviews/reviews.queue';
+import { startReminderWorker }                from './modules/reminders/reminders.processor';
+import { reminderQueue }                      from './modules/reminders/reminders.queue';
 
 // ─── Create server ────────────────────────────────────────────────────────────
 
@@ -28,6 +30,7 @@ const server = http.createServer(app);
 // up immediately.  The returned Worker instances are stored for graceful shutdown.
 const whatsappWorker = startWhatsAppWorker();
 const reviewWorker   = startReviewWorker();
+const reminderWorker = startReminderWorker();
 
 // ─── Start listening ──────────────────────────────────────────────────────────
 
@@ -110,11 +113,19 @@ async function gracefulShutdown(signal: string): Promise<void> {
     await reviewQueue.close();
     logger.info('Review queue closed');
 
-    // 6. Disconnect from Prisma (PostgreSQL connection pool)
+    // 6. Stop the Appointment Reminder BullMQ Worker
+    await reminderWorker.close();
+    logger.info('Reminder worker closed');
+
+    // 7. Close the Appointment Reminder BullMQ Queue
+    await reminderQueue.close();
+    logger.info('Reminder queue closed');
+
+    // 8. Disconnect from Prisma (PostgreSQL connection pool)
     await prisma.$disconnect();
     logger.info('Prisma disconnected');
 
-    // 7. Disconnect from Redis
+    // 9. Disconnect from Redis
     await disconnectRedis();
     logger.info('Redis disconnected');
 

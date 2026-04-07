@@ -39,7 +39,8 @@ import {
   enqueuePostVisitReview,
   enqueueRestaurantReminder,
 } from '../whatsapp/whatsapp.service';
-import { enqueueReviewRequest } from '../reviews/reviews.queue';
+import { enqueueReviewRequest }                              from '../reviews/reviews.queue';
+import { enqueueBookingReminder, cancelBookingReminder }    from '../reminders/reminders.queue';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -294,6 +295,20 @@ export async function confirmBooking(
   logger.info('Email job queued (stub)', { job: 'booking-confirmed', bookingId: id });
   logger.info('Calendar event queued (stub)', { job: 'calendar-create', bookingId: id });
 
+  // ── Email Reminder — 24 h before the appointment ─────────────────────────
+  // Fire-and-forget: queue errors are caught inside enqueueBookingReminder.
+  // Skipped automatically when EMAIL_REMINDERS_ENABLED is OFF or when the
+  // appointment is less than 24 h away (computed delay ≤ 0).
+  void enqueueBookingReminder({
+    bookingId:      id,
+    bookingStartAt: updated.startAt,
+    customerEmail:  updated.customer?.email ?? updated.lead?.email ?? '',
+    customerName:   updated.customer?.name  ?? updated.lead?.name  ?? 'Customer',
+    studioName:     config.STUDIO_NAME,
+    artistName:     updated.artist.user.name,
+    serviceName:    updated.services[0]?.service?.name ?? 'appointment',
+  });
+
   // ── WhatsApp — Message 2 (confirmed) + Message 3 (reminder) ─────────────
   // Fire-and-forget: queue errors are caught inside the enqueue helpers.
   // WhatsApp opt-in is stored on the Lead record; skip when no lead is linked.
@@ -545,6 +560,10 @@ export async function cancelBooking(
   logger.info('Email job queued (stub)', { job: 'booking-cancelled', bookingId: id, reason: body.cancelReason });
   logger.info('Calendar event queued (stub)', { job: 'calendar-delete', bookingId: id });
 
+  // ── Cancel pending reminder — appointment no longer exists ───────────────
+  // Fire-and-forget: queue errors are caught inside cancelBookingReminder.
+  void cancelBookingReminder(id);
+
   return updated;
 }
 
@@ -635,6 +654,22 @@ export async function rescheduleBooking(
   // ── Side-effects — log stubs (Phase 2 wires Resend + Google Calendar) ────
   logger.info('Email job queued (stub)', { job: 'booking-rescheduled', bookingId: id, newStart, newEnd });
   logger.info('Calendar event queued (stub)', { job: 'calendar-update', bookingId: id });
+
+  // ── Reminder: cancel old (stale time) + enqueue new (updated time) ───────
+  // Fire-and-forget: queue errors are caught inside each helper.
+  // cancelBookingReminder uses the same deterministic jobId so it reliably
+  // removes the previously scheduled reminder regardless of whether the
+  // original booking was PENDING or CONFIRMED when first scheduled.
+  void cancelBookingReminder(id);
+  void enqueueBookingReminder({
+    bookingId:      id,
+    bookingStartAt: updated.startAt,
+    customerEmail:  updated.customer?.email ?? updated.lead?.email ?? '',
+    customerName:   updated.customer?.name  ?? updated.lead?.name  ?? 'Customer',
+    studioName:     config.STUDIO_NAME,
+    artistName:     updated.artist.user.name,
+    serviceName:    updated.services[0]?.service?.name ?? 'appointment',
+  });
 
   return updated;
 }
