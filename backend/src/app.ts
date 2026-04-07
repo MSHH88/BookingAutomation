@@ -20,6 +20,7 @@ import { captureRoutes }       from './modules/capture/capture.routes';
 import { availabilityRoutes }  from './modules/availability/availability.routes';
 import { serviceRoutes }       from './modules/services/services.routes';
 import { uploadRoutes }        from './modules/uploads/uploads.routes';
+import { notificationRoutes }  from './modules/notifications/notifications.routes';
 
 const app = express();
 
@@ -113,6 +114,7 @@ app.use('/api/capture',       captureRoutes);      // Step 1.11
 app.use('/api/availability',  availabilityRoutes); // Step 1.12
 app.use('/api/services',      serviceRoutes);      // Step 1.13
 app.use('/api/uploads',       uploadRoutes);       // Step 1.14
+app.use('/api/notifications', notificationRoutes); // Step 1.15
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
