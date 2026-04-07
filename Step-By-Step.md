@@ -1,68 +1,73 @@
-# Step 1.15 — Notifications Service (Transactional Email Engine) — Setup Guide
+# Step 1.16 — Waitlist Module — Setup Guide
 
 **What this step adds:**
 
-A production-grade Transactional Email Engine backed by the Resend API and
-Handlebars templating. This is the notification layer every professional
-booking platform (Fresha, Booksy, Acuity, Mindbody) requires to send
-booking confirmations, invoice emails, quote notifications, and reminders.
+A production-grade Waitlist system that captures customer interest when a
+desired artist or time slot is fully booked.  Every top booking platform
+(Fresha, Booksy, Mindbody, Acuity) includes a waitlist as a core feature —
+it converts "sorry, fully booked" into a revenue opportunity by automatically
+queueing interested customers and notifying them when a slot opens.
 
-Two layers are provided:
+The module provides:
 
-1. **Email Template CRUD** — ADMIN-only management API for the `EmailTemplate`
-   Prisma model. Templates store a Handlebars subject + HTML body and a
-   `variables` array that documents expected placeholders.
-2. **`sendEmail(key, to, vars)`** — internal dispatch utility called by other
-   services (bookings, invoices, quotes). Loads the template by key, renders
-   it with Handlebars, and dispatches via Resend.
+1. **Public Join Endpoint** — customers add themselves to the waitlist without
+   logging in.  Email + artist deduplication prevents spam.
+2. **Admin Queue Management** — paginated list with status/artist/email filters,
+   full entry detail, manual status transitions, and hard-delete.
+3. **Slot-Available Notifications** — admin triggers a personalised email
+   (template: `waitlist-slot-available`) with a configurable response window
+   (default 72 h).  DB state is updated **before** the email is sent, so the
+   notification record is never lost even if the send fails.
+4. **Status Lifecycle** — `WAITING → NOTIFIED → BOOKED` (success path);
+   `CANCELLED` and `EXPIRED` for non-converting entries.  `EXPIRED` entries
+   can be re-activated to `WAITING` to re-enter the queue.
 
-## New files in this step — ALL 7 MUST BE DOWNLOADED
+## New files in this step — ALL 6 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
-| 1 | `backend/src/app.ts` | MODIFIED | Adds `/api/notifications` route mount |
-| 2 | `backend/src/lib/resend.ts` | NEW | Singleton Resend client |
-| 3 | `backend/src/modules/notifications/notifications.schema.ts` | NEW | Zod schemas for template CRUD + send-test |
-| 4 | `backend/src/modules/notifications/notifications.service.ts` | NEW | Template CRUD + sendEmail + sendTestEmail |
-| 5 | `backend/src/modules/notifications/notifications.controller.ts` | NEW | HTTP handlers |
-| 6 | `backend/src/modules/notifications/notifications.routes.ts` | NEW | Express router (6 endpoints) |
-| 7 | `backend/src/modules/notifications/notifications.service.test.ts` | NEW | **31 unit tests — DO NOT SKIP** |
+| 1 | `backend/src/app.ts` | MODIFIED | Adds `/api/waitlist` route mount |
+| 2 | `backend/src/modules/waitlist/waitlist.schema.ts` | NEW | Zod schemas for all 6 endpoints |
+| 3 | `backend/src/modules/waitlist/waitlist.service.ts` | NEW | Business logic + DB access |
+| 4 | `backend/src/modules/waitlist/waitlist.controller.ts` | NEW | HTTP handlers |
+| 5 | `backend/src/modules/waitlist/waitlist.routes.ts` | NEW | Express router (6 endpoints) |
+| 6 | `backend/src/modules/waitlist/waitlist.service.test.ts` | NEW | **34 unit tests — DO NOT SKIP** |
 
-> **Missing file 7 means 31 fewer tests.** Every file must be downloaded.
+> **Missing file 6 means 34 fewer tests.** Every file must be downloaded.
 
 ---
 
 ## STEP 1 — Delete old files (clean slate)
 
 ```bash
-rm -f ~/Desktop/Automation/backend/src/app.ts && rm -f ~/Desktop/Automation/backend/src/lib/resend.ts && rm -rf ~/Desktop/Automation/backend/src/modules/notifications
+rm -f ~/Desktop/Automation/backend/src/app.ts && rm -rf ~/Desktop/Automation/backend/src/modules/waitlist
 ```
 
 ---
 
-## STEP 2 — Create the notifications folder
+## STEP 2 — Create the waitlist folder
 
 ```bash
-mkdir -p ~/Desktop/Automation/backend/src/modules/notifications
+mkdir -p ~/Desktop/Automation/backend/src/modules/waitlist
 ```
 
 ---
 
-## STEP 3 — Download all 7 files (one copy-paste block)
+## STEP 3 — Download all 6 files (one copy-paste block)
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" -o ~/Desktop/Automation/backend/src/app.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/lib/resend.ts" -o ~/Desktop/Automation/backend/src/lib/resend.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.schema.ts" -o ~/Desktop/Automation/backend/src/modules/notifications/notifications.schema.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.service.ts" -o ~/Desktop/Automation/backend/src/modules/notifications/notifications.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.controller.ts" -o ~/Desktop/Automation/backend/src/modules/notifications/notifications.controller.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.routes.ts" -o ~/Desktop/Automation/backend/src/modules/notifications/notifications.routes.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.service.test.ts" -o ~/Desktop/Automation/backend/src/modules/notifications/notifications.service.test.ts
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" -o ~/Desktop/Automation/backend/src/app.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.schema.ts" -o ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.schema.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.service.ts" -o ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.controller.ts" -o ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.controller.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.routes.ts" -o ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.routes.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.service.test.ts" -o ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.service.test.ts
 ```
 
 ---
 
-## STEP 4 — Verify all 7 files were downloaded (bytes > 0)
+## STEP 4 — Verify all 6 files were downloaded (bytes > 0)
 
 ```bash
-wc -c ~/Desktop/Automation/backend/src/app.ts ~/Desktop/Automation/backend/src/lib/resend.ts ~/Desktop/Automation/backend/src/modules/notifications/notifications.schema.ts ~/Desktop/Automation/backend/src/modules/notifications/notifications.service.ts ~/Desktop/Automation/backend/src/modules/notifications/notifications.controller.ts ~/Desktop/Automation/backend/src/modules/notifications/notifications.routes.ts ~/Desktop/Automation/backend/src/modules/notifications/notifications.service.test.ts
+wc -c ~/Desktop/Automation/backend/src/app.ts ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.schema.ts ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.service.ts ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.controller.ts ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.routes.ts ~/Desktop/Automation/backend/src/modules/waitlist/waitlist.service.test.ts
 ```
 
-All 7 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
+All 6 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
 
 ---
 
@@ -85,8 +90,8 @@ cd ~/Desktop/Automation/backend && npm test
 Expected output:
 
 ```
-Test Suites: 13 passed, 13 total
-Tests:       404 passed, 404 total
+Test Suites: 14 passed, 14 total
+Tests:       438 passed, 438 total
 ```
 
 ---
@@ -95,60 +100,56 @@ Tests:       404 passed, 404 total
 
 | Method | Path | Auth | Feature Flag | Description |
 |--------|------|------|--------------|-------------|
-| GET | `/api/notifications/templates` | ADMIN | EMAIL_REMINDERS_ENABLED | List all email templates (paginated) |
-| POST | `/api/notifications/templates` | ADMIN | EMAIL_REMINDERS_ENABLED | Create a new email template |
-| GET | `/api/notifications/templates/:id` | ADMIN | EMAIL_REMINDERS_ENABLED | Get full template detail (includes HTML body) |
-| PATCH | `/api/notifications/templates/:id` | ADMIN | EMAIL_REMINDERS_ENABLED | Partially update a template |
-| DELETE | `/api/notifications/templates/:id` | ADMIN | EMAIL_REMINDERS_ENABLED | Soft-delete (deactivate) a template |
-| POST | `/api/notifications/templates/:id/send-test` | ADMIN | EMAIL_REMINDERS_ENABLED | Test-send a template to a given email address |
+| POST | `/api/waitlist` | PUBLIC | WAITING_LIST_ENABLED | Join the waitlist |
+| GET | `/api/waitlist` | ADMIN | WAITING_LIST_ENABLED | List all entries (paginated, filtered) |
+| PATCH | `/api/waitlist/:id/status` | ADMIN | WAITING_LIST_ENABLED | Manually transition entry status |
+| POST | `/api/waitlist/:id/notify` | ADMIN | WAITING_LIST_ENABLED | Send slot-available email notification |
+| GET | `/api/waitlist/:id` | ADMIN | WAITING_LIST_ENABLED | Get full entry detail |
+| DELETE | `/api/waitlist/:id` | ADMIN | WAITING_LIST_ENABLED | Hard-delete a waitlist entry |
 
 ---
 
-## Template system
+## Status lifecycle
 
-### Template keys (built-in)
-
-| Key | Trigger |
-|-----|---------|
-| `booking-confirmed` | When a booking is confirmed |
-| `booking-cancelled` | When a booking is cancelled |
-| `booking-rescheduled` | When a booking is rescheduled |
-| `quote-sent` | When a quote is sent to a customer |
-| `invoice-sent` | When an invoice is emailed |
-| `review-request` | 36h after booking completion |
-| `welcome` | After a new user registers |
-
-### Handlebars variable substitution
-
-Templates use `{{variableName}}` placeholders in both subject and HTML body:
-
-```html
-Subject: Booking confirmed for {{customerName}}
-
-Body:
-<h1>Hi {{customerName}},</h1>
-<p>Your booking on {{bookingDate}} at {{startTime}} is confirmed.</p>
-<p>Artist: {{artistName}}</p>
+```
+WAITING ──► NOTIFIED ──► BOOKED      (customer responds and books)
+   │            └──────► EXPIRED     (customer didn't respond in time)
+   │            └──────► CANCELLED   (admin/customer cancels)
+   └──────────────────── CANCELLED
+   └──────────────────── EXPIRED
+EXPIRED ──► WAITING                  (re-activate into the queue)
 ```
 
-### Internal `sendEmail` API (for use by other services)
-
-```typescript
-import { sendEmail } from '../notifications/notifications.service';
-
-// Dispatches a rendered transactional email
-await sendEmail('booking-confirmed', customer.email, {
-  customerName: customer.name,
-  bookingDate:  '10 Apr 2026',
-  artistName:   artist.user.name,
-});
-```
+| Status | Meaning |
+|--------|---------|
+| `WAITING` | Newly joined; slot not yet available |
+| `NOTIFIED` | Admin sent slot-available email; `expiresAt` is set |
+| `BOOKED` | Customer responded and completed a booking (terminal) |
+| `EXPIRED` | Customer did not respond before `expiresAt` (re-activatable) |
+| `CANCELLED` | Removed by admin or customer (terminal) |
 
 ---
 
-## Request / Response examples
+## Notification email
 
-### Create template
+The `POST /:id/notify` endpoint sends the template with key
+`waitlist-slot-available` (must be created via the Notifications API from
+Step 1.15 before use).  If the template is missing or inactive, the DB
+state (`notifiedAt`, `expiresAt`, `status = NOTIFIED`) is still persisted
+and a warning is logged.
+
+### Suggested template variables
+
+| Variable | Example value |
+|----------|---------------|
+| `customerName` | "Jane Smith" |
+| `artistId` | "artist_123" |
+| `serviceId` | "svc_456" |
+| `requestedDate` | "2026-05-01" |
+| `expiresInHours` | "72" |
+| `customMessage` | "Alex has a Saturday slot open!" |
+
+### Create the template
 
 ```
 POST /api/notifications/templates
@@ -156,43 +157,71 @@ Authorization: Bearer <admin_token>
 Content-Type: application/json
 
 {
-  "key": "booking-confirmed",
-  "subject": "Booking confirmed — {{customerName}}",
-  "htmlBody": "<h1>Hi {{customerName}}, your booking on {{bookingDate}} is confirmed.</h1>",
-  "variables": ["customerName", "bookingDate", "artistName"],
+  "key": "waitlist-slot-available",
+  "subject": "Good news {{customerName}} — a slot just opened up!",
+  "htmlBody": "<h1>Hi {{customerName}},</h1><p>A slot is now available. You have {{expiresInHours}} hours to book before it goes to the next person.</p>{{#if customMessage}}<p>{{customMessage}}</p>{{/if}}",
+  "variables": ["customerName", "artistId", "serviceId", "requestedDate", "expiresInHours", "customMessage"],
   "isActive": true
 }
 ```
 
-### Test-send
+---
+
+## Request / Response examples
+
+### Join the waitlist (public)
 
 ```
-POST /api/notifications/templates/:id/send-test
-Authorization: Bearer <admin_token>
+POST /api/waitlist
 Content-Type: application/json
 
 {
-  "to": "admin@yourstudio.com",
-  "variables": {
-    "customerName": "Preview Customer",
-    "bookingDate": "10 Apr 2026",
-    "artistName": "Alex Ink"
-  }
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "phone": "+44 7700 900001",
+  "artistId": "cuid_artist",
+  "serviceId": "cuid_service",
+  "requestedDate": "2026-05-01T14:00:00Z",
+  "notes": "Prefer afternoons. Interested in a blackwork sleeve."
 }
 ```
 
-Response:
+Response `201 Created`:
 
 ```json
 {
   "success": true,
   "data": {
-    "templateId": "cuid_abc123",
-    "to": "admin@yourstudio.com",
-    "subject": "Booking confirmed — Preview Customer"
+    "id": "cuid_wl_abc123",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "phone": "+44 7700 900001",
+    "artistId": "cuid_artist",
+    "serviceId": "cuid_service",
+    "bookingId": null,
+    "requestedDate": "2026-05-01T14:00:00.000Z",
+    "notes": "Prefer afternoons. Interested in a blackwork sleeve.",
+    "status": "WAITING",
+    "notifiedAt": null,
+    "expiresAt": null,
+    "createdAt": "2026-04-07T10:00:00.000Z",
+    "updatedAt": "2026-04-07T10:00:00.000Z"
   },
   "meta": null,
   "error": null
+}
+```
+
+### Send slot-available notification
+
+```
+POST /api/waitlist/cuid_wl_abc123/notify
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+  "expiresInHours": 48,
+  "customMessage": "Alex has a Saturday 2pm slot available this weekend."
 }
 ```
 
@@ -200,20 +229,12 @@ Response:
 
 ## Architecture notes
 
-- **Resend SDK** (`src/lib/resend.ts`) — singleton shared across the app
-- **Handlebars** renders both subject and htmlBody at dispatch time
-- **Soft-delete** — templates are never hard-deleted; `isActive = false` only
-- **sendEmail is unconditional** — feature flag checks belong to the caller
-- **Phase 2 BullMQ** — `sendEmail` will enqueue a job for retry semantics
+- **Deduplication** — `POST /api/waitlist` rejects 409 if the same email
+  already has a WAITING or NOTIFIED entry for the same `artistId`
+- **Best-effort email** — DB state persists even when the email send fails
+- **Hard-delete** — waitlist entries are hard-deleted (no audit-trail requirement)
+- **Feature flag** — all 6 endpoints are gated by `WAITING_LIST_ENABLED`
+- **Public endpoint** — `POST /` bypasses auth but is still gated by the flag
+- **Phase 2 BullMQ** — notify will enqueue a job for retry semantics and
+  auto-expiry via scheduled jobs
 
----
-
-## Bug fixes included in this step
-
-| Bug | Fix |
-|-----|-----|
-| BUG-A (notifications.service.ts) | `updateTemplate` eliminated extra `findUnique` round-trip — `update` now returns full `templateDetailSelect` directly (3 → 2 DB queries) |
-| BUG-B (notifications.service.ts) | `deleteTemplate` eliminated extra `findUnique` round-trip — `update` now returns full `templateDetailSelect` directly (3 → 2 DB queries) |
-| BUG-C (notifications.service.ts) | `sendTestEmail` removed redundant `as Record<string, unknown>` cast — `body.variables` is already correctly typed by Zod |
-| BUG-D/E (notifications.service.test.ts) | Test mocks updated to match the new single-round-trip update pattern; unreachable DB-race test cases removed |
-| BUG-F (notifications.service.ts) | `sendEmail` + `sendTestEmail`: subject-line compilation now uses `{ noEscape: true }` — Handlebars default HTML-escaping turned `&` → `&amp;` and `'` → `&#x27;` in plain-text email subjects; 2 regression tests added |
