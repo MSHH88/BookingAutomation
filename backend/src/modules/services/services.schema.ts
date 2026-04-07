@@ -15,7 +15,7 @@ import { z } from 'zod';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const optStr = (max = 2000) => z.string().trim().max(max).optional();
+const optStr = (max = 2000) => z.string().trim().min(1).max(max).optional();
 
 // ─── ServiceCategory schemas ──────────────────────────────────────────────────
 

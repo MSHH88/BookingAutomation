@@ -19,6 +19,7 @@ import { invoiceRoutes }  from './modules/invoices/invoices.routes';
 import { captureRoutes }       from './modules/capture/capture.routes';
 import { availabilityRoutes }  from './modules/availability/availability.routes';
 import { serviceRoutes }       from './modules/services/services.routes';
+import { uploadRoutes }        from './modules/uploads/uploads.routes';
 
 const app = express();
 
@@ -111,6 +112,7 @@ app.use('/api/invoices', invoiceRoutes);    // Step 1.10
 app.use('/api/capture',       captureRoutes);      // Step 1.11
 app.use('/api/availability',  availabilityRoutes); // Step 1.12
 app.use('/api/services',      serviceRoutes);      // Step 1.13
+app.use('/api/uploads',       uploadRoutes);       // Step 1.14
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

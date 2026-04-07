@@ -9,9 +9,9 @@
  *
  *  ✓ createCategory    — creates with all fields, creates with defaults
  *
- *  ✓ updateCategory    — updates name only, updates multiple fields,
+ *  ✓ updateCategory    — updates a category name,
  *                        category not found → 404,
- *                        description set to null clears the field
+ *                        description undefined is not included in update data
  *
  *  ✓ deleteCategory    — deletes an empty category,
  *                        category has services → 409,

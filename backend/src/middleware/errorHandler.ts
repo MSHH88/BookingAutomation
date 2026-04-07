@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
+import multer from 'multer';
 import { AppError } from '../errors/AppError';
 import { error as apiError } from '../utils/apiResponse';
 import { logger } from '../utils/logger';
@@ -32,6 +33,29 @@ export function errorHandler(
   // req.id may be undefined if the error was thrown before requestLogger ran
   // (e.g. a CORS rejection). Use a safe fallback so logs are always valid.
   const requestId = req.id || '<no-request-id>';
+
+  // ── Multer file-upload errors ─────────────────────────────────────────────
+  // Thrown when the Multer middleware rejects a file due to size, count, or
+  // field-name limits.  All Multer limit errors map to 400 Bad Request so the
+  // client knows exactly what constraint was violated.
+  if (err instanceof multer.MulterError) {
+    const messages: Record<string, string> = {
+      LIMIT_FILE_SIZE:        `File too large — maximum size is 10 MB per image.`,
+      LIMIT_FILE_COUNT:       `Too many files — a maximum of 10 images per request is allowed.`,
+      LIMIT_UNEXPECTED_FILE:  `Unexpected field name. Use the "images" multipart field.`,
+      LIMIT_PART_COUNT:       `Too many form parts in the multipart request.`,
+      LIMIT_FIELD_KEY:        `Field name too long.`,
+      LIMIT_FIELD_VALUE:      `Field value too long.`,
+      LIMIT_FIELD_COUNT:      `Too many fields in the multipart request.`,
+    };
+    res.status(400).json(
+      apiError(
+        'UPLOAD_LIMIT_EXCEEDED',
+        messages[err.code] ?? `Upload error: ${err.message}`,
+      ),
+    );
+    return;
+  }
 
   // ── Zod validation errors ──────────────────────────────────────────────────
   if (err instanceof ZodError) {
