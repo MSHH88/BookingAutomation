@@ -46,7 +46,7 @@ The module provides:
 |---|------|------|-------|
 | 1 | `backend/src/modules/reminders/reminders.queue.ts` | NEW | Queue + enqueueBookingReminder + cancelBookingReminder |
 | 2 | `backend/src/modules/reminders/reminders.processor.ts` | NEW | Worker + processReminderJob + startReminderWorker |
-| 3 | `backend/src/modules/reminders/reminders.queue.test.ts` | NEW | **38 unit tests — DO NOT SKIP** |
+| 3 | `backend/src/modules/reminders/reminders.queue.test.ts` | NEW | **39 unit tests — DO NOT SKIP** |
 | 4 | `backend/src/modules/bookings/bookings.service.ts` | MODIFIED | Wires reminder on confirm, cancel, and reschedule |
 | 5 | `backend/src/modules/bookings/bookings.service.test.ts` | MODIFIED | Adds reminders.queue mock — eliminates Redis open-handle warnings |
 | 6 | `backend/src/server.ts` | MODIFIED | Starts reminder worker + graceful shutdown for reminder queue |
@@ -111,7 +111,7 @@ Expected output:
 
 ```
 Test Suites: 18 passed, 18 total
-Tests:       580 passed, 580 total
+Tests:       581 passed, 581 total
 ```
 
 ---

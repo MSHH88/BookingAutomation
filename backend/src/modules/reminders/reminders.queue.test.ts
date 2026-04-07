@@ -9,6 +9,7 @@
  *      — embeds all required fields in the job payload
  *      — serialises bookingStartAt to ISO string in the payload
  *      — computes delay as bookingStartAt − now − REMINDER_DEFAULT_DELAY_MS
+ *      — computed delay is bracketed by timestamps captured before/after the call
  *      — respects a custom delayMs override (bypasses "too soon" guard)
  *      — includes studioAddress when provided
  *      — defaults studioAddress to empty string when not provided
@@ -201,6 +202,28 @@ describe('enqueueBookingReminder', () => {
     const [, jobData] = mockQueueAdd.mock.calls[0] as [string, ReminderJobData, unknown];
     expect(typeof jobData.bookingStartAt).toBe('string');
     expect(jobData.bookingStartAt).toBe(FUTURE_START.toISOString());
+  });
+
+  it('computes delay as bookingStartAt.getTime() − Date.now() − REMINDER_DEFAULT_DELAY_MS', async () => {
+    // Use a booking 72 h from now so computed delay is well above zero.
+    const FAR_FUTURE_START = new Date(Date.now() + 72 * 60 * 60 * 1_000);
+    // Remove the delayMs override so the computed-delay code path executes.
+    const { delayMs: _omit, ...rest } = baseParams;
+
+    const beforeCall = Date.now();
+    await enqueueBookingReminder({ ...rest, bookingStartAt: FAR_FUTURE_START });
+    const afterCall = Date.now();
+
+    const [,, opts] = mockQueueAdd.mock.calls[0] as [string, ReminderJobData, { delay: number }];
+
+    // The computed delay must fall inside the bracket
+    //   [FAR_FUTURE_START − afterCall − REMINDER_DEFAULT_DELAY_MS,
+    //    FAR_FUTURE_START − beforeCall − REMINDER_DEFAULT_DELAY_MS]
+    // which collapses to ~172 800 000 ms (48 h) ± execution time.
+    const expectedMax = FAR_FUTURE_START.getTime() - beforeCall - REMINDER_DEFAULT_DELAY_MS;
+    const expectedMin = FAR_FUTURE_START.getTime() - afterCall  - REMINDER_DEFAULT_DELAY_MS;
+    expect(opts.delay).toBeGreaterThanOrEqual(expectedMin);
+    expect(opts.delay).toBeLessThanOrEqual(expectedMax);
   });
 
   it('respects a custom delayMs override', async () => {
