@@ -26,13 +26,11 @@
  *      — updates isActive only
  *      — updates multiple fields at once
  *      — not found → 404 TEMPLATE_NOT_FOUND
- *      — not found after update (DB race) → 500 INTERNAL_ERROR
  *
  *  ✓ deleteTemplate (soft-delete → isActive = false)
  *      — active template → deactivated, returns updated record
  *      — already inactive → 409 TEMPLATE_ALREADY_INACTIVE
  *      — not found → 404 TEMPLATE_NOT_FOUND
- *      — not found after deactivation (DB race) → 500 INTERNAL_ERROR
  *
  *  ✓ sendEmail (internal dispatch utility)
  *      — success: Handlebars variables substituted in subject + body
@@ -246,10 +244,8 @@ describe('createTemplate', () => {
 
 describe('updateTemplate', () => {
   it('updates subject only', async () => {
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1' })  // existence check
-      .mockResolvedValueOnce({ ...baseTemplateDetail, subject: 'New subject' }); // after update
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, subject: 'New subject' });
 
     const result = await notificationsService.updateTemplate('tpl_1', { subject: 'New subject' });
 
@@ -257,16 +253,14 @@ describe('updateTemplate', () => {
     expect(mockTemplateUpdate).toHaveBeenCalledWith({
       where:  { id: 'tpl_1' },
       data:   { subject: 'New subject' },
-      select: { id: true },
+      select: expect.objectContaining({ id: true, htmlBody: true }),
     });
   });
 
   it('updates htmlBody only', async () => {
     const newBody = '<h1>Updated content {{name}}</h1>';
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1' })
-      .mockResolvedValueOnce({ ...baseTemplateDetail, htmlBody: newBody });
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, htmlBody: newBody });
 
     const result = await notificationsService.updateTemplate('tpl_1', { htmlBody: newBody });
 
@@ -278,10 +272,8 @@ describe('updateTemplate', () => {
 
   it('updates variables only', async () => {
     const newVars = ['customerName', 'newVar'];
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1' })
-      .mockResolvedValueOnce({ ...baseTemplateDetail, variables: newVars });
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, variables: newVars });
 
     const result = await notificationsService.updateTemplate('tpl_1', { variables: newVars });
 
@@ -289,10 +281,8 @@ describe('updateTemplate', () => {
   });
 
   it('updates isActive only', async () => {
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1' })
-      .mockResolvedValueOnce({ ...baseTemplateDetail, isActive: false });
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, isActive: false });
 
     const result = await notificationsService.updateTemplate('tpl_1', { isActive: false });
 
@@ -304,10 +294,8 @@ describe('updateTemplate', () => {
 
   it('updates multiple fields at once', async () => {
     const updatedTpl = { ...baseTemplateDetail, subject: 'New', isActive: false };
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1' })
-      .mockResolvedValueOnce(updatedTpl);
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateUpdate.mockResolvedValue(updatedTpl);
 
     await notificationsService.updateTemplate('tpl_1', { subject: 'New', isActive: false });
 
@@ -324,26 +312,14 @@ describe('updateTemplate', () => {
 
     expect(mockTemplateUpdate).not.toHaveBeenCalled();
   });
-
-  it('throws 500 INTERNAL_ERROR when template vanishes after update (DB race)', async () => {
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1' })
-      .mockResolvedValueOnce(null); // gone after update
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
-
-    await expect(notificationsService.updateTemplate('tpl_1', { subject: 'Y' }))
-      .rejects.toMatchObject({ statusCode: 500, code: 'INTERNAL_ERROR' });
-  });
 });
 
 // ─── deleteTemplate ───────────────────────────────────────────────────────────
 
 describe('deleteTemplate', () => {
   it('deactivates an active template and returns updated record', async () => {
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1', isActive: true })
-      .mockResolvedValueOnce({ ...baseTemplateDetail, isActive: false });
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', isActive: true });
+    mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, isActive: false });
 
     const result = await notificationsService.deleteTemplate('tpl_1');
 
@@ -351,7 +327,7 @@ describe('deleteTemplate', () => {
     expect(mockTemplateUpdate).toHaveBeenCalledWith({
       where:  { id: 'tpl_1' },
       data:   { isActive: false },
-      select: { id: true },
+      select: expect.objectContaining({ id: true, isActive: true }),
     });
   });
 
@@ -369,16 +345,6 @@ describe('deleteTemplate', () => {
 
     await expect(notificationsService.deleteTemplate('missing'))
       .rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
-  });
-
-  it('throws 500 INTERNAL_ERROR when template vanishes after deactivation (DB race)', async () => {
-    mockTemplateFindUnique
-      .mockResolvedValueOnce({ id: 'tpl_1', isActive: true })
-      .mockResolvedValueOnce(null); // gone after update
-    mockTemplateUpdate.mockResolvedValue({ id: 'tpl_1' });
-
-    await expect(notificationsService.deleteTemplate('tpl_1'))
-      .rejects.toMatchObject({ statusCode: 500, code: 'INTERNAL_ERROR' });
   });
 });
 

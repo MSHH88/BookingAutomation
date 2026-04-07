@@ -186,27 +186,18 @@ export async function updateTemplate(
   }
 
   const data: Prisma.EmailTemplateUpdateInput = {};
-  if (body.subject  !== undefined) data.subject  = body.subject;
-  if (body.htmlBody !== undefined) data.htmlBody  = body.htmlBody;
-  if (body.variables !== undefined) data.variables = body.variables;
-  if (body.isActive !== undefined) data.isActive  = body.isActive;
+  if (body.subject   !== undefined) data.subject   = body.subject;
+  if (body.htmlBody  !== undefined) data.htmlBody   = body.htmlBody;
+  if (body.variables !== undefined) data.variables  = body.variables;
+  if (body.isActive  !== undefined) data.isActive   = body.isActive;
 
-  await prisma.emailTemplate.update({
+  const updated = await prisma.emailTemplate.update({
     where:  { id },
     data,
-    select: { id: true },
-  });
-
-  logger.info('Email template updated', { templateId: id });
-
-  const updated = await prisma.emailTemplate.findUnique({
-    where:  { id },
     select: templateDetailSelect,
   });
 
-  if (!updated) {
-    throw new AppError(500, 'INTERNAL_ERROR', `Template '${id}' not found after update`);
-  }
+  logger.info('Email template updated', { templateId: id });
 
   return updated;
 }
@@ -238,22 +229,13 @@ export async function deleteTemplate(id: string): Promise<TemplateDetail> {
     );
   }
 
-  await prisma.emailTemplate.update({
+  const updated = await prisma.emailTemplate.update({
     where:  { id },
     data:   { isActive: false },
-    select: { id: true },
-  });
-
-  logger.info('Email template deactivated', { templateId: id });
-
-  const updated = await prisma.emailTemplate.findUnique({
-    where:  { id },
     select: templateDetailSelect,
   });
 
-  if (!updated) {
-    throw new AppError(500, 'INTERNAL_ERROR', `Template '${id}' not found after deactivation`);
-  }
+  logger.info('Email template deactivated', { templateId: id });
 
   return updated;
 }
@@ -370,10 +352,8 @@ export async function sendTestEmail(
     throw new AppError(404, 'TEMPLATE_NOT_FOUND', `Email template '${id}' not found`);
   }
 
-  const vars = body.variables as Record<string, unknown>;
-
-  const renderedSubject = Handlebars.compile(template.subject)(vars);
-  const renderedHtml    = Handlebars.compile(template.htmlBody)(vars);
+  const renderedSubject = Handlebars.compile(template.subject)(body.variables);
+  const renderedHtml    = Handlebars.compile(template.htmlBody)(body.variables);
 
   const fromAddress = config.RESEND_FROM_EMAIL || 'noreply@bookingautomation.io';
   const fromName    = config.RESEND_FROM_NAME   || 'Booking Automation';
