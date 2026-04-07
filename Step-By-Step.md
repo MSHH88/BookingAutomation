@@ -17,7 +17,7 @@ Two independent security layers protect every upload:
 
 Only after both guards pass are files streamed to Cloudinary's upload API.
 
-## New files in this step — ALL 7 MUST BE DOWNLOADED
+## New files in this step — ALL 10 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
