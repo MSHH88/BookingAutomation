@@ -44,6 +44,46 @@ The module provides:
 
 ---
 
+## STEP 0 — Install Docker Desktop (prerequisite — do this ONCE)
+
+> **Skip this step if `docker --version` already prints a version number.**
+
+Docker Desktop is the application that provides the `docker` and `docker compose`
+commands on macOS.  Without it, every `docker` command will fail with
+`zsh: command not found: docker`.
+
+1. Go to **https://www.docker.com/products/docker-desktop/** and click
+   **"Download for Mac"**.
+   - Choose **"Apple Silicon"** (M1 / M2 / M3 / M4 chip) or **"Intel Chip"**
+     depending on your Mac.  If you're unsure: Apple menu → About This Mac →
+     look for "Apple M" (Silicon) or "Intel" in the chip/processor line.
+
+2. Open the downloaded `.dmg`, drag **Docker** to your **Applications** folder,
+   then launch Docker from Applications.
+
+3. Docker Desktop will show a whale icon in your menu bar.  Wait until the icon
+   stops animating and shows **"Docker Desktop is running"** in the menu.
+
+4. Verify in Terminal:
+
+   ```bash
+   docker --version && docker compose version
+   ```
+
+   Expected output (versions may differ):
+   ```
+   Docker version 27.x.x, build xxxxxxx
+   Docker Compose version v2.x.x
+   ```
+
+   If this works, Docker is installed.  Continue to STEP 1.
+
+> **Note:** Docker Desktop must be **running** (whale icon in menu bar) every
+> time you run `docker compose` commands.  If you restart your Mac and get
+> `command not found`, simply open Docker Desktop from Applications first.
+
+---
+
 ## STEP 1 — Delete old files (clean slate)
 
 ```bash
