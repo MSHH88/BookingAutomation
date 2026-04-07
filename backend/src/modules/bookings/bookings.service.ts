@@ -39,6 +39,7 @@ import {
   enqueuePostVisitReview,
   enqueueRestaurantReminder,
 } from '../whatsapp/whatsapp.service';
+import { enqueueReviewRequest } from '../reviews/reviews.queue';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -446,7 +447,17 @@ export async function completeBooking(
   );
 
   // ── Side-effects — log stubs (Phase 2 wires BullMQ) ──────────────────────
-  logger.info('Email job queued (stub)', { job: 'review-request', bookingId: id, delayHours: 36 });
+  // ── Review-request email (36 h delay) ────────────────────────────────────
+  // Fire-and-forget: queue errors are caught inside enqueueReviewRequest.
+  void enqueueReviewRequest({
+    bookingId:       id,
+    customerEmail:   booking.customer?.email ?? booking.lead?.email ?? '',
+    customerName:    booking.customer?.name ?? booking.lead?.name ?? 'Customer',
+    studioName:      config.STUDIO_NAME,
+    googleReviewUrl: config.GOOGLE_REVIEW_URL || '',
+    artistName:      booking.artist.user.name,
+    serviceName:     booking.services[0]?.service?.name,
+  });
 
   // ── WhatsApp — Message 4 (post-visit review, +2 h) ───────────────────────
   // Fire-and-forget: queue errors are caught inside the enqueue helper.

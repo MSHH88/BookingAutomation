@@ -15,16 +15,19 @@ import { logger } from './utils/logger';
 import { prisma } from './lib/prisma';
 import { disconnectRedis } from './lib/redis';
 import { startWhatsAppWorker, whatsappQueue } from './modules/whatsapp/whatsapp.queue';
+import { startReviewWorker }                  from './modules/reviews/reviews.processor';
+import { reviewQueue }                        from './modules/reviews/reviews.queue';
 
 // ─── Create server ────────────────────────────────────────────────────────────
 
 const server = http.createServer(app);
 
-// ─── Start WhatsApp BullMQ worker ─────────────────────────────────────────────
-// Must be started before requests are served so that any jobs enqueued during
-// startup (e.g. delayed reminders recovered from Redis) are processed.
-// The returned Worker instance is stored for graceful shutdown.
+// ─── Start BullMQ workers ─────────────────────────────────────────────────────
+// Workers must be started before requests are served so that any delayed jobs
+// recovered from Redis (e.g. review requests, WhatsApp reminders) are picked
+// up immediately.  The returned Worker instances are stored for graceful shutdown.
 const whatsappWorker = startWhatsAppWorker();
+const reviewWorker   = startReviewWorker();
 
 // ─── Start listening ──────────────────────────────────────────────────────────
 
@@ -99,11 +102,19 @@ async function gracefulShutdown(signal: string): Promise<void> {
     await whatsappQueue.close();
     logger.info('WhatsApp queue closed');
 
-    // 4. Disconnect from Prisma (PostgreSQL connection pool)
+    // 4. Stop the Review-Request BullMQ Worker
+    await reviewWorker.close();
+    logger.info('Review worker closed');
+
+    // 5. Close the Review-Request BullMQ Queue
+    await reviewQueue.close();
+    logger.info('Review queue closed');
+
+    // 6. Disconnect from Prisma (PostgreSQL connection pool)
     await prisma.$disconnect();
     logger.info('Prisma disconnected');
 
-    // 5. Disconnect from Redis
+    // 7. Disconnect from Redis
     await disconnectRedis();
     logger.info('Redis disconnected');
 
