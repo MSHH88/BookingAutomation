@@ -4,22 +4,28 @@
  * Tests cover:
  *
  *  ✓ enqueueReviewRequest (reviews.queue)
- *      — enqueues job with correct name, data, and 36-hour delay
- *      — allows custom delay override via delayMs param
- *      — skips when REVIEW_REQUEST_ENABLED feature flag is OFF
- *      — skips when customerEmail is empty
- *      — skips when customerEmail is absent (undefined)
- *      — gracefully handles queue.add failure (no throw)
- *      — does not include undefined optional fields in job data
- *      — sets artistName and serviceName when provided
+ *      — enqueues job with the correct BullMQ job name
+ *      — embeds all required fields in the job payload
+ *      — uses the default 36-hour delay
+ *      — respects a custom delayMs override
+ *      — includes optional artistName when provided
+ *      — includes optional serviceName when provided
+ *      — skips enqueueing when REVIEW_REQUEST_ENABLED feature flag is OFF
+ *      — skips enqueueing when customerEmail is empty string
+ *      — handles queue.add failure gracefully without throwing
+ *      — enqueueReviewRequest is exported and is a function
+ *      — reviewQueue singleton is exported and has an add method
  *
  *  ✓ processReviewJob (reviews.processor)
- *      — calls sendEmail with correct template key and variables
- *      — uses studioName as artistName fallback when artistName is absent
- *      — uses "appointment" as serviceName fallback when serviceName is absent
+ *      — calls sendEmail with the correct template key
+ *      — sends the email to the customer address
+ *      — passes all template variables to sendEmail
+ *      — falls back to studioName when artistName is absent
+ *      — falls back to "appointment" when serviceName is absent
  *      — completes silently (no throw) on TEMPLATE_NOT_FOUND
  *      — completes silently (no throw) on TEMPLATE_INACTIVE
  *      — re-throws on generic Resend/network errors (enables BullMQ retry)
+ *      — re-throws on unexpected Error objects (enables BullMQ retry)
  *
  *  ✓ startReviewWorker (reviews.processor)
  *      — creates a BullMQ Worker on the correct queue name

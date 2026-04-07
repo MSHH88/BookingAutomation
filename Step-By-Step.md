@@ -26,10 +26,12 @@ The module provides:
    workers + queues in order, draining in-flight jobs before the process exits.
 5. **bookings.service.ts** — the previous `"Email job queued (stub)"` log line
    is replaced with the real `enqueueReviewRequest(...)` call.
+6. **bookings.service.test.ts** — mock added for `reviews.queue` so the test
+   suite runs cleanly with zero Redis open-handle warnings.
 
 ---
 
-## New / modified files — ALL 5 MUST BE DOWNLOADED
+## New / modified files — ALL 6 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
@@ -37,16 +39,19 @@ The module provides:
 | 2 | `backend/src/modules/reviews/reviews.processor.ts` | NEW | Worker + processReviewJob + startReviewWorker |
 | 3 | `backend/src/modules/reviews/reviews.queue.test.ts` | NEW | **23 unit tests — DO NOT SKIP** |
 | 4 | `backend/src/modules/bookings/bookings.service.ts` | MODIFIED | Replaces stub log with real enqueueReviewRequest call |
-| 5 | `backend/src/server.ts` | MODIFIED | Starts review worker + graceful shutdown for review queue |
+| 5 | `backend/src/modules/bookings/bookings.service.test.ts` | MODIFIED | Adds reviews.queue mock — eliminates Redis open-handle warnings |
+| 6 | `backend/src/server.ts` | MODIFIED | Starts review worker + graceful shutdown for review queue |
 
-> **Missing file 3 means 23 fewer tests and broken coverage.** All 5 files must be downloaded.
+> **Missing file 3 means 23 fewer tests and broken coverage.**
+> **Missing file 5 causes Redis ECONNREFUSED errors + open-handle warnings every test run.**
+> All 6 files must be downloaded.
 
 ---
 
 ## STEP 1 — Delete old files (clean slate)
 
 ```bash
-rm -rf ~/Desktop/Automation/backend/src/modules/reviews && rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && rm -f ~/Desktop/Automation/backend/src/server.ts
+rm -rf ~/Desktop/Automation/backend/src/modules/reviews && rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && rm -f ~/Desktop/Automation/backend/src/server.ts
 ```
 
 ---
@@ -59,21 +64,21 @@ mkdir -p ~/Desktop/Automation/backend/src/modules/reviews
 
 ---
 
-## STEP 3 — Download all 5 files (one copy-paste block)
+## STEP 3 — Download all 6 files (one copy-paste block)
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reviews/reviews.queue.ts" -o ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reviews/reviews.processor.ts" -o ~/Desktop/Automation/backend/src/modules/reviews/reviews.processor.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reviews/reviews.queue.test.ts" -o ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.test.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/server.ts" -o ~/Desktop/Automation/backend/src/server.ts
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reviews/reviews.queue.ts" -o ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reviews/reviews.processor.ts" -o ~/Desktop/Automation/backend/src/modules/reviews/reviews.processor.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/reviews/reviews.queue.test.ts" -o ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.test.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/server.ts" -o ~/Desktop/Automation/backend/src/server.ts
 ```
 
 ---
 
-## STEP 4 — Verify all 5 files were downloaded (bytes > 0)
+## STEP 4 — Verify all 6 files were downloaded (bytes > 0)
 
 ```bash
-wc -c ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.ts ~/Desktop/Automation/backend/src/modules/reviews/reviews.processor.ts ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.test.ts ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts ~/Desktop/Automation/backend/src/server.ts
+wc -c ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.ts ~/Desktop/Automation/backend/src/modules/reviews/reviews.processor.ts ~/Desktop/Automation/backend/src/modules/reviews/reviews.queue.test.ts ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts ~/Desktop/Automation/backend/src/server.ts
 ```
 
-All 5 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
+All 6 files must show a byte count > 0. If any shows 0 bytes or is missing, re-run STEP 3.
 
 ---
 

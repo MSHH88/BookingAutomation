@@ -73,6 +73,16 @@ jest.mock('../whatsapp/whatsapp.service', () => ({
   enqueueRestaurantReminder: jest.fn().mockResolvedValue(undefined),
 }));
 
+// ─── Mock Review-request queue (prevents real BullMQ/Redis imports) ──────────
+// bookings.service.ts imports enqueueReviewRequest from reviews.queue.ts which
+// creates a module-level BullMQ Queue singleton.  Without this mock the real
+// Queue constructor runs, opening a Redis connection and causing
+// "worker process failed to exit gracefully" warnings in the test output.
+
+jest.mock('../reviews/reviews.queue', () => ({
+  enqueueReviewRequest: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as bookingsService from './bookings.service';
