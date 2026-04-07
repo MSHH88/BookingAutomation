@@ -30,10 +30,9 @@
  */
 import { Prisma } from '@prisma/client';
 
-import { prisma }   from '../../lib/prisma';
-import { AppError } from '../../errors/AppError';
-import { paginate } from '../../utils/paginate';
-import { logger }   from '../../utils/logger';
+import { prisma }                      from '../../lib/prisma';
+import { paginate, PaginatedResult }   from '../../utils/paginate';
+import { logger }                      from '../../utils/logger';
 import type {
   TrackEventBody,
   OverviewQuery,
@@ -102,6 +101,21 @@ export interface RevenueAnalyticsResult {
   byMonth:             Array<{ month: string; paid: number; issued: number }>;
   topServices:         Array<{ serviceName: string; revenue: number }>;
   averageInvoiceValue: number;
+}
+
+export interface AnalyticsEventItem {
+  id:          string;
+  eventType:   string;
+  leadId:      string | null;
+  sessionId:   string | null;
+  payload:     Prisma.JsonValue;
+  referrer:    string | null;
+  ipAddress:   string | null;
+  userAgent:   string | null;
+  utmSource:   string | null;
+  utmMedium:   string | null;
+  utmCampaign: string | null;
+  createdAt:   Date;
 }
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -595,7 +609,7 @@ export async function getRevenueAnalytics(query: RevenueAnalyticsQuery): Promise
 /**
  * Paginated raw AnalyticsEvent log (admin only).
  */
-export async function listEvents(query: EventsListQuery) {
+export async function listEvents(query: EventsListQuery): Promise<PaginatedResult<AnalyticsEventItem>> {
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
@@ -605,7 +619,7 @@ export async function listEvents(query: EventsListQuery) {
   }
   if (query.leadId) where.leadId = query.leadId;
 
-  return paginate(
+  return paginate<AnalyticsEventItem>(
     prisma.analyticsEvent,
     {
       where,
@@ -628,6 +642,3 @@ export async function listEvents(query: EventsListQuery) {
     { page: query.page, limit: query.limit },
   );
 }
-
-// Re-export AppError so tests can use it directly without a separate import
-export { AppError };

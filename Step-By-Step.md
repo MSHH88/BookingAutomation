@@ -30,7 +30,7 @@ The module provides:
 
 ---
 
-## New / modified files — ALL 2 MUST BE DOWNLOADED
+## New / modified files — ALL 6 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
@@ -39,9 +39,9 @@ The module provides:
 | 3 | `backend/src/modules/analytics/analytics.service.ts` | NEW | All DB aggregations + trackEvent |
 | 4 | `backend/src/modules/analytics/analytics.controller.ts` | NEW | HTTP handlers |
 | 5 | `backend/src/modules/analytics/analytics.routes.ts` | NEW | Express router (6 endpoints) |
-| 6 | `backend/src/modules/analytics/analytics.service.test.ts` | NEW | **38 unit tests — DO NOT SKIP** |
+| 6 | `backend/src/modules/analytics/analytics.service.test.ts` | NEW | **39 unit tests — DO NOT SKIP** |
 
-> **Missing file 6 means 38 fewer tests and broken coverage.** All 6 files must be downloaded.
+> **Missing file 6 means 39 fewer tests and broken coverage.** All 6 files must be downloaded.
 
 ---
 
@@ -99,7 +99,7 @@ Expected output:
 
 ```
 Test Suites: 16 passed, 16 total
-Tests:       518 passed, 518 total
+Tests:       519 passed, 519 total
 ```
 
 ---

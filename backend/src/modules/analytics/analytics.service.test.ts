@@ -48,7 +48,7 @@
  *      — attributes revenue to service via BookingService lines
  *      — falls back to booking.service when no BookingService lines
  *      — averageInvoiceValue is 0 when no invoices
- *      — topServices limited to 10 entries
+ *      — topServices is limited to 10 entries
  *      — topServices sorted by revenue descending
  *
  *  ✓ listEvents
@@ -611,6 +611,22 @@ describe('getRevenueAnalytics', () => {
     expect(result.averageInvoiceValue).toBe(0);
     expect(result.byMonth).toEqual([]);
     expect(result.topServices).toEqual([]);
+  });
+
+  it('topServices is limited to 10 entries', async () => {
+    // 12 invoices, each for a distinct service — result must be capped at 10
+    mockInvoiceFindMany.mockResolvedValue(
+      Array.from({ length: 12 }, (_, i) => ({
+        amount:    `${(i + 1) * 10}.00`,
+        status:    'PAID',
+        currency:  'GBP',
+        createdAt: new Date('2024-03-01'),
+        booking:   { service: { name: `Service ${String(i + 1).padStart(2, '0')}` }, services: [] },
+      })),
+    );
+
+    const result = await getRevenueAnalytics({});
+    expect(result.topServices).toHaveLength(10);
   });
 
   it('topServices is sorted by revenue descending', async () => {
