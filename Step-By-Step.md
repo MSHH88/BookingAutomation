@@ -203,11 +203,21 @@ cd ~/Desktop/Automation && docker compose up -d
 >
 > **Run this step** if you want to use the local Docker PostgreSQL for development.
 
-Set the local database URL in `backend/.env`:
+Set the local database URL in `backend/.env`.
 
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/automation_dev
-```
+- **Default / Option A** (port 5432 is free):
+  ```env
+  DATABASE_URL=postgresql://postgres:postgres@localhost:5432/automation_dev
+  ```
+
+- **Option B** (you redirected Docker postgres to host port 5433):
+  ```env
+  DATABASE_URL=postgresql://postgres:postgres@localhost:5433/automation_dev
+  ```
+
+> ⚠️ Prisma always reads `DATABASE_URL` from the `backend/.env` file (you will see
+> *"Environment variables loaded from .env"* in the output).  Setting it in the
+> terminal alone is **not enough** — you must update the file.
 
 Then apply all Prisma migrations to the Docker PostgreSQL:
 
