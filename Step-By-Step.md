@@ -26,9 +26,9 @@ Two layers are provided:
 | 4 | `backend/src/modules/notifications/notifications.service.ts` | NEW | Template CRUD + sendEmail + sendTestEmail |
 | 5 | `backend/src/modules/notifications/notifications.controller.ts` | NEW | HTTP handlers |
 | 6 | `backend/src/modules/notifications/notifications.routes.ts` | NEW | Express router (6 endpoints) |
-| 7 | `backend/src/modules/notifications/notifications.service.test.ts` | NEW | **29 unit tests — DO NOT SKIP** |
+| 7 | `backend/src/modules/notifications/notifications.service.test.ts` | NEW | **31 unit tests — DO NOT SKIP** |
 
-> **Missing file 7 means 29 fewer tests.** Every file must be downloaded.
+> **Missing file 7 means 31 fewer tests.** Every file must be downloaded.
 
 ---
 
@@ -86,7 +86,7 @@ Expected output:
 
 ```
 Test Suites: 13 passed, 13 total
-Tests:       402 passed, 402 total
+Tests:       404 passed, 404 total
 ```
 
 ---
@@ -216,3 +216,4 @@ Response:
 | BUG-B (notifications.service.ts) | `deleteTemplate` eliminated extra `findUnique` round-trip — `update` now returns full `templateDetailSelect` directly (3 → 2 DB queries) |
 | BUG-C (notifications.service.ts) | `sendTestEmail` removed redundant `as Record<string, unknown>` cast — `body.variables` is already correctly typed by Zod |
 | BUG-D/E (notifications.service.test.ts) | Test mocks updated to match the new single-round-trip update pattern; unreachable DB-race test cases removed |
+| BUG-F (notifications.service.ts) | `sendEmail` + `sendTestEmail`: subject-line compilation now uses `{ noEscape: true }` — Handlebars default HTML-escaping turned `&` → `&amp;` and `'` → `&#x27;` in plain-text email subjects; 2 regression tests added |

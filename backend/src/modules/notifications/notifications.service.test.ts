@@ -453,6 +453,27 @@ describe('sendEmail', () => {
     const sendCall = mockResendSend.mock.calls[0][0];
     expect(sendCall.subject).toBe('Account created');
   });
+
+  it('does not HTML-escape special characters in the rendered subject line', async () => {
+    const specialTemplate = {
+      id:       'tpl_special',
+      subject:  'Booking confirmed for {{customerName}}',
+      htmlBody: '<p>Hi {{customerName}},</p>',
+      isActive: true,
+    };
+    mockTemplateFindUnique.mockResolvedValueOnce(specialTemplate);
+    mockResendSend.mockResolvedValue({ data: { id: 'ok' }, error: null });
+
+    await notificationsService.sendEmail('booking-confirmed', 'test@example.com', {
+      customerName: "O'Brien & Co",
+    });
+
+    const sendCall = mockResendSend.mock.calls[0][0];
+    // Subject is plain text — raw characters must appear, not HTML entities
+    expect(sendCall.subject).toBe("Booking confirmed for O'Brien & Co");
+    expect(sendCall.subject).not.toContain('&amp;');
+    expect(sendCall.subject).not.toContain('&#x27;');
+  });
 });
 
 // ─── sendTestEmail ────────────────────────────────────────────────────────────
@@ -527,5 +548,24 @@ describe('sendTestEmail', () => {
 
     expect(result.to).toBe('dev@studio.com');
     expect(mockResendSend).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not HTML-escape special characters in the rendered subject line', async () => {
+    mockTemplateFindUnique.mockResolvedValueOnce({
+      ...template,
+      subject:  'Test booking for {{name}}',
+      htmlBody: '<p>Dear {{name}},</p>',
+    });
+    mockResendSend.mockResolvedValue({ data: { id: 'r4' }, error: null });
+
+    const result = await notificationsService.sendTestEmail('tpl_1', {
+      to:        'test@example.com',
+      variables: { name: "Smith & O'Brien" },
+    });
+
+    // Subject is plain text — raw characters must appear, not HTML entities
+    expect(result.subject).toBe("Test booking for Smith & O'Brien");
+    expect(result.subject).not.toContain('&amp;');
+    expect(result.subject).not.toContain('&#x27;');
   });
 });

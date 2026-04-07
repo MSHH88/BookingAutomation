@@ -292,7 +292,9 @@ export async function sendEmail(
   }
 
   // ── Handlebars compile ────────────────────────────────────────────────────
-  const renderedSubject = Handlebars.compile(template.subject)(variables);
+  // noEscape for subject: subjects are plain text — HTML entities like &amp;
+  // or &#x27; must not appear in the email subject field.
+  const renderedSubject = Handlebars.compile(template.subject, { noEscape: true })(variables);
   const renderedHtml    = Handlebars.compile(template.htmlBody)(variables);
 
   const fromAddress = config.RESEND_FROM_EMAIL || 'noreply@bookingautomation.io';
@@ -352,7 +354,7 @@ export async function sendTestEmail(
     throw new AppError(404, 'TEMPLATE_NOT_FOUND', `Email template '${id}' not found`);
   }
 
-  const renderedSubject = Handlebars.compile(template.subject)(body.variables);
+  const renderedSubject = Handlebars.compile(template.subject, { noEscape: true })(body.variables);
   const renderedHtml    = Handlebars.compile(template.htmlBody)(body.variables);
 
   const fromAddress = config.RESEND_FROM_EMAIL || 'noreply@bookingautomation.io';
