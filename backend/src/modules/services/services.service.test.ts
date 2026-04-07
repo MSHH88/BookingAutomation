@@ -253,7 +253,7 @@ describe('updateCategory', () => {
     expect(result).toEqual(updated);
   });
 
-  it('sets description to null when passed explicitly', async () => {
+  it('does not include description in update data when description is undefined', async () => {
     mockCategoryFindUnique.mockResolvedValue({ id: 'cat_1' });
     mockCategoryUpdate.mockResolvedValue({ ...baseCategory, description: null });
 

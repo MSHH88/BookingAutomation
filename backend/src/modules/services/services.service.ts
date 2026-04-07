@@ -128,6 +128,12 @@ const serviceDetailSelect = {
   },
 } satisfies Prisma.ServiceSelect;
 
+/**
+ * Inferred type for a paginated service list item.
+ * Derived from serviceListSelect so it stays in sync with the query shape.
+ */
+type ServiceListItem = Prisma.ServiceGetPayload<{ select: typeof serviceListSelect }>;
+
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
 /**
@@ -268,7 +274,7 @@ export async function deleteCategory(id: string) {
  */
 export async function listServices(
   query: ListServicesQuery,
-): Promise<PaginatedResult<unknown>> {
+): Promise<PaginatedResult<ServiceListItem>> {
   const where: Prisma.ServiceWhereInput = {};
 
   if (query.categoryId) {
@@ -287,7 +293,7 @@ export async function listServices(
     where.artists = { some: { artistId: query.artistId } };
   }
 
-  return paginate(
+  return paginate<ServiceListItem>(
     prisma.service,
     {
       where,
