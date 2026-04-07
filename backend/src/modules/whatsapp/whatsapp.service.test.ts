@@ -391,7 +391,7 @@ describe('enqueueBookingConfirmed', () => {
   });
 
   it('handles queue.add failure gracefully without throwing', async () => {
-    mockQueueAdd.mockRejectedValue(new Error('Redis unavailable'));
+    mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
     await expect(enqueueBookingConfirmed(baseParams)).resolves.toBeUndefined();
   });
 });
@@ -442,6 +442,11 @@ describe('enqueuePostVisitReview', () => {
   it('handles queue.add failure gracefully without throwing', async () => {
     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
     await expect(enqueuePostVisitReview(baseParams)).resolves.toBeUndefined();
+  });
+
+  it('does not enqueue when googleReviewUrl is empty (avoids broken link in message)', async () => {
+    await enqueuePostVisitReview({ ...baseParams, googleReviewUrl: '' });
+    expect(mockQueueAdd).not.toHaveBeenCalled();
   });
 });
 

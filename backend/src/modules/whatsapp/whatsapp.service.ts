@@ -188,10 +188,14 @@ export async function enqueueBookingConfirmed(params: BookingConfirmedParams): P
  * Sent 2 hours after a booking is marked COMPLETED, prompting the customer
  * to leave a Google review.
  *
+ * The message is silently skipped when `googleReviewUrl` is absent or empty —
+ * sending a review link without a URL produces a broken customer experience.
+ *
  * Called from: bookings.service.ts → completeBooking side-effect
  */
 export async function enqueuePostVisitReview(params: PostVisitReviewParams): Promise<void> {
   if (!canSend(params.preferWhatsApp, params.phone)) return;
+  if (!params.googleReviewUrl) return; // skip — broken message if URL is empty
 
   const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 

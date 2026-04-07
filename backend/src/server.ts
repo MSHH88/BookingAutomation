@@ -14,10 +14,17 @@ import { app } from './app';
 import { logger } from './utils/logger';
 import { prisma } from './lib/prisma';
 import { disconnectRedis } from './lib/redis';
+import { startWhatsAppWorker, whatsappQueue } from './modules/whatsapp/whatsapp.queue';
 
 // ─── Create server ────────────────────────────────────────────────────────────
 
 const server = http.createServer(app);
+
+// ─── Start WhatsApp BullMQ worker ─────────────────────────────────────────────
+// Must be started before requests are served so that any jobs enqueued during
+// startup (e.g. delayed reminders recovered from Redis) are processed.
+// The returned Worker instance is stored for graceful shutdown.
+const whatsappWorker = startWhatsAppWorker();
 
 // ─── Start listening ──────────────────────────────────────────────────────────
 
@@ -84,11 +91,19 @@ async function gracefulShutdown(signal: string): Promise<void> {
     await Promise.race([closeHttp, timeout]);
     logger.info('HTTP server closed');
 
-    // 2. Disconnect from Prisma (PostgreSQL connection pool)
+    // 2. Stop the WhatsApp BullMQ Worker (wait for in-flight jobs to finish)
+    await whatsappWorker.close();
+    logger.info('WhatsApp worker closed');
+
+    // 3. Close the WhatsApp BullMQ Queue (releases its Redis connection)
+    await whatsappQueue.close();
+    logger.info('WhatsApp queue closed');
+
+    // 4. Disconnect from Prisma (PostgreSQL connection pool)
     await prisma.$disconnect();
     logger.info('Prisma disconnected');
 
-    // 3. Disconnect from Redis
+    // 5. Disconnect from Redis
     await disconnectRedis();
     logger.info('Redis disconnected');
 

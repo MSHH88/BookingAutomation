@@ -98,22 +98,27 @@ const DAYS = [
 ] as const;
 
 /**
- * Formats a date portion of an ISO-8601 string.
+ * Formats a date portion of an ISO-8601 string using UTC.
  * Example: "Monday, 1 May 2026"
+ *
+ * UTC is used explicitly so that message bodies are consistent regardless of
+ * the server's local timezone — ISO-8601 strings stored in the DB are UTC.
  */
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
 /**
- * Formats a time portion of an ISO-8601 string.
+ * Formats a time portion of an ISO-8601 string using UTC.
  * Example: "14:30"
+ *
+ * UTC is used explicitly — see formatDate rationale above.
  */
 function formatTime(iso: string): string {
   const d   = new Date(iso);
-  const h   = d.getHours().toString().padStart(2, '0');
-  const min = d.getMinutes().toString().padStart(2, '0');
+  const h   = d.getUTCHours().toString().padStart(2, '0');
+  const min = d.getUTCMinutes().toString().padStart(2, '0');
   return `${h}:${min}`;
 }
 
