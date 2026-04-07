@@ -31,9 +31,9 @@ The module provides:
 | 3 | `backend/src/modules/waitlist/waitlist.service.ts` | NEW | Business logic + DB access |
 | 4 | `backend/src/modules/waitlist/waitlist.controller.ts` | NEW | HTTP handlers |
 | 5 | `backend/src/modules/waitlist/waitlist.routes.ts` | NEW | Express router (6 endpoints) |
-| 6 | `backend/src/modules/waitlist/waitlist.service.test.ts` | NEW | **34 unit tests — DO NOT SKIP** |
+| 6 | `backend/src/modules/waitlist/waitlist.service.test.ts` | NEW | **35 unit tests — DO NOT SKIP** |
 
-> **Missing file 6 means 34 fewer tests.** Every file must be downloaded.
+> **Missing file 6 means 35 fewer tests.** Every file must be downloaded.
 
 ---
 
@@ -91,7 +91,7 @@ Expected output:
 
 ```
 Test Suites: 14 passed, 14 total
-Tests:       438 passed, 438 total
+Tests:       439 passed, 439 total
 ```
 
 ---
@@ -147,6 +147,7 @@ and a warning is logged.
 | `serviceId` | "svc_456" |
 | `requestedDate` | "2026-05-01" |
 | `expiresInHours` | "72" |
+| `expiresAt` | "2026-04-10T10:00:00.000Z" |
 | `customMessage` | "Alex has a Saturday slot open!" |
 
 ### Create the template
@@ -160,7 +161,7 @@ Content-Type: application/json
   "key": "waitlist-slot-available",
   "subject": "Good news {{customerName}} — a slot just opened up!",
   "htmlBody": "<h1>Hi {{customerName}},</h1><p>A slot is now available. You have {{expiresInHours}} hours to book before it goes to the next person.</p>{{#if customMessage}}<p>{{customMessage}}</p>{{/if}}",
-  "variables": ["customerName", "artistId", "serviceId", "requestedDate", "expiresInHours", "customMessage"],
+  "variables": ["customerName", "artistId", "serviceId", "requestedDate", "expiresInHours", "expiresAt", "customMessage"],
   "isActive": true
 }
 ```

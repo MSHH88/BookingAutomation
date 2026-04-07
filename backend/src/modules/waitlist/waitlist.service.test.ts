@@ -38,13 +38,14 @@
  *
  *  ✓ notifyWaitlistEntry
  *      — WAITING entry: status becomes NOTIFIED, notifiedAt + expiresAt set
- *      — NOTIFIED entry: can re-notify (updates expiresAt window)
+ *      — NOTIFIED entry: can re-notify (updates expiresAt window, verified by delta)
  *      — expiresAt = now + expiresInHours (default 72 h)
  *      — custom expiresInHours (24 h) applied correctly
- *      — sendEmail called with correct template key and variables
+ *      — sendEmail called with correct template key and variables (incl. expiresAt)
  *      — email fails: DB update preserved, returns updated entry (best-effort)
  *      — BOOKED entry → 409 WAITLIST_CANNOT_NOTIFY
  *      — EXPIRED entry → 409 WAITLIST_CANNOT_NOTIFY
+ *      — CANCELLED entry → 409 WAITLIST_CANNOT_NOTIFY
  *      — not found → 404 WAITLIST_ENTRY_NOT_FOUND
  *
  *  ✓ deleteWaitlistEntry
@@ -443,7 +444,7 @@ describe('notifyWaitlistEntry', () => {
     );
   });
 
-  it('can re-notify a NOTIFIED entry (updates expiresAt window)', async () => {
+  it('can re-notify a NOTIFIED entry and calculates new expiresAt (48 h window)', async () => {
     mockWaitlistFindUnique.mockResolvedValueOnce({ ...baseEntry, status: 'NOTIFIED' });
     mockWaitlistUpdate.mockResolvedValue(notifiedEntry);
     mockSendEmail.mockResolvedValue(undefined);
@@ -452,6 +453,10 @@ describe('notifyWaitlistEntry', () => {
 
     expect(mockWaitlistUpdate).toHaveBeenCalledTimes(1);
     expect(mockSendEmail).toHaveBeenCalledTimes(1);
+
+    const updateArg = mockWaitlistUpdate.mock.calls[0][0].data;
+    expect(updateArg.expiresAt.getTime() - updateArg.notifiedAt.getTime())
+      .toBe(48 * 60 * 60 * 1000);
   });
 
   it('calculates expiresAt as now + expiresInHours (default 72 h)', async () => {
@@ -505,6 +510,7 @@ describe('notifyWaitlistEntry', () => {
       expect.objectContaining({
         customerName:  'Jane Smith',
         expiresInHours: '72',
+        expiresAt:      expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
         customMessage:  'Alex has a slot open Saturday!',
       }),
     );
@@ -541,6 +547,17 @@ describe('notifyWaitlistEntry', () => {
     ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_CANNOT_NOTIFY' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
+  });
+
+  it('throws 409 WAITLIST_CANNOT_NOTIFY for CANCELLED entry', async () => {
+    mockWaitlistFindUnique.mockResolvedValueOnce({ ...baseEntry, status: 'CANCELLED' });
+
+    await expect(
+      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }),
+    ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_CANNOT_NOTIFY' });
+
+    expect(mockWaitlistUpdate).not.toHaveBeenCalled();
+    expect(mockSendEmail).not.toHaveBeenCalled();
   });
 
   it('throws 404 WAITLIST_ENTRY_NOT_FOUND when entry does not exist', async () => {

@@ -302,6 +302,7 @@ export async function notifyWaitlistEntry(
         ? entry.requestedDate.toISOString().slice(0, 10)
         : '',
       expiresInHours: String(body.expiresInHours),
+      expiresAt:      expiresAt.toISOString(),
       customMessage:  body.customMessage ?? '',
     });
   } catch (emailError) {
