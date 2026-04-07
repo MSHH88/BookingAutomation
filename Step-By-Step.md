@@ -151,6 +151,51 @@ Both `bookingautomation_postgres` and `bookingautomation_redis` must show
 
 ---
 
+### Troubleshooting STEP 5 — port 5432 already in use
+
+If `docker compose up -d` fails with:
+
+```
+Error response from daemon: ports are not available: exposing port TCP 0.0.0.0:5432 -> 127.0.0.1:0: listen tcp 0.0.0.0:5432: bind: address already in use
+```
+
+Your Mac already has a PostgreSQL process listening on port 5432 (e.g. Postgres.app,
+Homebrew postgres, or a previous installation).  You have two options:
+
+**Option A — stop the local PostgreSQL and free port 5432** (simplest)
+
+```bash
+# Homebrew-managed postgres
+brew services stop postgresql@16   # adjust version number as needed
+
+# OR Postgres.app — quit the app from the menu bar elephant icon, then:
+# Applications → Postgres.app → right-click → Quit
+```
+
+Then re-run `docker compose up -d`.
+
+**Option B — run the Docker postgres on a different host port** (non-destructive)
+
+Create a `.env` file in the **project root** (same folder as `docker-compose.yml`):
+
+```bash
+echo "POSTGRES_PORT=5433" > ~/Desktop/Automation/.env
+```
+
+Then re-run:
+
+```bash
+cd ~/Desktop/Automation && docker compose up -d
+```
+
+> If you use Option B, update `DATABASE_URL` in `backend/.env` to use port 5433:
+>
+> ```env
+> DATABASE_URL=postgresql://postgres:postgres@localhost:5433/automation_dev
+> ```
+
+---
+
 ## STEP 5b — Apply database migrations (first time only)
 
 > **Skip this step** if your `backend/.env` already points to your Neon cloud
