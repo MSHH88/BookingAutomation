@@ -40,9 +40,10 @@ back to the `artists` table automatically.
 **No schema migration required** — `Booking.calendarEventId` and the three
 `Artist.calendar*` columns already exist from earlier steps.
 
-**Bug fixes included:**
+**Bug fixes included (audit complete — 0 bugs remaining):**
 - BUG-A: `callbackSchema` required `code` but Google omits it on denial — made optional, controller guards `!code` after the `error` check
-- BUG-B: JSDoc test count in `calendar.service.test.ts` corrected (37 → 36)
+- BUG-B: `deleteCalendarEvent` used `GaxiosError.code` (typed `string | number`) for 404/410 detection — fixed to use `GaxiosError.status` (always a number, the dedicated HTTP status field)
+- BUG-C: JSDoc test count in `calendar.service.ts` corrected (37 → 36)
 - GAP-A: Added missing `calendar.test.ts` routes integration test (15 tests covering all 4 endpoints, including the OAuth denial path)
 
 ---

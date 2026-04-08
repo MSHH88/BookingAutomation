@@ -33,7 +33,7 @@
  *   practitioners see studio bookings alongside personal appointments without
  *   manual copy-paste.
  *
- * Tests: calendar.service.test.ts (37 tests across 7 describes)
+ * Tests: calendar.service.test.ts (36 tests across 7 describes)
  */
 import { Credentials }   from 'google-auth-library';
 import { prisma }        from '../../lib/prisma';

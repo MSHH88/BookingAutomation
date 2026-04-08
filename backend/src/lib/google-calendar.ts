@@ -212,7 +212,7 @@ export async function deleteCalendarEvent(
     logger.info('Google Calendar event deleted', { eventId });
   } catch (err: unknown) {
     // 404 = event was already deleted manually; not an error
-    const status = (err as { code?: number }).code;
+    const status = (err as { status?: number }).status;
     if (status === 404 || status === 410) {
       logger.warn('Google Calendar event not found during delete (already removed)', { eventId });
       return;
