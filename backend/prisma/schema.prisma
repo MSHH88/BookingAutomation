@@ -77,6 +77,7 @@ model User {
   marketingConsent Boolean   @default(false)
   gdprConsentAt    DateTime?
   loyaltyBalance   Int       @default(0)
+  stripeCustomerId String?
   isActive         Boolean   @default(true)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -269,6 +270,7 @@ model Booking {
   policyAcceptedAt     DateTime?
   policyVersion        String?
   rescheduledFrom      String?
+  stripePaymentIntentId String?
   confirmedAt          DateTime?
   completedAt          DateTime?
   cancelledAt          DateTime?

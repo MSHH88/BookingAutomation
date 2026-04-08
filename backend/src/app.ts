@@ -24,6 +24,7 @@ import { notificationRoutes }  from './modules/notifications/notifications.route
 import { waitlistRoutes }      from './modules/waitlist/waitlist.routes';
 import { whatsappRoutes }      from './modules/whatsapp/whatsapp.routes';
 import { analyticsRoutes }    from './modules/analytics/analytics.routes';
+import { paymentsRoutes }     from './modules/payments/payments.routes';
 
 const app = express();
 
@@ -87,6 +88,11 @@ app.use(globalRateLimiter);
 app.use(cookieParser());
 
 // ─── 5. Body parsers ──────────────────────────────────────────────────────────
+// The Stripe webhook endpoint needs the RAW, un-parsed request body so that
+// stripe.webhooks.constructEvent() can verify the HMAC signature.  We mount
+// express.raw() on that specific path BEFORE express.json() so the webhook
+// body is preserved as a Buffer, while every other route still gets parsed JSON.
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 
 // ─── 6. Request logger + correlation ID ──────────────────────────────────────
@@ -121,6 +127,7 @@ app.use('/api/notifications', notificationRoutes); // Step 1.15
 app.use('/api/waitlist',      waitlistRoutes);     // Step 1.16
 app.use('/api/whatsapp',      whatsappRoutes);     // Step 1.17
 app.use('/api/analytics',    analyticsRoutes);    // Step 1.18
+app.use('/api/payments',     paymentsRoutes);      // Step 1.23
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
