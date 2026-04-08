@@ -19,7 +19,7 @@ import { requireRole }    from '../../middleware/requireRole';
 import { requireFeature } from '../../middleware/requireFeature';
 import * as ctrl          from './payments.controller';
 
-export const paymentRoutes = Router();
+const paymentRoutes = Router();
 
 // All payments routes are gated behind the ONLINE_PAYMENT_ENABLED feature flag
 paymentRoutes.use(requireFeature('ONLINE_PAYMENT_ENABLED'));

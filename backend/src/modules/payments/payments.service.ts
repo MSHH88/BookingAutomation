@@ -98,6 +98,38 @@ export async function createPaymentIntent(data: CreatePaymentIntentBody) {
     );
   }
 
+  // Idempotency guard: reuse an existing PaymentIntent if the deposit is not yet paid.
+  // This prevents duplicate intents when the caller retries before the customer completes
+  // payment (e.g., page refresh, network error).
+  if (booking.stripePaymentIntentId) {
+    const existing = await stripe.paymentIntents.retrieve(booking.stripePaymentIntentId);
+    const reusableStatuses = [
+      'requires_payment_method',
+      'requires_confirmation',
+      'requires_action',
+      'processing',
+    ];
+    if (reusableStatuses.includes(existing.status)) {
+      logger.info('Reusing existing PaymentIntent', {
+        bookingId:       booking.id,
+        paymentIntentId: existing.id,
+        status:          existing.status,
+      });
+      return {
+        clientSecret:    existing.client_secret,
+        paymentIntentId: existing.id,
+        amountPence:     existing.amount,
+        currency:        data.currency,
+      };
+    }
+    // Existing intent is cancelled or failed — fall through to create a fresh one.
+    logger.info('Existing PaymentIntent is not reusable — creating a new one', {
+      bookingId:        booking.id,
+      existingIntentId: existing.id,
+      existingStatus:   existing.status,
+    });
+  }
+
   // 2. Calculate deposit amount in pence
   const amountPence = await resolveDepositPence(booking);
 
@@ -240,6 +272,7 @@ export async function getPaymentStatus(bookingId: string) {
     bookingId:             booking.id,
     bookingStatus:         booking.status,
     depositAmount:         booking.depositAmount,
+    totalAmount:           booking.totalAmount,
     depositPaidAt:         booking.depositPaidAt,
     depositRefunded:       booking.depositRefunded,
     stripePaymentIntentId: booking.stripePaymentIntentId,

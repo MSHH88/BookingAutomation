@@ -12,6 +12,11 @@
  *      — creates new Stripe customer when none found by email
  *      — reuses existing Stripe customer found by email
  *      — persists stripeCustomerId on User when customerId present
+ *      — skips customer lookup when booking has no customer or lead email
+ *      — sets setup_future_usage when saveCard is true
+ *      — persists stripePaymentIntentId on the booking
+ *      — reuses existing PaymentIntent when one is still in a payable state
+ *      — creates new PaymentIntent when existing one is not reusable (cancelled)
  *      — throws 404 when booking not found
  *      — throws 409 when deposit already paid
  *      — throws 400 when booking status is CANCELLED
@@ -32,7 +37,7 @@
  *      — unknown event types are debug-logged without DB change
  *
  *  ✓ getPaymentStatus
- *      — returns full status including live Stripe status
+ *      — returns full status including live Stripe status and totalAmount
  *      — returns null stripeStatus when no paymentIntentId
  *      — degrades gracefully when Stripe API throws
  *      — throws 404 when booking not found
@@ -46,7 +51,7 @@
  *      — throws 409 when deposit already refunded
  *      — throws 400 when payment intent has no charge
  *
- * 32 tests total
+ * 39 tests total
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────
@@ -277,6 +282,48 @@ describe('createPaymentIntent', () => {
     );
   });
 
+  it('reuses existing PaymentIntent when one is still in a payable state', async () => {
+    mockBookingFindUnique.mockResolvedValue(
+      makeBooking({ stripePaymentIntentId: PI_ID }),
+    );
+    mockRetrieveIntent.mockResolvedValue({
+      id:            PI_ID,
+      status:        'requires_payment_method',
+      amount:        10_000,
+      client_secret: 'secret_existing',
+    });
+
+    const result = await paymentsService.createPaymentIntent({
+      bookingId: BOOKING_ID,
+      currency:  'GBP',
+      saveCard:  false,
+    });
+
+    expect(result.paymentIntentId).toBe(PI_ID);
+    expect(result.clientSecret).toBe('secret_existing');
+    expect(result.amountPence).toBe(10_000);
+    expect(mockCreateIntent).not.toHaveBeenCalled();
+  });
+
+  it('creates a new PaymentIntent when existing one is not reusable (cancelled)', async () => {
+    const NEW_PI_ID = 'pi_new_999';
+    mockBookingFindUnique.mockResolvedValue(
+      makeBooking({ stripePaymentIntentId: PI_ID }),
+    );
+    mockRetrieveIntent.mockResolvedValue({ id: PI_ID, status: 'canceled', amount: 10_000 });
+    mockCreateIntent.mockResolvedValue({ id: NEW_PI_ID, client_secret: 'new_secret' });
+
+    const result = await paymentsService.createPaymentIntent({
+      bookingId: BOOKING_ID,
+      currency:  'GBP',
+      saveCard:  false,
+    });
+
+    expect(result.paymentIntentId).toBe(NEW_PI_ID);
+    expect(result.clientSecret).toBe('new_secret');
+    expect(mockCreateIntent).toHaveBeenCalled();
+  });
+
   it('throws 404 when booking not found', async () => {
     mockBookingFindUnique.mockResolvedValue(null);
 
@@ -490,7 +537,7 @@ describe('handleWebhookEvent', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('getPaymentStatus', () => {
-  it('returns full payment status including live Stripe status', async () => {
+  it('returns full payment status including live Stripe status and totalAmount', async () => {
     mockBookingFindUnique.mockResolvedValue({
       id:                    BOOKING_ID,
       status:                'CONFIRMED',
@@ -506,6 +553,7 @@ describe('getPaymentStatus', () => {
 
     expect(result.stripeStatus).toBe('succeeded');
     expect(result.depositPaidAt).toBeDefined();
+    expect(result.totalAmount).toBe('500.00');
   });
 
   it('returns null stripeStatus when booking has no paymentIntentId', async () => {
@@ -522,6 +570,7 @@ describe('getPaymentStatus', () => {
     const result = await paymentsService.getPaymentStatus(BOOKING_ID);
 
     expect(result.stripeStatus).toBeNull();
+    expect(result.totalAmount).toBe('200.00');
     expect(mockRetrieveIntent).not.toHaveBeenCalled();
   });
 

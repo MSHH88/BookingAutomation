@@ -5,7 +5,7 @@ Adds a production-grade Stripe payment layer to the booking system.
 **What this step delivers:**
 - `POST /api/payments/create-intent` — ADMIN creates a deposit PaymentIntent for a booking
 - `POST /api/payments/webhook` — Stripe webhook receiver (signature-verified, raw body)
-- `GET  /api/payments/:bookingId/status` — live payment status from Stripe + DB
+- `GET  /api/payments/:bookingId/status` — live payment status from Stripe + DB (incl. totalAmount)
 - `POST /api/payments/:bookingId/refund` — full or partial deposit refund
 
 **Feature flag:** `ONLINE_PAYMENT_ENABLED`
@@ -14,6 +14,7 @@ Adds a production-grade Stripe payment layer to the booking system.
 
 **Business logic:**
 - Deposit amount = `booking.depositAmount` if set, else `StudioSettings.depositPercentage × totalAmount` (default 20%)
+- **Idempotency:** if a PaymentIntent already exists for an unpaid booking, the existing client_secret is returned (no duplicate charges); only creates a new intent when the previous one was cancelled/failed
 - Auto-creates or reuses a Stripe Customer by payer email; caches as `User.stripeCustomerId`
 - Webhook: `payment_intent.succeeded` → sets `depositPaidAt`, promotes PENDING→CONFIRMED, marks UNPAID invoices PAID
 - Webhook: `charge.refunded` → sets `depositRefunded = true`
@@ -144,7 +145,8 @@ Expected output:
 
 ```
 Test Suites: 32 passed, 32 total
-Tests:       788 passed, 788 total
+Tests:       790 passed, 790 total
 ```
 
-> **All 788 tests must pass with 0 failures.**
+> **All 790 tests must pass with 0 failures.**
+

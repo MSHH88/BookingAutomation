@@ -28,7 +28,7 @@
  *      — 401 unauthenticated
  *      — 409 already refunded
  *
- * 13 tests total
+ * 14 tests total
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────
