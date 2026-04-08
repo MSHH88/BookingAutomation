@@ -2,7 +2,7 @@
  * Integration tests for /api/analytics — Step 1.22
  *
  * Coverage:
- *  ✓ POST /api/analytics/events    — 200 public (no auth required)
+ *  ✓ POST /api/analytics/events    — 201 public (no auth required)
  *  ✓ GET  /api/analytics/overview  — 200 ADMIN, 401 unauth, 403 non-ADMIN
  *  ✓ GET  /api/analytics/leads     — 200 ADMIN
  *  ✓ GET  /api/analytics/bookings  — 200 ADMIN
@@ -99,7 +99,7 @@ beforeEach(() => jest.clearAllMocks());
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('POST /api/analytics/events', () => {
-  it('200 — public visitor can track an event without auth', async () => {
+  it('201 — public visitor can track an event without auth', async () => {
     (prisma.analyticsEvent.create as jest.Mock).mockResolvedValue({ id: 'ae_1' });
     (prisma.lead.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -107,11 +107,11 @@ describe('POST /api/analytics/events', () => {
       .post('/api/analytics/events')
       .send({ eventType: 'page_view', page: '/home' });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
-  it('200 — event with optional leadId (lead found)', async () => {
+  it('201 — event with optional leadId (lead found)', async () => {
     (prisma.analyticsEvent.create as jest.Mock).mockResolvedValue({ id: 'ae_1' });
     (prisma.lead.findUnique as jest.Mock).mockResolvedValue({ id: 'clhjgz3c40000fkiufwsxc58c' });
 
@@ -119,7 +119,7 @@ describe('POST /api/analytics/events', () => {
       .post('/api/analytics/events')
       .send({ eventType: 'lead_form_started', leadId: 'clhjgz3c40000fkiufwsxc58c' });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
   });
 
   it('400 — missing eventType', async () => {

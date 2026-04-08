@@ -93,8 +93,9 @@ describe('POST /api/quotes', () => {
   it('201 — ARTIST creates a DRAFT quote', async () => {
     (prisma.artist.findFirst  as jest.Mock).mockResolvedValue(baseArtist);
     (prisma.lead.findUnique   as jest.Mock).mockResolvedValue(baseLead);
-    (prisma.quote.findUnique  as jest.Mock).mockResolvedValue(null);
-    (prisma.quote.create      as jest.Mock).mockResolvedValue(baseQuote);
+    // fetchQuoteDetail (called after create) needs to return the full quote
+    (prisma.quote.findUnique  as jest.Mock).mockResolvedValueOnce(baseQuote);
+    (prisma.quote.create      as jest.Mock).mockResolvedValue({ id: 'q_1' });
 
     const res = await request(app)
       .post('/api/quotes')

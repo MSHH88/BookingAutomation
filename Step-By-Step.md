@@ -1,255 +1,145 @@
-# Step 1.21 — Docker Compose (Local Dev Environment) — Setup Guide
+# Step 1.22 — Integration Test Suite — Setup Guide
 
 **What this step adds:**
 
-A production-grade local development environment that starts PostgreSQL 16 and
-Redis 7 with a single command.  Every major booking platform runs exactly this
-infrastructure under the hood — Fresha, Booksy, Mindbody, Acuity, and Square
-Appointments all use PostgreSQL as their primary store and Redis as their async
-job / caching layer.
+A comprehensive HTTP-layer integration test suite (29 test files, 719 tests) that
+runs against the full Express app using mocked Prisma, Cloudinary, Redis, and
+external services.  Every API module introduced in earlier steps now has
+end-to-end coverage at the route level, including auth, feature-flag gating,
+error handling, and business-logic assertions.
 
-The module provides:
+The step delivers:
 
-1. **`docker-compose.yml`** (enhanced, repo root) — core services always on;
-   dev-tool services behind `--profile tools`; fully-containerised backend
-   behind `--profile app`.  Named volumes + internal bridge network.
-2. **`docker/redis/redis.conf`** — Redis 7 tuned for BullMQ: RDB + AOF
-   persistence so queued jobs survive container restarts; `noeviction` policy
-   so Redis never silently drops job data under memory pressure.
-3. **`backend/Dockerfile`** — production-grade multi-stage build (deps →
-   builder → runner).  Non-root user, minimal runtime image, HEALTHCHECK via
-   the `/health` endpoint, Prisma client generated at build time.
-4. **`backend/.dockerignore`** — excludes `node_modules`, `dist`, all `.env`
-   files (except `.env.example`), test files, and editor artefacts from the
-   build context.
-5. **`backend/.env.example`** — updated with `EMAIL_REMINDERS_ENABLED`,
-   `REMINDER_HOURS_BEFORE`, `REVIEW_REQUEST_ENABLED`, and the full supported
-   `BUSINESS_TYPE` value list.
+1. **`backend/jest.setup.ts`** (NEW) — global test environment setup loaded
+   before every test module; sets all required env vars so `config/index.ts`
+   never calls `process.exit(1)` during the test run.
+2. **11 new integration test files** (`*.test.ts`) — one per API module:
+   analytics, artists, availability, bookings, features (flag enforcement),
+   invoices, leads, quotes, styles, uploads, and the auth middleware.
+3. **`backend/src/middleware/requireFeature.ts`** (MODIFIED) — bug fix: the
+   feature-flag check now reads `BUSINESS_TYPE` from `process.env` at
+   **request time** instead of at module-load time so tests can override it
+   between requests without restarting the process.
+4. **`backend/package.json`** (MODIFIED) — jest config updated to reference
+   `jest.setup.ts` via `setupFiles`.
 
 ---
 
-## New / modified files — ALL 5 MUST BE DOWNLOADED
+## New / modified files — ALL 13 MUST BE DOWNLOADED
 
 | # | File | Type | Notes |
 |---|------|------|-------|
-| 1 | `docker-compose.yml` | MODIFIED | Enhanced: profiles, networking, redis.conf mount, healthchecks |
-| 2 | `docker/redis/redis.conf` | NEW | BullMQ-optimised Redis config (AOF + noeviction) |
-| 3 | `backend/Dockerfile` | NEW | Production multi-stage build |
-| 4 | `backend/.dockerignore` | NEW | Excludes secrets + dev artefacts from build context |
-| 5 | `backend/.env.example` | MODIFIED | Added REMINDER_HOURS_BEFORE, EMAIL_REMINDERS_ENABLED, REVIEW_REQUEST_ENABLED, full BUSINESS_TYPE list |
-
-> **Missing file 2 causes `docker compose up` to fail** — the redis service
-> mounts `./docker/redis/redis.conf` and will not start without it.
-> All 5 files must be downloaded.
-
----
-
-## STEP 0 — Install Docker Desktop (prerequisite — do this ONCE)
-
-> **Skip this step if `docker --version` already prints a version number.**
-
-Docker Desktop is the application that provides the `docker` and `docker compose`
-commands on macOS.  Without it, every `docker` command will fail with
-`zsh: command not found: docker`.
-
-1. Go to **https://www.docker.com/products/docker-desktop/** and click
-   **"Download for Mac"**.
-   - Choose **"Apple Silicon"** (M1 / M2 / M3 / M4 chip) or **"Intel Chip"**
-     depending on your Mac.  If you're unsure: Apple menu → About This Mac →
-     look for "Apple M" (Silicon) or "Intel" in the chip/processor line.
-
-2. Open the downloaded `.dmg`, drag **Docker** to your **Applications** folder,
-   then launch Docker from Applications.
-
-3. Docker Desktop will show a whale icon in your menu bar.  Wait until the icon
-   stops animating and shows **"Docker Desktop is running"** in the menu.
-
-4. Verify in Terminal:
-
-   ```bash
-   docker --version && docker compose version
-   ```
-
-   Expected output (versions may differ):
-   ```
-   Docker version 27.x.x, build xxxxxxx
-   Docker Compose version v2.x.x
-   ```
-
-   If this works, Docker is installed.  Continue to STEP 1.
-
-> **Note:** Docker Desktop must be **running** (whale icon in menu bar) every
-> time you run `docker compose` commands.  If you restart your Mac and get
-> `command not found`, simply open Docker Desktop from Applications first.
+| 1  | `backend/jest.setup.ts` | NEW | Global test env variables for the full test suite |
+| 2  | `backend/package.json` | MODIFIED | jest setupFiles references jest.setup.ts |
+| 3  | `backend/src/middleware/requireFeature.ts` | MODIFIED | Bug fix: read BUSINESS_TYPE at request time |
+| 4  | `backend/src/modules/analytics/analytics.test.ts` | NEW | POST /api/analytics/events + GET overview/leads/bookings/revenue/events |
+| 5  | `backend/src/modules/artists/artists.test.ts` | NEW | GET /api/artists (public + ADMIN) |
+| 6  | `backend/src/modules/availability/availability.test.ts` | NEW | GET/PUT schedule, blocks CRUD, GET slots |
+| 7  | `backend/src/modules/bookings/bookings.test.ts` | NEW | Booking lifecycle CRUD + status transitions |
+| 8  | `backend/src/modules/features/features.test.ts` | NEW | Feature-flag enforcement across LEAD, QUOTE, ANALYTICS, BOOKING routes |
+| 9  | `backend/src/modules/invoices/invoices.test.ts` | NEW | Invoice CRUD + status transitions |
+| 10 | `backend/src/modules/leads/leads.test.ts` | NEW | Lead capture + list + status update |
+| 11 | `backend/src/modules/quotes/quotes.test.ts` | NEW | Quote lifecycle DRAFT→SENT→ACCEPTED/REJECTED |
+| 12 | `backend/src/modules/styles/styles.test.ts` | NEW | Style catalogue CRUD |
+| 13 | `backend/src/modules/uploads/uploads.test.ts` | NEW | Multipart image upload + Cloudinary mock |
 
 ---
 
-## STEP 1 — Delete old files (clean slate)
+## STEP 1 — Delete old / outdated files (clean slate)
 
 ```bash
-rm -f ~/Desktop/Automation/docker-compose.yml && \
-rm -f ~/Desktop/Automation/backend/Dockerfile && \
-rm -f ~/Desktop/Automation/backend/.dockerignore && \
-rm -f ~/Desktop/Automation/backend/.env.example
+rm -f ~/Desktop/Automation/backend/jest.setup.ts && \
+rm -f ~/Desktop/Automation/backend/package.json && \
+rm -f ~/Desktop/Automation/backend/src/middleware/requireFeature.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/analytics/analytics.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/artists/artists.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/availability/availability.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/features/features.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/invoices/invoices.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/leads/leads.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/quotes/quotes.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/styles/styles.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/uploads/uploads.test.ts
 ```
 
 ---
 
-## STEP 2 — Create the docker/redis folder
+## STEP 2 — Create any missing directories
 
 ```bash
-mkdir -p ~/Desktop/Automation/docker/redis
+mkdir -p ~/Desktop/Automation/backend/src/middleware && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/analytics && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/artists && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/availability && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/bookings && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/features && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/invoices && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/leads && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/quotes && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/styles && \
+mkdir -p ~/Desktop/Automation/backend/src/modules/uploads
 ```
 
 ---
 
-## STEP 3 — Download all 5 files (one copy-paste block)
+## STEP 3 — Download all 13 files (one copy-paste block)
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/docker-compose.yml" -o ~/Desktop/Automation/docker-compose.yml && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/docker/redis/redis.conf" -o ~/Desktop/Automation/docker/redis/redis.conf && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/Dockerfile" -o ~/Desktop/Automation/backend/Dockerfile && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.dockerignore" -o ~/Desktop/Automation/backend/.dockerignore && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/.env.example" -o ~/Desktop/Automation/backend/.env.example
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/jest.setup.ts" -o ~/Desktop/Automation/backend/jest.setup.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/package.json" -o ~/Desktop/Automation/backend/package.json && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/middleware/requireFeature.ts" -o ~/Desktop/Automation/backend/src/middleware/requireFeature.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/analytics/analytics.test.ts" -o ~/Desktop/Automation/backend/src/modules/analytics/analytics.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/artists/artists.test.ts" -o ~/Desktop/Automation/backend/src/modules/artists/artists.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/availability/availability.test.ts" -o ~/Desktop/Automation/backend/src/modules/availability/availability.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.test.ts" -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/features/features.test.ts" -o ~/Desktop/Automation/backend/src/modules/features/features.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/invoices/invoices.test.ts" -o ~/Desktop/Automation/backend/src/modules/invoices/invoices.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/leads/leads.test.ts" -o ~/Desktop/Automation/backend/src/modules/leads/leads.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.test.ts" -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/styles/styles.test.ts" -o ~/Desktop/Automation/backend/src/modules/styles/styles.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/uploads/uploads.test.ts" -o ~/Desktop/Automation/backend/src/modules/uploads/uploads.test.ts
 ```
 
 ---
 
-## STEP 4 — Verify all 5 files were downloaded (bytes > 0)
+## STEP 4 — Verify all 13 files were downloaded (bytes > 0)
 
 ```bash
 wc -c \
-  ~/Desktop/Automation/docker-compose.yml \
-  ~/Desktop/Automation/docker/redis/redis.conf \
-  ~/Desktop/Automation/backend/Dockerfile \
-  ~/Desktop/Automation/backend/.dockerignore \
-  ~/Desktop/Automation/backend/.env.example
+  ~/Desktop/Automation/backend/jest.setup.ts \
+  ~/Desktop/Automation/backend/package.json \
+  ~/Desktop/Automation/backend/src/middleware/requireFeature.ts \
+  ~/Desktop/Automation/backend/src/modules/analytics/analytics.test.ts \
+  ~/Desktop/Automation/backend/src/modules/artists/artists.test.ts \
+  ~/Desktop/Automation/backend/src/modules/availability/availability.test.ts \
+  ~/Desktop/Automation/backend/src/modules/bookings/bookings.test.ts \
+  ~/Desktop/Automation/backend/src/modules/features/features.test.ts \
+  ~/Desktop/Automation/backend/src/modules/invoices/invoices.test.ts \
+  ~/Desktop/Automation/backend/src/modules/leads/leads.test.ts \
+  ~/Desktop/Automation/backend/src/modules/quotes/quotes.test.ts \
+  ~/Desktop/Automation/backend/src/modules/styles/styles.test.ts \
+  ~/Desktop/Automation/backend/src/modules/uploads/uploads.test.ts
 ```
 
-All 5 files must show a byte count > 0.  If any shows 0 bytes or is missing,
-re-run STEP 3.
+All 13 files must show a byte count > 0. If any shows 0 bytes or is missing,
+re-run STEP 3 for the missing file(s).
 
 ---
 
-## STEP 5 — Start the local dev infrastructure
+## STEP 5 — Install dependencies (package.json was updated)
 
 ```bash
-cd ~/Desktop/Automation && docker compose up -d
+cd ~/Desktop/Automation/backend && npm install
 ```
 
-Expected: Docker pulls `postgres:16-alpine` and `redis:7-alpine` (first run
-only), creates the containers, and exits with both services **healthy**.
-
-Check health status:
-
-```bash
-docker compose ps
-```
-
-Both `bookingautomation_postgres` and `bookingautomation_redis` must show
-`(healthy)` in the Status column before continuing.
+Expected: npm resolves dependencies and exits without errors. This is needed
+because `package.json` was modified to wire up `jest.setup.ts` in the jest
+config.
 
 ---
 
-### Troubleshooting STEP 5 — port 5432 already in use
-
-If `docker compose up -d` fails with:
-
-```
-Error response from daemon: ports are not available: exposing port TCP 0.0.0.0:5432 -> 127.0.0.1:0: listen tcp 0.0.0.0:5432: bind: address already in use
-```
-
-Your Mac already has a PostgreSQL process listening on port 5432 (e.g. Postgres.app,
-Homebrew postgres, or a previous installation).  You have two options:
-
-**Option A — stop the local PostgreSQL and free port 5432** (simplest)
-
-```bash
-# Homebrew-managed postgres
-brew services stop postgresql@16   # adjust version number as needed
-
-# OR Postgres.app — quit the app from the menu bar elephant icon, then:
-# Applications → Postgres.app → right-click → Quit
-```
-
-Then re-run `docker compose up -d`.
-
-**Option B — run the Docker postgres on a different host port** (non-destructive)
-
-Create a `.env` file in the **project root** (same folder as `docker-compose.yml`):
-
-```bash
-echo "POSTGRES_PORT=5433" > ~/Desktop/Automation/.env
-```
-
-Then re-run:
-
-```bash
-cd ~/Desktop/Automation && docker compose up -d
-```
-
-> If you use Option B, update `DATABASE_URL` in `backend/.env` to use port 5433:
->
-> ```env
-> DATABASE_URL=postgresql://postgres:postgres@localhost:5433/automation_dev
-> ```
-
----
-
-## STEP 5b — Apply database migrations (first time only)
-
-> **Skip this step** if your `backend/.env` already points to your Neon cloud
-> database — you ran migrations there in earlier steps.
->
-> **Run this step** if you want to use the local Docker PostgreSQL for development.
-
-Set the local database URL in `backend/.env`.
-
-- **Default / Option A** (port 5432 is free):
-  ```env
-  DATABASE_URL=postgresql://postgres:postgres@localhost:5432/automation_dev
-  ```
-
-- **Option B** (you redirected Docker postgres to host port 5433):
-  ```env
-  DATABASE_URL=postgresql://postgres:postgres@localhost:5433/automation_dev
-  ```
-
-> ⚠️ Prisma always reads `DATABASE_URL` from the `backend/.env` file (you will see
-> *"Environment variables loaded from .env"* in the output).  Setting it in the
-> terminal alone is **not enough** — you must update the file.
-
-Then apply all Prisma migrations to the Docker PostgreSQL:
-
-```bash
-cd ~/Desktop/Automation/backend && npm run db:migrate
-```
-
-Expected output ends with something like:
-```
-✔ Generated Prisma Client
-```
-and a list of applied migrations.  This only needs to run once per fresh
-volume (or after `docker compose down -v`).
-
----
-
-## STEP 6 — Run the API with hot-reload
-
-```bash
-cd ~/Desktop/Automation/backend && npm run dev
-```
-
-Expected: the API starts on `http://localhost:3000`.  Open a browser and visit
-`http://localhost:3000/health` — you should see:
-
-```json
-{ "success": true, "data": { "status": "ok", ... } }
-```
-
----
-
-## STEP 7 — Run the full test suite
+## STEP 6 — Run the full test suite
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
@@ -258,94 +148,45 @@ cd ~/Desktop/Automation/backend && npm test
 Expected output:
 
 ```
-Test Suites: 18 passed, 18 total
-Tests:       579 passed, 579 total
+Test Suites: 29 passed, 29 total
+Tests:       719 passed, 719 total
 ```
 
-> Note: the test suite runs with mocked Redis (no real Docker connection
-> needed).  The test count does not change in Step 1.21 — this step adds
-> infrastructure files only, not application code.
+> **All 719 tests must pass with 0 failures.**
+> The test suite runs entirely with mocked Prisma, Redis, and external
+> services — no Docker containers, no real database, no internet connection
+> required.
 
 ---
 
-## Optional: run dev tools (Adminer + Mailpit)
+## What was fixed in the bug audit (for your reference)
 
-```bash
-cd ~/Desktop/Automation && docker compose --profile tools up -d
-```
-
-| Tool | URL | Purpose |
-|------|-----|---------|
-| Adminer | http://localhost:8080 | PostgreSQL GUI (System: PostgreSQL, Server: postgres, User: postgres, Password: postgres) |
-| Mailpit | http://localhost:8025 | Web inbox for all outbound dev emails (multi-arch, ARM64 compatible) |
-
----
-
-## Optional: run the full stack inside Docker
-
-```bash
-# 1. Ensure backend/.env exists (copy the example and fill in JWT secrets at minimum)
-cp ~/Desktop/Automation/backend/.env.example ~/Desktop/Automation/backend/.env
-
-# 2. Build + start everything
-cd ~/Desktop/Automation && docker compose --profile app up -d --build
-```
-
----
-
-## STEP 8 — Stop the infrastructure
-
-```bash
-cd ~/Desktop/Automation && docker compose down
-```
-
-To also wipe all data volumes (**DESTRUCTIVE — deletes all local DB data**):
-
-```bash
-cd ~/Desktop/Automation && docker compose down -v
-```
+| Bug | File | Description |
+|-----|------|-------------|
+| BUG-A | `requireFeature.ts` | Read `BUSINESS_TYPE` at module-load time (constant) → 503 feature-flag tests always passed with the startup value, never the test override. Fixed: reads `process.env` at **each request**. |
+| BUG-B | `analytics.test.ts` | `POST /api/analytics/events` controller returns `201 Created` but 2 tests expected `200`. Fixed: updated expectations to `201`. |
+| BUG-C | `quotes.test.ts` | `POST /api/quotes` (201 test): `prisma.quote.findUnique` mocked with `mockResolvedValue(null)` for ALL calls. `fetchQuoteDetail` (called after create) also uses `findUnique` → got `null` → threw 404. Fixed: use `mockResolvedValueOnce(baseQuote)` so only the post-create detail fetch returns the quote. |
+| BUG-D | `uploads.test.ts` | `upload_stream` mock returned a `Readable` stream. The service calls `stream.end(buffer)` but `Readable` has no `.end()` method (only `Writable` does) → `TypeError: stream.end is not a function` → 500. Fixed: mock returns `PassThrough` (both readable + writable). |
+| BUG-E | `uploads.test.ts` | Controller returns `201 Created` but 2 success tests expected `200`. Fixed: updated to `201`. |
+| BUG-F | `uploads.test.ts` | "no files" test manually set `Content-Type: multipart/form-data` without a boundary → busboy threw `RangeError: missing boundary` → 500. Fixed: removed the manual Content-Type header; supertest sends a plain POST with no body, Multer sets `req.files` to undefined, controller returns 400. |
+| BUG-G | `availability.test.ts` | `GET /api/availability/slots`: test checked `res.body.data.slots` but the service returns a flat array → `res.body.data` is the array. Fixed: assert `Array.isArray(res.body.data)`. |
+| BUG-H | `availability.test.ts` | `GET /api/availability/blocks`: `resolveOwnArtistId` uses `prisma.artist.findUnique` but test mocked `prisma.artist.findFirst` → `findUnique` returned `undefined` → 404. Fixed: mock `artist.findUnique` with `{ id: baseArtist.id }`. |
+| BUG-I | `availability.test.ts` | `DELETE /api/availability/blocks/:id`: `deleteBlock` selects `artist: { userId: true }` on the block but mock returned `baseBlock` without that nested field → `TypeError: Cannot read properties of undefined (reading 'userId')` → 500. Fixed: mock returns `{ ...baseBlock, artist: { userId: 'u_1' } }`. |
 
 ---
 
 ## Architecture notes
 
-- **PostgreSQL 16** — matches the version used in Neon (production) and
-  Supabase so migration behaviour is identical locally and in CI.
-- **Redis 7** — matches the version required by BullMQ 5.x.  The custom
-  `redis.conf` enables AOF persistence so delayed appointment-reminder and
-  review-request jobs survive a `docker compose restart` without being lost.
-- **`noeviction` policy** — the only correct `maxmemory-policy` for BullMQ.
-  Any LRU/LFU policy risks silently evicting job data; `noeviction` forces
-  Redis to return an explicit error instead, which BullMQ then surfaces so the
-  issue is visible rather than hidden.
-- **Named volumes** — `postgres_data` and `redis_data` survive `docker compose
-  down` (data is preserved) but are removed by `docker compose down -v`
-  (clean-slate reset).
-- **Internal bridge network** — all services share the `bookingautomation`
-  network.  The `backend` service uses `postgres:5432` / `redis:6379` as
-  hostnames (Docker DNS resolution); your local `npm run dev` uses
-  `localhost:5432` / `localhost:6379` (port-forwarded by Docker).
-- **Profiles** — `tools` (Adminer + Mailpit) and `app` (Node.js backend) are
-  opt-in so `docker compose up -d` is always fast and lightweight.
-- **Multi-stage Dockerfile** — the `deps` stage caches production
-  `node_modules` independently of source changes; the `builder` stage compiles
-  TypeScript and runs `prisma generate`; the `runner` stage copies only the
-  compiled `dist/`, production `node_modules`, and Prisma client — keeping the
-  final image minimal.
-- **Non-root container user** — the `runner` stage drops privileges to a
-  dedicated `expressjs` user (UID 1001) following Docker security best
-  practices used by Vercel, Railway, and Render.
-
----
-
-## Environment variables — local dev defaults
-
-When using `docker compose up -d` and running the API with `npm run dev`, add
-these to `backend/.env`:
-
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/automation_dev
-REDIS_URL=redis://localhost:6379
-```
-
-See `backend/.env.example` for the full variable reference.
+- **No real I/O in tests** — every integration test mocks `../../lib/prisma`,
+  `../../lib/cloudinary`, BullMQ queues, and Twilio. `supertest` creates an
+  in-process HTTP server so no port binding occurs.
+- **`jest.setup.ts` loaded before every test module** — setting env vars in
+  `setupFiles` (not `setupFilesAfterFramework`) ensures `config/index.ts` reads
+  them when it first runs at import time, before any test module executes.
+- **`requireFeature` reads env at request time** — the production behaviour is
+  unchanged (the env var is set once at startup), but integration tests can
+  temporarily override `process.env['BUSINESS_TYPE']` between requests and have
+  the middleware respond correctly.
+- **Test isolation** — every test file calls `jest.clearAllMocks()` in
+  `beforeEach` to reset mock call counts. Implementations set with
+  `mockResolvedValue` / `mockResolvedValueOnce` are scoped to each test.

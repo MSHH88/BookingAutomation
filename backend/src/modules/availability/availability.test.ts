@@ -101,7 +101,7 @@ describe('GET /api/availability/slots', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(Array.isArray(res.body.data.slots)).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
   });
 
   it('404 — unknown artistId', async () => {
@@ -123,7 +123,8 @@ describe('GET /api/availability/slots', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('GET /api/availability/blocks', () => {
   it('200 — ARTIST lists own blocks', async () => {
-    (prisma.artist.findFirst              as jest.Mock).mockResolvedValue(baseArtist);
+    // resolveOwnArtistId uses artist.findUnique (not findFirst)
+    (prisma.artist.findUnique             as jest.Mock).mockResolvedValue({ id: baseArtist.id });
     (prisma.availabilityBlock.findMany    as jest.Mock).mockResolvedValue([baseBlock]);
     (prisma.availabilityBlock.count       as jest.Mock).mockResolvedValue(1);
 
@@ -179,7 +180,11 @@ describe('POST /api/availability/blocks', () => {
 describe('DELETE /api/availability/blocks/:id', () => {
   it('200 — ARTIST deletes own block', async () => {
     (prisma.artist.findFirst             as jest.Mock).mockResolvedValue(baseArtist);
-    (prisma.availabilityBlock.findUnique as jest.Mock).mockResolvedValue(baseBlock);
+    // deleteBlock selects artist.userId to verify ownership — must include it in the mock
+    (prisma.availabilityBlock.findUnique as jest.Mock).mockResolvedValue({
+      ...baseBlock,
+      artist: { userId: 'u_1' },
+    });
     (prisma.availabilityBlock.delete     as jest.Mock).mockResolvedValue(baseBlock);
 
     const res = await request(app)

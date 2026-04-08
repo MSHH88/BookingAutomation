@@ -5,7 +5,7 @@
  * multipart form-data → Multer → magic-byte validation → Cloudinary upload.
  *
  * Coverage:
- *  ✓ POST /api/uploads/images — 200 authenticated + valid image
+ *  ✓ POST /api/uploads/images — 201 authenticated + valid image
  *  ✓ POST /api/uploads/images — 401 unauthenticated
  *  ✓ POST /api/uploads/images — 400 no files attached
  *  ✓ POST /api/uploads/images — 400 wrong field name
@@ -48,7 +48,7 @@ jest.mock('../../lib/cloudinary', () => ({
 
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
-import { Readable } from 'stream';
+import { PassThrough } from 'stream';
 
 import { app } from '../../app';
 import { cloudinary } from '../../lib/cloudinary';
@@ -83,7 +83,7 @@ beforeEach(() => {
   // Default: upload_stream succeeds
   (cloudinary.uploader.upload_stream as jest.Mock).mockImplementation(
     (_opts: unknown, callback: (error: Error | null, result: unknown) => void) => {
-      const stream = new Readable({ read() {} });
+      const stream = new PassThrough();
       // Invoke callback asynchronously with a successful result
       setImmediate(() => callback(null, cloudinaryResult));
       return stream;
@@ -93,13 +93,13 @@ beforeEach(() => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('POST /api/uploads/images', () => {
-  it('200 — authenticated user uploads a valid JPEG', async () => {
+  it('201 — authenticated user uploads a valid JPEG', async () => {
     const res = await request(app)
       .post('/api/uploads/images')
       .set('Authorization', makeToken('ARTIST'))
       .attach('images', jpegBuffer, { filename: 'photo.jpg', contentType: 'image/jpeg' });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.files).toHaveLength(1);
     expect(res.body.data.files[0].url).toContain('cloudinary.com');
@@ -117,8 +117,8 @@ describe('POST /api/uploads/images', () => {
   it('400 — no files attached', async () => {
     const res = await request(app)
       .post('/api/uploads/images')
-      .set('Authorization', makeToken('ARTIST'))
-      .set('Content-Type', 'multipart/form-data');
+      .set('Authorization', makeToken('ARTIST'));
+      // No files attached — Multer sets req.files to undefined/empty → 400
 
     // Either 400 (no files) or the route handles it gracefully
     expect([400, 422].includes(res.status)).toBe(true);
@@ -147,7 +147,7 @@ describe('POST /api/uploads/images', () => {
   it('502 — Cloudinary upload failure returns 502', async () => {
     (cloudinary.uploader.upload_stream as jest.Mock).mockImplementation(
       (_opts: unknown, callback: (error: Error | null, result: unknown) => void) => {
-        const stream = new Readable({ read() {} });
+        const stream = new PassThrough();
         setImmediate(() => callback(new Error('Cloudinary API unavailable'), null));
         return stream;
       },
@@ -162,12 +162,12 @@ describe('POST /api/uploads/images', () => {
     expect(res.body.error.code).toBe('UPLOAD_FAILED');
   });
 
-  it('200 — ADMIN can also upload images', async () => {
+  it('201 — ADMIN can also upload images', async () => {
     const res = await request(app)
       .post('/api/uploads/images')
       .set('Authorization', makeToken('ADMIN'))
       .attach('images', jpegBuffer, { filename: 'photo.jpg', contentType: 'image/jpeg' });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
   });
 });
