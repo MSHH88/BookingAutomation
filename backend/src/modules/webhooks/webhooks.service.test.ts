@@ -69,6 +69,7 @@ jest.mock('./webhooks.queue', () => ({
 
 import * as svc from './webhooks.service';
 import { enqueueWebhookEvent } from './webhooks.queue';
+import { updateWebhookSchema } from './webhooks.schema';
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -278,6 +279,15 @@ describe('updateWebhook', () => {
       statusCode: 404,
       code:       'WEBHOOK_NOT_FOUND',
     });
+  });
+
+  it('rejects empty request body at schema level', () => {
+    const result = updateWebhookSchema.safeParse({
+      params: { id: 'wh_1' },
+      body:   {},
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.errors[0]?.message).toMatch(/at least one field/i);
   });
 });
 

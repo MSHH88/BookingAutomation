@@ -1,55 +1,93 @@
-# Step 1.26 — Admin Panel API
+# Step 1.27 — Outgoing Webhook System
 
-Adds the **`/api/admin`** endpoint group — a complete admin management portal
-for studio owners and super-admins to configure the studio, manage feature
-flags, and administer users and artists — all without touching code or the
-database directly.
+Adds a full **outgoing webhook delivery system** so any external service can
+subscribe to real-time business events fired by the studio backend.
 
 **What this step delivers:**
 
-- `GET  /api/admin/settings`                    — fetch current studio settings (null on fresh install)
-- `PATCH /api/admin/settings`                   — create or update studio settings (studioName required on first PATCH)
-- `GET  /api/admin/feature-flags`               — list all feature flags ordered alphabetically
-- `PATCH /api/admin/feature-flags/:key`         — enable or disable a feature flag by its unique key
-- `GET  /api/admin/users`                       — paginated user list, filterable by role / isActive / free-text search
-- `PATCH /api/admin/users/:id`                  — update a user's role, isActive state, or display name
-- `GET  /api/admin/artists`                     — paginated artist list with user profile and commission info, filterable by isActive
-- `PATCH /api/admin/artists/:id`                — update an artist's active state or commission configuration
+- `GET    /api/webhooks`                    — paginated list of registered webhooks
+- `POST   /api/webhooks`                    — register a new webhook (secret returned once)
+- `GET    /api/webhooks/:id`                — get webhook details (secret excluded)
+- `PATCH  /api/webhooks/:id`                — partially update a webhook
+- `DELETE /api/webhooks/:id`                — permanently delete webhook + all delivery history
+- `GET    /api/webhooks/:id/deliveries`     — paginated delivery history
+- `POST   /api/webhooks/:id/test`           — enqueue a test delivery to verify connectivity
+
+**Event types supported:**
+
+| Event                | Fired when                                           |
+|----------------------|------------------------------------------------------|
+| `booking.created`    | Quote converted → booking                            |
+| `booking.confirmed`  | Booking status → CONFIRMED                           |
+| `booking.cancelled`  | Booking status → CANCELLED                           |
+| `booking.completed`  | Booking status → COMPLETED                           |
+| `booking.rescheduled`| Booking start/end time changed                       |
+| `lead.created`       | New lead submitted via capture form                  |
+| `lead.status_changed`| Lead status updated by staff                         |
+| `payment.succeeded`  | Stripe `payment_intent.succeeded` received           |
+| `payment.refunded`   | Stripe `charge.refunded` received                    |
 
 **Security:**
 - All routes require a valid JWT with the `ADMIN` role
-- No feature flag gates this module — admin management is always available regardless of business type
+- Every delivery is signed with `X-BookingAutomation-Signature: sha256=<hmac-sha256-hex>`
+- The signing secret is generated automatically (32 random bytes / 64 hex chars) and returned **only once** on creation — callers must store it securely
 
-**Business rules:**
-- `StudioSettings` is a singleton — `PATCH /api/admin/settings` will create the row if it doesn't exist (studioName required), or update the existing row if it does.
-- Feature flag `key` is the unique identifier used in the URL path; 404 is returned for unknown keys.
-- User/artist 404s are raised before any mutation attempt.
-- All list endpoints support `?page=` and `?limit=` for pagination.
+**Delivery mechanics:**
+- Deliveries are enqueued via BullMQ (3 attempts, exponential back-off starting at 5 s)
+- Each delivery result is recorded in `webhook_deliveries` for audit/replay
+- A Redis outage never causes HTTP 5xx — `enqueueWebhookEvent` swallows errors and logs a warning
+
+**Schema changes:**
+- New model `Webhook` (`webhooks` table)
+- New model `WebhookDelivery` (`webhook_deliveries` table)
+- Requires `prisma migrate deploy` (or `prisma db push` in dev)
 
 ---
 
-## ALL 6 FILES MUST BE DOWNLOADED
+## ALL 17 FILES MUST BE DOWNLOADED
 
 | # | File | New / Modified |
 |---|------|----------------|
-| 1 | `backend/src/modules/admin/admin.schema.ts`       | NEW |
-| 2 | `backend/src/modules/admin/admin.service.ts`      | NEW |
-| 3 | `backend/src/modules/admin/admin.controller.ts`   | NEW |
-| 4 | `backend/src/modules/admin/admin.routes.ts`       | NEW |
-| 5 | `backend/src/modules/admin/admin.service.test.ts` | NEW |
-| 6 | `backend/src/app.ts`                              | MODIFIED |
+| 1  | `backend/prisma/schema.prisma`                               | MODIFIED |
+| 2  | `backend/src/app.ts`                                         | MODIFIED |
+| 3  | `backend/src/server.ts`                                      | MODIFIED |
+| 4  | `backend/src/modules/webhooks/webhooks.schema.ts`            | NEW |
+| 5  | `backend/src/modules/webhooks/webhooks.service.ts`           | NEW |
+| 6  | `backend/src/modules/webhooks/webhooks.controller.ts`        | NEW |
+| 7  | `backend/src/modules/webhooks/webhooks.routes.ts`            | NEW |
+| 8  | `backend/src/modules/webhooks/webhooks.queue.ts`             | NEW |
+| 9  | `backend/src/modules/webhooks/webhooks.service.test.ts`      | NEW |
+| 10 | `backend/src/modules/bookings/bookings.service.ts`           | MODIFIED |
+| 11 | `backend/src/modules/bookings/bookings.service.test.ts`      | MODIFIED |
+| 12 | `backend/src/modules/leads/leads.service.ts`                 | MODIFIED |
+| 13 | `backend/src/modules/leads/leads.service.test.ts`            | MODIFIED |
+| 14 | `backend/src/modules/payments/payments.service.ts`           | MODIFIED |
+| 15 | `backend/src/modules/payments/payments.service.test.ts`      | MODIFIED |
+| 16 | `backend/src/modules/quotes/quotes.service.ts`               | MODIFIED |
+| 17 | `backend/src/modules/quotes/quotes.service.test.ts`          | MODIFIED |
 
 ---
 
 ## STEP 1 — Delete stale copies of all files
 
 ```bash
-rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.schema.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.service.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.controller.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.routes.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.service.test.ts && \
-rm -f ~/Desktop/Automation/backend/src/app.ts
+rm -f ~/Desktop/Automation/backend/prisma/schema.prisma && \
+rm -f ~/Desktop/Automation/backend/src/app.ts && \
+rm -f ~/Desktop/Automation/backend/src/server.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.schema.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.controller.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.routes.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.queue.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/leads/leads.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/payments/payments.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/payments/payments.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts
 ```
 
 ---
@@ -57,33 +95,69 @@ rm -f ~/Desktop/Automation/backend/src/app.ts
 ## STEP 2 — Create required directories
 
 ```bash
-mkdir -p ~/Desktop/Automation/backend/src/modules/admin
+mkdir -p ~/Desktop/Automation/backend/src/modules/webhooks
 ```
 
 ---
 
-## STEP 3 — Download all 6 files
+## STEP 3 — Download all 17 files
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.schema.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/admin/admin.schema.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.service.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/admin/admin.service.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.controller.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/admin/admin.controller.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.routes.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/admin/admin.routes.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.service.test.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/admin/admin.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/prisma/schema.prisma" \
+  -o ~/Desktop/Automation/backend/prisma/schema.prisma && \
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" \
-  -o ~/Desktop/Automation/backend/src/app.ts
+  -o ~/Desktop/Automation/backend/src/app.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/server.ts" \
+  -o ~/Desktop/Automation/backend/src/server.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.schema.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.schema.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.controller.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.controller.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.routes.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.routes.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.queue.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.queue.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/leads/leads.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/leads/leads.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/leads/leads.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/payments/payments.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/payments/payments.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/payments/payments.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/payments/payments.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts
 ```
 
 ---
 
-## STEP 4 — Run the full test suite
+## STEP 4 — Run the Prisma migration
 
-> **No schema change, no migration required for this step.**
+> **Schema change:** Two new tables (`webhooks`, `webhook_deliveries`) are added.
+
+```bash
+cd ~/Desktop/Automation/backend && npx prisma migrate dev --name add_webhooks
+```
+
+> Or in production / against a live database:
+
+```bash
+cd ~/Desktop/Automation/backend && npx prisma migrate deploy
+```
+
+---
+
+## STEP 5 — Run the full test suite
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
@@ -92,10 +166,9 @@ cd ~/Desktop/Automation/backend && npm test
 Expected output:
 
 ```
-Test Suites: 35 passed, 35 total
-Tests:       877 passed, 877 total
+Test Suites: 36 passed, 36 total
+Tests:       899 passed, 899 total
 ```
 
 > **All tests must pass with 0 failures.**
 > Tests mock all database calls — no live Postgres or Redis required.
-

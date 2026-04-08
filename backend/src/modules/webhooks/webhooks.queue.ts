@@ -34,6 +34,8 @@
  */
 
 import crypto                   from 'crypto';
+import http                     from 'http';
+import https                    from 'https';
 import { Queue, Worker, Job }   from 'bullmq';
 import Redis                    from 'ioredis';
 
@@ -331,21 +333,27 @@ function httpPost(
   headers: Record<string, string>,
 ): Promise<{ statusCode: number; body: string }> {
   return new Promise((resolve, reject) => {
-    const parsed = new URL(url);
-    const lib    = parsed.protocol === 'https:' ? require('https') : require('http');
+    const parsed  = new URL(url);
+    const lib     = parsed.protocol === 'https:' ? https : http;
+    const port    = parsed.port
+      ? parseInt(parsed.port, 10)
+      : parsed.protocol === 'https:' ? 443 : 80;
 
     const req = lib.request(
       {
         hostname: parsed.hostname,
-        port:     parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
+        port,
         path:     parsed.pathname + parsed.search,
         method:   'POST',
         headers:  { ...headers, 'Content-Length': Buffer.byteLength(body) },
       },
-      (res: NodeJS.ReadableStream & { statusCode: number }) => {
+      (res) => {
         let data = '';
-        res.on('data', (chunk: string) => { data += chunk; });
-        res.on('end', () => resolve({ statusCode: res.statusCode, body: data }));
+        res.on('data', (chunk: Buffer | string) => { data += String(chunk); });
+        res.on('end', () => resolve({
+          statusCode: res.statusCode ?? 0,
+          body:       data,
+        }));
       },
     );
 
