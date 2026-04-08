@@ -9,7 +9,7 @@
  *  ✓ GET  /api/artists/:slug         — 200 found, 404 not found
  *  ✓ POST /api/artists               — 201 ADMIN, 401 unauth, 403 non-ADMIN, 400 invalid
  *  ✓ PATCH /api/artists/:id          — 200 ADMIN, 200 own artist, 401 unauth
- *  ✓ DELETE /api/artists/:id         — 200 ADMIN, 403 non-ADMIN
+ *  ✓ DELETE /api/artists/:id         — 204 ADMIN, 403 non-ADMIN
  *  ✓ POST /api/artists/:id/styles    — 200 ADMIN
  *  ✓ GET  /api/artists/:id/availability — 200 public
  *
@@ -208,7 +208,7 @@ describe('PATCH /api/artists/:id', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('DELETE /api/artists/:id', () => {
-  it('200 — ADMIN soft-deletes artist', async () => {
+  it('204 — ADMIN soft-deletes artist', async () => {
     (prisma.artist.findUnique as jest.Mock).mockResolvedValue(baseArtist);
     (prisma.artist.update as jest.Mock).mockResolvedValue({ ...baseArtist, isActive: false });
 
@@ -216,7 +216,7 @@ describe('DELETE /api/artists/:id', () => {
       .delete('/api/artists/a_1')
       .set('Authorization', makeToken('ADMIN'));
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(204);
   });
 
   it('403 — CUSTOMER cannot delete artist', async () => {

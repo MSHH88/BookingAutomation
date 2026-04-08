@@ -43,7 +43,7 @@ jest.mock('../../lib/prisma', () => ({
     quote:          { create: jest.fn(), findMany: jest.fn(), count: jest.fn() },
     booking:        { findMany: jest.fn(), count: jest.fn() },
     analyticsEvent: { create: jest.fn() },
-    artist:         { findFirst: jest.fn() },
+    artist:         { findFirst: jest.fn(), findMany: jest.fn(), count: jest.fn() },
   },
 }));
 
@@ -88,10 +88,8 @@ describe('Routes without a feature flag gate', () => {
 
   it('GET /api/artists — public, no feature flag, always available', async () => {
     (prisma.artist.findFirst as jest.Mock).mockResolvedValue(null);
-    (prisma.artist as jest.Mocked<typeof prisma.artist>);
-    // findMany is used by the list endpoint
-    const m = prisma as { artist: { findMany: jest.Mock } };
-    m.artist.findMany = jest.fn().mockResolvedValue([]);
+    (prisma.artist.findMany  as jest.Mock).mockResolvedValue([]);
+    (prisma.artist.count     as jest.Mock).mockResolvedValue(0);
 
     await withBusinessType('restaurant', async () => {
       const res = await request(app).get('/api/artists');
@@ -163,7 +161,6 @@ describe('ANALYTICS_ENABLED flag', () => {
     // POST /api/analytics/events is public; it attempts to write to DB.
     // We only verify it does NOT return 503 (feature is enabled).
     (prisma.analyticsEvent.create as jest.Mock).mockResolvedValue({ id: 'ae_1' });
-    (prisma.lead.findUnique as jest.Mock | undefined);
 
     const res = await request(app)
       .post('/api/analytics/events')

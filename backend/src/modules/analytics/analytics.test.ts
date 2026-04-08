@@ -10,7 +10,7 @@
  *  ✓ GET  /api/analytics/events    — 200 ADMIN (paginated event log)
  *  ✓ 503 when ANALYTICS_ENABLED=false (via masseuse override for future-proofing)
  *
- * 14 tests total
+ * 12 tests total
  */
 
 jest.mock('../whatsapp/whatsapp.service', () => ({
@@ -35,6 +35,8 @@ jest.mock('../../lib/prisma', () => ({
     user:           { findUnique: jest.fn() },
     lead:           { findUnique: jest.fn(), count: jest.fn(), groupBy: jest.fn(), aggregate: jest.fn(), findMany: jest.fn() },
     booking:        { count: jest.fn(), groupBy: jest.fn(), findMany: jest.fn() },
+    artist:         { findMany: jest.fn() },
+    service:        { findMany: jest.fn() },
     invoice:        { findMany: jest.fn(), groupBy: jest.fn() },
     waitlistEntry:  { count: jest.fn() },
     analyticsEvent: {
@@ -83,6 +85,8 @@ function mockBookingsDefaults() {
   (prisma.booking.count   as jest.Mock).mockResolvedValue(0);
   (prisma.booking.groupBy as jest.Mock).mockResolvedValue([]);
   (prisma.booking.findMany as jest.Mock).mockResolvedValue([]);
+  (prisma.artist.findMany  as jest.Mock).mockResolvedValue([]);
+  (prisma.service.findMany as jest.Mock).mockResolvedValue([]);
 }
 
 function mockRevenueDefaults() {
@@ -109,11 +113,11 @@ describe('POST /api/analytics/events', () => {
 
   it('200 — event with optional leadId (lead found)', async () => {
     (prisma.analyticsEvent.create as jest.Mock).mockResolvedValue({ id: 'ae_1' });
-    (prisma.lead.findUnique as jest.Mock).mockResolvedValue({ id: 'l_1' });
+    (prisma.lead.findUnique as jest.Mock).mockResolvedValue({ id: 'clhjgz3c40000fkiufwsxc58c' });
 
     const res = await request(app)
       .post('/api/analytics/events')
-      .send({ eventType: 'lead_form_started', leadId: 'l_1' });
+      .send({ eventType: 'lead_form_started', leadId: 'clhjgz3c40000fkiufwsxc58c' });
 
     expect(res.status).toBe(200);
   });
@@ -137,9 +141,9 @@ describe('GET /api/analytics/overview', () => {
       .set('Authorization', makeToken('ADMIN'));
 
     expect(res.status).toBe(200);
-    expect(res.body.data).toHaveProperty('totalLeads');
-    expect(res.body.data).toHaveProperty('totalBookings');
-    expect(res.body.data).toHaveProperty('conversionRate');
+    expect(res.body.data).toHaveProperty('leads.total');
+    expect(res.body.data).toHaveProperty('bookings.total');
+    expect(res.body.data).toHaveProperty('leads.conversionRate');
   });
 
   it('401 — unauthenticated request rejected', async () => {
@@ -202,7 +206,7 @@ describe('GET /api/analytics/revenue', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveProperty('summary');
-    expect(res.body.data).toHaveProperty('monthlyTrend');
+    expect(res.body.data).toHaveProperty('byMonth');
   });
 });
 

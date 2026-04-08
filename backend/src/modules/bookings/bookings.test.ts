@@ -10,7 +10,7 @@
  *  ✓ PATCH /api/bookings/:id/reschedule  — 200 ARTIST
  *  ✓ 503 when BOOKING_ENABLED=false
  *
- * 16 tests total
+ * 11 tests total
  */
 
 jest.mock('../whatsapp/whatsapp.service', () => ({
@@ -73,12 +73,19 @@ const baseBooking = {
   id: 'b_1', artistId: 'a_1', leadId: 'lead_1',
   customerId: null, quoteId: 'q_1',
   status: 'PENDING' as const,
-  scheduledAt: new Date(Date.now() + 86400_000),
-  durationMinutes: 90, depositPaid: false, cancelReason: null,
+  startAt:  new Date(Date.now() + 86400_000),
+  endAt:    new Date(Date.now() + 86400_000 + 5400_000),
+  notes: null, specialRequests: null, partySize: null,
+  totalDurationMinutes: 90, totalAmount: null,
+  depositAmount: null, depositPaidAt: null, depositRefunded: false,
+  cancelReason: null, confirmedAt: null, completedAt: null, cancelledAt: null,
+  rescheduledFrom: null,
+  services: [],
   artist: baseArtist,
-  lead:   { id: 'lead_1', name: 'Bob', email: 'bob@example.com', preferWhatsApp: false },
+  lead:   { id: 'lead_1', name: 'Bob', email: 'bob@example.com', phone: null, status: 'NEW', preferWhatsApp: false },
   customer: null,
-  quote:  { id: 'q_1', price: 500, depositAmount: 100, style: null, placement: null, size: null },
+  quote:  { id: 'q_1', price: 500, hours: null, status: 'DRAFT' },
+  invoice: null,
   createdAt: new Date(), updatedAt: new Date(),
 };
 
@@ -224,17 +231,18 @@ describe('PATCH /api/bookings/:id/cancel', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/bookings/:id/reschedule', () => {
   it('200 — ARTIST reschedules CONFIRMED booking', async () => {
-    const newDate = new Date(Date.now() + 2 * 86400_000);
+    const newDate    = new Date(Date.now() + 2 * 86400_000);
+    const newEndDate = new Date(newDate.getTime() + 5400_000);
 
     (prisma.artist.findFirst   as jest.Mock).mockResolvedValue(baseArtist);
     (prisma.booking.findUnique as jest.Mock).mockResolvedValue(confirmedBooking);
     (prisma.booking.findFirst  as jest.Mock).mockResolvedValue(null); // no conflict
-    (prisma.booking.update     as jest.Mock).mockResolvedValue({ ...confirmedBooking, scheduledAt: newDate });
+    (prisma.booking.update     as jest.Mock).mockResolvedValue({ ...confirmedBooking, startAt: newDate, endAt: newEndDate, status: 'RESCHEDULED' });
 
     const res = await request(app)
       .patch('/api/bookings/b_1/reschedule')
       .set('Authorization', makeToken('ARTIST'))
-      .send({ scheduledAt: newDate.toISOString() });
+      .send({ startAt: newDate.toISOString(), endAt: newEndDate.toISOString() });
 
     expect(res.status).toBe(200);
   });

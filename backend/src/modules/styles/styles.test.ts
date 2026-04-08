@@ -6,7 +6,7 @@
  *  ✓ GET  /api/styles/:id    — 200 found, 404 not found
  *  ✓ POST /api/styles        — 201 ADMIN, 401 unauth, 403 non-ADMIN, 400 invalid
  *  ✓ PATCH /api/styles/:id   — 200 ADMIN, 401 unauth
- *  ✓ DELETE /api/styles/:id  — 200 ADMIN, 403 non-ADMIN
+ *  ✓ DELETE /api/styles/:id  — 204 ADMIN, 403 non-ADMIN
  *
  * 14 tests total
  */
@@ -145,7 +145,9 @@ describe('POST /api/styles', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/styles/:id', () => {
   it('200 — ADMIN updates style', async () => {
-    (prisma.tattooStyle.findUnique as jest.Mock).mockResolvedValue(baseStyle);
+    (prisma.tattooStyle.findUnique as jest.Mock)
+      .mockResolvedValueOnce(baseStyle)  // style existence check
+      .mockResolvedValueOnce(null);      // name uniqueness check — no clash
     (prisma.tattooStyle.update     as jest.Mock).mockResolvedValue({ ...baseStyle, name: 'Updated' });
 
     const res = await request(app)
@@ -165,7 +167,7 @@ describe('PATCH /api/styles/:id', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('DELETE /api/styles/:id', () => {
-  it('200 — ADMIN soft-deletes style', async () => {
+  it('204 — ADMIN soft-deletes style', async () => {
     (prisma.tattooStyle.findUnique as jest.Mock).mockResolvedValue(baseStyle);
     (prisma.tattooStyle.update     as jest.Mock).mockResolvedValue({ ...baseStyle, isActive: false });
 
@@ -173,7 +175,7 @@ describe('DELETE /api/styles/:id', () => {
       .delete('/api/styles/s_1')
       .set('Authorization', makeToken('ADMIN'));
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(204);
   });
 
   it('403 — ARTIST cannot delete style', async () => {

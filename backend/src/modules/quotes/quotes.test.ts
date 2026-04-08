@@ -34,7 +34,7 @@ jest.mock('../../lib/prisma', () => ({
   prisma: {
     user:    { findUnique: jest.fn() },
     artist:  { findFirst: jest.fn(), findUnique: jest.fn() },
-    lead:    { findUnique: jest.fn(), update: jest.fn() },
+    lead:    { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
     quote:   {
       findMany:   jest.fn(),
       findUnique: jest.fn(),
@@ -195,7 +195,9 @@ describe('GET /api/quotes/:id', () => {
 describe('PATCH /api/quotes/:id (edit DRAFT)', () => {
   it('200 — ARTIST edits DRAFT quote', async () => {
     (prisma.artist.findFirst  as jest.Mock).mockResolvedValue(baseArtist);
-    (prisma.quote.findUnique  as jest.Mock).mockResolvedValue(baseQuote);
+    (prisma.quote.findUnique  as jest.Mock)
+      .mockResolvedValueOnce(baseQuote)                     // DRAFT status check
+      .mockResolvedValueOnce({ ...baseQuote, price: 600 }); // fetchQuoteDetail
     (prisma.quote.update      as jest.Mock).mockResolvedValue({ ...baseQuote, price: 600 });
 
     const res = await request(app)
@@ -211,10 +213,10 @@ describe('PATCH /api/quotes/:id (edit DRAFT)', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/quotes/:id/send', () => {
   it('200 — ARTIST sends DRAFT quote → SENT', async () => {
-    (prisma.artist.findFirst  as jest.Mock).mockResolvedValue(baseArtist);
-    (prisma.quote.findUnique  as jest.Mock).mockResolvedValue(baseQuote);
-    (prisma.quote.update      as jest.Mock).mockResolvedValue({ ...baseQuote, status: 'SENT' });
-    (prisma.lead.update       as jest.Mock).mockResolvedValue({ ...baseLead, status: 'QUOTED' });
+    (prisma.artist.findFirst           as jest.Mock).mockResolvedValue(baseArtist);
+    (prisma.quote.findUnique           as jest.Mock).mockResolvedValue(baseQuote);
+    (prisma.quote.update               as jest.Mock).mockResolvedValue({ ...baseQuote, status: 'SENT' });
+    (prisma.lead.updateMany            as jest.Mock).mockResolvedValue({ count: 1 });
 
     const res = await request(app)
       .patch('/api/quotes/q_1/send')
@@ -227,18 +229,22 @@ describe('PATCH /api/quotes/:id/send', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/quotes/:id/accept', () => {
   it('200 — ADMIN accepts SENT quote → ACCEPTED + Booking created', async () => {
-    const sentQuote = { ...baseQuote, status: 'SENT' as const };
+    const sentQuote = {
+      ...baseQuote,
+      status:     'SENT' as const,
+      validUntil: new Date(Date.now() + 7 * 86400_000),
+    };
 
     (prisma.quote.findUnique as jest.Mock).mockResolvedValue(sentQuote);
-    (prisma.$transaction     as jest.Mock).mockResolvedValue({
-      quote:   { ...sentQuote, status: 'ACCEPTED' },
-      booking: { id: 'b_1', quoteId: 'q_1', status: 'PENDING' },
-    });
+    (prisma.$transaction     as jest.Mock).mockResolvedValue(undefined);
+
+    const startAt = new Date(Date.now() + 86400_000);
+    const endAt   = new Date(startAt.getTime() + 5400_000);
 
     const res = await request(app)
       .patch('/api/quotes/q_1/accept')
       .set('Authorization', makeToken('ADMIN'))
-      .send({ scheduledAt: new Date(Date.now() + 86400_000).toISOString() });
+      .send({ startAt: startAt.toISOString(), endAt: endAt.toISOString() });
 
     expect(res.status).toBe(200);
   });

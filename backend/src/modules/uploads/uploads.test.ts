@@ -46,7 +46,6 @@ jest.mock('../../lib/cloudinary', () => ({
   },
 }));
 
-import path from 'path';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { Readable } from 'stream';

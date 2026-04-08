@@ -182,7 +182,6 @@ describe('GET /api/leads/:id', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/leads/:id/status', () => {
   it('200 — ADMIN transitions lead status', async () => {
-    const existingLead = { ...baseLead, status: 'NEW' as const };
     const updatedLead  = { ...baseLead, status: 'CONTACTED' as const };
 
     (prisma.lead.findUnique as jest.Mock)
