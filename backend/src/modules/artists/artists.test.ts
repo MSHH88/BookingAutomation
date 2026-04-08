@@ -1,5 +1,5 @@
 /**
- * Integration tests for /api/artists — Step 1.22
+ * Integration tests for /api/artists — Step 1.22 / Step 1.24
  *
  * Exercises the full Express stack with mocked Prisma.  No real database or
  * network connections are made.
@@ -12,6 +12,8 @@
  *  ✓ DELETE /api/artists/:id         — 204 ADMIN, 403 non-ADMIN
  *  ✓ POST /api/artists/:id/styles    — 200 ADMIN
  *  ✓ GET  /api/artists/:id/availability — 200 public
+ *  ✓ PUT  /api/artists/:id/services  — 200 ADMIN sets services, 200 empty array removes all,
+ *                                       401 unauth, 403 non-ADMIN, 404 artist not found
  *
  * 18 tests total
  */
@@ -51,6 +53,11 @@ jest.mock('../../lib/prisma', () => ({
       deleteMany: jest.fn(),
       createMany: jest.fn(),
     },
+    artistService: {
+      deleteMany: jest.fn(),
+      createMany: jest.fn(),
+      findMany:   jest.fn(),
+    },
     artistAvailability: {
       findMany:   jest.fn(),
       deleteMany: jest.fn(),
@@ -59,8 +66,9 @@ jest.mock('../../lib/prisma', () => ({
     $transaction: jest.fn().mockImplementation((arg: unknown) => {
       if (Array.isArray(arg)) return Promise.resolve(arg.map(() => ({})));
       if (typeof arg === 'function') return (arg as Function)({
-        user:   { create: jest.fn().mockResolvedValue({ id: 'u_1', email: 'artist@example.com', name: 'Ace Artist', role: 'ARTIST' }) },
-        artist: { create: jest.fn().mockResolvedValue({ id: 'a_1', userId: 'u_1', slug: 'ace-artist' }) },
+        user:          { create: jest.fn().mockResolvedValue({ id: 'u_1', email: 'artist@example.com', name: 'Ace Artist', role: 'ARTIST' }) },
+        artist:        { create: jest.fn().mockResolvedValue({ id: 'a_1', userId: 'u_1', slug: 'ace-artist' }) },
+        artistService: { deleteMany: jest.fn().mockResolvedValue({}), createMany: jest.fn().mockResolvedValue({}) },
       });
       return Promise.resolve(undefined);
     }),
@@ -236,5 +244,81 @@ describe('GET /api/artists/:id/availability', () => {
 
     const res = await request(app).get('/api/artists/a_1/availability');
     expect(res.status).toBe(200);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('PUT /api/artists/:id/services', () => {
+  const servicePayload = {
+    services: [
+      { serviceId: 's_1', customPrice: 55.00 },
+      { serviceId: 's_2', customPrice: null },
+    ],
+  };
+
+  const serviceRoster = [
+    {
+      serviceId: 's_1', customPrice: '55.00',
+      service: { id: 's_1', name: 'Haircut', durationMinutes: 30, priceFrom: '45.00', isActive: true,
+        category: { id: 'cat_1', name: 'Cuts' } },
+    },
+    {
+      serviceId: 's_2', customPrice: null,
+      service: { id: 's_2', name: 'Beard Trim', durationMinutes: 20, priceFrom: '25.00', isActive: true,
+        category: { id: 'cat_1', name: 'Cuts' } },
+    },
+  ];
+
+  it('200 — ADMIN sets services for an artist with price overrides', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue({ id: 'a_1' });
+    (prisma.service.findMany as jest.Mock).mockResolvedValue([{ id: 's_1' }, { id: 's_2' }]);
+    (prisma.artistService.findMany as jest.Mock).mockResolvedValue(serviceRoster);
+
+    const res = await request(app)
+      .put('/api/artists/a_1/services')
+      .set('Authorization', makeToken('ADMIN'))
+      .send(servicePayload);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('200 — empty array removes all services', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue({ id: 'a_1' });
+    (prisma.artistService.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app)
+      .put('/api/artists/a_1/services')
+      .set('Authorization', makeToken('ADMIN'))
+      .send({ services: [] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('401 — unauthenticated request rejected', async () => {
+    const res = await request(app)
+      .put('/api/artists/a_1/services')
+      .send(servicePayload);
+    expect(res.status).toBe(401);
+  });
+
+  it('403 — ARTIST cannot set another artist services', async () => {
+    const res = await request(app)
+      .put('/api/artists/a_1/services')
+      .set('Authorization', makeToken('ARTIST'))
+      .send(servicePayload);
+    expect(res.status).toBe(403);
+  });
+
+  it('404 — artist not found', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app)
+      .put('/api/artists/bad_id/services')
+      .set('Authorization', makeToken('ADMIN'))
+      .send(servicePayload);
+
+    expect(res.status).toBe(404);
   });
 });

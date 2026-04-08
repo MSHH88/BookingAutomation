@@ -12,6 +12,7 @@ import type {
   UpdateArtistBody,
   AssignStylesBody,
   SetAvailabilityBody,
+  SetArtistServicesBody,
   ListArtistsQuery,
 } from './artists.schema';
 
@@ -177,6 +178,26 @@ export async function setAvailability(
       isAdmin(req),
     );
     res.json(success(availability));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * PUT /api/artists/:id/services
+ * ADMIN only. Atomically replaces the full set of services an artist offers,
+ * with optional per-artist price overrides.
+ */
+export async function setArtistServices(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { id } = req.params as { id: string };
+    const body = req.body as SetArtistServicesBody;
+    const services = await artistsService.setArtistServices(id, body);
+    res.json(success(services));
   } catch (err) {
     next(err);
   }

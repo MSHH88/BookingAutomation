@@ -20,6 +20,7 @@ import type {
   UpdateArtistBody,
   AssignStylesBody,
   SetAvailabilityBody,
+  SetArtistServicesBody,
   ListArtistsQuery,
 } from './artists.schema';
 
@@ -303,6 +304,80 @@ export async function setAvailability(
   ]);
 
   return getAvailability(artistId);
+}
+
+/**
+ * Atomically replace the complete list of services an artist offers.
+ *
+ * - ADMIN only (enforced at route level; this function does NOT check ownership).
+ * - Validates all serviceIds exist and are active before making any changes.
+ * - Deletes all existing ArtistService rows for the artist, then inserts the new set.
+ * - Supports per-artist price overrides via `customPrice` (null = use Service.priceFrom).
+ * - Passing an empty array removes all service assignments.
+ *
+ * Returns the updated list of ArtistService records for the artist.
+ */
+export async function setArtistServices(
+  artistId: string,
+  input: SetArtistServicesBody,
+) {
+  const artist = await prisma.artist.findUnique({
+    where:  { id: artistId },
+    select: { id: true },
+  });
+  if (!artist) throw new AppError(404, 'ARTIST_NOT_FOUND', 'Artist not found');
+
+  // Validate all serviceIds exist and are active
+  if (input.services.length > 0) {
+    const serviceIds = input.services.map((s) => s.serviceId);
+    const found = await prisma.service.findMany({
+      where:  { id: { in: serviceIds }, isActive: true },
+      select: { id: true },
+    });
+    if (found.length !== serviceIds.length) {
+      const foundIds = new Set(found.map((s) => s.id));
+      const bad = serviceIds.filter((id) => !foundIds.has(id));
+      throw new AppError(
+        400,
+        'INVALID_SERVICE_IDS',
+        `One or more service IDs are invalid or inactive: ${bad.join(', ')}`,
+      );
+    }
+  }
+
+  // Replace atomically: delete all existing rows, then insert the new set
+  await prisma.$transaction(async (tx) => {
+    await tx.artistService.deleteMany({ where: { artistId } });
+    if (input.services.length > 0) {
+      await tx.artistService.createMany({
+        data: input.services.map((s) => ({
+          artistId,
+          serviceId:   s.serviceId,
+          customPrice: s.customPrice ?? null,
+        })),
+      });
+    }
+  });
+
+  // Return the updated roster so the caller gets fresh data
+  return prisma.artistService.findMany({
+    where:   { artistId },
+    orderBy: { service: { name: 'asc' } },
+    select:  {
+      serviceId:   true,
+      customPrice: true,
+      service: {
+        select: {
+          id:             true,
+          name:           true,
+          durationMinutes: true,
+          priceFrom:      true,
+          isActive:       true,
+          category: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
 }
 
 // ─── Prisma select shapes ─────────────────────────────────────────────────────

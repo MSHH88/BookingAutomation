@@ -433,8 +433,9 @@ model Service {
 }
 
 model ArtistService {
-  artistId  String
-  serviceId String
+  artistId    String
+  serviceId   String
+  customPrice Decimal? @db.Decimal(10, 2) // per-artist price override; null = use Service.priceFrom
 
   artist  Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
   service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
@@ -464,6 +465,8 @@ model Table {
   name      String
   capacity  Int
   location  String?
+  positionX Float?   // x coordinate for visual floor-plan (CRM)
+  positionY Float?   // y coordinate for visual floor-plan (CRM)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

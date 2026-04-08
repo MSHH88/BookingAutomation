@@ -168,10 +168,40 @@ export const getAvailabilitySchema = z.object({
   }),
 });
 
+/**
+ * PUT /api/artists/:id/services — atomically replace the full list of services
+ * an artist offers, with optional per-artist price overrides.
+ *
+ * Body:
+ *   { services: [{ serviceId: "cuid", customPrice?: number | null }] }
+ *
+ * Passing an empty array removes all service assignments for the artist.
+ */
+export const setArtistServicesSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, 'Artist ID is required'),
+  }),
+  body: z.object({
+    services: z
+      .array(
+        z.object({
+          serviceId: z.string().min(1, 'serviceId is required'),
+          customPrice: z
+            .number()
+            .positive('customPrice must be a positive number')
+            .optional()
+            .nullable(),
+        }),
+      )
+      .min(0, 'services must be an array (can be empty to remove all)'),
+  }),
+});
+
 // ─── Inferred types ───────────────────────────────────────────────────────────
 
 export type CreateArtistBody = z.infer<typeof createArtistSchema>['body'];
 export type UpdateArtistBody = z.infer<typeof updateArtistSchema>['body'];
 export type AssignStylesBody = z.infer<typeof assignStylesSchema>['body'];
 export type SetAvailabilityBody = z.infer<typeof setAvailabilitySchema>['body'];
+export type SetArtistServicesBody = z.infer<typeof setArtistServicesSchema>['body'];
 export type ListArtistsQuery = z.infer<typeof listArtistsSchema>['query'];

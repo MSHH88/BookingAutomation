@@ -25,6 +25,7 @@ import { waitlistRoutes }      from './modules/waitlist/waitlist.routes';
 import { whatsappRoutes }      from './modules/whatsapp/whatsapp.routes';
 import { analyticsRoutes }    from './modules/analytics/analytics.routes';
 import { paymentsRoutes }     from './modules/payments/payments.routes';
+import { tableRoutes }        from './modules/tables/tables.routes';
 
 const app = express();
 
@@ -128,6 +129,7 @@ app.use('/api/waitlist',      waitlistRoutes);     // Step 1.16
 app.use('/api/whatsapp',      whatsappRoutes);     // Step 1.17
 app.use('/api/analytics',    analyticsRoutes);    // Step 1.18
 app.use('/api/payments',     paymentsRoutes);      // Step 1.23
+app.use('/api/tables',       tableRoutes);         // Step 1.24
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
