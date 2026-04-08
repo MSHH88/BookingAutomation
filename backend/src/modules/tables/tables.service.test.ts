@@ -12,7 +12,8 @@
  *                           occupied tables excluded,
  *                           all tables occupied returns empty array,
  *                           no tables with sufficient capacity returns empty array,
- *                           invalid date throws 400
+ *                           uses durationMinutes from query when provided,
+ *                           invalid date (month 13) throws 400
  *
  *  ✓ createTable          — creates with all fields,
  *                           creates with defaults (location/position null, isActive true)
@@ -26,7 +27,7 @@
  *                           table has active bookings → 409,
  *                           table not found → 404
  *
- * Total: 17 tests
+ * Total: 18 tests
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────
@@ -173,6 +174,15 @@ describe('getTableAvailability', () => {
     await getTableAvailability({ ...baseQuery, durationMinutes: 60 });
     // We can't directly inspect the computed endAt but we verify the call was made
     expect(mockBookingFindMany).toHaveBeenCalled();
+  });
+
+  it('throws 400 for a semantically invalid date (e.g. month 13)', async () => {
+    // "2026-13-01" passes the YYYY-MM-DD regex but creates NaN in new Date()
+    await expect(
+      getTableAvailability({ date: '2026-13-01', time: '19:00', partySize: 2 }),
+    ).rejects.toMatchObject({ statusCode: 400, code: 'INVALID_DATETIME' });
+    // No DB queries should have been made
+    expect(mockTableFindMany).not.toHaveBeenCalled();
   });
 });
 

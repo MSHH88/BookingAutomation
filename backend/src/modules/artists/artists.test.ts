@@ -10,12 +10,12 @@
  *  ✓ POST /api/artists               — 201 ADMIN, 401 unauth, 403 non-ADMIN, 400 invalid
  *  ✓ PATCH /api/artists/:id          — 200 ADMIN, 200 own artist, 401 unauth
  *  ✓ DELETE /api/artists/:id         — 204 ADMIN, 403 non-ADMIN
- *  ✓ POST /api/artists/:id/styles    — 200 ADMIN
+ *  ✓ POST /api/artists/:id/styles    — 200 ADMIN replaces style assignments
  *  ✓ GET  /api/artists/:id/availability — 200 public
  *  ✓ PUT  /api/artists/:id/services  — 200 ADMIN sets services, 200 empty array removes all,
  *                                       401 unauth, 403 non-ADMIN, 404 artist not found
  *
- * 18 tests total
+ * 19 tests total
  */
 
 jest.mock('../whatsapp/whatsapp.service', () => ({
@@ -57,6 +57,9 @@ jest.mock('../../lib/prisma', () => ({
       deleteMany: jest.fn(),
       createMany: jest.fn(),
       findMany:   jest.fn(),
+    },
+    service: {
+      findMany: jest.fn(),
     },
     artistAvailability: {
       findMany:   jest.fn(),
@@ -233,6 +236,25 @@ describe('DELETE /api/artists/:id', () => {
       .set('Authorization', makeToken('CUSTOMER'));
 
     expect(res.status).toBe(403);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('POST /api/artists/:id/styles', () => {
+  it('200 — ADMIN replaces style assignments', async () => {
+    (prisma.artist.findUnique  as jest.Mock).mockResolvedValue({ ...baseArtist, userId: 'u_other' });
+    (prisma.tattooStyle.findMany as jest.Mock).mockResolvedValue([
+      { id: 'style_1' },
+      { id: 'style_2' },
+    ]);
+
+    const res = await request(app)
+      .post('/api/artists/a_1/styles')
+      .set('Authorization', makeToken('ADMIN'))
+      .send({ styleIds: ['style_1', 'style_2'] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 });
 

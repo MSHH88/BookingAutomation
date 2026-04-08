@@ -28,7 +28,7 @@ and a complete Table Management API for restaurant deployments.
 
 ---
 
-## ALL 11 FILES MUST BE DOWNLOADED
+## ALL 12 FILES MUST BE DOWNLOADED
 
 | # | File | New / Modified |
 |---|------|----------------|
@@ -145,7 +145,7 @@ Expected output:
 
 ```
 Test Suites: 33 passed, 33 total
-Tests:       812 passed, 812 total
+Tests:       814 passed, 814 total
 ```
 
 > **All tests must pass with 0 failures.**
