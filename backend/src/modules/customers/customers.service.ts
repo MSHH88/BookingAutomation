@@ -63,8 +63,8 @@ function getCancellationWindowMs(): number {
 /**
  * Customer-facing booking detail shape.
  *
- * Omits internal fields (cancelReason, deposit internals, rescheduledFrom)
- * that are not relevant to the customer self-service portal.
+ * Includes cancelReason so customers can see why their booking was cancelled.
+ * Omits rescheduledFrom and other internal audit fields.
  */
 const myBookingDetailSelect = {
   id:                   true,
@@ -190,17 +190,19 @@ export async function listMyBookings(
  * Returns the full detail of a single booking owned by the customer.
  *
  * Throws 404 if the booking does not exist OR belongs to a different customer.
+ * Ownership is enforced at the database level via the compound where clause
+ * so no customerId field is needed in the returned select shape.
  */
 export async function getMyBookingById(
   id:         string,
   customerId: string,
 ): Promise<MyBookingDetail> {
-  const booking = await prisma.booking.findUnique({
-    where:  { id },
+  const booking = await prisma.booking.findFirst({
+    where:  { id, customerId },
     select: myBookingDetailSelect,
   });
 
-  if (!booking || booking['customerId' as keyof typeof booking] !== customerId) {
+  if (!booking) {
     throw new AppError(404, 'NOT_FOUND', 'Booking not found');
   }
 

@@ -15,7 +15,7 @@ and update their profile.
 
 **Security:**
 - All routes require a valid JWT with at least `CUSTOMER` role
-- Ownership is enforced in the service layer — customers can never access another customer's records regardless of the id supplied
+- Ownership is enforced at the **database level** via compound `where: { id, customerId }` — customers can never access another customer's records regardless of the id supplied
 
 **Business rules:**
 - Cancellation window: `CANCELLATION_WINDOW_HOURS` env var (default 24h). Cancellations and reschedule requests must be submitted outside this window. A cancellation inside the window when `CANCELLATION_FEE_ENABLED` triggers the fee log stub (Phase 2 wires Stripe).

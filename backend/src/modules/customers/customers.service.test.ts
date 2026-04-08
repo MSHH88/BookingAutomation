@@ -2,6 +2,8 @@
  * Unit tests for customers.service.ts — Step 1.25
  *
  * Prisma is fully mocked so these tests run without a live database.
+ * businessType module is mocked to control CANCELLATION_FEE_ENABLED in isolation.
+ * logger is mocked to spy on fee-stub log calls.
  *
  * Coverage:
  *  ✓ listMyBookings
@@ -13,16 +15,16 @@
  *      — throws 400 for invalid to date
  *
  *  ✓ getMyBookingById
- *      — found and belongs to customer
+ *      — found and belongs to customer (findFirst compound where)
  *      — not found (wrong id) → 404
- *      — booking belongs to different customer → 404
+ *      — booking belongs to different customer → 404 (DB returns null)
  *
  *  ✓ cancelMyBooking
  *      — PENDING booking (outside window) → CANCELLED
  *      — CONFIRMED booking (outside window) → CANCELLED
  *      — RESCHEDULED booking (outside window) → CANCELLED
- *      — booking inside window, CANCELLATION_FEE_ENABLED false → still cancelled
- *      — booking inside window, CANCELLATION_FEE_ENABLED true → cancelled + fee log
+ *      — booking inside window, CANCELLATION_FEE_ENABLED false → cancelled, no fee log
+ *      — booking inside window, CANCELLATION_FEE_ENABLED true → cancelled + logger.warn fires
  *      — COMPLETED booking → 409 INVALID_STATUS_TRANSITION
  *      — CANCELLED booking → 409 INVALID_STATUS_TRANSITION
  *      — booking not found → 404
@@ -62,6 +64,7 @@ process.env['JWT_REFRESH_SECRET'] = 'b'.repeat(32);
 
 // ─── Mock prisma ──────────────────────────────────────────────────────────────
 
+const mockBookingFindFirst  = jest.fn();
 const mockBookingFindUnique = jest.fn();
 const mockBookingFindMany   = jest.fn();
 const mockBookingCount      = jest.fn();
@@ -76,6 +79,7 @@ const mockUserUpdate     = jest.fn();
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     booking: {
+      findFirst:  (...a: unknown[]) => mockBookingFindFirst(...a),
       findUnique: (...a: unknown[]) => mockBookingFindUnique(...a),
       findMany:   (...a: unknown[]) => mockBookingFindMany(...a),
       count:      (...a: unknown[]) => mockBookingCount(...a),
@@ -89,6 +93,26 @@ jest.mock('../../lib/prisma', () => ({
       findUnique: (...a: unknown[]) => mockUserFindUnique(...a),
       update:     (...a: unknown[]) => mockUserUpdate(...a),
     },
+  },
+}));
+
+// ─── Mock businessType (needed to test CANCELLATION_FEE_ENABLED branch) ──────
+
+const mockGetDefaultFlags = jest.fn();
+jest.mock('../../config/businessType', () => ({
+  getDefaultFlags: (...a: unknown[]) => mockGetDefaultFlags(...a),
+}));
+
+// ─── Mock logger (needed to spy on warn in fee-enabled test) ──────────────────
+
+const mockLoggerWarn = jest.fn();
+const mockLoggerInfo = jest.fn();
+jest.mock('../../utils/logger', () => ({
+  logger: {
+    warn:  (...a: unknown[]) => mockLoggerWarn(...a),
+    info:  (...a: unknown[]) => mockLoggerInfo(...a),
+    error: jest.fn(),
+    debug: jest.fn(),
   },
 }));
 
@@ -202,15 +226,20 @@ describe('getMyBookingById', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('returns booking when it belongs to the customer', async () => {
-    mockBookingFindUnique.mockResolvedValue(makeBooking());
+    // findFirst with where:{id, customerId} returns the booking when it matches
+    mockBookingFindFirst.mockResolvedValue(makeBooking());
 
     const booking = await getMyBookingById('booking_01', CUSTOMER_ID);
 
+    expect(mockBookingFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'booking_01', customerId: CUSTOMER_ID } }),
+    );
     expect(booking.id).toBe('booking_01');
   });
 
   it('throws 404 when booking is not found', async () => {
-    mockBookingFindUnique.mockResolvedValue(null);
+    // findFirst returns null when no record matches the compound where clause
+    mockBookingFindFirst.mockResolvedValue(null);
 
     await expect(getMyBookingById('bad_id', CUSTOMER_ID)).rejects.toMatchObject({
       statusCode: 404,
@@ -219,7 +248,8 @@ describe('getMyBookingById', () => {
   });
 
   it('throws 404 when booking belongs to a different customer', async () => {
-    mockBookingFindUnique.mockResolvedValue(makeBooking({ customerId: OTHER_ID }));
+    // findFirst returns null when customerId does not match — ownership enforced at DB level
+    mockBookingFindFirst.mockResolvedValue(null);
 
     await expect(getMyBookingById('booking_01', CUSTOMER_ID)).rejects.toMatchObject({
       statusCode: 404,
@@ -236,6 +266,8 @@ describe('cancelMyBooking', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     delete process.env['CANCELLATION_WINDOW_HOURS'];
+    // Default: no cancellation fee (mirrors all current business-type defaults)
+    mockGetDefaultFlags.mockReturnValue({ CANCELLATION_FEE_ENABLED: false });
   });
 
   afterAll(() => {
@@ -278,7 +310,7 @@ describe('cancelMyBooking', () => {
   });
 
   it('allows cancellation inside window when CANCELLATION_FEE_ENABLED is false', async () => {
-    process.env['BUSINESS_TYPE'] = 'tattoo_studio'; // CANCELLATION_FEE_ENABLED = false
+    // Default flag mock (CANCELLATION_FEE_ENABLED: false) set in beforeEach
     const booking = makeBooking({ status: 'CONFIRMED', startAt: FUTURE_NEAR });
     mockBookingFindUnique.mockResolvedValue(booking);
     mockBookingUpdate.mockResolvedValue({ ...booking, status: 'CANCELLED' });
@@ -286,31 +318,26 @@ describe('cancelMyBooking', () => {
     const result = await cancelMyBooking('booking_01', body, CUSTOMER_ID);
 
     expect(result.status).toBe('CANCELLED');
+    // Fee warning must NOT fire when flag is false
+    expect(mockLoggerWarn).not.toHaveBeenCalled();
   });
 
   it('cancels inside window and logs fee stub when CANCELLATION_FEE_ENABLED is true', async () => {
-    // Override business type to one with CANCELLATION_FEE_ENABLED: true via env
-    // We need to mock getDefaultFlags to return true for this flag.
-    // Since getDefaultFlags reads from businessType.ts defaults where all types
-    // have CANCELLATION_FEE_ENABLED: false, we can temporarily set window to 0
-    // (force "inside window" = false) or test with a spy on logger.warn.
-    // Strategy: set CANCELLATION_WINDOW_HOURS to 0 to make window = 0ms so
-    // any future booking is "outside" — and separately test the fee log path
-    // by patching the flag via a 200h window and near-future booking.
-    //
-    // The simplest approach: spy on logger.warn and verify it fires when we
-    // manually engineer the condition via a custom env var + spy injection.
-    // We test the fee-log branch by keeping CANCELLATION_FEE_ENABLED override
-    // at the service test level. Since businessType.ts all return false, we
-    // validate that the warning is NOT triggered (correct baseline).
+    // Arrange: CANCELLATION_FEE_ENABLED true + booking inside the 24h window
+    mockGetDefaultFlags.mockReturnValue({ CANCELLATION_FEE_ENABLED: true });
     const booking = makeBooking({ status: 'CONFIRMED', startAt: FUTURE_NEAR });
     mockBookingFindUnique.mockResolvedValue(booking);
     mockBookingUpdate.mockResolvedValue({ ...booking, status: 'CANCELLED' });
 
-    // No error should be thrown — fee is logged but booking still cancelled.
-    await expect(
-      cancelMyBooking('booking_01', body, CUSTOMER_ID),
-    ).resolves.not.toThrow();
+    const result = await cancelMyBooking('booking_01', body, CUSTOMER_ID);
+
+    // Booking is still cancelled — the fee is logged but does not block cancellation
+    expect(result.status).toBe('CANCELLED');
+    // Fee stub must fire when inside the window AND CANCELLATION_FEE_ENABLED is true
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      'Cancellation fee triggered (stub)',
+      expect.objectContaining({ bookingId: 'booking_01', customerId: CUSTOMER_ID }),
+    );
   });
 
   it('throws 409 when booking status is COMPLETED', async () => {
