@@ -27,6 +27,7 @@ import { prisma }         from '../../lib/prisma';
 import { AppError }       from '../../errors/AppError';
 import { paginate, PaginatedResult } from '../../utils/paginate';
 import { logger }         from '../../utils/logger';
+import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
 import type {
   CreateQuoteBody,
   ListQuotesQuery,
@@ -498,6 +499,15 @@ export async function acceptQuote(
 
   // Fire-and-forget email stub
   setImmediate(() => queueQuoteAcceptedEmail(id, quote.leadId));
+
+  // Outgoing Webhook — booking.created (fired after transaction commits)
+  void enqueueWebhookEvent('booking.created', {
+    quoteId:  id,
+    leadId:   quote.leadId,
+    artistId: quote.artistId,
+    startAt:  body.startAt,
+    endAt:    body.endAt,
+  });
 
   return fetchQuoteDetail(id);
 }

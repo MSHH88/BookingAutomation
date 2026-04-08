@@ -56,6 +56,13 @@ jest.mock('../whatsapp/whatsapp.service', () => ({
   enqueueLeadInquiry: jest.fn().mockResolvedValue(undefined),
 }));
 
+// leads.service.ts imports enqueueWebhookEvent from webhooks.queue.ts which
+// creates a module-level BullMQ Queue singleton.  Mock the entire module so
+// tests run without a live Redis instance.
+jest.mock('../webhooks/webhooks.queue', () => ({
+  enqueueWebhookEvent: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test (after mocks) ─────────────────────────────────
 
 import * as leadsService from './leads.service';

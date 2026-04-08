@@ -28,6 +28,7 @@ import { logger }          from '../../utils/logger';
 import { config }          from '../../config/index';
 import { getDefaultFlags } from '../../config/businessType';
 import { enqueueLeadInquiry } from '../whatsapp/whatsapp.service';
+import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
 import type {
   CreateLeadBody,
   ListLeadsQuery,
@@ -306,6 +307,16 @@ export async function createLead(
           artistId:       created.artistId ?? undefined,
         });
       }
+
+      // 5. Outgoing Webhook — lead.created
+      void enqueueWebhookEvent('lead.created', {
+        leadId:      created.id,
+        name:        created.name,
+        email:       created.email,
+        status:      'NEW',
+        artistId:    created.artistId ?? null,
+        businessType,
+      });
     } catch (err) {
       logger.error('Lead side-effect error', { err, leadId: created.id });
     }
@@ -482,6 +493,14 @@ export async function updateLeadStatus(
   });
 
   logger.info('Lead status updated', { leadId: id, from: currentStatus, to: nextStatus });
+
+  // Outgoing Webhook — lead.status_changed
+  void enqueueWebhookEvent('lead.status_changed', {
+    leadId:     id,
+    fromStatus: currentStatus,
+    toStatus:   nextStatus,
+  });
+
   return getLeadById(id);
 }
 

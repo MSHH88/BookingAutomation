@@ -28,6 +28,7 @@ import { paymentsRoutes }     from './modules/payments/payments.routes';
 import { tableRoutes }        from './modules/tables/tables.routes';
 import { customerRoutes }     from './modules/customers/customers.routes';
 import { adminRoutes }        from './modules/admin/admin.routes';
+import { webhookRoutes }      from './modules/webhooks/webhooks.routes';
 
 const app = express();
 
@@ -134,6 +135,7 @@ app.use('/api/payments',     paymentsRoutes);      // Step 1.23
 app.use('/api/tables',       tableRoutes);         // Step 1.24
 app.use('/api/me',           customerRoutes);      // Step 1.25
 app.use('/api/admin',        adminRoutes);          // Step 1.26
+app.use('/api/webhooks',     webhookRoutes);        // Step 1.27
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

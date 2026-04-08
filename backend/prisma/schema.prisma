@@ -526,3 +526,42 @@ model StudioSettings {
 
   @@map("studio_settings")
 }
+
+// ─── Outgoing Webhooks ────────────────────────────────────────────────────────
+
+model Webhook {
+  id          String   @id @default(cuid())
+  url         String   @db.VarChar(2048)
+  events      String[] // e.g. ["booking.created", "payment.succeeded"]
+  secret      String   // HMAC-SHA256 signing secret (min 16 chars)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@index([isActive])
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id         String   @id @default(cuid())
+  webhookId  String
+  event      String
+  payload    Json
+  statusCode Int?
+  response   String?  @db.Text
+  durationMs Int?
+  success    Boolean  @default(false)
+  error      String?
+  attempt    Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([createdAt])
+  @@index([success])
+  @@map("webhook_deliveries")
+}

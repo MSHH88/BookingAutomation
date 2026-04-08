@@ -49,6 +49,13 @@ const mockBookingCreate = jest.fn();
 
 const mockTransaction = jest.fn();
 
+// quotes.service.ts imports enqueueWebhookEvent from webhooks.queue.ts which
+// creates a module-level BullMQ Queue singleton.  Mock the entire module so
+// tests run without a live Redis instance.
+jest.mock('../webhooks/webhooks.queue', () => ({
+  enqueueWebhookEvent: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     quote: {

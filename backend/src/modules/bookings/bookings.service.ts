@@ -41,6 +41,7 @@ import {
 } from '../whatsapp/whatsapp.service';
 import { enqueueReviewRequest }                              from '../reviews/reviews.queue';
 import { enqueueBookingReminder, cancelBookingReminder }    from '../reminders/reminders.queue';
+import { enqueueWebhookEvent }                              from '../webhooks/webhooks.queue';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -335,6 +336,17 @@ export async function confirmBooking(
     });
   }
 
+  // ── Outgoing Webhook — booking.confirmed ──────────────────────────────────
+  void enqueueWebhookEvent('booking.confirmed', {
+    bookingId:  updated.id,
+    status:     updated.status,
+    artistId:   updated.artist.id,
+    startAt:    updated.startAt.toISOString(),
+    endAt:      updated.endAt.toISOString(),
+    customerId: updated.customer?.id   ?? null,
+    leadId:     updated.lead?.id       ?? null,
+  });
+
   return updated;
 }
 
@@ -495,6 +507,18 @@ export async function completeBooking(
     throw new AppError(500, 'INTERNAL_ERROR', `Booking ${id} not found after completion`);
   }
 
+  // ── Outgoing Webhook — booking.completed ──────────────────────────────────
+  void enqueueWebhookEvent('booking.completed', {
+    bookingId:   updated.id,
+    status:      updated.status,
+    artistId:    updated.artist.id,
+    startAt:     updated.startAt.toISOString(),
+    endAt:       updated.endAt.toISOString(),
+    totalAmount: updated.totalAmount?.toString() ?? null,
+    customerId:  updated.customer?.id ?? null,
+    leadId:      updated.lead?.id     ?? null,
+  });
+
   return updated;
 }
 
@@ -563,6 +587,17 @@ export async function cancelBooking(
   // ── Cancel pending reminder — appointment no longer exists ───────────────
   // Fire-and-forget: queue errors are caught inside cancelBookingReminder.
   void cancelBookingReminder(id);
+
+  // ── Outgoing Webhook — booking.cancelled ─────────────────────────────────
+  void enqueueWebhookEvent('booking.cancelled', {
+    bookingId:    updated.id,
+    status:       updated.status,
+    artistId:     updated.artist.id,
+    startAt:      updated.startAt.toISOString(),
+    cancelReason: updated.cancelReason ?? null,
+    customerId:   updated.customer?.id ?? null,
+    leadId:       updated.lead?.id     ?? null,
+  });
 
   return updated;
 }
@@ -669,6 +704,17 @@ export async function rescheduleBooking(
     studioName:     config.STUDIO_NAME,
     artistName:     updated.artist.user.name,
     serviceName:    updated.services[0]?.service?.name ?? 'appointment',
+  });
+
+  // ── Outgoing Webhook — booking.rescheduled ────────────────────────────────
+  void enqueueWebhookEvent('booking.rescheduled', {
+    bookingId:  updated.id,
+    status:     updated.status,
+    artistId:   updated.artist.id,
+    startAt:    updated.startAt.toISOString(),
+    endAt:      updated.endAt.toISOString(),
+    customerId: updated.customer?.id ?? null,
+    leadId:     updated.lead?.id     ?? null,
   });
 
   return updated;

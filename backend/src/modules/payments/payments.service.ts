@@ -50,6 +50,7 @@ import { prisma }    from '../../lib/prisma';
 import { getStripe } from '../../lib/stripe';
 import { AppError }  from '../../errors/AppError';
 import { logger }    from '../../utils/logger';
+import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
 import type { CreatePaymentIntentBody, RefundBody } from './payments.schema';
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
@@ -474,6 +475,14 @@ async function onPaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent): Pr
     bookingId,
     paymentIntentId: paymentIntent.id,
   });
+
+  // Outgoing Webhook — payment.succeeded
+  void enqueueWebhookEvent('payment.succeeded', {
+    bookingId,
+    paymentIntentId: paymentIntent.id,
+    amount:          paymentIntent.amount,
+    currency:        paymentIntent.currency,
+  });
 }
 
 /**
@@ -513,5 +522,13 @@ async function onChargeRefunded(charge: Stripe.Charge): Promise<void> {
   logger.info('Deposit marked as refunded via charge.refunded', {
     chargeId:        charge.id,
     paymentIntentId,
+  });
+
+  // Outgoing Webhook — payment.refunded
+  void enqueueWebhookEvent('payment.refunded', {
+    chargeId:        charge.id,
+    paymentIntentId,
+    amount:          charge.amount_refunded,
+    currency:        charge.currency,
   });
 }

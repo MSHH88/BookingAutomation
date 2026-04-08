@@ -19,6 +19,7 @@ import { startReviewWorker }                  from './modules/reviews/reviews.pr
 import { reviewQueue }                        from './modules/reviews/reviews.queue';
 import { startReminderWorker }                from './modules/reminders/reminders.processor';
 import { reminderQueue }                      from './modules/reminders/reminders.queue';
+import { startWebhookWorker, webhookQueue }   from './modules/webhooks/webhooks.queue';
 
 // ─── Create server ────────────────────────────────────────────────────────────
 
@@ -31,6 +32,7 @@ const server = http.createServer(app);
 const whatsappWorker = startWhatsAppWorker();
 const reviewWorker   = startReviewWorker();
 const reminderWorker = startReminderWorker();
+const webhookWorker  = startWebhookWorker();
 
 // ─── Start listening ──────────────────────────────────────────────────────────
 
@@ -121,11 +123,19 @@ async function gracefulShutdown(signal: string): Promise<void> {
     await reminderQueue.close();
     logger.info('Reminder queue closed');
 
-    // 8. Disconnect from Prisma (PostgreSQL connection pool)
+    // 8. Stop the Webhook Delivery BullMQ Worker
+    await webhookWorker.close();
+    logger.info('Webhook worker closed');
+
+    // 9. Close the Webhook Delivery BullMQ Queue
+    await webhookQueue.close();
+    logger.info('Webhook queue closed');
+
+    // 10. Disconnect from Prisma (PostgreSQL connection pool)
     await prisma.$disconnect();
     logger.info('Prisma disconnected');
 
-    // 9. Disconnect from Redis
+    // 11. Disconnect from Redis
     await disconnectRedis();
     logger.info('Redis disconnected');
 
