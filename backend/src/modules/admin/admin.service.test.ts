@@ -50,7 +50,7 @@
  *      — clears commission (sets to null)
  *      — throws 404 when artist not found
  *
- * Total: 36 tests
+ * Total: 30 tests
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────
