@@ -1,0 +1,322 @@
+/**
+ * Admin Panel service — Step 1.26
+ *
+ * All business logic for the /api/admin endpoints.
+ *
+ * Security contract:
+ *  - Every exported function may only be called from admin-protected routes.
+ *  - The router enforces ADMIN role via requireRole('ADMIN') before any of
+ *    these functions are reached.
+ *
+ * Endpoints covered:
+ *   getStudioSettings       — fetch current studio settings (null if not seeded)
+ *   updateStudioSettings    — upsert studio settings; studioName required on create
+ *   listFeatureFlags        — return all feature flags ordered alphabetically
+ *   updateFeatureFlag       — toggle/set a single feature flag by its unique key
+ *   listUsers               — paginated user list with role/isActive/search filters
+ *   updateUser              — update role, isActive, or name of a user
+ *   listArtistsAdmin        — paginated artist list with isActive filter
+ *   updateArtistAdmin       — update isActive or commission config of an artist
+ *
+ * Data ownership / invariants:
+ *  - StudioSettings is a singleton row (no uniqueKey — we use findFirst / id).
+ *  - FeatureFlag rows are keyed by `key` (unique).  update() throws P2025 which
+ *    is caught here and re-thrown as AppError 404 for a clean API response.
+ *  - User and Artist updates first fetch the record so the 404 message is
+ *    resource-specific rather than the generic global handler message.
+ */
+import { Prisma } from '@prisma/client';
+
+import { prisma }   from '../../lib/prisma';
+import { AppError } from '../../errors/AppError';
+import { paginate, PaginatedResult } from '../../utils/paginate';
+import type {
+  UpdateSettingsBody,
+  UpdateFeatureFlagBody,
+  ListUsersQuery,
+  UpdateUserBody,
+  ListArtistsAdminQuery,
+  UpdateArtistAdminBody,
+} from './admin.schema';
+
+// ─── Prisma select shapes ─────────────────────────────────────────────────────
+
+/** Full studio settings object returned to the admin. */
+const settingsSelect = {
+  id:                     true,
+  studioName:             true,
+  studioEmail:            true,
+  studioPhone:            true,
+  studioAddress:          true,
+  studioTimezone:         true,
+  currency:               true,
+  depositPercentage:      true,
+  depositFixedAmount:     true,
+  cancellationHours:      true,
+  cancellationFeePercent: true,
+  cancellationPolicyText: true,
+  maxCoversPerSlot:       true,
+  slotIntervalMinutes:    true,
+  googleReviewUrl:        true,
+  bookingPageUrl:         true,
+  updatedAt:              true,
+} satisfies Prisma.StudioSettingsSelect;
+
+type StudioSettingsResult = Prisma.StudioSettingsGetPayload<{
+  select: typeof settingsSelect;
+}>;
+
+/** Feature flag row returned to the admin. */
+const featureFlagSelect = {
+  id:          true,
+  key:         true,
+  label:       true,
+  description: true,
+  isEnabled:   true,
+  updatedAt:   true,
+} satisfies Prisma.FeatureFlagSelect;
+
+type FeatureFlagResult = Prisma.FeatureFlagGetPayload<{
+  select: typeof featureFlagSelect;
+}>;
+
+/** User summary for the admin user list. */
+const userListSelect = {
+  id:               true,
+  email:            true,
+  name:             true,
+  phone:            true,
+  role:             true,
+  isActive:         true,
+  loyaltyBalance:   true,
+  marketingConsent: true,
+  createdAt:        true,
+  updatedAt:        true,
+} satisfies Prisma.UserSelect;
+
+type UserListItem = Prisma.UserGetPayload<{ select: typeof userListSelect }>;
+
+/** Artist summary for the admin artist list. */
+const artistListSelect = {
+  id:             true,
+  slug:           true,
+  isActive:       true,
+  commissionRate: true,
+  commissionType: true,
+  bufferMinutes:  true,
+  slotDuration:   true,
+  user: {
+    select: {
+      id:    true,
+      name:  true,
+      email: true,
+      phone: true,
+    },
+  },
+} satisfies Prisma.ArtistSelect;
+
+type ArtistListItem = Prisma.ArtistGetPayload<{ select: typeof artistListSelect }>;
+
+// ─── Studio Settings ──────────────────────────────────────────────────────────
+
+/**
+ * Returns the current studio settings row, or null if the studio has not been
+ * configured yet (e.g. fresh deployment before the seed has run).
+ */
+export async function getStudioSettings(): Promise<StudioSettingsResult | null> {
+  return prisma.studioSettings.findFirst({ select: settingsSelect });
+}
+
+/**
+ * Updates the studio settings row.  If no row exists yet (fresh deployment),
+ * a new row is created and `studioName` is required.
+ *
+ * Fields not present in `body` are left unchanged when updating.
+ *
+ * @throws AppError 400 — studioName required when creating for the first time.
+ */
+export async function updateStudioSettings(
+  body: UpdateSettingsBody,
+): Promise<StudioSettingsResult> {
+  const existing = await prisma.studioSettings.findFirst({ select: { id: true } });
+
+  if (existing) {
+    return prisma.studioSettings.update({
+      where:  { id: existing.id },
+      data:   body as Prisma.StudioSettingsUpdateInput,
+      select: settingsSelect,
+    });
+  }
+
+  // First-time setup — studioName is the only truly required field; everything
+  // else has a database-level default.
+  if (!body.studioName) {
+    throw new AppError(
+      400,
+      'VALIDATION_ERROR',
+      'studioName is required when creating studio settings for the first time',
+    );
+  }
+
+  return prisma.studioSettings.create({
+    data:   body as Prisma.StudioSettingsCreateInput,
+    select: settingsSelect,
+  });
+}
+
+// ─── Feature Flags ────────────────────────────────────────────────────────────
+
+/**
+ * Returns every feature flag ordered alphabetically by key.
+ */
+export async function listFeatureFlags(): Promise<FeatureFlagResult[]> {
+  return prisma.featureFlag.findMany({
+    select:  featureFlagSelect,
+    orderBy: { key: 'asc' },
+  });
+}
+
+/**
+ * Enables or disables a feature flag identified by its unique key.
+ *
+ * @throws AppError 404 — flag with the given key does not exist.
+ */
+export async function updateFeatureFlag(
+  key:  string,
+  body: UpdateFeatureFlagBody,
+): Promise<FeatureFlagResult> {
+  const flag = await prisma.featureFlag.findUnique({ where: { key } });
+
+  if (!flag) {
+    throw new AppError(404, 'NOT_FOUND', `Feature flag "${key}" not found`);
+  }
+
+  return prisma.featureFlag.update({
+    where:  { key },
+    data:   { isEnabled: body.isEnabled },
+    select: featureFlagSelect,
+  });
+}
+
+// ─── User Management ──────────────────────────────────────────────────────────
+
+/**
+ * Returns a paginated list of all users.
+ *
+ * Supports optional filters:
+ *  - role     — exact role match
+ *  - isActive — "true" / "false" string converted to boolean
+ *  - search   — case-insensitive substring match on name OR email
+ */
+export async function listUsers(
+  query: ListUsersQuery,
+): Promise<PaginatedResult<UserListItem>> {
+  const where: Prisma.UserWhereInput = {};
+
+  if (query.role) {
+    where.role = query.role;
+  }
+
+  if (query.isActive !== undefined) {
+    where.isActive = query.isActive === 'true';
+  }
+
+  if (query.search) {
+    where.OR = [
+      { name:  { contains: query.search, mode: 'insensitive' } },
+      { email: { contains: query.search, mode: 'insensitive' } },
+    ];
+  }
+
+  return paginate(
+    prisma.user,
+    {
+      where,
+      select:  userListSelect,
+      orderBy: { createdAt: 'desc' },
+    },
+    { page: query.page, limit: query.limit },
+  );
+}
+
+/**
+ * Updates a user's role, active state, or display name.
+ *
+ * @throws AppError 404 — user with the given id does not exist.
+ */
+export async function updateUser(
+  id:   string,
+  body: UpdateUserBody,
+): Promise<UserListItem> {
+  const user = await prisma.user.findUnique({ where: { id } });
+
+  if (!user) {
+    throw new AppError(404, 'NOT_FOUND', 'User not found');
+  }
+
+  const data: Prisma.UserUpdateInput = {};
+  if (body.role     !== undefined) data.role     = body.role;
+  if (body.isActive !== undefined) data.isActive = body.isActive;
+  if (body.name     !== undefined) data.name     = body.name;
+
+  return prisma.user.update({
+    where:  { id },
+    data,
+    select: userListSelect,
+  });
+}
+
+// ─── Artist Management ────────────────────────────────────────────────────────
+
+/**
+ * Returns a paginated list of artists with their user profile and commission.
+ *
+ * Supports optional filter:
+ *  - isActive — "true" / "false" string converted to boolean
+ */
+export async function listArtistsAdmin(
+  query: ListArtistsAdminQuery,
+): Promise<PaginatedResult<ArtistListItem>> {
+  const where: Prisma.ArtistWhereInput = {};
+
+  if (query.isActive !== undefined) {
+    where.isActive = query.isActive === 'true';
+  }
+
+  return paginate(
+    prisma.artist,
+    {
+      where,
+      select:  artistListSelect,
+      orderBy: { user: { name: 'asc' } },
+    },
+    { page: query.page, limit: query.limit },
+  );
+}
+
+/**
+ * Updates an artist's active state or commission configuration.
+ *
+ * @throws AppError 404 — artist with the given id does not exist.
+ */
+export async function updateArtistAdmin(
+  id:   string,
+  body: UpdateArtistAdminBody,
+): Promise<ArtistListItem> {
+  const artist = await prisma.artist.findUnique({ where: { id } });
+
+  if (!artist) {
+    throw new AppError(404, 'NOT_FOUND', 'Artist not found');
+  }
+
+  const data: Prisma.ArtistUpdateInput = {};
+  if (body.isActive        !== undefined) data.isActive        = body.isActive;
+  if (body.commissionRate  !== undefined) data.commissionRate  = body.commissionRate;
+  if (body.commissionType  !== undefined) data.commissionType  = body.commissionType;
+
+  return prisma.artist.update({
+    where:  { id },
+    data,
+    select: artistListSelect,
+  });
+}

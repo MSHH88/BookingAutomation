@@ -1,4 +1,104 @@
-# Step 1.25 — Customer Portal API
+# Step 1.26 — Admin Panel API
+
+Adds the **`/api/admin`** endpoint group — a complete admin management portal
+for studio owners and super-admins to configure the studio, manage feature
+flags, and administer users and artists — all without touching code or the
+database directly.
+
+**What this step delivers:**
+
+- `GET  /api/admin/settings`                    — fetch current studio settings (null on fresh install)
+- `PATCH /api/admin/settings`                   — create or update studio settings (studioName required on first PATCH)
+- `GET  /api/admin/feature-flags`               — list all feature flags ordered alphabetically
+- `PATCH /api/admin/feature-flags/:key`         — enable or disable a feature flag by its unique key
+- `GET  /api/admin/users`                       — paginated user list, filterable by role / isActive / free-text search
+- `PATCH /api/admin/users/:id`                  — update a user's role, isActive state, or display name
+- `GET  /api/admin/artists`                     — paginated artist list with user profile and commission info, filterable by isActive
+- `PATCH /api/admin/artists/:id`                — update an artist's active state or commission configuration
+
+**Security:**
+- All routes require a valid JWT with the `ADMIN` role
+- No feature flag gates this module — admin management is always available regardless of business type
+
+**Business rules:**
+- `StudioSettings` is a singleton — `PATCH /api/admin/settings` will create the row if it doesn't exist (studioName required), or update the existing row if it does.
+- Feature flag `key` is the unique identifier used in the URL path; 404 is returned for unknown keys.
+- User/artist 404s are raised before any mutation attempt.
+- All list endpoints support `?page=` and `?limit=` for pagination.
+
+---
+
+## ALL 6 FILES MUST BE DOWNLOADED
+
+| # | File | New / Modified |
+|---|------|----------------|
+| 1 | `backend/src/modules/admin/admin.schema.ts`       | NEW |
+| 2 | `backend/src/modules/admin/admin.service.ts`      | NEW |
+| 3 | `backend/src/modules/admin/admin.controller.ts`   | NEW |
+| 4 | `backend/src/modules/admin/admin.routes.ts`       | NEW |
+| 5 | `backend/src/modules/admin/admin.service.test.ts` | NEW |
+| 6 | `backend/src/app.ts`                              | MODIFIED |
+
+---
+
+## STEP 1 — Delete stale copies of all files
+
+```bash
+rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.schema.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.controller.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.routes.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/admin/admin.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/app.ts
+```
+
+---
+
+## STEP 2 — Create required directories
+
+```bash
+mkdir -p ~/Desktop/Automation/backend/src/modules/admin
+```
+
+---
+
+## STEP 3 — Download all 6 files
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.schema.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/admin/admin.schema.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/admin/admin.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.controller.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/admin/admin.controller.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.routes.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/admin/admin.routes.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/admin/admin.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/admin/admin.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" \
+  -o ~/Desktop/Automation/backend/src/app.ts
+```
+
+---
+
+## STEP 4 — Run the full test suite
+
+> **No schema change, no migration required for this step.**
+
+```bash
+cd ~/Desktop/Automation/backend && npm test
+```
+
+Expected output:
+
+```
+Test Suites: 35 passed, 35 total
+Tests:       877 passed, 877 total
+```
+
+> **All tests must pass with 0 failures.**
+> Tests mock all database calls — no live Postgres or Redis required.
+
 
 Adds the **`/api/me`** endpoint group — a full self-service portal for
 logged-in customers to manage their own bookings, view their inquiry leads,
