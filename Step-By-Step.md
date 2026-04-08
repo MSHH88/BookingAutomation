@@ -1,93 +1,72 @@
-# Step 1.27 — Outgoing Webhook System
+# Step 1.28 — Google Calendar Sync
 
-Adds a full **outgoing webhook delivery system** so any external service can
-subscribe to real-time business events fired by the studio backend.
+Adds **live Google Calendar sync** for every artist/practitioner.  When a booking
+is confirmed, rescheduled, or cancelled the system automatically creates, updates,
+or deletes the corresponding event on the artist's Google Calendar — the same
+approach used by Acuity Scheduling, Booksy, and Fresha.
 
 **What this step delivers:**
 
-- `GET    /api/webhooks`                    — paginated list of registered webhooks
-- `POST   /api/webhooks`                    — register a new webhook (secret returned once)
-- `GET    /api/webhooks/:id`                — get webhook details (secret excluded)
-- `PATCH  /api/webhooks/:id`                — partially update a webhook
-- `DELETE /api/webhooks/:id`                — permanently delete webhook + all delivery history
-- `GET    /api/webhooks/:id/deliveries`     — paginated delivery history
-- `POST   /api/webhooks/:id/test`           — enqueue a test delivery to verify connectivity
+- `GET  /api/calendar/auth-url`      — generate the Google OAuth2 consent URL (ADMIN / ARTIST)
+- `GET  /api/calendar/callback`      — public OAuth2 callback; exchanges code, stores tokens
+- `GET  /api/calendar/status`        — check whether an artist's calendar is connected (ADMIN / ARTIST)
+- `DELETE /api/calendar/disconnect`  — revoke the integration and clear stored tokens (ADMIN / ARTIST)
 
-**Event types supported:**
+**Booking side-effects (replacing Phase 1 stubs):**
 
-| Event                | Fired when                                           |
-|----------------------|------------------------------------------------------|
-| `booking.created`    | Quote converted → booking                            |
-| `booking.confirmed`  | Booking status → CONFIRMED                           |
-| `booking.cancelled`  | Booking status → CANCELLED                           |
-| `booking.completed`  | Booking status → COMPLETED                           |
-| `booking.rescheduled`| Booking start/end time changed                       |
-| `lead.created`       | New lead submitted via capture form                  |
-| `lead.status_changed`| Lead status updated by staff                         |
-| `payment.succeeded`  | Stripe `payment_intent.succeeded` received           |
-| `payment.refunded`   | Stripe `charge.refunded` received                    |
+| Event              | Calendar action                                     |
+|--------------------|-----------------------------------------------------|
+| Booking CONFIRMED  | Create event → store `calendarEventId` on Booking  |
+| Booking RESCHEDULED | Update event (new start/end/title)                 |
+| Booking CANCELLED  | Delete event → clear `calendarEventId`              |
+
+**Feature flag:** `CALENDAR_ENABLED` (already seeded in DB — no migration needed).  
+All sync calls are **fire-and-forget**; a Google outage never causes an HTTP 5xx.
+
+**Token refresh:** `buildOAuth2ClientForTokens` registers a `tokens` listener.
+When Google issues a new access token, the refreshed credentials are persisted
+back to the `artists` table automatically.
 
 **Security:**
-- All routes require a valid JWT with the `ADMIN` role
-- Every delivery is signed with `X-BookingAutomation-Signature: sha256=<hmac-sha256-hex>`
-- The signing secret is generated automatically (32 random bytes / 64 hex chars) and returned **only once** on creation — callers must store it securely
+- All OAuth-initiating and status routes require a valid JWT (`ADMIN` or `ARTIST`)
+- The `/callback` endpoint is intentionally public — Google redirects the
+  browser there; no Authorization header is available at that point
+- The `state` parameter (Base64url-encoded JSON `{ artistId }`) binds the
+  callback to the correct Artist record without storing server-side session state
 
-**Delivery mechanics:**
-- Deliveries are enqueued via BullMQ (3 attempts, exponential back-off starting at 5 s)
-- Each delivery result is recorded in `webhook_deliveries` for audit/replay
-- A Redis outage never causes HTTP 5xx — `enqueueWebhookEvent` swallows errors and logs a warning
-
-**Schema changes:**
-- New model `Webhook` (`webhooks` table)
-- New model `WebhookDelivery` (`webhook_deliveries` table)
-- Requires `prisma migrate deploy` (or `prisma db push` in dev)
+**No schema migration required** — `Booking.calendarEventId` and the three
+`Artist.calendar*` columns already exist from earlier steps.
 
 ---
 
-## ALL 17 FILES MUST BE DOWNLOADED
+## ALL 9 FILES MUST BE DOWNLOADED
 
 | # | File | New / Modified |
 |---|------|----------------|
-| 1  | `backend/prisma/schema.prisma`                               | MODIFIED |
-| 2  | `backend/src/app.ts`                                         | MODIFIED |
-| 3  | `backend/src/server.ts`                                      | MODIFIED |
-| 4  | `backend/src/modules/webhooks/webhooks.schema.ts`            | NEW |
-| 5  | `backend/src/modules/webhooks/webhooks.service.ts`           | NEW |
-| 6  | `backend/src/modules/webhooks/webhooks.controller.ts`        | NEW |
-| 7  | `backend/src/modules/webhooks/webhooks.routes.ts`            | NEW |
-| 8  | `backend/src/modules/webhooks/webhooks.queue.ts`             | NEW |
-| 9  | `backend/src/modules/webhooks/webhooks.service.test.ts`      | NEW |
-| 10 | `backend/src/modules/bookings/bookings.service.ts`           | MODIFIED |
-| 11 | `backend/src/modules/bookings/bookings.service.test.ts`      | MODIFIED |
-| 12 | `backend/src/modules/leads/leads.service.ts`                 | MODIFIED |
-| 13 | `backend/src/modules/leads/leads.service.test.ts`            | MODIFIED |
-| 14 | `backend/src/modules/payments/payments.service.ts`           | MODIFIED |
-| 15 | `backend/src/modules/payments/payments.service.test.ts`      | MODIFIED |
-| 16 | `backend/src/modules/quotes/quotes.service.ts`               | MODIFIED |
-| 17 | `backend/src/modules/quotes/quotes.service.test.ts`          | MODIFIED |
+| 1  | `backend/src/lib/google-calendar.ts`                          | NEW |
+| 2  | `backend/src/modules/calendar/calendar.schema.ts`             | NEW |
+| 3  | `backend/src/modules/calendar/calendar.service.ts`            | NEW |
+| 4  | `backend/src/modules/calendar/calendar.controller.ts`         | NEW |
+| 5  | `backend/src/modules/calendar/calendar.routes.ts`             | NEW |
+| 6  | `backend/src/modules/calendar/calendar.service.test.ts`       | NEW |
+| 7  | `backend/src/modules/bookings/bookings.service.ts`            | MODIFIED |
+| 8  | `backend/src/modules/bookings/bookings.service.test.ts`       | MODIFIED |
+| 9  | `backend/src/app.ts`                                          | MODIFIED |
 
 ---
 
 ## STEP 1 — Delete stale copies of all files
 
 ```bash
-rm -f ~/Desktop/Automation/backend/prisma/schema.prisma && \
-rm -f ~/Desktop/Automation/backend/src/app.ts && \
-rm -f ~/Desktop/Automation/backend/src/server.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.schema.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.controller.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.routes.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.queue.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/lib/google-calendar.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.schema.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.controller.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.routes.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.test.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/leads/leads.service.test.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/payments/payments.service.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/payments/payments.service.test.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts && \
-rm -f ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts
+rm -f ~/Desktop/Automation/backend/src/app.ts
 ```
 
 ---
@@ -95,69 +74,72 @@ rm -f ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts
 ## STEP 2 — Create required directories
 
 ```bash
-mkdir -p ~/Desktop/Automation/backend/src/modules/webhooks
+mkdir -p ~/Desktop/Automation/backend/src/modules/calendar
 ```
 
 ---
 
-## STEP 3 — Download all 17 files
+## STEP 3 — Download all 9 files
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/prisma/schema.prisma" \
-  -o ~/Desktop/Automation/backend/prisma/schema.prisma && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" \
-  -o ~/Desktop/Automation/backend/src/app.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/server.ts" \
-  -o ~/Desktop/Automation/backend/src/server.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.schema.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.schema.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.controller.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.controller.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.routes.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.routes.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.queue.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.queue.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.test.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/webhooks/webhooks.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/lib/google-calendar.ts" \
+  -o ~/Desktop/Automation/backend/src/lib/google-calendar.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.schema.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.schema.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.controller.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.controller.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.routes.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.routes.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.test.ts && \
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" \
   -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && \
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" \
   -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/leads/leads.service.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/leads/leads.service.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/leads/leads.service.test.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/leads/leads.service.test.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/payments/payments.service.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/payments/payments.service.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/payments/payments.service.test.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/payments/payments.service.test.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.ts && \
-curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.test.ts" \
-  -o ~/Desktop/Automation/backend/src/modules/quotes/quotes.service.test.ts
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" \
+  -o ~/Desktop/Automation/backend/src/app.ts
 ```
 
 ---
 
-## STEP 4 — Run the Prisma migration
+## STEP 4 — Set the Google Calendar environment variables
 
-> **Schema change:** Two new tables (`webhooks`, `webhook_deliveries`) are added.
+In your `~/Desktop/Automation/backend/.env` file, add or verify these lines:
 
-```bash
-cd ~/Desktop/Automation/backend && npx prisma migrate dev --name add_webhooks
+```env
+# Google Calendar OAuth2 — set up at https://console.cloud.google.com
+GOOGLE_CLIENT_ID=REPLACE_WITH_YOUR_CLIENT_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=REPLACE_WITH_YOUR_CLIENT_SECRET
+GOOGLE_REDIRECT_URI=https://YOUR_DOMAIN/api/calendar/callback
 ```
 
-> Or in production / against a live database:
+> In development you can use `http://localhost:3000/api/calendar/callback`.  
+> Add this URI to your OAuth2 Client's **Authorised redirect URIs** in Google Cloud Console.
+
+---
+
+## STEP 5 — Enable the CALENDAR_ENABLED feature flag (if not already on)
+
+The flag is seeded by default.  To check / enable it via the admin API:
 
 ```bash
-cd ~/Desktop/Automation/backend && npx prisma migrate deploy
+# Check current value
+curl -s -H "Authorization: Bearer <ADMIN_TOKEN>" \
+  http://localhost:3000/api/admin/feature-flags | jq '.data[] | select(.key == "CALENDAR_ENABLED")'
+
+# Enable it
+curl -s -X PATCH \
+  -H "Authorization: Bearer <ADMIN_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"value": true}' \
+  http://localhost:3000/api/admin/feature-flags/CALENDAR_ENABLED
 ```
 
 ---
 
-## STEP 5 — Run the full test suite
+## STEP 6 — Run the full test suite
 
 ```bash
 cd ~/Desktop/Automation/backend && npm test
@@ -166,9 +148,10 @@ cd ~/Desktop/Automation/backend && npm test
 Expected output:
 
 ```
-Test Suites: 36 passed, 36 total
-Tests:       899 passed, 899 total
+Test Suites: 37 passed, 37 total
+Tests:       935 passed, 935 total
 ```
 
 > **All tests must pass with 0 failures.**
-> Tests mock all database calls — no live Postgres or Redis required.
+> Tests mock all database and Google API calls — no live Postgres, Redis, or Google credentials required.
+

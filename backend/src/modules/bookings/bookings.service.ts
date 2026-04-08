@@ -42,6 +42,7 @@ import {
 import { enqueueReviewRequest }                              from '../reviews/reviews.queue';
 import { enqueueBookingReminder, cancelBookingReminder }    from '../reminders/reminders.queue';
 import { enqueueWebhookEvent }                              from '../webhooks/webhooks.queue';
+import { syncCreateEvent, syncUpdateEvent, syncDeleteEvent } from '../calendar/calendar.service';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -294,7 +295,10 @@ export async function confirmBooking(
 
   // ── Side-effects — log stubs (Phase 2 wires Resend + Google Calendar) ────
   logger.info('Email job queued (stub)', { job: 'booking-confirmed', bookingId: id });
-  logger.info('Calendar event queued (stub)', { job: 'calendar-create', bookingId: id });
+
+  // ── Google Calendar — create event on confirm ─────────────────────────────
+  // Fire-and-forget: syncCreateEvent swallows all errors internally.
+  void syncCreateEvent(id);
 
   // ── Email Reminder — 24 h before the appointment ─────────────────────────
   // Fire-and-forget: queue errors are caught inside enqueueBookingReminder.
@@ -582,7 +586,10 @@ export async function cancelBooking(
 
   // ── Side-effects — log stubs (Phase 2 wires Resend + Google Calendar) ────
   logger.info('Email job queued (stub)', { job: 'booking-cancelled', bookingId: id, reason: body.cancelReason });
-  logger.info('Calendar event queued (stub)', { job: 'calendar-delete', bookingId: id });
+
+  // ── Google Calendar — delete event on cancel ──────────────────────────────
+  // Fire-and-forget: syncDeleteEvent swallows all errors internally.
+  void syncDeleteEvent(id);
 
   // ── Cancel pending reminder — appointment no longer exists ───────────────
   // Fire-and-forget: queue errors are caught inside cancelBookingReminder.
@@ -688,7 +695,10 @@ export async function rescheduleBooking(
 
   // ── Side-effects — log stubs (Phase 2 wires Resend + Google Calendar) ────
   logger.info('Email job queued (stub)', { job: 'booking-rescheduled', bookingId: id, newStart, newEnd });
-  logger.info('Calendar event queued (stub)', { job: 'calendar-update', bookingId: id });
+
+  // ── Google Calendar — update event on reschedule ──────────────────────────
+  // Fire-and-forget: syncUpdateEvent swallows all errors internally.
+  void syncUpdateEvent(id);
 
   // ── Reminder: cancel old (stale time) + enqueue new (updated time) ───────
   // Fire-and-forget: queue errors are caught inside each helper.

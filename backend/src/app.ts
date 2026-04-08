@@ -29,6 +29,7 @@ import { tableRoutes }        from './modules/tables/tables.routes';
 import { customerRoutes }     from './modules/customers/customers.routes';
 import { adminRoutes }        from './modules/admin/admin.routes';
 import { webhookRoutes }      from './modules/webhooks/webhooks.routes';
+import { calendarRoutes }     from './modules/calendar/calendar.routes';
 
 const app = express();
 
@@ -136,6 +137,7 @@ app.use('/api/tables',       tableRoutes);         // Step 1.24
 app.use('/api/me',           customerRoutes);      // Step 1.25
 app.use('/api/admin',        adminRoutes);          // Step 1.26
 app.use('/api/webhooks',     webhookRoutes);        // Step 1.27
+app.use('/api/calendar',     calendarRoutes);       // Step 1.28
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

@@ -98,6 +98,15 @@ jest.mock('../webhooks/webhooks.queue', () => ({
   enqueueWebhookEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
+// bookings.service.ts imports syncCreateEvent/syncUpdateEvent/syncDeleteEvent
+// from calendar.service.ts which imports google-auth-library.  Mock the entire
+// module to prevent any real Google API calls in tests.
+jest.mock('../calendar/calendar.service', () => ({
+  syncCreateEvent: jest.fn().mockResolvedValue(undefined),
+  syncUpdateEvent: jest.fn().mockResolvedValue(undefined),
+  syncDeleteEvent: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as bookingsService from './bookings.service';
