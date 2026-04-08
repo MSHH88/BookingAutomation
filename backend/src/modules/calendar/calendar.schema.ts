@@ -27,7 +27,9 @@ export const getAuthUrlSchema = z.object({
  */
 export const callbackSchema = z.object({
   query: z.object({
-    code:  z.string({ required_error: 'code is required' }).min(1),
+    // `code` is optional: Google omits it when the user denies consent
+    // and sends only `error=access_denied&state=...` instead.
+    code:  z.string().optional(),
     state: z.string({ required_error: 'state is required' }).min(1),
     error: z.string().optional(),
   }),

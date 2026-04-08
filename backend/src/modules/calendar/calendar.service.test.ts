@@ -27,7 +27,7 @@
  *                        flag off → skip, artist no tokens → skip,
  *                        booking not found → skip, Google API error → logged
  *
- * Total: 37 tests across 7 describes
+ * Total: 36 tests across 7 describes
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────

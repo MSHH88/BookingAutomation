@@ -33,13 +33,21 @@ back to the `artists` table automatically.
   browser there; no Authorization header is available at that point
 - The `state` parameter (Base64url-encoded JSON `{ artistId }`) binds the
   callback to the correct Artist record without storing server-side session state
+- `code` is **optional** in the callback schema so that Google's
+  `error=access_denied` redirect (which carries no `code`) is handled gracefully
+  rather than rejected by schema validation before the controller runs
 
 **No schema migration required** — `Booking.calendarEventId` and the three
 `Artist.calendar*` columns already exist from earlier steps.
 
+**Bug fixes included:**
+- BUG-A: `callbackSchema` required `code` but Google omits it on denial — made optional, controller guards `!code` after the `error` check
+- BUG-B: JSDoc test count in `calendar.service.test.ts` corrected (37 → 36)
+- GAP-A: Added missing `calendar.test.ts` routes integration test (15 tests covering all 4 endpoints, including the OAuth denial path)
+
 ---
 
-## ALL 9 FILES MUST BE DOWNLOADED
+## ALL 10 FILES MUST BE DOWNLOADED
 
 | # | File | New / Modified |
 |---|------|----------------|
@@ -49,9 +57,10 @@ back to the `artists` table automatically.
 | 4  | `backend/src/modules/calendar/calendar.controller.ts`         | NEW |
 | 5  | `backend/src/modules/calendar/calendar.routes.ts`             | NEW |
 | 6  | `backend/src/modules/calendar/calendar.service.test.ts`       | NEW |
-| 7  | `backend/src/modules/bookings/bookings.service.ts`            | MODIFIED |
-| 8  | `backend/src/modules/bookings/bookings.service.test.ts`       | MODIFIED |
-| 9  | `backend/src/app.ts`                                          | MODIFIED |
+| 7  | `backend/src/modules/calendar/calendar.test.ts`               | NEW |
+| 8  | `backend/src/modules/bookings/bookings.service.ts`            | MODIFIED |
+| 9  | `backend/src/modules/bookings/bookings.service.test.ts`       | MODIFIED |
+| 10 | `backend/src/app.ts`                                          | MODIFIED |
 
 ---
 
@@ -64,6 +73,7 @@ rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.controller.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.routes.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.test.ts && \
+rm -f ~/Desktop/Automation/backend/src/modules/calendar/calendar.test.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && \
 rm -f ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.test.ts && \
 rm -f ~/Desktop/Automation/backend/src/app.ts
@@ -79,7 +89,7 @@ mkdir -p ~/Desktop/Automation/backend/src/modules/calendar
 
 ---
 
-## STEP 3 — Download all 9 files
+## STEP 3 — Download all 10 files
 
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/lib/google-calendar.ts" \
@@ -94,6 +104,8 @@ curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/c
   -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.routes.ts && \
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.test.ts" \
   -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.service.test.ts && \
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.test.ts" \
+  -o ~/Desktop/Automation/backend/src/modules/calendar/calendar.test.ts && \
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" \
   -o ~/Desktop/Automation/backend/src/modules/bookings/bookings.service.ts && \
 curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" \
@@ -148,8 +160,8 @@ cd ~/Desktop/Automation/backend && npm test
 Expected output:
 
 ```
-Test Suites: 37 passed, 37 total
-Tests:       935 passed, 935 total
+Test Suites: 38 passed, 38 total
+Tests:       950 passed, 950 total
 ```
 
 > **All tests must pass with 0 failures.**

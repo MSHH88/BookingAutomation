@@ -64,6 +64,12 @@ export async function handleCallback(
       return;
     }
 
+    if (!code) {
+      // Guard: should never happen (Google always sends code or error) but prevents a confusing 502
+      res.status(400).json({ success: false, error: 'MISSING_CODE', message: 'Authorization code is missing.' });
+      return;
+    }
+
     await svc.handleOAuthCallback(code, state);
     res.json(success({ connected: true }));
   } catch (err) {
