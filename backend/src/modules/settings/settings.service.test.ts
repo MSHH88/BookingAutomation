@@ -12,7 +12,7 @@
  *      — fetches from DB, writes to cache, and returns data on cache miss
  *      — returns null when settings row does not exist (DB returns null)
  *      — falls through to DB when Redis.get() throws (non-fatal)
- *      — continues without cache when Redis.set() throws (non-fatal)
+ *      — returns data even when Redis.set() throws after DB fetch (non-fatal)
  *      — does NOT attempt to cache a null result
  *
  *  ✓ updateSettings
