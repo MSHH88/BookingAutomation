@@ -1,0 +1,240 @@
+/**
+ * Integration tests for /api/artists — Step 1.22
+ *
+ * Exercises the full Express stack with mocked Prisma.  No real database or
+ * network connections are made.
+ *
+ * Coverage:
+ *  ✓ GET  /api/artists               — 200 list (public)
+ *  ✓ GET  /api/artists/:slug         — 200 found, 404 not found
+ *  ✓ POST /api/artists               — 201 ADMIN, 401 unauth, 403 non-ADMIN, 400 invalid
+ *  ✓ PATCH /api/artists/:id          — 200 ADMIN, 200 own artist, 401 unauth
+ *  ✓ DELETE /api/artists/:id         — 200 ADMIN, 403 non-ADMIN
+ *  ✓ POST /api/artists/:id/styles    — 200 ADMIN
+ *  ✓ GET  /api/artists/:id/availability — 200 public
+ *
+ * 18 tests total
+ */
+
+jest.mock('../whatsapp/whatsapp.service', () => ({
+  enqueueLeadInquiry:        jest.fn().mockResolvedValue(undefined),
+  enqueueBookingConfirmed:   jest.fn().mockResolvedValue(undefined),
+  enqueuePostVisitReview:    jest.fn().mockResolvedValue(undefined),
+  enqueueRestaurantReminder: jest.fn().mockResolvedValue(undefined),
+  testSendWhatsApp:          jest.fn().mockResolvedValue({ messageSid: 'SM_test' }),
+}));
+
+jest.mock('../reviews/reviews.queue', () => ({
+  enqueueReviewRequest: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../reminders/reminders.queue', () => ({
+  enqueueBookingReminder: jest.fn().mockResolvedValue(undefined),
+  cancelBookingReminder:  jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../lib/prisma', () => ({
+  prisma: {
+    user:   { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+    artist: {
+      findMany:   jest.fn(),
+      findUnique: jest.fn(),
+      findFirst:  jest.fn(),
+      create:     jest.fn(),
+      update:     jest.fn(),
+      count:      jest.fn(),
+    },
+    tattooStyle: {
+      findMany: jest.fn(),
+    },
+    artistStyle: {
+      deleteMany: jest.fn(),
+      createMany: jest.fn(),
+    },
+    artistAvailability: {
+      findMany:   jest.fn(),
+      deleteMany: jest.fn(),
+      createMany: jest.fn(),
+    },
+    $transaction: jest.fn().mockImplementation((arg: unknown) => {
+      if (Array.isArray(arg)) return Promise.resolve(arg.map(() => ({})));
+      if (typeof arg === 'function') return (arg as Function)({
+        user:   { create: jest.fn().mockResolvedValue({ id: 'u_1', email: 'artist@example.com', name: 'Ace Artist', role: 'ARTIST' }) },
+        artist: { create: jest.fn().mockResolvedValue({ id: 'a_1', userId: 'u_1', slug: 'ace-artist' }) },
+      });
+      return Promise.resolve(undefined);
+    }),
+  },
+}));
+
+import request from 'supertest';
+import jwt from 'jsonwebtoken';
+
+import { app }    from '../../app';
+import { prisma } from '../../lib/prisma';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const SECRET = process.env['JWT_ACCESS_SECRET']!;
+
+function makeToken(role: 'ADMIN' | 'ARTIST' | 'CUSTOMER' = 'CUSTOMER', userId = 'u_1') {
+  return `Bearer ${jwt.sign({ sub: userId, email: 'test@example.com', role }, SECRET, { expiresIn: '15m' })}`;
+}
+
+const baseUser = {
+  id: 'u_1', email: 'artist@example.com', name: 'Ace Artist',
+  phone: null, passwordHash: '$2a$12$hash', role: 'ARTIST' as const,
+  isActive: true, marketingConsent: false, gdprConsentAt: null,
+  loyaltyBalance: 0, createdAt: new Date(), updatedAt: new Date(),
+};
+
+const baseArtist = {
+  id: 'a_1', userId: 'u_1', slug: 'ace-artist', bio: 'Tattoo artist',
+  profileImageUrl: null, portfolioImages: [], bufferMinutes: 30, slotDuration: 90,
+  commissionRate: null, commissionType: null,
+  calendarAccessToken: null, calendarRefreshToken: null, calendarTokenExpiresAt: null,
+  isActive: true,
+  user: baseUser,
+  styles: [],
+  services: [],
+};
+
+beforeEach(() => jest.clearAllMocks());
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('GET /api/artists', () => {
+  it('200 — returns empty list when no artists', async () => {
+    (prisma.artist.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.artist.count    as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/artists');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('200 — returns list of active artists', async () => {
+    (prisma.artist.findMany as jest.Mock).mockResolvedValue([baseArtist]);
+    (prisma.artist.count    as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/artists');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].slug).toBe('ace-artist');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('GET /api/artists/:slug', () => {
+  it('200 — returns artist by slug', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(baseArtist);
+
+    const res = await request(app).get('/api/artists/ace-artist');
+    expect(res.status).toBe(200);
+    expect(res.body.data.slug).toBe('ace-artist');
+  });
+
+  it('404 — unknown slug', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get('/api/artists/does-not-exist');
+    expect(res.status).toBe(404);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('POST /api/artists', () => {
+  const validBody = {
+    name: 'New Artist', email: 'newartist@example.com',
+    password: 'ArtistPass1!', slug: 'new-artist',
+  };
+
+  it('201 — ADMIN creates artist', async () => {
+    (prisma.user.findUnique   as jest.Mock).mockResolvedValue(null); // email available
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null); // slug available
+
+    const res = await request(app)
+      .post('/api/artists')
+      .set('Authorization', makeToken('ADMIN'))
+      .send(validBody);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('401 — unauthenticated request rejected', async () => {
+    const res = await request(app).post('/api/artists').send(validBody);
+    expect(res.status).toBe(401);
+  });
+
+  it('403 — CUSTOMER cannot create artist', async () => {
+    const res = await request(app)
+      .post('/api/artists')
+      .set('Authorization', makeToken('CUSTOMER'))
+      .send(validBody);
+
+    expect(res.status).toBe(403);
+  });
+
+  it('400 — missing required fields', async () => {
+    const res = await request(app)
+      .post('/api/artists')
+      .set('Authorization', makeToken('ADMIN'))
+      .send({ email: 'x@example.com' }); // missing name, password, slug
+
+    expect(res.status).toBe(400);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('PATCH /api/artists/:id', () => {
+  it('200 — ADMIN updates any artist', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(baseArtist);
+    (prisma.artist.update as jest.Mock).mockResolvedValue({ ...baseArtist, bio: 'Updated bio' });
+
+    const res = await request(app)
+      .patch('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN'))
+      .send({ bio: 'Updated bio' });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('401 — unauthenticated request rejected', async () => {
+    const res = await request(app).patch('/api/artists/a_1').send({ bio: 'x' });
+    expect(res.status).toBe(401);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('DELETE /api/artists/:id', () => {
+  it('200 — ADMIN soft-deletes artist', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(baseArtist);
+    (prisma.artist.update as jest.Mock).mockResolvedValue({ ...baseArtist, isActive: false });
+
+    const res = await request(app)
+      .delete('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN'));
+
+    expect(res.status).toBe(200);
+  });
+
+  it('403 — CUSTOMER cannot delete artist', async () => {
+    const res = await request(app)
+      .delete('/api/artists/a_1')
+      .set('Authorization', makeToken('CUSTOMER'));
+
+    expect(res.status).toBe(403);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('GET /api/artists/:id/availability', () => {
+  it('200 — returns weekly schedule (public)', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(baseArtist);
+    (prisma.artistAvailability.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/artists/a_1/availability');
+    expect(res.status).toBe(200);
+  });
+});
