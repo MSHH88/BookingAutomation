@@ -269,6 +269,13 @@ export const FEATURE_FLAG_KEYS = [
 
   // ── Reporting ────────────────────────────────────────────────────────────
   'DAILY_REPORT_ENABLED',       // automated daily/weekly summary email to owner
+
+  // ── Phase 1: Messaging foundation ──────────────────────────────────────
+  'SMS_ENABLED',                    // SMS messaging channel (Twilio SMS)
+  'BIRTHDAY_AUTOMATION_ENABLED',    // automated birthday messages
+  'REBOOKING_NUDGES_ENABLED',       // automated rebook nudge after service
+  'RECURRING_BOOKINGS_ENABLED',     // recurring / subscription bookings
+  'CAMPAIGNS_ENABLED',              // bulk messaging campaigns
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -321,6 +328,11 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
+    SMS_ENABLED:                false,
+    BIRTHDAY_AUTOMATION_ENABLED: false,
+    REBOOKING_NUDGES_ENABLED:   false,
+    RECURRING_BOOKINGS_ENABLED: false,
+    CAMPAIGNS_ENABLED:          false,
   },
 
   hair_salon: {
@@ -359,6 +371,11 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
+    SMS_ENABLED:                false,
+    BIRTHDAY_AUTOMATION_ENABLED: false,
+    REBOOKING_NUDGES_ENABLED:   false,
+    RECURRING_BOOKINGS_ENABLED: false,
+    CAMPAIGNS_ENABLED:          false,
   },
 
   barber: {
@@ -397,6 +414,11 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
+    SMS_ENABLED:                false,
+    BIRTHDAY_AUTOMATION_ENABLED: false,
+    REBOOKING_NUDGES_ENABLED:   false,
+    RECURRING_BOOKINGS_ENABLED: false,
+    CAMPAIGNS_ENABLED:          false,
   },
 
   nail_salon: {
@@ -435,6 +457,11 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
+    SMS_ENABLED:                false,
+    BIRTHDAY_AUTOMATION_ENABLED: false,
+    REBOOKING_NUDGES_ENABLED:   false,
+    RECURRING_BOOKINGS_ENABLED: false,
+    CAMPAIGNS_ENABLED:          false,
   },
 
   masseuse: {
@@ -473,6 +500,11 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
+    SMS_ENABLED:                false,
+    BIRTHDAY_AUTOMATION_ENABLED: false,
+    REBOOKING_NUDGES_ENABLED:   false,
+    RECURRING_BOOKINGS_ENABLED: false,
+    CAMPAIGNS_ENABLED:          false,
   },
 
   restaurant: {
@@ -511,6 +543,11 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     TIP_COLLECTION_ENABLED:     true,
     COVERS_MANAGEMENT_ENABLED:  true,
     DAILY_REPORT_ENABLED:       false,
+    SMS_ENABLED:                false,
+    BIRTHDAY_AUTOMATION_ENABLED: false,
+    REBOOKING_NUDGES_ENABLED:   false,
+    RECURRING_BOOKINGS_ENABLED: false,
+    CAMPAIGNS_ENABLED:          false,
   },
 };
 

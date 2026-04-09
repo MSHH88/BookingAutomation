@@ -88,6 +88,9 @@ model Tenant {
   featureFlags      FeatureFlag[]
   emailTemplates    EmailTemplate[]
   whatsappTemplates WhatsAppTemplate[]
+  smsTemplates      SmsTemplate[]
+  recurringBookings RecurringBooking[]
+  campaigns         Campaign[]
   serviceCategories ServiceCategory[]
   services          Service[]
   tattooStyles      TattooStyle[]
@@ -118,6 +121,11 @@ model User {
   // ─── Permission flags (set by SUPER_ADMIN; embedded in JWT at login) ────────
   canViewLeads     Boolean   @default(false) // ADMIN may view leads when true
   canAssignRoles   Boolean   @default(false) // ADMIN may assign roles ≤ ADMIN when true
+  canManageMessages   Boolean              @default(false)
+  notificationChannel NotificationChannel  @default(WHATSAPP)
+  noRebookNudge       Boolean              @default(false)
+  unsubscribed        Boolean              @default(false)
+  dateOfBirth         DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -668,4 +676,84 @@ model WhatsAppTemplate {
   @@index([tenantId])
   @@index([isActive])
   @@map("whatsapp_templates")
+}
+
+// ─── Enums: Notification & Campaign ───────────────────────────────────────────
+
+enum NotificationChannel {
+  WHATSAPP
+  SMS
+  EMAIL
+  ALL
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+// ─── SMS Templates ────────────────────────────────────────────────────────────
+
+model SmsTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  key       String
+  body      String   @db.Text
+  variables Json     @default("[]")
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("sms_templates")
+}
+
+// ─── Recurring Bookings ───────────────────────────────────────────────────────
+
+model RecurringBooking {
+  id              String   @id @default(cuid())
+  tenantId        String?
+  customerId      String
+  serviceId       String?
+  artistId        String?
+  intervalDays    Int
+  nextBookingDate DateTime
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([isActive, nextBookingDate])
+  @@map("recurring_bookings")
+}
+
+// ─── Campaigns ────────────────────────────────────────────────────────────────
+
+model Campaign {
+  id             String         @id @default(cuid())
+  tenantId       String?
+  name           String
+  channel        NotificationChannel @default(WHATSAPP)
+  templateKey    String
+  audienceFilter Json           @default("{}")
+  scheduledAt    DateTime?
+  status         CampaignStatus @default(DRAFT)
+  stats          Json           @default("{}")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("campaigns")
 }
