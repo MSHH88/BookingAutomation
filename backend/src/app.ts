@@ -35,6 +35,8 @@ import { rolesRoutes }        from './modules/roles/roles.routes';
 import { tenantRoutes }       from './modules/tenants/tenants.routes';
 import { whatsappTemplateRoutes } from './modules/whatsapp-templates/whatsapp-templates.routes';
 import { emailTemplateRoutes }    from './modules/email-templates/email-templates.routes';
+import { smsTemplateRoutes }      from './modules/sms-templates/sms-templates.routes';
+import { messagesRoutes }         from './modules/messages/messages.routes';
 
 const app = express();
 
@@ -148,6 +150,8 @@ app.use('/api/roles',        rolesRoutes);          // Phase 0 — Roles Managem
 app.use('/api/tenants',      tenantRoutes);         // Phase 0 — Multi-tenancy
 app.use('/api/messages/whatsapp-templates', whatsappTemplateRoutes); // Phase 1 — Messaging Foundation
 app.use('/api/messages/email-templates',    emailTemplateRoutes);    // Phase 1 — Messaging Foundation
+app.use('/api/messages/sms-templates',      smsTemplateRoutes);      // Phase 1 — Messaging Foundation
+app.use('/api/messages',                    messagesRoutes);         // Phase 1 — Unified messages router
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
