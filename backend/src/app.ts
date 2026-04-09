@@ -37,6 +37,8 @@ import { whatsappTemplateRoutes } from './modules/whatsapp-templates/whatsapp-te
 import { emailTemplateRoutes }    from './modules/email-templates/email-templates.routes';
 import { smsTemplateRoutes }      from './modules/sms-templates/sms-templates.routes';
 import { messagesRoutes }         from './modules/messages/messages.routes';
+import { recurringBookingRoutes } from './modules/recurring-bookings/recurring-bookings.routes';
+import { campaignRoutes }          from './modules/campaigns/campaigns.routes';
 
 const app = express();
 
@@ -152,6 +154,8 @@ app.use('/api/messages/whatsapp-templates', whatsappTemplateRoutes); // Phase 1 
 app.use('/api/messages/email-templates',    emailTemplateRoutes);    // Phase 1 — Messaging Foundation
 app.use('/api/messages/sms-templates',      smsTemplateRoutes);      // Phase 1 — Messaging Foundation
 app.use('/api/messages',                    messagesRoutes);         // Phase 1 — Unified messages router
+app.use('/api/recurring-bookings', recurringBookingRoutes); // Phase 1 — Recurring Bookings
+app.use('/api/campaigns',          campaignRoutes);          // Phase 1 — Campaigns
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
