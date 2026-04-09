@@ -41,6 +41,12 @@ export interface JwtPayload {
   sub: string;
   role: Role;
   email: string;
+  /** Tenant ID — null for SUPER_ADMIN (cross-tenant access). */
+  tenantId: string | null;
+  /** Whether this user may view leads (ADMIN-only permission flag). */
+  canViewLeads: boolean;
+  /** Whether this user may assign roles within their tenant. */
+  canAssignRoles: boolean;
   iat?: number;
   exp?: number;
 }
@@ -52,6 +58,9 @@ export interface SafeUser {
   name: string;
   phone: string | null;
   role: Role;
+  tenantId: string | null;
+  canViewLeads: boolean;
+  canAssignRoles: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -90,25 +99,38 @@ function toSafeUser(user: {
   name: string;
   phone: string | null;
   role: Role;
+  tenantId: string | null;
+  canViewLeads: boolean;
+  canAssignRoles: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }): SafeUser {
   return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    phone: user.phone,
-    role: user.role,
-    isActive: user.isActive,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    id:             user.id,
+    email:          user.email,
+    name:           user.name,
+    phone:          user.phone,
+    role:           user.role,
+    tenantId:       user.tenantId,
+    canViewLeads:   user.canViewLeads,
+    canAssignRoles: user.canAssignRoles,
+    isActive:       user.isActive,
+    createdAt:      user.createdAt,
+    updatedAt:      user.updatedAt,
   };
 }
 
 /** Signs a short-lived JWT access token. */
 function signAccessToken(user: SafeUser): string {
-  const payload: JwtPayload = { sub: user.id, role: user.role, email: user.email };
+  const payload: JwtPayload = {
+    sub:            user.id,
+    role:           user.role,
+    email:          user.email,
+    tenantId:       user.tenantId,
+    canViewLeads:   user.canViewLeads,
+    canAssignRoles: user.canAssignRoles,
+  };
   return jwt.sign(payload, config.JWT_ACCESS_SECRET, {
     expiresIn: config.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   });
@@ -132,6 +154,9 @@ async function buildAuthTokens(user: {
   name: string;
   phone: string | null;
   role: Role;
+  tenantId: string | null;
+  canViewLeads: boolean;
+  canAssignRoles: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

@@ -47,8 +47,19 @@ import { prisma } from '../../lib/prisma';
 
 const SECRET = process.env['JWT_ACCESS_SECRET']!;
 
-function makeToken(role: 'ADMIN' | 'ARTIST' | 'CUSTOMER' = 'CUSTOMER', userId = 'u_1') {
-  return `Bearer ${jwt.sign({ sub: userId, email: 'test@example.com', role }, SECRET, { expiresIn: '15m' })}`;
+function makeToken(role: 'SUPER_ADMIN' | 'ADMIN' | 'ARTIST' | 'CUSTOMER' = 'CUSTOMER', userId = 'u_1') {
+  return `Bearer ${jwt.sign(
+    {
+      sub:            userId,
+      email:          'test@example.com',
+      role,
+      tenantId:       role === 'SUPER_ADMIN' ? null : 'tenant1',
+      canViewLeads:   role === 'ADMIN' || role === 'SUPER_ADMIN', // ADMIN gets leads access in tests
+      canAssignRoles: false,
+    },
+    SECRET,
+    { expiresIn: '15m' },
+  )}`;
 }
 
 const baseLead = {

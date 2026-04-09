@@ -31,6 +31,8 @@ import { adminRoutes }        from './modules/admin/admin.routes';
 import { webhookRoutes }      from './modules/webhooks/webhooks.routes';
 import { calendarRoutes }     from './modules/calendar/calendar.routes';
 import { settingsRoutes }     from './modules/settings/settings.routes';
+import { rolesRoutes }        from './modules/roles/roles.routes';
+import { tenantRoutes }       from './modules/tenants/tenants.routes';
 
 const app = express();
 
@@ -140,6 +142,8 @@ app.use('/api/admin',        adminRoutes);          // Step 1.26
 app.use('/api/webhooks',     webhookRoutes);        // Step 1.27
 app.use('/api/calendar',     calendarRoutes);       // Step 1.28
 app.use('/api/settings',     settingsRoutes);       // Step 1.29
+app.use('/api/roles',        rolesRoutes);          // Phase 0 — Roles Management
+app.use('/api/tenants',      tenantRoutes);         // Phase 0 — Multi-tenancy
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

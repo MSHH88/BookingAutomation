@@ -24,7 +24,14 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
 
   try {
     const payload = verifyAccessToken(token);
-    req.user = { id: payload.sub, email: payload.email, role: payload.role };
+    req.user = {
+      id:            payload.sub,
+      email:         payload.email,
+      role:          payload.role,
+      tenantId:      payload.tenantId ?? null,
+      canViewLeads:  payload.canViewLeads ?? false,
+      canAssignRoles: payload.canAssignRoles ?? false,
+    };
     next();
   } catch (err) {
     // verifyAccessToken already throws a typed AppError — pass it along

@@ -1,14 +1,16 @@
 /**
- * Leads router — Step 1.7
+ * Leads router — Step 1.7 (updated Phase 0: requireLeadAccess)
  *
- * | Method | Path                    | Auth       | Feature Flag           | Description                             |
- * |--------|-------------------------|------------|------------------------|-----------------------------------------|
- * | POST   | /api/leads              | Public     | LEAD_CAPTURE_ENABLED   | Submit inquiry (all business types)     |
- * | GET    | /api/leads              | ADMIN only | –                      | List all leads with filters + pagination|
- * | GET    | /api/leads/export       | ADMIN only | –                      | Download all leads as CSV               |
- * | GET    | /api/leads/:id          | ADMIN only | –                      | Full lead detail (god mode)             |
- * | PATCH  | /api/leads/:id/status   | ADMIN only | –                      | Update lead status                      |
- * | PATCH  | /api/leads/:id/score    | ADMIN only | –                      | Update lead CRM score                   |
+ * | Method | Path                    | Auth             | Feature Flag           | Description                             |
+ * |--------|-------------------------|------------------|------------------------|-----------------------------------------|
+ * | POST   | /api/leads              | Public           | LEAD_CAPTURE_ENABLED   | Submit inquiry (all business types)     |
+ * | GET    | /api/leads              | Lead access only | –                      | List all leads with filters + pagination|
+ * | GET    | /api/leads/export       | Lead access only | –                      | Download all leads as CSV               |
+ * | GET    | /api/leads/:id          | Lead access only | –                      | Full lead detail (god mode)             |
+ * | PATCH  | /api/leads/:id/status   | Lead access only | –                      | Update lead status                      |
+ * | PATCH  | /api/leads/:id/score    | Lead access only | –                      | Update lead CRM score                   |
+ *
+ * "Lead access" = SUPER_ADMIN always, or ADMIN with canViewLeads=true.
  *
  * IMPORTANT — route order:
  *   The literal `/export` route MUST be registered before `/:id` to prevent
@@ -16,10 +18,10 @@
  */
 import { Router } from 'express';
 
-import { requireAuth }    from '../../middleware/auth';
-import { requireRole }    from '../../middleware/requireRole';
-import { requireFeature } from '../../middleware/requireFeature';
-import { validate }       from '../../middleware/validate';
+import { requireAuth }        from '../../middleware/auth';
+import { requireLeadAccess }  from '../../middleware/requireLeadAccess';
+import { requireFeature }     from '../../middleware/requireFeature';
+import { validate }           from '../../middleware/validate';
 import * as ctrl from './leads.controller';
 import {
   createLeadSchema,
@@ -47,7 +49,8 @@ router.post(
   ctrl.createLead,
 );
 
-// ── ADMIN-only routes ─────────────────────────────────────────────────────────
+// ── Lead-access-only routes ───────────────────────────────────────────────────
+// Requires SUPER_ADMIN, or ADMIN with canViewLeads = true.
 
 /**
  * GET /api/leads/export
@@ -56,7 +59,7 @@ router.post(
 router.get(
   '/export',
   requireAuth,
-  requireRole('ADMIN'),
+  requireLeadAccess,
   validate(exportLeadsSchema),
   ctrl.exportLeads,
 );
@@ -64,7 +67,7 @@ router.get(
 router.get(
   '/',
   requireAuth,
-  requireRole('ADMIN'),
+  requireLeadAccess,
   validate(listLeadsSchema),
   ctrl.listLeads,
 );
@@ -72,7 +75,7 @@ router.get(
 router.get(
   '/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requireLeadAccess,
   validate(getLeadByIdSchema),
   ctrl.getLeadById,
 );
@@ -80,7 +83,7 @@ router.get(
 router.patch(
   '/:id/status',
   requireAuth,
-  requireRole('ADMIN'),
+  requireLeadAccess,
   validate(updateLeadStatusSchema),
   ctrl.updateLeadStatus,
 );
@@ -88,7 +91,7 @@ router.patch(
 router.patch(
   '/:id/score',
   requireAuth,
-  requireRole('ADMIN'),
+  requireLeadAccess,
   validate(updateLeadScoreSchema),
   ctrl.updateLeadScore,
 );

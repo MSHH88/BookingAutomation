@@ -16,7 +16,7 @@
 import 'express';
 
 /** Mirror of the Prisma Role enum — kept in sync with prisma/schema.prisma */
-type AppRole = 'ADMIN' | 'ARTIST' | 'CUSTOMER';
+type AppRole = 'SUPER_ADMIN' | 'ADMIN' | 'ARTIST' | 'CUSTOMER';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -33,6 +33,16 @@ declare module 'express-serve-static-core' {
       id: string;
       email: string;
       role: AppRole;
+      /**
+       * The tenant this user belongs to.
+       * null for SUPER_ADMIN (cross-tenant access) and for tokens issued
+       * before multi-tenancy was introduced (backward compatibility).
+       */
+      tenantId: string | null;
+      /** Whether this ADMIN user may view leads. Embedded in JWT at login time. */
+      canViewLeads: boolean;
+      /** Whether this ADMIN user may assign roles within their tenant. */
+      canAssignRoles: boolean;
     };
     /**
      * Parsed cookies — populated by the cookie-parser middleware.

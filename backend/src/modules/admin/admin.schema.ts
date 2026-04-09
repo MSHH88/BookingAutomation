@@ -147,7 +147,7 @@ export const listUsersSchema = z.object({
     limit:    z.string().optional(),
 
     /** Filter by exact role. */
-    role:     z.enum(['ADMIN', 'ARTIST', 'CUSTOMER']).optional(),
+    role:     z.enum(['SUPER_ADMIN', 'ADMIN', 'ARTIST', 'CUSTOMER']).optional(),
 
     /** Filter by account active state. */
     isActive: z.enum(['true', 'false']).optional(),
@@ -171,7 +171,7 @@ export const updateUserSchema = z.object({
   }),
   body: z
     .object({
-      /** Promote or demote the user's access role. */
+      /** Promote or demote the user's access role. ADMIN users cannot assign SUPER_ADMIN via this endpoint. */
       role:     z.enum(['ADMIN', 'ARTIST', 'CUSTOMER']).optional(),
 
       /** Deactivate (false) or reactivate (true) the account. */

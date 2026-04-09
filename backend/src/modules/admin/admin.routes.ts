@@ -1,23 +1,24 @@
 /**
- * Admin Panel router — Step 1.26
+ * Admin Panel router — Step 1.26 (updated Phase 0: split ADMIN / SUPER_ADMIN access)
  *
- * All routes are mounted under /api/admin and require a valid JWT with the
- * ADMIN role (enforced via requireAuth + requireRole('ADMIN')).
+ * All routes are mounted under /api/admin.
  *
- * No feature flag gates this module — admin management is always available
- * regardless of business type, because every deployment needs a way to
- * configure its studio settings and feature flags.
+ * Access model (Phase 0):
+ *  - Studio Settings   : ADMIN or SUPER_ADMIN
+ *  - Feature Flags     : SUPER_ADMIN only (business-type / module toggle is god-mode)
+ *  - User Management   : ADMIN or SUPER_ADMIN
+ *  - Artist Management : ADMIN or SUPER_ADMIN
  *
- * | Method | Path                              | Auth  | Description                                       |
- * |--------|-----------------------------------|-------|---------------------------------------------------|
- * | GET    | /api/admin/settings               | ADMIN | Fetch current studio settings                     |
- * | PATCH  | /api/admin/settings               | ADMIN | Create / update studio settings                   |
- * | GET    | /api/admin/feature-flags          | ADMIN | List all feature flags (ordered by key)           |
- * | PATCH  | /api/admin/feature-flags/:key     | ADMIN | Toggle / set a single feature flag                |
- * | GET    | /api/admin/users                  | ADMIN | Paginated user list (filterable)                  |
- * | PATCH  | /api/admin/users/:id              | ADMIN | Update user role / active state / name            |
- * | GET    | /api/admin/artists                | ADMIN | Paginated artist list (filterable)                |
- * | PATCH  | /api/admin/artists/:id            | ADMIN | Update artist active state / commission           |
+ * | Method | Path                              | Auth        | Description                                       |
+ * |--------|-----------------------------------|-------------|---------------------------------------------------|
+ * | GET    | /api/admin/settings               | ADMIN+      | Fetch current studio settings                     |
+ * | PATCH  | /api/admin/settings               | ADMIN+      | Create / update studio settings                   |
+ * | GET    | /api/admin/feature-flags          | SUPER_ADMIN | List all feature flags (ordered by key)           |
+ * | PATCH  | /api/admin/feature-flags/:key     | SUPER_ADMIN | Toggle / set a single feature flag                |
+ * | GET    | /api/admin/users                  | ADMIN+      | Paginated user list (filterable)                  |
+ * | PATCH  | /api/admin/users/:id              | ADMIN+      | Update user role / active state / name            |
+ * | GET    | /api/admin/artists                | ADMIN+      | Paginated artist list (filterable)                |
+ * | PATCH  | /api/admin/artists/:id            | ADMIN+      | Update artist active state / commission           |
  */
 import { Router } from 'express';
 
@@ -36,37 +37,27 @@ import {
 
 const router = Router();
 
-// ── All /api/admin routes require authentication + ADMIN role ─────────────────
+// ── All /api/admin routes require authentication ───────────────────────────────
 router.use(requireAuth);
-router.use(requireRole('ADMIN'));
 
-// ─── Studio Settings ──────────────────────────────────────────────────────────
+// ─── Studio Settings (ADMIN or SUPER_ADMIN) ───────────────────────────────────
 
-/**
- * GET /api/admin/settings
- * Returns the current studio settings object, or { data: null } if not yet
- * configured.
- */
-router.get('/settings', ctrl.getSettings);
+router.get('/settings',   requireRole('ADMIN'), ctrl.getSettings);
 
-/**
- * PATCH /api/admin/settings
- * Creates or updates the studio settings row.  studioName is required if
- * no settings row exists yet.
- */
 router.patch(
   '/settings',
+  requireRole('ADMIN'),
   validate(updateSettingsSchema),
   ctrl.patchSettings,
 );
 
-// ─── Feature Flags ────────────────────────────────────────────────────────────
+// ─── Feature Flags (SUPER_ADMIN only — god-mode control centre) ───────────────
 
 /**
  * GET /api/admin/feature-flags
  * Returns all feature flags sorted alphabetically.
  */
-router.get('/feature-flags', ctrl.getFeatureFlags);
+router.get('/feature-flags', requireRole('SUPER_ADMIN'), ctrl.getFeatureFlags);
 
 /**
  * PATCH /api/admin/feature-flags/:key
@@ -74,52 +65,39 @@ router.get('/feature-flags', ctrl.getFeatureFlags);
  */
 router.patch(
   '/feature-flags/:key',
+  requireRole('SUPER_ADMIN'),
   validate(updateFeatureFlagSchema),
   ctrl.patchFeatureFlag,
 );
 
-// ─── User Management ──────────────────────────────────────────────────────────
+// ─── User Management (ADMIN or SUPER_ADMIN) ───────────────────────────────────
 
-/**
- * GET /api/admin/users
- * Paginated list of all users.  Supports ?role=, ?isActive=, ?search=
- * query parameters.
- */
 router.get(
   '/users',
+  requireRole('ADMIN'),
   validate(listUsersSchema),
   ctrl.getUsers,
 );
 
-/**
- * PATCH /api/admin/users/:id
- * Update a user's role, isActive, or name.
- */
 router.patch(
   '/users/:id',
+  requireRole('ADMIN'),
   validate(updateUserSchema),
   ctrl.patchUser,
 );
 
-// ─── Artist Management ────────────────────────────────────────────────────────
+// ─── Artist Management (ADMIN or SUPER_ADMIN) ─────────────────────────────────
 
-/**
- * GET /api/admin/artists
- * Paginated list of all artists with user profile.  Supports ?isActive=
- * query parameter.
- */
 router.get(
   '/artists',
+  requireRole('ADMIN'),
   validate(listArtistsAdminSchema),
   ctrl.getArtists,
 );
 
-/**
- * PATCH /api/admin/artists/:id
- * Update an artist's isActive or commission configuration.
- */
 router.patch(
   '/artists/:id',
+  requireRole('ADMIN'),
   validate(updateArtistAdminSchema),
   ctrl.patchArtist,
 );

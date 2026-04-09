@@ -13,9 +13,10 @@ datasource db {
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
 enum Role {
-  ADMIN
-  ARTIST
-  CUSTOMER
+  SUPER_ADMIN // Platform owner — sits above all tenant roles; cross-tenant access
+  ADMIN       // Business owner / studio manager — tenant-scoped
+  ARTIST      // Staff member — tenant-scoped
+  CUSTOMER    // End customer — tenant-scoped
 }
 
 enum LeadStatus {
@@ -67,8 +68,43 @@ enum WaitlistStatus {
 
 // ─── Models ──────────────────────────────────────────────────────────────────
 
+// ─── Tenant ───────────────────────────────────────────────────────────────────
+// Core multi-tenancy model. Each sold business instance is a Tenant.
+// SUPER_ADMIN manages all tenants; all other users belong to exactly one tenant.
+
+model Tenant {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  businessType String   @default("tattoo_studio")
+  plan         String   @default("starter") // starter | pro | enterprise
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users             User[]
+  artists           Artist[]
+  settings          StudioSettings?
+  featureFlags      FeatureFlag[]
+  emailTemplates    EmailTemplate[]
+  whatsappTemplates WhatsAppTemplate[]
+  serviceCategories ServiceCategory[]
+  services          Service[]
+  tattooStyles      TattooStyle[]
+  tables            Table[]
+  waitlistEntries   WaitlistEntry[]
+  leads             Lead[]
+  bookings          Booking[]
+  webhooks          Webhook[]
+  analyticsEvents   AnalyticsEvent[]
+
+  @@index([isActive])
+  @@map("tenants")
+}
+
 model User {
   id               String    @id @default(cuid())
+  tenantId         String?   // null for SUPER_ADMIN; required for all other roles
   email            String    @unique
   passwordHash     String
   role             Role      @default(CUSTOMER)
@@ -79,19 +115,26 @@ model User {
   loyaltyBalance   Int       @default(0)
   stripeCustomerId String?
   isActive         Boolean   @default(true)
+  // ─── Permission flags (set by SUPER_ADMIN; embedded in JWT at login) ────────
+  canViewLeads     Boolean   @default(false) // ADMIN may view leads when true
+  canAssignRoles   Boolean   @default(false) // ADMIN may assign roles ≤ ADMIN when true
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  tenant        Tenant?        @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   artist        Artist?
   refreshTokens RefreshToken[]
   resetTokens   PasswordResetToken[]
   bookings      Booking[]    @relation("CustomerBookings")
 
+  @@index([tenantId])
+  @@index([tenantId, role])
   @@map("users")
 }
 
 model Artist {
   id                    String          @id @default(cuid())
+  tenantId              String?
   userId                String          @unique
   slug                  String          @unique
   bio                   String?
@@ -106,6 +149,7 @@ model Artist {
   calendarTokenExpiresAt DateTime?
   isActive              Boolean         @default(true)
 
+  tenant       Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   availability ArtistAvailability[]
   blocks       AvailabilityBlock[]
@@ -115,6 +159,7 @@ model Artist {
   quotes       Quote[]              @relation("ArtistQuotes")
   bookings     Booking[]            @relation("ArtistBookings")
 
+  @@index([tenantId])
   @@index([isActive])
   @@map("artists")
 }
@@ -152,14 +197,17 @@ model AvailabilityBlock {
 
 model TattooStyle {
   id              String  @id @default(cuid())
+  tenantId        String?
   name            String  @unique
   description     String?
   exampleImageUrl String?
   isActive        Boolean @default(true)
 
+  tenant  Tenant?       @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   artists ArtistStyle[]
   leads   Lead[]        @relation("StyleLeads")
 
+  @@index([tenantId])
   @@index([isActive])
   @@map("tattoo_styles")
 }
@@ -177,6 +225,7 @@ model ArtistStyle {
 
 model Lead {
   id               String     @id @default(cuid())
+  tenantId         String?
   artistId         String?
   styleId          String?
   customerId       String?
@@ -209,10 +258,12 @@ model Lead {
   artist          Artist?      @relation("ArtistLeads", fields: [artistId], references: [id], onDelete: SetNull)
   style           TattooStyle? @relation("StyleLeads", fields: [styleId], references: [id], onDelete: SetNull)
   service         Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  tenant          Tenant?      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   quotes          Quote[]
   booking         Booking?
   analyticsEvents AnalyticsEvent[]
 
+  @@index([tenantId])
   @@index([status])
   @@index([artistId, status])
   @@index([email])
@@ -247,6 +298,7 @@ model Quote {
 
 model Booking {
   id                   String        @id @default(cuid())
+  tenantId             String?
   leadId               String?       @unique
   quoteId              String?       @unique
   artistId             String
@@ -284,10 +336,12 @@ model Booking {
   service         Service?        @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   table           Table?          @relation(fields: [tableId], references: [id], onDelete: SetNull)
   customer        User?           @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: SetNull)
+  tenant          Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   invoice         Invoice?
   services        BookingService[]
   waitlistEntries WaitlistEntry[]
 
+  @@index([tenantId])
   @@index([artistId, startAt])
   @@index([status])
   @@index([startAt, endAt])
@@ -347,6 +401,7 @@ model PasswordResetToken {
 
 model EmailTemplate {
   id        String   @id @default(cuid())
+  tenantId  String?  // null = global default; non-null = per-tenant override
   key       String   @unique
   subject   String
   htmlBody  String
@@ -354,23 +409,31 @@ model EmailTemplate {
   isActive  Boolean  @default(true)
   updatedAt DateTime @updatedAt
 
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
   @@index([isActive])
   @@map("email_templates")
 }
 
 model FeatureFlag {
   id          String   @id @default(cuid())
+  tenantId    String?  // null = global default; non-null = per-tenant override
   key         String   @unique
   label       String
   description String?
   isEnabled   Boolean  @default(true)
   updatedAt   DateTime @updatedAt
 
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
   @@map("feature_flags")
 }
 
 model AnalyticsEvent {
   id          String   @id @default(cuid())
+  tenantId    String?
   leadId      String?
   eventType   String
   payload     Json?
@@ -383,8 +446,10 @@ model AnalyticsEvent {
   utmCampaign String?
   createdAt   DateTime @default(now())
 
-  lead Lead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
 
+  @@index([tenantId])
   @@index([eventType])
   @@index([leadId])
   @@index([createdAt])
@@ -395,6 +460,7 @@ model AnalyticsEvent {
 
 model ServiceCategory {
   id          String   @id @default(cuid())
+  tenantId    String?
   name        String
   description String?
   sortOrder   Int      @default(0)
@@ -402,14 +468,17 @@ model ServiceCategory {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   services Service[]
 
+  @@index([tenantId])
   @@index([isActive])
   @@map("service_categories")
 }
 
 model Service {
   id                 String   @id @default(cuid())
+  tenantId           String?
   categoryId         String
   name               String
   description        String?
@@ -421,12 +490,14 @@ model Service {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  tenant          Tenant?          @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   category        ServiceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   artists         ArtistService[]
   bookings        Booking[]
   bookingServices BookingService[]
   leads           Lead[]
 
+  @@index([tenantId])
   @@index([categoryId, isActive])
   @@index([isActive])
   @@map("services")
@@ -462,6 +533,7 @@ model BookingService {
 
 model Table {
   id        String   @id @default(cuid())
+  tenantId  String?
   name      String
   capacity  Int
   location  String?
@@ -471,8 +543,10 @@ model Table {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   bookings Booking[]
 
+  @@index([tenantId])
   @@index([isActive])
   @@map("tables")
 }
@@ -481,6 +555,7 @@ model Table {
 
 model WaitlistEntry {
   id            String        @id @default(cuid())
+  tenantId      String?
   bookingId     String?
   artistId      String?
   serviceId     String?
@@ -495,8 +570,10 @@ model WaitlistEntry {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
+  @@index([tenantId])
   @@index([status])
   @@index([email])
   @@index([artistId])
@@ -507,6 +584,7 @@ model WaitlistEntry {
 
 model StudioSettings {
   id                      String   @id @default(cuid())
+  tenantId                String?  @unique // one settings row per tenant; null = legacy single-tenant
   studioName              String
   studioEmail             String?
   studioPhone             String?
@@ -524,6 +602,8 @@ model StudioSettings {
   bookingPageUrl          String?
   updatedAt               DateTime @updatedAt
 
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   @@map("studio_settings")
 }
 
@@ -531,6 +611,7 @@ model StudioSettings {
 
 model Webhook {
   id          String   @id @default(cuid())
+  tenantId    String?
   url         String   @db.VarChar(2048)
   events      String[] // e.g. ["booking.created", "payment.succeeded"]
   secret      String   // HMAC-SHA256 signing secret (min 16 chars)
@@ -539,8 +620,10 @@ model Webhook {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  tenant     Tenant?           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   deliveries WebhookDelivery[]
 
+  @@index([tenantId])
   @@index([isActive])
   @@map("webhooks")
 }
@@ -564,4 +647,25 @@ model WebhookDelivery {
   @@index([createdAt])
   @@index([success])
   @@map("webhook_deliveries")
+}
+
+// ─── WhatsApp Templates ───────────────────────────────────────────────────────
+// Stores editable WhatsApp message templates per tenant.
+// Seeded with global defaults (tenantId = null); each tenant can override.
+
+model WhatsAppTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String?  // null = global default; non-null = per-tenant override
+  key       String   // Template key, e.g. "booking-confirmed"
+  body      String   @db.Text
+  variables Json     @default("[]") // Array of variable names, e.g. ["customerName","date"]
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("whatsapp_templates")
 }

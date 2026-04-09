@@ -2,17 +2,18 @@
  * requireRole middleware factory.
  *
  * Enforces role-based access control using a hierarchy:
- *   ADMIN (3) > ARTIST (2) > CUSTOMER (1)
+ *   SUPER_ADMIN (5) > ADMIN (3) > ARTIST (2) > CUSTOMER (1)
  *
- * `requireRole('ARTIST')` passes for ARTIST **and** ADMIN, because ADMIN
- * sits above ARTIST in the hierarchy.  Use `requireRole('ADMIN')` to restrict
- * an endpoint exclusively to admins.
+ * `requireRole('ARTIST')` passes for ARTIST, ADMIN, and SUPER_ADMIN.
+ * `requireRole('ADMIN')` passes for ADMIN and SUPER_ADMIN only.
+ * `requireRole('SUPER_ADMIN')` passes for SUPER_ADMIN only.
  *
  * Must be used AFTER `requireAuth` — it assumes req.user is already populated.
  *
  * Usage:
- *   router.post('/artists', requireAuth, requireRole('ADMIN'), ctrl.create);
- *   router.get('/leads',    requireAuth, requireRole('ARTIST'), ctrl.list);
+ *   router.post('/artists',  requireAuth, requireRole('ADMIN'),       ctrl.create);
+ *   router.get('/leads',     requireAuth, requireRole('ARTIST'),      ctrl.list);
+ *   router.patch('/tenants', requireAuth, requireRole('SUPER_ADMIN'), ctrl.patch);
  */
 import { Request, Response, NextFunction } from 'express';
 import { Role } from '@prisma/client';
@@ -21,6 +22,7 @@ import { AppError } from '../errors/AppError';
 
 /** Numeric level for each role — higher = more permissions. */
 const ROLE_LEVEL: Record<Role, number> = {
+  SUPER_ADMIN: 5,
   ADMIN: 3,
   ARTIST: 2,
   CUSTOMER: 1,
@@ -37,7 +39,7 @@ export function requireRole(minimumRole: Role) {
       return;
     }
 
-    if (ROLE_LEVEL[req.user.role] < ROLE_LEVEL[minimumRole]) {
+    if (ROLE_LEVEL[req.user.role as Role] < ROLE_LEVEL[minimumRole]) {
       next(
         new AppError(
           403,

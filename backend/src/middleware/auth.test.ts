@@ -60,6 +60,9 @@ describe('requireAuth', () => {
       phone: null,
       passwordHash: '$2a$12$h',
       role: 'CUSTOMER' as const,
+      tenantId: 'tenant1',
+      canViewLeads: false,
+      canAssignRoles: false,
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -82,9 +85,12 @@ describe('requireAuth', () => {
 
     expect(next).toHaveBeenCalledWith(); // called with no error
     expect((req as unknown as { user: unknown }).user).toMatchObject({
-      id: 'u1',
-      email: 'test@example.com',
-      role: 'CUSTOMER',
+      id:             'u1',
+      email:          'test@example.com',
+      role:           'CUSTOMER',
+      tenantId:       'tenant1',
+      canViewLeads:   false,
+      canAssignRoles: false,
     });
   });
 
@@ -129,9 +135,9 @@ describe('requireAuth', () => {
 // ─── requireRole ──────────────────────────────────────────────────────────────
 
 describe('requireRole', () => {
-  function reqWithRole(role: 'ADMIN' | 'ARTIST' | 'CUSTOMER'): Request {
+  function reqWithRole(role: 'SUPER_ADMIN' | 'ADMIN' | 'ARTIST' | 'CUSTOMER'): Request {
     return mockReq({
-      user: { id: 'u1', email: 'x@x.com', role },
+      user: { id: 'u1', email: 'x@x.com', role, tenantId: null, canViewLeads: false, canAssignRoles: false },
     } as Partial<Request>);
   }
 
@@ -147,6 +153,12 @@ describe('requireRole', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
+  it('calls next() when SUPER_ADMIN satisfies any role requirement', () => {
+    const next = jest.fn();
+    requireRole('ADMIN')(reqWithRole('SUPER_ADMIN'), mockRes(), next);
+    expect(next).toHaveBeenCalledWith();
+  });
+
   it('calls next(AppError 403) when user has a lower role', () => {
     const next = jest.fn();
     requireRole('ADMIN')(reqWithRole('CUSTOMER'), mockRes(), next);
@@ -158,6 +170,14 @@ describe('requireRole', () => {
   it('calls next(AppError 403) when ARTIST tries to access ADMIN-only route', () => {
     const next = jest.fn();
     requireRole('ADMIN')(reqWithRole('ARTIST'), mockRes(), next);
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ statusCode: 403, code: 'FORBIDDEN' }),
+    );
+  });
+
+  it('calls next(AppError 403) when ADMIN tries to access SUPER_ADMIN-only route', () => {
+    const next = jest.fn();
+    requireRole('SUPER_ADMIN')(reqWithRole('ADMIN'), mockRes(), next);
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({ statusCode: 403, code: 'FORBIDDEN' }),
     );
