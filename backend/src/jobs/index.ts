@@ -7,12 +7,14 @@
  */
 import { logger } from '../utils/logger';
 import { getDefaultFlags } from '../config/businessType';
+import { setupBirthdayJob } from './birthday.job';
+import { setupRecurringBookingJob } from './recurring-booking.job';
+import { setupCampaignJob } from './campaign.job';
 
 export async function registerAllJobs(): Promise<void> {
   const flags = getDefaultFlags();
 
   if (flags['BIRTHDAY_AUTOMATION_ENABLED']) {
-    const { setupBirthdayJob } = await import('./birthday.job');
     await setupBirthdayJob();
     logger.info('Birthday automation job registered');
   }
@@ -22,13 +24,11 @@ export async function registerAllJobs(): Promise<void> {
   }
 
   if (flags['RECURRING_BOOKINGS_ENABLED']) {
-    const { setupRecurringBookingJob } = await import('./recurring-booking.job');
     await setupRecurringBookingJob();
     logger.info('Recurring booking job registered');
   }
 
   if (flags['CAMPAIGNS_ENABLED']) {
-    const { setupCampaignJob } = await import('./campaign.job');
     await setupCampaignJob();
     logger.info('Campaign processing job registered');
   }

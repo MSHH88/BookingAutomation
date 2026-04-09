@@ -20,6 +20,9 @@
  */
 import { logger }         from '../utils/logger';
 import { getDefaultFlags } from '../config/businessType';
+import { whatsappQueue }  from '../modules/whatsapp/whatsapp.queue';
+import { smsQueue }       from '../modules/sms/sms.queue';
+import { sendEmail }      from '../modules/notifications/notifications.service';
 
 export type ChannelPreference = 'WHATSAPP' | 'SMS' | 'EMAIL' | 'ALL';
 
@@ -108,13 +111,11 @@ export async function dispatchNotification(payload: NotificationPayload): Promis
 
 async function dispatchWhatsApp(payload: NotificationPayload): Promise<void> {
   try {
-    // Lazy import to avoid circular dependency at module load
-    const { whatsappQueue } = await import('../modules/whatsapp/whatsapp.queue');
     await whatsappQueue.add(payload.templateKey, {
       jobName:      payload.templateKey as never,
       to:           payload.phone!,
       customerName: payload.customerName,
-      studioName:   payload.variables['studioName'] as string ?? '',
+      studioName:   (payload.variables['studioName'] as string) ?? '',
       artistName:   payload.variables['artistName'] as string,
       bookingId:    payload.variables['bookingId'] as string,
       startAt:      payload.variables['startAt'] as string,
@@ -131,7 +132,6 @@ async function dispatchWhatsApp(payload: NotificationPayload): Promise<void> {
 
 async function dispatchSms(payload: NotificationPayload): Promise<void> {
   try {
-    const { smsQueue } = await import('../modules/sms/sms.queue');
     await smsQueue.add(payload.templateKey, {
       jobName:      payload.templateKey,
       to:           payload.phone!,
@@ -150,7 +150,6 @@ async function dispatchSms(payload: NotificationPayload): Promise<void> {
 
 async function dispatchEmail(payload: NotificationPayload): Promise<void> {
   try {
-    const { sendEmail } = await import('../modules/notifications/notifications.service');
     await sendEmail(payload.templateKey, payload.email!, payload.variables);
     logger.info('Email notification sent', { templateKey: payload.templateKey });
   } catch (err) {

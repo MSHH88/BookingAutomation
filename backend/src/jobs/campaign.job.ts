@@ -137,7 +137,7 @@ async function processCampaign(job: Job<CampaignJobData>): Promise<void> {
     data: { status: 'SENDING' },
   });
 
-  const filter = (campaign.audienceFilter as AudienceFilter) ?? { type: 'ALL' };
+  const filter = (campaign.audienceFilter as unknown as AudienceFilter) ?? { type: 'ALL' };
   const audience = await resolveAudience(campaign.tenantId, filter);
 
   logger.info('Campaign audience resolved', { campaignId, audienceSize: audience.length });

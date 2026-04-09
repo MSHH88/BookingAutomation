@@ -33,9 +33,6 @@ import { calendarRoutes }     from './modules/calendar/calendar.routes';
 import { settingsRoutes }     from './modules/settings/settings.routes';
 import { rolesRoutes }        from './modules/roles/roles.routes';
 import { tenantRoutes }       from './modules/tenants/tenants.routes';
-import { whatsappTemplateRoutes } from './modules/whatsapp-templates/whatsapp-templates.routes';
-import { emailTemplateRoutes }    from './modules/email-templates/email-templates.routes';
-import { smsTemplateRoutes }      from './modules/sms-templates/sms-templates.routes';
 import { messagesRoutes }         from './modules/messages/messages.routes';
 import { recurringBookingRoutes } from './modules/recurring-bookings/recurring-bookings.routes';
 import { campaignRoutes }          from './modules/campaigns/campaigns.routes';
@@ -150,10 +147,7 @@ app.use('/api/calendar',     calendarRoutes);       // Step 1.28
 app.use('/api/settings',     settingsRoutes);       // Step 1.29
 app.use('/api/roles',        rolesRoutes);          // Phase 0 — Roles Management
 app.use('/api/tenants',      tenantRoutes);         // Phase 0 — Multi-tenancy
-app.use('/api/messages/whatsapp-templates', whatsappTemplateRoutes); // Phase 1 — Messaging Foundation
-app.use('/api/messages/email-templates',    emailTemplateRoutes);    // Phase 1 — Messaging Foundation
-app.use('/api/messages/sms-templates',      smsTemplateRoutes);      // Phase 1 — Messaging Foundation
-app.use('/api/messages',                    messagesRoutes);         // Phase 1 — Unified messages router
+app.use('/api/messages',           messagesRoutes);         // Phase 1 — Unified messages router
 app.use('/api/recurring-bookings', recurringBookingRoutes); // Phase 1 — Recurring Bookings
 app.use('/api/campaigns',          campaignRoutes);          // Phase 1 — Campaigns
 
