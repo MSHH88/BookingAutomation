@@ -33,6 +33,8 @@ import { calendarRoutes }     from './modules/calendar/calendar.routes';
 import { settingsRoutes }     from './modules/settings/settings.routes';
 import { rolesRoutes }        from './modules/roles/roles.routes';
 import { tenantRoutes }       from './modules/tenants/tenants.routes';
+import { whatsappTemplateRoutes } from './modules/whatsapp-templates/whatsapp-templates.routes';
+import { emailTemplateRoutes }    from './modules/email-templates/email-templates.routes';
 
 const app = express();
 
@@ -144,6 +146,8 @@ app.use('/api/calendar',     calendarRoutes);       // Step 1.28
 app.use('/api/settings',     settingsRoutes);       // Step 1.29
 app.use('/api/roles',        rolesRoutes);          // Phase 0 — Roles Management
 app.use('/api/tenants',      tenantRoutes);         // Phase 0 — Multi-tenancy
+app.use('/api/messages/whatsapp-templates', whatsappTemplateRoutes); // Phase 1 — Messaging Foundation
+app.use('/api/messages/email-templates',    emailTemplateRoutes);    // Phase 1 — Messaging Foundation
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
