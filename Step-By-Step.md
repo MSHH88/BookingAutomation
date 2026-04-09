@@ -33,6 +33,20 @@ automation, and bulk campaign system.
 
 ---
 
+## Step 0 — Navigate to your project root
+
+> All commands below assume you are in the **BookingAutomation project root**
+> (the folder that contains the `backend/` directory).
+
+```bash
+cd ~/path/to/BookingAutomation
+```
+
+Replace `~/path/to/BookingAutomation` with the actual path to your clone
+(e.g. `~/projects/BookingAutomation`).
+
+---
+
 ## Step 1 — Download all Phase 1 files
 
 > **Total: 53 files** (49 new + 4 modified)
@@ -301,6 +315,10 @@ curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.test.ts" \
 
 ### 1.3 Install dependencies and verify
 
+> **Important:** Run this from the **project root** (the same directory where
+> you ran the curl commands above). Do NOT run `cd backend` from your home
+> directory — it must be relative to the project root.
+
 ```bash
 cd backend
 npm install
@@ -309,3 +327,7 @@ npx jest --forceExit
 ```
 
 **Expected result:** 57 suites, 1194/1194 tests pass, 0 TS errors.
+
+> **Troubleshooting:** If you see `npm error ENOENT: no such file or directory … package.json`,
+> you are in the wrong directory. Go back to the project root first:
+> `cd ~/path/to/BookingAutomation` and then re-run `cd backend && npm install …`
