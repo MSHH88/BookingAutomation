@@ -1,202 +1,310 @@
-# Phase 0 — Security & Architecture Foundation
+# Phase 1 — Messaging Foundation
 
-Implements the **multi-tenancy base layer** and the **SUPER_ADMIN role** required
-before any other feature can be safely deployed.
+Implements the **complete messaging infrastructure**: DB-driven WhatsApp templates,
+10 new WhatsApp message types, email CRM API, SMS channel, birthday/rebooking/recurring
+automation, and bulk campaign system.
 
-**What Phase 0 delivers:**
+**What Phase 1 delivers:**
 
-- `SUPER_ADMIN` role (level 5, above ADMIN) — the platform owner / god mode
-- `Tenant` model — every sold business instance is a `Tenant`
-- `WhatsAppTemplate` model — per-tenant overridable message templates (seeded globally)
-- `tenantId` added to **13 models** — multi-tenancy scaffolding on all data
-- `canViewLeads` + `canAssignRoles` permission flags on `User` — granular access control
-- Both flags embedded in the JWT at login — zero extra DB round-trips on protected routes
-- `requireLeadAccess` middleware — SUPER_ADMIN always; ADMIN only if `canViewLeads=true`
-- `requireRole` updated — SUPER_ADMIN satisfies any minimum-role check
-- `leads.routes` updated — protected by `requireLeadAccess` instead of `requireRole('ADMIN')`
-- `admin.routes` — feature-flags endpoints now require `SUPER_ADMIN` (god-mode only)
-- `admin.schema` — role filter enum extended to include `SUPER_ADMIN`
-- `/api/roles` module — list users + update role / permission flags
-- `/api/tenants` module — full CRUD for tenant management (SUPER_ADMIN only)
+- **WhatsApp Templates (DB-driven)** — CRUD management under `/api/messages/whatsapp-templates` with key-based lookup, variable preview, and tenant scoping
+- **10 new WhatsApp message types** — lead-inquiry, booking-confirmed, booking-reminder, booking-cancelled, booking-rescheduled, post-visit-review, restaurant-reminder, birthday-greeting, rebook-nudge, campaign (via `whatsapp.queue.ts`)
+- **Email Templates (CRM API)** — CRUD management under `/api/messages/email-templates` with Handlebars rendering, HTML preview, and tenant scoping
+- **SMS Channel** — SMS queue processor (`sms.queue.ts`), SMS template management (`/api/messages/sms-templates`), Twilio SMS integration (`twilio-sms.ts`)
+- **Notification Dispatcher** — unified multi-channel dispatcher supporting WhatsApp, SMS, and email via `Promise.allSettled()`
+- **Template Renderer** — `{{variable}}` interpolation engine shared across all channels
+- **Birthday Automation** — daily cron job scans users with matching birth date, sends birthday greeting via preferred channel
+- **Rebooking Nudges** — delayed BullMQ job fired when booking is completed, sends rebook reminder after configurable delay
+- **Recurring Bookings** — `/api/recurring-bookings` CRUD + daily cron that advances `nextBookingDate` and sends notification
+- **Bulk Campaigns** — `/api/campaigns` CRUD + audience resolution (ALL, INACTIVE_30_DAYS, BIRTHDAY_THIS_MONTH) + BullMQ delayed dispatch
+- **Feature flags enabled** — `SMS_ENABLED`, `SMS_REMINDERS_ENABLED`, `RECURRING_BOOKING_ENABLED`, `RECURRING_BOOKINGS_ENABLED`, `CAMPAIGNS_ENABLED`, `BIRTHDAY_AUTOMATION_ENABLED`, `REBOOKING_NUDGES_ENABLED` for tattoo_studio, hair_salon, barber, nail_salon, masseuse
 
 **Bugs fixed in this audit:**
 
 | ID | File | Bug | Fix |
 |----|------|-----|-----|
-| BUG-A | `backend/package.json` | `react` + `react-dom` missing from devDependencies — caused all 16 integration test suites to fail at import time with "Cannot find module 'react-dom/server'" | Added `react@^18.3.1` + `react-dom@^18.3.1` as devDependencies |
-| BUG-B | `backend/package-lock.json` | `axios <1.15.0` critical SSRF vulnerability + `lodash <=4.17.23` high prototype pollution vulnerability in transitive deps | Fixed via `npm audit fix` — lock file updated to safe versions |
+| BUG-A | `config/businessType.ts` | Phase 1 feature flags (`SMS_REMINDERS_ENABLED`, `RECURRING_BOOKING_ENABLED`, `CAMPAIGNS_ENABLED`, etc.) were `false` for all business types — caused 3 integration test suites (24 tests) to get 503 | Enabled all Phase 1 flags for tattoo_studio, hair_salon, barber, nail_salon, masseuse |
+| BUG-B | `jobs/index.ts` | `startRebookWorker()` was never imported or called — rebook nudge jobs queued but never processed | Added import and call to `startRebookWorker()` when `REBOOKING_NUDGES_ENABLED` is true |
+| BUG-C | `jobs/campaign.job.ts` | `BIRTHDAY_THIS_MONTH` audience filter only checked `dateOfBirth IS NOT NULL` without filtering by actual month | Added post-query filter comparing `getUTCMonth()` to current month |
+| BUG-D | `jobs/campaign.job.ts` | `catch` block in campaign dispatch loop swallowed errors silently with `failed++` only | Added error logging with `customerId`, `campaignId`, and error message |
+| BUG-E | `jobs/campaign.job.ts` | `TOP_SPENDERS` and `BY_SERVICE_TYPE` filter types silently fell through to `ALL` without warning | Added explicit `logger.warn()` for unimplemented filter types |
+| BUG-F | `lib/notification-dispatcher.ts` | WhatsApp dispatch cast `artistName`, `bookingId`, `startAt`, `service` as `string` without nullish fallback — `undefined` values would become string `"undefined"` | Added `?? ''` fallback to all fields |
 
-**Test count:** 45 suites, 1039/1039 tests, 0 TS errors.
-
----
-
-## ALL 26 FILES MUST BE DOWNLOADED
-
-### New files (created in Phase 0)
-
-| # | File |
-|---|------|
-| 1  | `backend/src/middleware/requireLeadAccess.ts`        |
-| 2  | `backend/src/middleware/requireLeadAccess.test.ts`   |
-| 3  | `backend/src/modules/roles/roles.controller.ts`      |
-| 4  | `backend/src/modules/roles/roles.routes.ts`          |
-| 5  | `backend/src/modules/roles/roles.schema.ts`          |
-| 6  | `backend/src/modules/roles/roles.service.test.ts`    |
-| 7  | `backend/src/modules/roles/roles.service.ts`         |
-| 8  | `backend/src/modules/roles/roles.test.ts`            |
-| 9  | `backend/src/modules/tenants/tenants.controller.ts`  |
-| 10 | `backend/src/modules/tenants/tenants.routes.ts`      |
-| 11 | `backend/src/modules/tenants/tenants.schema.ts`      |
-| 12 | `backend/src/modules/tenants/tenants.service.test.ts`|
-| 13 | `backend/src/modules/tenants/tenants.service.ts`     |
-| 14 | `backend/src/modules/tenants/tenants.test.ts`        |
-
-### Modified files (replace existing files)
-
-| #  | File |
-|----|------|
-| 15 | `backend/prisma/schema.prisma`                       |
-| 16 | `backend/src/app.ts`                                 |
-| 17 | `backend/src/middleware/auth.ts`                     |
-| 18 | `backend/src/middleware/auth.test.ts`                |
-| 19 | `backend/src/middleware/requireRole.ts`              |
-| 20 | `backend/src/modules/admin/admin.routes.ts`          |
-| 21 | `backend/src/modules/admin/admin.schema.ts`          |
-| 22 | `backend/src/modules/auth/auth.service.ts`           |
-| 23 | `backend/src/modules/leads/leads.routes.ts`          |
-| 24 | `backend/src/modules/leads/leads.test.ts`            |
-| 25 | `backend/src/types/express.d.ts`                     |
-| 26 | `backend/package.json`                               |
+**Test count:** 57 suites, 1194/1194 tests, 0 TS errors.
 
 ---
 
-## STEP 1 — Delete all stale files
+## Step 1 — Download all Phase 1 files
 
-Paste this entire block at once. It uses a single `rm -f` so there are no inline comments to break zsh:
+> **Total: 53 files** (49 new + 4 modified)
 
-```bash
-cd ~/Desktop/Automation && rm -f \
-  backend/src/middleware/requireLeadAccess.ts \
-  backend/src/middleware/requireLeadAccess.test.ts \
-  backend/src/modules/roles/roles.controller.ts \
-  backend/src/modules/roles/roles.routes.ts \
-  backend/src/modules/roles/roles.schema.ts \
-  backend/src/modules/roles/roles.service.test.ts \
-  backend/src/modules/roles/roles.service.ts \
-  backend/src/modules/roles/roles.test.ts \
-  backend/src/modules/tenants/tenants.controller.ts \
-  backend/src/modules/tenants/tenants.routes.ts \
-  backend/src/modules/tenants/tenants.schema.ts \
-  backend/src/modules/tenants/tenants.service.test.ts \
-  backend/src/modules/tenants/tenants.service.ts \
-  backend/src/modules/tenants/tenants.test.ts \
-  backend/prisma/schema.prisma \
-  backend/src/app.ts \
-  backend/src/middleware/auth.ts \
-  backend/src/middleware/auth.test.ts \
-  backend/src/middleware/requireRole.ts \
-  backend/src/modules/admin/admin.routes.ts \
-  backend/src/modules/admin/admin.schema.ts \
-  backend/src/modules/auth/auth.service.ts \
-  backend/src/modules/leads/leads.routes.ts \
-  backend/src/modules/leads/leads.test.ts \
-  backend/src/types/express.d.ts \
-  backend/package.json && echo "ALL OLD FILES DELETED"
-```
-
----
-
-## STEP 2 — Create required directories
+### 1.1 Delete outdated files that will be replaced
 
 ```bash
-mkdir -p ~/Desktop/Automation/backend/src/middleware
-mkdir -p ~/Desktop/Automation/backend/src/modules/roles
-mkdir -p ~/Desktop/Automation/backend/src/modules/tenants
-mkdir -p ~/Desktop/Automation/backend/src/types
+rm -f backend/src/config/businessType.ts
+rm -f backend/src/app.ts
+rm -f backend/src/jobs/index.ts
+rm -f backend/src/jobs/campaign.job.ts
+rm -f backend/src/lib/notification-dispatcher.ts
 ```
 
----
-
-## STEP 3 — Download all 26 files
-
-Each `curl` line is independent — paste them all at once. You will see `OK N/26 filename` for each success or `FAILED: filename` if one failed.
+### 1.2 Download all Phase 1 files
 
 ```bash
-cd ~/Desktop/Automation/backend
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan"
-curl -sfL -o src/middleware/requireLeadAccess.ts          "${BASE}/backend/src/middleware/requireLeadAccess.ts"          && echo "OK  1/26 requireLeadAccess.ts"          || echo "FAILED: requireLeadAccess.ts"
-curl -sfL -o src/middleware/requireLeadAccess.test.ts     "${BASE}/backend/src/middleware/requireLeadAccess.test.ts"     && echo "OK  2/26 requireLeadAccess.test.ts"     || echo "FAILED: requireLeadAccess.test.ts"
-curl -sfL -o src/modules/roles/roles.controller.ts        "${BASE}/backend/src/modules/roles/roles.controller.ts"        && echo "OK  3/26 roles.controller.ts"            || echo "FAILED: roles.controller.ts"
-curl -sfL -o src/modules/roles/roles.routes.ts            "${BASE}/backend/src/modules/roles/roles.routes.ts"            && echo "OK  4/26 roles.routes.ts"               || echo "FAILED: roles.routes.ts"
-curl -sfL -o src/modules/roles/roles.schema.ts            "${BASE}/backend/src/modules/roles/roles.schema.ts"            && echo "OK  5/26 roles.schema.ts"               || echo "FAILED: roles.schema.ts"
-curl -sfL -o src/modules/roles/roles.service.test.ts      "${BASE}/backend/src/modules/roles/roles.service.test.ts"      && echo "OK  6/26 roles.service.test.ts"          || echo "FAILED: roles.service.test.ts"
-curl -sfL -o src/modules/roles/roles.service.ts           "${BASE}/backend/src/modules/roles/roles.service.ts"           && echo "OK  7/26 roles.service.ts"              || echo "FAILED: roles.service.ts"
-curl -sfL -o src/modules/roles/roles.test.ts              "${BASE}/backend/src/modules/roles/roles.test.ts"              && echo "OK  8/26 roles.test.ts"                 || echo "FAILED: roles.test.ts"
-curl -sfL -o src/modules/tenants/tenants.controller.ts    "${BASE}/backend/src/modules/tenants/tenants.controller.ts"    && echo "OK  9/26 tenants.controller.ts"          || echo "FAILED: tenants.controller.ts"
-curl -sfL -o src/modules/tenants/tenants.routes.ts        "${BASE}/backend/src/modules/tenants/tenants.routes.ts"        && echo "OK 10/26 tenants.routes.ts"             || echo "FAILED: tenants.routes.ts"
-curl -sfL -o src/modules/tenants/tenants.schema.ts        "${BASE}/backend/src/modules/tenants/tenants.schema.ts"        && echo "OK 11/26 tenants.schema.ts"             || echo "FAILED: tenants.schema.ts"
-curl -sfL -o src/modules/tenants/tenants.service.test.ts  "${BASE}/backend/src/modules/tenants/tenants.service.test.ts"  && echo "OK 12/26 tenants.service.test.ts"        || echo "FAILED: tenants.service.test.ts"
-curl -sfL -o src/modules/tenants/tenants.service.ts       "${BASE}/backend/src/modules/tenants/tenants.service.ts"       && echo "OK 13/26 tenants.service.ts"            || echo "FAILED: tenants.service.ts"
-curl -sfL -o src/modules/tenants/tenants.test.ts          "${BASE}/backend/src/modules/tenants/tenants.test.ts"          && echo "OK 14/26 tenants.test.ts"               || echo "FAILED: tenants.test.ts"
-curl -sfL -o prisma/schema.prisma                         "${BASE}/backend/prisma/schema.prisma"                         && echo "OK 15/26 schema.prisma"                 || echo "FAILED: schema.prisma"
-curl -sfL -o src/app.ts                                   "${BASE}/backend/src/app.ts"                                   && echo "OK 16/26 app.ts"                        || echo "FAILED: app.ts"
-curl -sfL -o src/middleware/auth.ts                       "${BASE}/backend/src/middleware/auth.ts"                       && echo "OK 17/26 auth.ts"                       || echo "FAILED: auth.ts"
-curl -sfL -o src/middleware/auth.test.ts                  "${BASE}/backend/src/middleware/auth.test.ts"                  && echo "OK 18/26 auth.test.ts"                  || echo "FAILED: auth.test.ts"
-curl -sfL -o src/middleware/requireRole.ts                "${BASE}/backend/src/middleware/requireRole.ts"                && echo "OK 19/26 requireRole.ts"                || echo "FAILED: requireRole.ts"
-curl -sfL -o src/modules/admin/admin.routes.ts            "${BASE}/backend/src/modules/admin/admin.routes.ts"            && echo "OK 20/26 admin.routes.ts"               || echo "FAILED: admin.routes.ts"
-curl -sfL -o src/modules/admin/admin.schema.ts            "${BASE}/backend/src/modules/admin/admin.schema.ts"            && echo "OK 21/26 admin.schema.ts"               || echo "FAILED: admin.schema.ts"
-curl -sfL -o src/modules/auth/auth.service.ts             "${BASE}/backend/src/modules/auth/auth.service.ts"             && echo "OK 22/26 auth.service.ts"               || echo "FAILED: auth.service.ts"
-curl -sfL -o src/modules/leads/leads.routes.ts            "${BASE}/backend/src/modules/leads/leads.routes.ts"            && echo "OK 23/26 leads.routes.ts"               || echo "FAILED: leads.routes.ts"
-curl -sfL -o src/modules/leads/leads.test.ts              "${BASE}/backend/src/modules/leads/leads.test.ts"              && echo "OK 24/26 leads.test.ts"                 || echo "FAILED: leads.test.ts"
-curl -sfL -o src/types/express.d.ts                       "${BASE}/backend/src/types/express.d.ts"                       && echo "OK 25/26 express.d.ts"                  || echo "FAILED: express.d.ts"
-curl -sfL -o package.json                                 "${BASE}/backend/package.json"                                 && echo "OK 26/26 package.json"                  || echo "FAILED: package.json"
+BRANCH="copilot/create-detailed-automation-plan"
+BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/${BRANCH}"
+
+# ── Modified files (4) ────────────────────────────────────────────────────────
+
+curl -sfL "${BASE}/backend/src/config/businessType.ts" \
+  -o backend/src/config/businessType.ts \
+  && echo "OK businessType.ts" || echo "FAILED businessType.ts"
+
+curl -sfL "${BASE}/backend/src/app.ts" \
+  -o backend/src/app.ts \
+  && echo "OK app.ts" || echo "FAILED app.ts"
+
+curl -sfL "${BASE}/backend/src/jobs/index.ts" \
+  -o backend/src/jobs/index.ts \
+  && echo "OK jobs/index.ts" || echo "FAILED jobs/index.ts"
+
+curl -sfL "${BASE}/backend/src/jobs/campaign.job.ts" \
+  -o backend/src/jobs/campaign.job.ts \
+  && echo "OK jobs/campaign.job.ts" || echo "FAILED jobs/campaign.job.ts"
+
+curl -sfL "${BASE}/backend/src/lib/notification-dispatcher.ts" \
+  -o backend/src/lib/notification-dispatcher.ts \
+  && echo "OK lib/notification-dispatcher.ts" || echo "FAILED lib/notification-dispatcher.ts"
+
+# ── Lib files (3 new) ─────────────────────────────────────────────────────────
+
+curl -sfL "${BASE}/backend/src/lib/template-renderer.ts" \
+  -o backend/src/lib/template-renderer.ts \
+  && echo "OK lib/template-renderer.ts" || echo "FAILED lib/template-renderer.ts"
+
+curl -sfL "${BASE}/backend/src/lib/twilio-sms.ts" \
+  -o backend/src/lib/twilio-sms.ts \
+  && echo "OK lib/twilio-sms.ts" || echo "FAILED lib/twilio-sms.ts"
+
+curl -sfL "${BASE}/backend/src/lib/resend.ts" \
+  -o backend/src/lib/resend.ts \
+  && echo "OK lib/resend.ts" || echo "FAILED lib/resend.ts"
+
+# ── Job files (6 new) ─────────────────────────────────────────────────────────
+
+mkdir -p backend/src/jobs
+
+curl -sfL "${BASE}/backend/src/jobs/birthday.job.ts" \
+  -o backend/src/jobs/birthday.job.ts \
+  && echo "OK jobs/birthday.job.ts" || echo "FAILED jobs/birthday.job.ts"
+
+curl -sfL "${BASE}/backend/src/jobs/birthday.job.test.ts" \
+  -o backend/src/jobs/birthday.job.test.ts \
+  && echo "OK jobs/birthday.job.test.ts" || echo "FAILED jobs/birthday.job.test.ts"
+
+curl -sfL "${BASE}/backend/src/jobs/rebook-nudge.job.ts" \
+  -o backend/src/jobs/rebook-nudge.job.ts \
+  && echo "OK jobs/rebook-nudge.job.ts" || echo "FAILED jobs/rebook-nudge.job.ts"
+
+curl -sfL "${BASE}/backend/src/jobs/rebook-nudge.job.test.ts" \
+  -o backend/src/jobs/rebook-nudge.job.test.ts \
+  && echo "OK jobs/rebook-nudge.job.test.ts" || echo "FAILED jobs/rebook-nudge.job.test.ts"
+
+curl -sfL "${BASE}/backend/src/jobs/recurring-booking.job.ts" \
+  -o backend/src/jobs/recurring-booking.job.ts \
+  && echo "OK jobs/recurring-booking.job.ts" || echo "FAILED jobs/recurring-booking.job.ts"
+
+# ── Messages router (1 new) ───────────────────────────────────────────────────
+
+mkdir -p backend/src/modules/messages
+
+curl -sfL "${BASE}/backend/src/modules/messages/messages.routes.ts" \
+  -o backend/src/modules/messages/messages.routes.ts \
+  && echo "OK modules/messages/messages.routes.ts" || echo "FAILED modules/messages/messages.routes.ts"
+
+# ── WhatsApp module (6 new) ───────────────────────────────────────────────────
+
+mkdir -p backend/src/modules/whatsapp
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.schema.ts" \
+  -o backend/src/modules/whatsapp/whatsapp.schema.ts \
+  && echo "OK modules/whatsapp/whatsapp.schema.ts" || echo "FAILED modules/whatsapp/whatsapp.schema.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.service.ts" \
+  -o backend/src/modules/whatsapp/whatsapp.service.ts \
+  && echo "OK modules/whatsapp/whatsapp.service.ts" || echo "FAILED modules/whatsapp/whatsapp.service.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.controller.ts" \
+  -o backend/src/modules/whatsapp/whatsapp.controller.ts \
+  && echo "OK modules/whatsapp/whatsapp.controller.ts" || echo "FAILED modules/whatsapp/whatsapp.controller.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.routes.ts" \
+  -o backend/src/modules/whatsapp/whatsapp.routes.ts \
+  && echo "OK modules/whatsapp/whatsapp.routes.ts" || echo "FAILED modules/whatsapp/whatsapp.routes.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.queue.ts" \
+  -o backend/src/modules/whatsapp/whatsapp.queue.ts \
+  && echo "OK modules/whatsapp/whatsapp.queue.ts" || echo "FAILED modules/whatsapp/whatsapp.queue.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.service.test.ts" \
+  -o backend/src/modules/whatsapp/whatsapp.service.test.ts \
+  && echo "OK modules/whatsapp/whatsapp.service.test.ts" || echo "FAILED modules/whatsapp/whatsapp.service.test.ts"
+
+# ── WhatsApp Templates module (6 new) ─────────────────────────────────────────
+
+mkdir -p backend/src/modules/whatsapp-templates
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.schema.ts" \
+  -o backend/src/modules/whatsapp-templates/whatsapp-templates.schema.ts \
+  && echo "OK modules/whatsapp-templates/whatsapp-templates.schema.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.schema.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.service.ts" \
+  -o backend/src/modules/whatsapp-templates/whatsapp-templates.service.ts \
+  && echo "OK modules/whatsapp-templates/whatsapp-templates.service.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.service.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts" \
+  -o backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts \
+  && echo "OK modules/whatsapp-templates/whatsapp-templates.controller.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.controller.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.routes.ts" \
+  -o backend/src/modules/whatsapp-templates/whatsapp-templates.routes.ts \
+  && echo "OK modules/whatsapp-templates/whatsapp-templates.routes.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.routes.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.service.test.ts" \
+  -o backend/src/modules/whatsapp-templates/whatsapp-templates.service.test.ts \
+  && echo "OK modules/whatsapp-templates/whatsapp-templates.service.test.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.service.test.ts"
+
+curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.test.ts" \
+  -o backend/src/modules/whatsapp-templates/whatsapp-templates.test.ts \
+  && echo "OK modules/whatsapp-templates/whatsapp-templates.test.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.test.ts"
+
+# ── Email Templates module (6 new) ────────────────────────────────────────────
+
+mkdir -p backend/src/modules/email-templates
+
+curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.schema.ts" \
+  -o backend/src/modules/email-templates/email-templates.schema.ts \
+  && echo "OK modules/email-templates/email-templates.schema.ts" || echo "FAILED modules/email-templates/email-templates.schema.ts"
+
+curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.service.ts" \
+  -o backend/src/modules/email-templates/email-templates.service.ts \
+  && echo "OK modules/email-templates/email-templates.service.ts" || echo "FAILED modules/email-templates/email-templates.service.ts"
+
+curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.controller.ts" \
+  -o backend/src/modules/email-templates/email-templates.controller.ts \
+  && echo "OK modules/email-templates/email-templates.controller.ts" || echo "FAILED modules/email-templates/email-templates.controller.ts"
+
+curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.routes.ts" \
+  -o backend/src/modules/email-templates/email-templates.routes.ts \
+  && echo "OK modules/email-templates/email-templates.routes.ts" || echo "FAILED modules/email-templates/email-templates.routes.ts"
+
+curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.service.test.ts" \
+  -o backend/src/modules/email-templates/email-templates.service.test.ts \
+  && echo "OK modules/email-templates/email-templates.service.test.ts" || echo "FAILED modules/email-templates/email-templates.service.test.ts"
+
+curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.test.ts" \
+  -o backend/src/modules/email-templates/email-templates.test.ts \
+  && echo "OK modules/email-templates/email-templates.test.ts" || echo "FAILED modules/email-templates/email-templates.test.ts"
+
+# ── SMS Templates module (6 new) ──────────────────────────────────────────────
+
+mkdir -p backend/src/modules/sms-templates
+
+curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.schema.ts" \
+  -o backend/src/modules/sms-templates/sms-templates.schema.ts \
+  && echo "OK modules/sms-templates/sms-templates.schema.ts" || echo "FAILED modules/sms-templates/sms-templates.schema.ts"
+
+curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.service.ts" \
+  -o backend/src/modules/sms-templates/sms-templates.service.ts \
+  && echo "OK modules/sms-templates/sms-templates.service.ts" || echo "FAILED modules/sms-templates/sms-templates.service.ts"
+
+curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.controller.ts" \
+  -o backend/src/modules/sms-templates/sms-templates.controller.ts \
+  && echo "OK modules/sms-templates/sms-templates.controller.ts" || echo "FAILED modules/sms-templates/sms-templates.controller.ts"
+
+curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.routes.ts" \
+  -o backend/src/modules/sms-templates/sms-templates.routes.ts \
+  && echo "OK modules/sms-templates/sms-templates.routes.ts" || echo "FAILED modules/sms-templates/sms-templates.routes.ts"
+
+curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.service.test.ts" \
+  -o backend/src/modules/sms-templates/sms-templates.service.test.ts \
+  && echo "OK modules/sms-templates/sms-templates.service.test.ts" || echo "FAILED modules/sms-templates/sms-templates.service.test.ts"
+
+curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.test.ts" \
+  -o backend/src/modules/sms-templates/sms-templates.test.ts \
+  && echo "OK modules/sms-templates/sms-templates.test.ts" || echo "FAILED modules/sms-templates/sms-templates.test.ts"
+
+# ── SMS Queue module (1 new) ──────────────────────────────────────────────────
+
+mkdir -p backend/src/modules/sms
+
+curl -sfL "${BASE}/backend/src/modules/sms/sms.queue.ts" \
+  -o backend/src/modules/sms/sms.queue.ts \
+  && echo "OK modules/sms/sms.queue.ts" || echo "FAILED modules/sms/sms.queue.ts"
+
+# ── Recurring Bookings module (6 new) ─────────────────────────────────────────
+
+mkdir -p backend/src/modules/recurring-bookings
+
+curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.schema.ts" \
+  -o backend/src/modules/recurring-bookings/recurring-bookings.schema.ts \
+  && echo "OK modules/recurring-bookings/recurring-bookings.schema.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.schema.ts"
+
+curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.service.ts" \
+  -o backend/src/modules/recurring-bookings/recurring-bookings.service.ts \
+  && echo "OK modules/recurring-bookings/recurring-bookings.service.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.service.ts"
+
+curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.controller.ts" \
+  -o backend/src/modules/recurring-bookings/recurring-bookings.controller.ts \
+  && echo "OK modules/recurring-bookings/recurring-bookings.controller.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.controller.ts"
+
+curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.routes.ts" \
+  -o backend/src/modules/recurring-bookings/recurring-bookings.routes.ts \
+  && echo "OK modules/recurring-bookings/recurring-bookings.routes.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.routes.ts"
+
+curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.service.test.ts" \
+  -o backend/src/modules/recurring-bookings/recurring-bookings.service.test.ts \
+  && echo "OK modules/recurring-bookings/recurring-bookings.service.test.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.service.test.ts"
+
+curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.test.ts" \
+  -o backend/src/modules/recurring-bookings/recurring-bookings.test.ts \
+  && echo "OK modules/recurring-bookings/recurring-bookings.test.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.test.ts"
+
+# ── Campaigns module (6 new) ──────────────────────────────────────────────────
+
+mkdir -p backend/src/modules/campaigns
+
+curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.schema.ts" \
+  -o backend/src/modules/campaigns/campaigns.schema.ts \
+  && echo "OK modules/campaigns/campaigns.schema.ts" || echo "FAILED modules/campaigns/campaigns.schema.ts"
+
+curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.service.ts" \
+  -o backend/src/modules/campaigns/campaigns.service.ts \
+  && echo "OK modules/campaigns/campaigns.service.ts" || echo "FAILED modules/campaigns/campaigns.service.ts"
+
+curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.controller.ts" \
+  -o backend/src/modules/campaigns/campaigns.controller.ts \
+  && echo "OK modules/campaigns/campaigns.controller.ts" || echo "FAILED modules/campaigns/campaigns.controller.ts"
+
+curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.routes.ts" \
+  -o backend/src/modules/campaigns/campaigns.routes.ts \
+  && echo "OK modules/campaigns/campaigns.routes.ts" || echo "FAILED modules/campaigns/campaigns.routes.ts"
+
+curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.service.test.ts" \
+  -o backend/src/modules/campaigns/campaigns.service.test.ts \
+  && echo "OK modules/campaigns/campaigns.service.test.ts" || echo "FAILED modules/campaigns/campaigns.service.test.ts"
+
+curl -sfL "${BASE}/backend/src/modules/campaigns/campaigns.test.ts" \
+  -o backend/src/modules/campaigns/campaigns.test.ts \
+  && echo "OK modules/campaigns/campaigns.test.ts" || echo "FAILED modules/campaigns/campaigns.test.ts"
 ```
 
-> **All 26 lines must print `OK` — if any print `FAILED`, re-run that line before continuing.**
-
----
-
-## STEP 4 — Install dependencies and fix vulnerabilities
+### 1.3 Install dependencies and verify
 
 ```bash
-cd ~/Desktop/Automation/backend && npm install --legacy-peer-deps && npm audit fix
+cd backend
+npm install
+npx prisma generate
+npx jest --forceExit
 ```
 
-Expected output ends with: `found 0 vulnerabilities`
-
----
-
-## STEP 5 — Generate Prisma client and run migration
-
-```bash
-cd ~/Desktop/Automation/backend && npx prisma generate
-```
-
-Then apply the schema changes to your database:
-
-```bash
-cd ~/Desktop/Automation/backend && npx prisma migrate dev --name phase0_tenants_super_admin
-```
-
-> **If using a fresh Docker Postgres** (from Step 1.21), run instead:
-> ```bash
-> cd ~/Desktop/Automation/backend && npx prisma migrate deploy
-> ```
-
----
-
-## STEP 6 — Run the full test suite
-
-```bash
-cd ~/Desktop/Automation/backend && npm test
-```
-
-Expected output:
-
-```
-Test Suites: 45 passed, 45 total
-Tests:       1039 passed, 1039 total
-```
-
-> **All tests must pass with 0 failures.**
-> Tests mock all database, Redis, and email calls — no live services required.
+**Expected result:** 57 suites, 1194/1194 tests pass, 0 TS errors.

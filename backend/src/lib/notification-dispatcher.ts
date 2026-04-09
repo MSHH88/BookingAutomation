@@ -116,10 +116,10 @@ async function dispatchWhatsApp(payload: NotificationPayload): Promise<void> {
       to:           payload.phone!,
       customerName: payload.customerName,
       studioName:   (payload.variables['studioName'] as string) ?? '',
-      artistName:   payload.variables['artistName'] as string,
-      bookingId:    payload.variables['bookingId'] as string,
-      startAt:      payload.variables['startAt'] as string,
-      service:      payload.variables['serviceType'] as string,
+      artistName:   (payload.variables['artistName'] as string) ?? '',
+      bookingId:    (payload.variables['bookingId'] as string) ?? '',
+      startAt:      (payload.variables['startAt'] as string) ?? '',
+      service:      (payload.variables['serviceType'] as string) ?? '',
     }, payload.delayMs ? { delay: payload.delayMs } : undefined);
     logger.info('WhatsApp notification queued', { templateKey: payload.templateKey });
   } catch (err) {

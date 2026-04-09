@@ -8,6 +8,7 @@
 import { logger } from '../utils/logger';
 import { getDefaultFlags } from '../config/businessType';
 import { setupBirthdayJob } from './birthday.job';
+import { startRebookWorker } from './rebook-nudge.job';
 import { setupRecurringBookingJob } from './recurring-booking.job';
 import { setupCampaignJob } from './campaign.job';
 
@@ -20,7 +21,8 @@ export async function registerAllJobs(): Promise<void> {
   }
 
   if (flags['REBOOKING_NUDGES_ENABLED']) {
-    logger.info('Rebooking nudges enabled — jobs scheduled per booking completion');
+    startRebookWorker();
+    logger.info('Rebooking nudges worker started');
   }
 
   if (flags['RECURRING_BOOKINGS_ENABLED']) {

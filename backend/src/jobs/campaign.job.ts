@@ -93,14 +93,21 @@ async function resolveAudience(tenantId: string | null, filter: AudienceFilter):
     }
     case 'BIRTHDAY_THIS_MONTH': {
       baseWhere['dateOfBirth'] = { not: null };
+      // We filter application-side for exact month match after the query
       break;
     }
+    case 'TOP_SPENDERS':
+    case 'BY_SERVICE_TYPE':
+      // These filter types are reserved for future implementation.
+      // For now, they fall through to 'ALL' with a warning log.
+      logger.warn(`Campaign filter type '${filter.type}' not yet implemented, using ALL`, { filterType: filter.type });
+      break;
     case 'ALL':
     default:
       break;
   }
 
-  return prisma.user.findMany({
+  const users = await prisma.user.findMany({
     where: baseWhere,
     select: {
       id: true,
@@ -108,8 +115,21 @@ async function resolveAudience(tenantId: string | null, filter: AudienceFilter):
       phone: true,
       email: true,
       notificationChannel: true,
+      dateOfBirth: true,
     },
   });
+
+  // Post-query filter for BIRTHDAY_THIS_MONTH: only keep users whose
+  // birth month matches the current UTC month.
+  if (filter.type === 'BIRTHDAY_THIS_MONTH') {
+    const currentMonth = new Date().getUTCMonth(); // 0–11
+    return users.filter(u => {
+      if (!u.dateOfBirth) return false;
+      return new Date(u.dateOfBirth).getUTCMonth() === currentMonth;
+    });
+  }
+
+  return users;
 }
 
 // ─── Job processor ────────────────────────────────────────────────────────────
@@ -157,7 +177,13 @@ async function processCampaign(job: Job<CampaignJobData>): Promise<void> {
         tenantId: campaign.tenantId ?? undefined,
       });
       delivered++;
-    } catch {
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      logger.error('Campaign dispatch failed for customer', {
+        campaignId,
+        customerId: customer.id,
+        error: errMsg,
+      });
       failed++;
     }
   }
