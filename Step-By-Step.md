@@ -53,7 +53,8 @@ rm -f backend/src/lib/notification-dispatcher.ts
 BRANCH="copilot/create-detailed-automation-plan"
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/${BRANCH}"
 
-# ── Modified files (4) ────────────────────────────────────────────────────────
+# Modified files (4) — ensure directories exist first
+mkdir -p backend/src/config backend/src/jobs backend/src/lib
 
 curl -sfL "${BASE}/backend/src/config/businessType.ts" \
   -o backend/src/config/businessType.ts \
@@ -75,7 +76,7 @@ curl -sfL "${BASE}/backend/src/lib/notification-dispatcher.ts" \
   -o backend/src/lib/notification-dispatcher.ts \
   && echo "OK lib/notification-dispatcher.ts" || echo "FAILED lib/notification-dispatcher.ts"
 
-# ── Lib files (3 new) ─────────────────────────────────────────────────────────
+# Lib files - 3 new
 
 curl -sfL "${BASE}/backend/src/lib/template-renderer.ts" \
   -o backend/src/lib/template-renderer.ts \
@@ -89,7 +90,7 @@ curl -sfL "${BASE}/backend/src/lib/resend.ts" \
   -o backend/src/lib/resend.ts \
   && echo "OK lib/resend.ts" || echo "FAILED lib/resend.ts"
 
-# ── Job files (6 new) ─────────────────────────────────────────────────────────
+# Job files - 6 new
 
 mkdir -p backend/src/jobs
 
@@ -113,7 +114,7 @@ curl -sfL "${BASE}/backend/src/jobs/recurring-booking.job.ts" \
   -o backend/src/jobs/recurring-booking.job.ts \
   && echo "OK jobs/recurring-booking.job.ts" || echo "FAILED jobs/recurring-booking.job.ts"
 
-# ── Messages router (1 new) ───────────────────────────────────────────────────
+# Messages router - 1 new
 
 mkdir -p backend/src/modules/messages
 
@@ -121,7 +122,7 @@ curl -sfL "${BASE}/backend/src/modules/messages/messages.routes.ts" \
   -o backend/src/modules/messages/messages.routes.ts \
   && echo "OK modules/messages/messages.routes.ts" || echo "FAILED modules/messages/messages.routes.ts"
 
-# ── WhatsApp module (6 new) ───────────────────────────────────────────────────
+# WhatsApp module - 6 new
 
 mkdir -p backend/src/modules/whatsapp
 
@@ -149,7 +150,7 @@ curl -sfL "${BASE}/backend/src/modules/whatsapp/whatsapp.service.test.ts" \
   -o backend/src/modules/whatsapp/whatsapp.service.test.ts \
   && echo "OK modules/whatsapp/whatsapp.service.test.ts" || echo "FAILED modules/whatsapp/whatsapp.service.test.ts"
 
-# ── WhatsApp Templates module (6 new) ─────────────────────────────────────────
+# WhatsApp Templates module - 6 new
 
 mkdir -p backend/src/modules/whatsapp-templates
 
@@ -177,7 +178,7 @@ curl -sfL "${BASE}/backend/src/modules/whatsapp-templates/whatsapp-templates.tes
   -o backend/src/modules/whatsapp-templates/whatsapp-templates.test.ts \
   && echo "OK modules/whatsapp-templates/whatsapp-templates.test.ts" || echo "FAILED modules/whatsapp-templates/whatsapp-templates.test.ts"
 
-# ── Email Templates module (6 new) ────────────────────────────────────────────
+# Email Templates module - 6 new
 
 mkdir -p backend/src/modules/email-templates
 
@@ -205,7 +206,7 @@ curl -sfL "${BASE}/backend/src/modules/email-templates/email-templates.test.ts" 
   -o backend/src/modules/email-templates/email-templates.test.ts \
   && echo "OK modules/email-templates/email-templates.test.ts" || echo "FAILED modules/email-templates/email-templates.test.ts"
 
-# ── SMS Templates module (6 new) ──────────────────────────────────────────────
+# SMS Templates module - 6 new
 
 mkdir -p backend/src/modules/sms-templates
 
@@ -233,7 +234,7 @@ curl -sfL "${BASE}/backend/src/modules/sms-templates/sms-templates.test.ts" \
   -o backend/src/modules/sms-templates/sms-templates.test.ts \
   && echo "OK modules/sms-templates/sms-templates.test.ts" || echo "FAILED modules/sms-templates/sms-templates.test.ts"
 
-# ── SMS Queue module (1 new) ──────────────────────────────────────────────────
+# SMS Queue module - 1 new
 
 mkdir -p backend/src/modules/sms
 
@@ -241,7 +242,7 @@ curl -sfL "${BASE}/backend/src/modules/sms/sms.queue.ts" \
   -o backend/src/modules/sms/sms.queue.ts \
   && echo "OK modules/sms/sms.queue.ts" || echo "FAILED modules/sms/sms.queue.ts"
 
-# ── Recurring Bookings module (6 new) ─────────────────────────────────────────
+# Recurring Bookings module - 6 new
 
 mkdir -p backend/src/modules/recurring-bookings
 
@@ -269,7 +270,7 @@ curl -sfL "${BASE}/backend/src/modules/recurring-bookings/recurring-bookings.tes
   -o backend/src/modules/recurring-bookings/recurring-bookings.test.ts \
   && echo "OK modules/recurring-bookings/recurring-bookings.test.ts" || echo "FAILED modules/recurring-bookings/recurring-bookings.test.ts"
 
-# ── Campaigns module (6 new) ──────────────────────────────────────────────────
+# Campaigns module - 6 new
 
 mkdir -p backend/src/modules/campaigns
 
