@@ -75,7 +75,12 @@ async function withBusinessType(
   }
 }
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  // Defensive reset: if a prior test timed out inside withBusinessType,
+  // BUSINESS_TYPE may still be the overridden value.  Reset it every time.
+  process.env['BUSINESS_TYPE'] = 'tattoo_studio';
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('Routes without a feature flag gate', () => {
