@@ -686,7 +686,7 @@ export async function getArtistsAnalytics(
     where: { tenantId, isActive: true },
     select: {
       id:   true,
-      user: { select: { email: true } },
+      user: { select: { name: true, email: true } },
     },
   });
 
@@ -718,7 +718,7 @@ export async function getArtistsAnalytics(
 
       return {
         artistId:     artist.id,
-        email:        artist.user.email,
+        artistName:   artist.user.name,
         bookingCount: bookings.length,
         revenue:      Math.round(revenue * 100) / 100,
         totalTips:    Math.round(tips * 100) / 100,
