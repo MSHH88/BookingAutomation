@@ -44,6 +44,9 @@ import { formsRoutes }             from './modules/forms/forms.routes';
 import { bookingPhotosRoutes }     from './modules/booking-photos/booking-photos.routes';
 import { customerStatsRoutes }     from './modules/customer-stats/customer-stats.routes';
 import { referralRoutes }          from './modules/referrals/referrals.routes';
+import { giftCardsRoutes }         from './modules/gift-cards/gift-cards.routes';
+import { productsRoutes }          from './modules/products/products.routes';
+import { posRoutes }               from './modules/pos/pos.routes';
 
 const app = express();
 
@@ -166,6 +169,9 @@ app.use('/api/forms',             formsRoutes);               // Phase 3 — Int
 app.use('/api/booking-photos',    bookingPhotosRoutes);         // Phase 3 — Booking Photos
 app.use('/api/customer-stats',   customerStatsRoutes);          // Phase 3 — Customer Stats/LTV
 app.use('/api/referrals',        referralRoutes);               // Phase 3 — Referral Tracking
+app.use('/api/gift-cards',       giftCardsRoutes);              // Phase 4 — Gift Cards
+app.use('/api/products',         productsRoutes);               // Phase 4 — Inventory Management
+app.use('/api/pos',              posRoutes);                    // Phase 4 — POS Mode
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

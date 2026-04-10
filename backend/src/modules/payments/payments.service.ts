@@ -150,11 +150,19 @@ export async function createPaymentIntent(data: CreatePaymentIntentBody) {
   }
 
   // 4. Create PaymentIntent
+  const tipPence = data.tipAmount ? Math.round(data.tipAmount * SUBUNIT_MULTIPLIER) : 0;
+  const totalAmountPence = amountPence + tipPence;
+
   const intentParams: Stripe.PaymentIntentCreateParams = {
-    amount:         amountPence,
+    amount:         totalAmountPence,
     currency:       data.currency.toLowerCase(),
     capture_method: 'automatic',
-    metadata:       { bookingId: booking.id, artistId: booking.artistId, type: 'deposit' },
+    metadata:       {
+      bookingId:  booking.id,
+      artistId:   booking.artistId,
+      type:       'deposit',
+      tipAmount:  tipPence > 0 ? String(data.tipAmount) : '0',
+    },
     description:    `Deposit for booking ${booking.id}`,
   };
 
@@ -167,16 +175,31 @@ export async function createPaymentIntent(data: CreatePaymentIntentBody) {
 
   const paymentIntent = await stripe.paymentIntents.create(intentParams);
 
-  // 5. Persist paymentIntentId on the booking
+  // 5. Persist paymentIntentId on the booking and create a Payment record
   await prisma.booking.update({
     where: { id: booking.id },
     data:  { stripePaymentIntentId: paymentIntent.id },
+  });
+
+  // Create a Payment record to track this transaction (including tip)
+  await prisma.payment.create({
+    data: {
+      tenantId:              booking.tenantId,
+      bookingId:             booking.id,
+      amount:                Number(booking.depositAmount ?? booking.totalAmount ?? 0),
+      tipAmount:             data.tipAmount ?? null,
+      currency:              data.currency,
+      status:                'PENDING',
+      method:                'CARD',
+      stripePaymentIntentId: paymentIntent.id,
+    },
   });
 
   logger.info('PaymentIntent created', {
     bookingId:       booking.id,
     paymentIntentId: paymentIntent.id,
     amountPence,
+    tipPence,
     currency:        data.currency,
   });
 
@@ -184,6 +207,7 @@ export async function createPaymentIntent(data: CreatePaymentIntentBody) {
     clientSecret:    paymentIntent.client_secret,
     paymentIntentId: paymentIntent.id,
     amountPence,
+    tipPence,
     currency:        data.currency,
   };
 }
@@ -465,6 +489,12 @@ async function onPaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent): Pr
     },
   });
 
+  // Update Payment record to SUCCEEDED
+  await prisma.payment.updateMany({
+    where: { stripePaymentIntentId: paymentIntent.id, status: 'PENDING' },
+    data:  { status: 'SUCCEEDED', paidAt: now },
+  });
+
   // Mark any outstanding invoice for this booking as paid
   await prisma.invoice.updateMany({
     where: { bookingId, status: 'UNPAID' },
@@ -517,6 +547,12 @@ async function onChargeRefunded(charge: Stripe.Charge): Promise<void> {
   await prisma.booking.updateMany({
     where: { stripePaymentIntentId: paymentIntentId },
     data:  { depositRefunded: true },
+  });
+
+  // Update Payment record to REFUNDED
+  await prisma.payment.updateMany({
+    where: { stripePaymentIntentId: paymentIntentId, status: 'SUCCEEDED' },
+    data:  { status: 'REFUNDED', refundedAt: new Date(), refundedAmount: charge.amount_refunded / SUBUNIT_MULTIPLIER },
   });
 
   logger.info('Deposit marked as refunded via charge.refunded', {

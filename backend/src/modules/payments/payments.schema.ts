@@ -1,5 +1,5 @@
 /**
- * Payments module — Zod validation schemas — Step 1.23
+ * Payments module — Zod validation schemas — Step 1.23 / Phase 4.1
  *
  * All request bodies validated here before they reach the service layer.
  */
@@ -21,6 +21,11 @@ export const CreatePaymentIntentSchema = z.object({
    * (e.g. cancellation fee collection without customer present).
    */
   saveCard: z.boolean().default(false),
+  /**
+   * Optional tip amount in major currency units (e.g. 5.00 = £5).
+   * Added to the PaymentIntent amount when TIPS_ENABLED.
+   */
+  tipAmount: z.number().min(0, 'tipAmount must be non-negative').optional(),
 });
 
 export type CreatePaymentIntentBody = z.infer<typeof CreatePaymentIntentSchema>;

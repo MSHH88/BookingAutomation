@@ -110,6 +110,8 @@ const mockBookingUpdateMany  = jest.fn();
 const mockInvoiceUpdateMany  = jest.fn();
 const mockUserUpdate         = jest.fn();
 const mockStudioFindFirst    = jest.fn();
+const mockPaymentCreate      = jest.fn();
+const mockPaymentUpdateMany  = jest.fn();
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -126,6 +128,10 @@ jest.mock('../../lib/prisma', () => ({
     },
     studioSettings: {
       findFirst:   (...a: unknown[]) => mockStudioFindFirst(...a),
+    },
+    payment: {
+      create:      (...a: unknown[]) => mockPaymentCreate(...a),
+      updateMany:  (...a: unknown[]) => mockPaymentUpdateMany(...a),
     },
   },
 }));
@@ -176,6 +182,8 @@ beforeEach(() => {
   mockInvoiceUpdateMany.mockResolvedValue({ count: 0 });
   mockUserUpdate.mockResolvedValue({});
   mockStudioFindFirst.mockResolvedValue(null);
+  mockPaymentCreate.mockResolvedValue({});
+  mockPaymentUpdateMany.mockResolvedValue({ count: 0 });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

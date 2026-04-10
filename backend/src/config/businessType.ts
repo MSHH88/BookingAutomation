@@ -287,6 +287,12 @@ export const FEATURE_FLAG_KEYS = [
   'INTAKE_FORMS_ENABLED',           // intake/consent forms before booking
   'BOOKING_PHOTOS_ENABLED',         // before/after photo uploads per booking
   'REFERRALS_ENABLED',              // customer referral tracking and rewards
+
+  // ── Phase 4: Financial & POS ────────────────────────────────────────────
+  'TIPS_ENABLED',                   // tip/gratuity collection at checkout
+  'GIFT_CARDS_ENABLED',             // sell and redeem gift cards / vouchers
+  'INVENTORY_ENABLED',              // product inventory management and stock alerts
+  'POS_ENABLED',                    // point-of-sale walk-in checkout mode
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -351,6 +357,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     INTAKE_FORMS_ENABLED:       true,
     BOOKING_PHOTOS_ENABLED:     true,
     REFERRALS_ENABLED:          true,
+    TIPS_ENABLED:               true,
+    GIFT_CARDS_ENABLED:         true,
+    INVENTORY_ENABLED:          true,
+    POS_ENABLED:                true,
   },
 
   hair_salon: {
@@ -401,6 +411,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     INTAKE_FORMS_ENABLED:       false,
     BOOKING_PHOTOS_ENABLED:     true,
     REFERRALS_ENABLED:          true,
+    TIPS_ENABLED:               true,
+    GIFT_CARDS_ENABLED:         true,
+    INVENTORY_ENABLED:          true,
+    POS_ENABLED:                true,
   },
 
   barber: {
@@ -451,6 +465,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     INTAKE_FORMS_ENABLED:       false,
     BOOKING_PHOTOS_ENABLED:     true,
     REFERRALS_ENABLED:          true,
+    TIPS_ENABLED:               true,
+    GIFT_CARDS_ENABLED:         false,
+    INVENTORY_ENABLED:          false,
+    POS_ENABLED:                true,
   },
 
   nail_salon: {
@@ -501,6 +519,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     INTAKE_FORMS_ENABLED:       true,
     BOOKING_PHOTOS_ENABLED:     true,
     REFERRALS_ENABLED:          true,
+    TIPS_ENABLED:               true,
+    GIFT_CARDS_ENABLED:         true,
+    INVENTORY_ENABLED:          true,
+    POS_ENABLED:                true,
   },
 
   masseuse: {
@@ -551,6 +573,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     INTAKE_FORMS_ENABLED:       true,
     BOOKING_PHOTOS_ENABLED:     true,
     REFERRALS_ENABLED:          true,
+    TIPS_ENABLED:               true,
+    GIFT_CARDS_ENABLED:         true,
+    INVENTORY_ENABLED:          true,
+    POS_ENABLED:                true,
   },
 
   restaurant: {
@@ -601,6 +627,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     INTAKE_FORMS_ENABLED:       false,
     BOOKING_PHOTOS_ENABLED:     false,
     REFERRALS_ENABLED:          true,
+    TIPS_ENABLED:               true,
+    GIFT_CARDS_ENABLED:         true,
+    INVENTORY_ENABLED:          true,
+    POS_ENABLED:                true,
   },
 };
 

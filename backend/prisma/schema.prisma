@@ -98,6 +98,27 @@ enum WaitlistStatus {
   CANCELLED
 }
 
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  CARD
+  CASH
+  TERMINAL
+  GIFT_CARD
+}
+
+enum StockMovementReason {
+  SALE
+  ADJUSTMENT
+  RESTOCK
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 // ─── Tenant ───────────────────────────────────────────────────────────────────
@@ -137,6 +158,10 @@ model Tenant {
   formResponses     FormResponse[]
   bookingPhotos     BookingPhoto[]
   referrals         Referral[]
+  payments          Payment[]
+  giftCards         GiftCard[]
+  products          Product[]
+  stockMovements    StockMovement[]
 
   @@index([isActive])
   @@map("tenants")
@@ -394,6 +419,7 @@ model Booking {
   waitlistEntries WaitlistEntry[]
   formResponses   FormResponse[]
   photos          BookingPhoto[]
+  payments        Payment[]
 
   @@index([tenantId])
   @@index([artistId, startAt])
@@ -910,4 +936,103 @@ model Referral {
   @@index([refereeId])
   @@index([referralCode])
   @@map("referrals")
+}
+
+// ─── Phase 4: Financial & POS ─────────────────────────────────────────────────
+
+// Payment record — tracks every payment transaction (tip, full, partial, cash, card).
+model Payment {
+  id                    String        @id @default(cuid())
+  tenantId              String?
+  bookingId             String?
+  amount                Decimal       @db.Decimal(10, 2)
+  tipAmount             Decimal?      @db.Decimal(10, 2)
+  currency              String        @default("GBP")
+  status                PaymentStatus @default(PENDING)
+  method                PaymentMethod @default(CARD)
+  stripePaymentIntentId String?       @unique
+  paidAt                DateTime?
+  refundedAt            DateTime?
+  refundedAmount        Decimal?      @db.Decimal(10, 2)
+  notes                 String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+// Gift card — sold/issued by studio, redeemable at checkout.
+model GiftCard {
+  id             String    @id @default(cuid())
+  tenantId       String?
+  code           String    @unique  // 12-char alphanumeric code
+  originalValue  Decimal   @db.Decimal(10, 2)
+  currentBalance Decimal   @db.Decimal(10, 2)
+  issuedTo       String?             // recipient email
+  purchasedById  String?             // customerId who bought it
+  expiresAt      DateTime?
+  isRedeemed     Boolean   @default(false) // fully used up
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([code])
+  @@index([issuedTo])
+  @@index([purchasedById])
+  @@map("gift_cards")
+}
+
+// Product — physical or retail item sold by the studio.
+model Product {
+  id                String   @id @default(cuid())
+  tenantId          String?
+  name              String
+  sku               String?
+  price             Decimal  @db.Decimal(10, 2)
+  stockLevel        Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  category          String?
+  imageUrl          String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant         Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  stockMovements StockMovement[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([sku])
+  @@map("products")
+}
+
+// StockMovement — audit trail for inventory in/out changes.
+model StockMovement {
+  id        String              @id @default(cuid())
+  productId String
+  tenantId  String?
+  quantity  Int                 // positive = stock in, negative = stock out
+  reason    StockMovementReason
+  bookingId String?
+  notes     String?
+  createdAt DateTime            @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenant  Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([tenantId])
+  @@index([reason])
+  @@index([createdAt])
+  @@map("stock_movements")
 }
