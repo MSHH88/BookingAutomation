@@ -36,6 +36,7 @@ const isoDateTime = (label: string) =>
 
 export const BOOKING_STATUSES = [
   'PENDING',
+  'AWAITING_DEPOSIT',
   'CONFIRMED',
   'COMPLETED',
   'CANCELLED',

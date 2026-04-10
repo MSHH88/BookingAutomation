@@ -39,11 +39,21 @@ enum QuoteStatus {
 
 enum BookingStatus {
   PENDING
+  AWAITING_DEPOSIT
   CONFIRMED
   COMPLETED
   CANCELLED
   NO_SHOW
   RESCHEDULED
+}
+
+enum BookingSource {
+  DIRECT
+  INSTAGRAM
+  FACEBOOK
+  WIDGET
+  POS
+  REFERRAL
 }
 
 enum InvoiceStatus {
@@ -330,6 +340,8 @@ model Booking {
   policyAcceptedAt     DateTime?
   policyVersion        String?
   rescheduledFrom      String?
+  publicToken           String?       @unique
+  source                BookingSource @default(DIRECT)
   stripePaymentIntentId String?
   confirmedAt          DateTime?
   completedAt          DateTime?
@@ -606,6 +618,9 @@ model StudioSettings {
   cancellationPolicyText  String?
   maxCoversPerSlot        Int?
   slotIntervalMinutes     Int      @default(15)
+  noShowFeeAmount         Decimal? @db.Decimal(10, 2) // flat fee charged on no-show
+  noShowGracePeriodMinutes Int     @default(30)
+  noShowAutoCharge        Boolean  @default(false)     // automatically charge no-show fee
   googleReviewUrl         String?
   bookingPageUrl          String?
   updatedAt               DateTime @updatedAt

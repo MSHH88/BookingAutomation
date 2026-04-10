@@ -36,6 +36,9 @@ import { tenantRoutes }       from './modules/tenants/tenants.routes';
 import { messagesRoutes }         from './modules/messages/messages.routes';
 import { recurringBookingRoutes } from './modules/recurring-bookings/recurring-bookings.routes';
 import { campaignRoutes }          from './modules/campaigns/campaigns.routes';
+import { publicRoutes }            from './modules/public/public.routes';
+import { socialRoutes }            from './modules/social/social.routes';
+import { alertsRoutes }            from './modules/alerts/alerts.routes';
 
 const app = express();
 
@@ -150,6 +153,9 @@ app.use('/api/tenants',      tenantRoutes);         // Phase 0 — Multi-tenancy
 app.use('/api/messages',           messagesRoutes);         // Phase 1 — Unified messages router
 app.use('/api/recurring-bookings', recurringBookingRoutes); // Phase 1 — Recurring Bookings
 app.use('/api/campaigns',          campaignRoutes);          // Phase 1 — Campaigns
+app.use('/api/public',             publicRoutes);             // Phase 2 — Public Booking Widget
+app.use('/api/social',             socialRoutes);             // Phase 2 — Social Booking Links
+app.use('/api/alerts',             alertsRoutes);             // Phase 2 — CRM Alerts
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

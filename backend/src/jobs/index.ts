@@ -1,5 +1,5 @@
 /**
- * Job registry — Phase 1
+ * Job registry — Phase 1 + Phase 2
  *
  * Centralizes BullMQ job registration. Called from server.ts on startup.
  * Each job module exports a setup function that creates the BullMQ
@@ -11,6 +11,7 @@ import { setupBirthdayJob } from './birthday.job';
 import { startRebookWorker } from './rebook-nudge.job';
 import { setupRecurringBookingJob } from './recurring-booking.job';
 import { setupCampaignJob } from './campaign.job';
+import { startNoShowWorker } from './no-show.job';
 
 export async function registerAllJobs(): Promise<void> {
   const flags = getDefaultFlags();
@@ -33,6 +34,11 @@ export async function registerAllJobs(): Promise<void> {
   if (flags['CAMPAIGNS_ENABLED']) {
     await setupCampaignJob();
     logger.info('Campaign processing job registered');
+  }
+
+  if (flags['NO_SHOW_AUTOMATION_ENABLED']) {
+    startNoShowWorker();
+    logger.info('No-show automation worker started');
   }
 
   logger.info('All background jobs registered');

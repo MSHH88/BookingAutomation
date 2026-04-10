@@ -84,6 +84,15 @@ export const updateSettingsSchema = z.object({
       /** Availability slot granularity in minutes (5–120). */
       slotIntervalMinutes: z.number().int().min(5).max(120).optional(),
 
+      /** Flat fee charged when a customer no-shows (in major currency units). null = disabled. */
+      noShowFeeAmount: z.number().min(0).nullable().optional(),
+
+      /** Minutes after appointment start before auto no-show detection fires (1–120). */
+      noShowGracePeriodMinutes: z.number().int().min(1).max(120).optional(),
+
+      /** When true, no-show fee is automatically charged via Stripe (card on file). */
+      noShowAutoCharge: z.boolean().optional(),
+
       /** Full URL of the Google Business review page. */
       googleReviewUrl: z
         .string()

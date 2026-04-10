@@ -276,6 +276,11 @@ export const FEATURE_FLAG_KEYS = [
   'REBOOKING_NUDGES_ENABLED',       // automated rebook nudge after service
   'RECURRING_BOOKINGS_ENABLED',     // recurring / subscription bookings
   'CAMPAIGNS_ENABLED',              // bulk messaging campaigns
+
+  // ── Phase 2: Booking Completeness ─────────────────────────────────────
+  'PUBLIC_BOOKING_ENABLED',         // public booking widget (no auth, CAPTCHA)
+  'SOCIAL_BOOKING_ENABLED',         // social media "Book Now" link generation
+  'NO_SHOW_AUTOMATION_ENABLED',     // automated no-show detection and charging
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -333,6 +338,9 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
     CAMPAIGNS_ENABLED:          true,
+    PUBLIC_BOOKING_ENABLED:     true,
+    SOCIAL_BOOKING_ENABLED:     true,
+    NO_SHOW_AUTOMATION_ENABLED: true,
   },
 
   hair_salon: {
@@ -376,6 +384,9 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
     CAMPAIGNS_ENABLED:          true,
+    PUBLIC_BOOKING_ENABLED:     true,
+    SOCIAL_BOOKING_ENABLED:     true,
+    NO_SHOW_AUTOMATION_ENABLED: true,
   },
 
   barber: {
@@ -419,6 +430,9 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
     CAMPAIGNS_ENABLED:          true,
+    PUBLIC_BOOKING_ENABLED:     true,
+    SOCIAL_BOOKING_ENABLED:     true,
+    NO_SHOW_AUTOMATION_ENABLED: true,
   },
 
   nail_salon: {
@@ -462,6 +476,9 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
     CAMPAIGNS_ENABLED:          true,
+    PUBLIC_BOOKING_ENABLED:     true,
+    SOCIAL_BOOKING_ENABLED:     true,
+    NO_SHOW_AUTOMATION_ENABLED: true,
   },
 
   masseuse: {
@@ -505,6 +522,9 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
     CAMPAIGNS_ENABLED:          true,
+    PUBLIC_BOOKING_ENABLED:     true,
+    SOCIAL_BOOKING_ENABLED:     true,
+    NO_SHOW_AUTOMATION_ENABLED: true,
   },
 
   restaurant: {
@@ -548,6 +568,9 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     REBOOKING_NUDGES_ENABLED:   false,
     RECURRING_BOOKINGS_ENABLED: false,
     CAMPAIGNS_ENABLED:          false,
+    PUBLIC_BOOKING_ENABLED:     true,
+    SOCIAL_BOOKING_ENABLED:     false,
+    NO_SHOW_AUTOMATION_ENABLED: false,
   },
 };
 
