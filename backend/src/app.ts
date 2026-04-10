@@ -42,6 +42,7 @@ import { alertsRoutes }            from './modules/alerts/alerts.routes';
 import { healthFlagsRoutes }       from './modules/health-flags/health-flags.routes';
 import { formsRoutes }             from './modules/forms/forms.routes';
 import { bookingPhotosRoutes }     from './modules/booking-photos/booking-photos.routes';
+import { customerStatsRoutes }     from './modules/customer-stats/customer-stats.routes';
 
 const app = express();
 
@@ -162,6 +163,7 @@ app.use('/api/alerts',             alertsRoutes);             // Phase 2 — CRM
 app.use('/api/health-flags',      healthFlagsRoutes);        // Phase 3 — Health Flags
 app.use('/api/forms',             formsRoutes);               // Phase 3 — Intake/Consent Forms
 app.use('/api/booking-photos',    bookingPhotosRoutes);         // Phase 3 — Booking Photos
+app.use('/api/customer-stats',   customerStatsRoutes);          // Phase 3 — Customer Stats/LTV
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
