@@ -40,7 +40,7 @@ router.use(requireFeature('PUBLIC_BOOKING_ENABLED'));
 // ── Stricter rate limiter for booking creation ────────────────────────────────
 const bookingRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max:      20,              // max 20 booking attempts per IP per 15 min
+  max:      5,               // max 5 booking attempts per IP per 15 min
   standardHeaders: 'draft-7',
   legacyHeaders:   false,
   message: { success: false, data: null, meta: null, error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many booking attempts — please try again later.', details: null } },

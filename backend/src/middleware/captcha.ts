@@ -64,6 +64,7 @@ async function verifyCaptchaToken(token: string, remoteIp?: string): Promise<boo
         hostname: url.hostname,
         path:     url.pathname,
         method:   'POST',
+        timeout:  5000,
         headers:  {
           'Content-Type':   'application/x-www-form-urlencoded',
           'Content-Length':  Buffer.byteLength(postData),
@@ -83,6 +84,12 @@ async function verifyCaptchaToken(token: string, remoteIp?: string): Promise<boo
         });
       },
     );
+
+    req.on('timeout', () => {
+      logger.error('CAPTCHA verification request timed out');
+      req.destroy();
+      resolve(false);
+    });
 
     req.on('error', (err: Error) => {
       logger.error('CAPTCHA verification request failed', { error: err.message });

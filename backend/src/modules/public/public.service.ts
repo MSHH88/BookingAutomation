@@ -275,6 +275,26 @@ export async function createPublicBooking(slug: string, body: CreatePublicBookin
     throw new AppError(404, 'SERVICE_NOT_FOUND', 'Service not found for this business');
   }
 
+  // Validate artist provides this service
+  const artistService = await prisma.artistService.findFirst({
+    where: { artistId: body.artistId, serviceId: body.serviceId },
+  });
+
+  if (!artistService) {
+    throw new AppError(400, 'ARTIST_SERVICE_MISMATCH', 'Artist does not provide this service');
+  }
+
+  // Validate booking duration matches service duration
+  const requestedDurationMs = new Date(body.endAt).getTime() - new Date(body.startAt).getTime();
+  const expectedDurationMs  = service.durationMinutes * 60 * 1000;
+  if (requestedDurationMs !== expectedDurationMs) {
+    throw new AppError(
+      400,
+      'DURATION_MISMATCH',
+      `Booking duration must be ${service.durationMinutes} minutes`,
+    );
+  }
+
   // Find or create customer by email
   let customer = await prisma.user.findFirst({
     where: { email: body.email, tenantId: tenant.id, role: 'CUSTOMER' },
@@ -317,7 +337,7 @@ export async function createPublicBooking(slug: string, body: CreatePublicBookin
       endAt:                new Date(body.endAt),
       status:               initialStatus,
       publicToken,
-      source:               (body.source as 'DIRECT' | 'INSTAGRAM' | 'FACEBOOK' | 'WIDGET' | 'POS' | 'REFERRAL') ?? 'WIDGET',
+      source:               body.source ?? 'WIDGET',
       notes:                body.notes ?? null,
       partySize:            body.partySize ?? null,
       tableId:              body.tableId ?? null,
@@ -367,6 +387,12 @@ export async function createPublicBooking(slug: string, body: CreatePublicBookin
  * Lookup a booking by its public token. No auth required.
  */
 export async function getBookingByToken(token: string) {
+  // Validate UUID format to prevent enumeration attacks
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(token)) {
+    throw new AppError(400, 'INVALID_TOKEN', 'Invalid token format');
+  }
+
   const booking = await prisma.booking.findUnique({
     where: { publicToken: token },
     select: {

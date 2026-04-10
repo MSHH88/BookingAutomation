@@ -19,6 +19,7 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }  from '../config';
 import { logger }  from '../utils/logger';
 import { prisma }  from '../lib/prisma';
+import { getStripe } from '../lib/stripe';
 import { dispatchNotification } from '../lib/notification-dispatcher';
 import { enqueueWebhookEvent }  from '../modules/webhooks/webhooks.queue';
 
@@ -104,8 +105,13 @@ async function processNoShowCheck(job: Job<NoShowJobData>): Promise<void> {
 
   // 3. Attempt no-show fee charge if autoCharge is enabled
   const settings = booking.tenantId
-    ? await prisma.studioSettings.findUnique({ where: { tenantId: booking.tenantId } })
-    : await prisma.studioSettings.findFirst();
+    ? await prisma.studioSettings.findUnique({
+        where:  { tenantId: booking.tenantId },
+        select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
+      })
+    : await prisma.studioSettings.findFirst({
+        select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
+      });
 
   if (
     settings?.noShowAutoCharge &&
@@ -114,40 +120,49 @@ async function processNoShowCheck(job: Job<NoShowJobData>): Promise<void> {
     booking.customer?.stripeCustomerId
   ) {
     try {
-      const { getStripe } = await import('../lib/stripe');
       const stripe = getStripe();
       const amountPence = Math.round(Number(settings.noShowFeeAmount) * 100);
+      const currency    = (settings.currency ?? 'gbp').toLowerCase();
 
       // Find the customer's default payment method
-      const customer = await stripe.customers.retrieve(
+      const stripeCustomer = await stripe.customers.retrieve(
         booking.customer.stripeCustomerId,
-      ) as { invoice_settings?: { default_payment_method?: string }; default_source?: string };
+      ) as { deleted?: boolean; invoice_settings?: { default_payment_method?: string }; default_source?: string };
 
-      const paymentMethod =
-        (customer.invoice_settings?.default_payment_method as string | undefined) ??
-        (customer.default_source as string | undefined);
-
-      if (paymentMethod) {
-        await stripe.paymentIntents.create({
-          amount:          amountPence,
-          currency:        'gbp',
-          customer:        booking.customer.stripeCustomerId,
-          payment_method:  paymentMethod,
-          off_session:     true,
-          confirm:         true,
-          metadata:        { bookingId: data.bookingId, type: 'no_show_fee' },
-          description:     `No-show fee for booking ${data.bookingId}`,
-        });
-
-        logger.info('No-show fee charged', {
-          bookingId:   data.bookingId,
-          amountPence,
+      // Guard against deleted Stripe customers
+      if (stripeCustomer.deleted) {
+        logger.warn('No-show fee skipped — Stripe customer deleted', {
+          bookingId:        data.bookingId,
+          stripeCustomerId: booking.customer.stripeCustomerId,
         });
       } else {
-        logger.warn('No-show fee skipped — no payment method on file', {
-          bookingId:          data.bookingId,
-          stripeCustomerId:   booking.customer.stripeCustomerId,
-        });
+        const paymentMethod =
+          (stripeCustomer.invoice_settings?.default_payment_method as string | undefined) ??
+          (stripeCustomer.default_source as string | undefined);
+
+        if (paymentMethod) {
+          await stripe.paymentIntents.create({
+            amount:          amountPence,
+            currency,
+            customer:        booking.customer.stripeCustomerId,
+            payment_method:  paymentMethod,
+            off_session:     true,
+            confirm:         true,
+            metadata:        { bookingId: data.bookingId, type: 'no_show_fee' },
+            description:     `No-show fee for booking ${data.bookingId}`,
+          });
+
+          logger.info('No-show fee charged', {
+            bookingId:   data.bookingId,
+            amountPence,
+            currency,
+          });
+        } else {
+          logger.warn('No-show fee skipped — no payment method on file', {
+            bookingId:          data.bookingId,
+            stripeCustomerId:   booking.customer.stripeCustomerId,
+          });
+        }
       }
     } catch (err) {
       logger.error('No-show fee charge failed', {

@@ -4,7 +4,7 @@
  * Handles all business logic for the Booking Management API.
  *
  * Booking status lifecycle:
- *   PENDING    → CONFIRMED   (conflict check → confirmedAt set)
+ *   PENDING / AWAITING_DEPOSIT → CONFIRMED   (conflict check → confirmedAt set)
  *   CONFIRMED  → COMPLETED   (completedAt set + Invoice created atomically)
  *   CONFIRMED  → RESCHEDULED (startAt/endAt updated + conflict check)
  *   PENDING/CONFIRMED → CANCELLED (cancelledAt + cancelReason set)
@@ -16,7 +16,7 @@
  *  - Reschedule re-runs the same conflict check on new times
  *  - Completing a booking creates an Invoice atomically (Prisma transaction)
  *  - Only PENDING, CONFIRMED, or RESCHEDULED bookings can be cancelled
- *  - Only PENDING bookings can be confirmed
+ *  - Only PENDING or AWAITING_DEPOSIT bookings can be confirmed
  *  - Only CONFIRMED bookings can be completed or rescheduled
  *  - Invoice amount: uses booking.totalAmount, falls back to quote.price, or 0
  *  - Invoice due date: 7 days from completion date
@@ -258,11 +258,11 @@ export async function confirmBooking(
     }
   }
 
-  if (booking.status !== 'PENDING') {
+  if (!['PENDING', 'AWAITING_DEPOSIT'].includes(booking.status)) {
     throw new AppError(
       409,
       'INVALID_STATUS_TRANSITION',
-      `Cannot confirm a booking with status ${booking.status}. Only PENDING bookings can be confirmed.`,
+      `Cannot confirm a booking with status ${booking.status}. Only PENDING or AWAITING_DEPOSIT bookings can be confirmed.`,
     );
   }
 
@@ -565,12 +565,12 @@ export async function cancelBooking(
     }
   }
 
-  const cancellableStatuses: string[] = ['PENDING', 'CONFIRMED', 'RESCHEDULED'];
+  const cancellableStatuses: string[] = ['PENDING', 'AWAITING_DEPOSIT', 'CONFIRMED', 'RESCHEDULED'];
   if (!cancellableStatuses.includes(booking.status)) {
     throw new AppError(
       409,
       'INVALID_STATUS_TRANSITION',
-      `Cannot cancel a booking with status ${booking.status}. Only PENDING, CONFIRMED, or RESCHEDULED bookings can be cancelled.`,
+      `Cannot cancel a booking with status ${booking.status}. Only PENDING, AWAITING_DEPOSIT, CONFIRMED, or RESCHEDULED bookings can be cancelled.`,
     );
   }
 

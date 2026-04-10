@@ -17,13 +17,6 @@
 
 const originalBizType = process.env['BUSINESS_TYPE'];
 
-function withPublicDisabled(fn: () => Promise<void>): () => Promise<void> {
-  return async () => {
-    process.env['BUSINESS_TYPE'] = '__disabled_public__';
-    try { await fn(); } finally { process.env['BUSINESS_TYPE'] = originalBizType ?? 'tattoo_studio'; }
-  };
-}
-
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 jest.mock('../../lib/prisma', () => ({
@@ -33,6 +26,7 @@ jest.mock('../../lib/prisma', () => ({
     service:            { findMany: jest.fn(), findFirst: jest.fn() },
     artist:             { findMany: jest.fn(), findFirst: jest.fn() },
     artistAvailability: { findUnique: jest.fn() },
+    artistService:      { findFirst: jest.fn() },
     booking:            { findMany: jest.fn(), create: jest.fn(), findUnique: jest.fn() },
     availabilityBlock:  { findMany: jest.fn() },
     user:               { findFirst: jest.fn(), create: jest.fn(), findUnique: jest.fn() },
@@ -42,16 +36,60 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ── Default flag set (all enabled) ───────────────────────────────────────────
+
+const allEnabledFlags: Record<string, boolean> = {
+  BOOKING_ENABLED: true,
+  CALENDAR_ENABLED: true,
+  ICS_DOWNLOAD_ENABLED: true,
+  PUBLIC_BOOKING_ENABLED: true,
+  SOCIAL_BOOKING_ENABLED: true,
+  NO_SHOW_AUTOMATION_ENABLED: true,
+  LEAD_CAPTURE_ENABLED: true,
+  QUOTE_SYSTEM_ENABLED: true,
+  INSTANT_BOOKING_ENABLED: false,
+  MANNEQUIN_ENABLED: true,
+  REFERENCE_IMAGES_ENABLED: true,
+  ONLINE_PAYMENT_ENABLED: true,
+  SERVICE_MENU_ENABLED: true,
+  PRICE_LIST_VISIBLE: false,
+  TABLE_SELECTION_ENABLED: false,
+  PARTY_SIZE_ENABLED: false,
+  SPECIAL_REQUESTS_ENABLED: true,
+  PORTFOLIO_ENABLED: true,
+  GALLERY_UPLOAD_ENABLED: true,
+  EMAIL_REMINDERS_ENABLED: true,
+  SMS_REMINDERS_ENABLED: true,
+  WHATSAPP_CONTACT_ENABLED: true,
+  REVIEW_REQUEST_ENABLED: true,
+  ANALYTICS_ENABLED: true,
+  LEAD_SCORING_ENABLED: true,
+  CANCELLATION_FEE_ENABLED: false,
+  GIFT_VOUCHER_ENABLED: false,
+  WAITING_LIST_ENABLED: false,
+  RECURRING_BOOKING_ENABLED: true,
+  REBOOK_REMINDER_ENABLED: true,
+  LOYALTY_ENABLED: false,
+  FORMS_ENABLED: true,
+  GDPR_ENABLED: true,
+  TIP_COLLECTION_ENABLED: false,
+  COVERS_MANAGEMENT_ENABLED: false,
+  DAILY_REPORT_ENABLED: false,
+  SMS_ENABLED: true,
+  BIRTHDAY_AUTOMATION_ENABLED: true,
+  REBOOKING_NUDGES_ENABLED: true,
+  RECURRING_BOOKINGS_ENABLED: true,
+  CAMPAIGNS_ENABLED: true,
+  DEPOSIT_REQUIRED: false,
+  DEPOSIT_PARTIAL_ENABLED: true,
+};
+
+const mockGetDefaultFlags = jest.fn().mockReturnValue(allEnabledFlags);
 jest.mock('../../config/businessType', () => {
   const actual = jest.requireActual('../../config/businessType');
   return {
     ...actual,
-    getDefaultFlags: jest.fn((type?: string) => {
-      if (type === '__disabled_public__') {
-        return { ...actual.getDefaultFlags('tattoo_studio'), PUBLIC_BOOKING_ENABLED: false };
-      }
-      return actual.getDefaultFlags(type);
-    }),
+    getDefaultFlags: (...args: unknown[]) => mockGetDefaultFlags(...args),
   };
 });
 
@@ -98,6 +136,8 @@ describe('/api/public', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env['BUSINESS_TYPE'] = 'tattoo_studio';
+    // Default: all flags enabled
+    mockGetDefaultFlags.mockReturnValue(allEnabledFlags);
   });
 
   afterAll(() => {
@@ -175,13 +215,14 @@ describe('/api/public', () => {
     it('201 — creates booking', async () => {
       (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
       (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'a-1' });
-      (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 's-1', durationMinutes: 60, priceFrom: 100 });
+      (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 's-1', durationMinutes: 120, priceFrom: 100 });
+      (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'cust-1' });
       (prisma.booking.create as jest.Mock).mockResolvedValue({
-        id: 'b-1', status: 'PENDING', publicToken: 'tok-1', startAt: new Date(), endAt: new Date(),
+        id: 'b-1', status: 'PENDING', publicToken: 'd4e5f6a7-b8c9-0123-def0-123456789abc', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),
         artist: { id: 'a-1', slug: 'jd', user: { name: 'JD' } },
-        service: { id: 's-1', name: 'Tattoo', durationMinutes: 60, priceFrom: 100 },
+        service: { id: 's-1', name: 'Tattoo', durationMinutes: 120, priceFrom: 100 },
       });
 
       const res = await request(app)
@@ -193,7 +234,7 @@ describe('/api/public', () => {
         });
 
       expect(res.status).toBe(201);
-      expect(res.body.data.publicToken).toBe('tok-1');
+      expect(res.body.data.publicToken).toBe('d4e5f6a7-b8c9-0123-def0-123456789abc');
     });
 
     it('400 — validation failure (missing email)', async () => {
@@ -212,22 +253,28 @@ describe('/api/public', () => {
     it('200 — returns booking', async () => {
       (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
         id: 'b-1', status: 'PENDING', startAt: new Date(), endAt: new Date(),
-        publicToken: 'tok-1', source: 'WIDGET', createdAt: new Date(),
+        publicToken: 'd4e5f6a7-b8c9-0123-def0-123456789abc', source: 'WIDGET', createdAt: new Date(),
         artist: { id: 'a-1', slug: 'jd', user: { name: 'JD' } },
         service: { id: 's-1', name: 'Tattoo', durationMinutes: 60, priceFrom: 100 },
         tenant: { slug: 'test-studio', name: 'Test Studio' },
       });
 
-      const res = await request(app).get('/api/public/bookings/tok-1');
+      const res = await request(app).get('/api/public/bookings/d4e5f6a7-b8c9-0123-def0-123456789abc');
 
       expect(res.status).toBe(200);
-      expect(res.body.data.publicToken).toBe('tok-1');
+      expect(res.body.data.publicToken).toBe('d4e5f6a7-b8c9-0123-def0-123456789abc');
     });
 
-    it('404 — invalid token', async () => {
+    it('400 — invalid token format', async () => {
+      const res = await request(app).get('/api/public/bookings/bad-token');
+
+      expect(res.status).toBe(400);
+    });
+
+    it('404 — valid UUID but not found', async () => {
       (prisma.booking.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/public/bookings/bad-token');
+      const res = await request(app).get('/api/public/bookings/d4e5f6a7-b8c9-0123-def0-000000000000');
 
       expect(res.status).toBe(404);
     });
@@ -236,9 +283,14 @@ describe('/api/public', () => {
   // ── Feature flag gate ─────────────────────────────────────────────────────
 
   describe('PUBLIC_BOOKING_ENABLED=false', () => {
-    it('503 — feature disabled', withPublicDisabled(async () => {
+    it('503 — feature disabled', async () => {
+      mockGetDefaultFlags.mockReturnValue({
+        ...allEnabledFlags,
+        PUBLIC_BOOKING_ENABLED: false,
+      });
+
       const res = await request(app).get('/api/public/businesses/test-studio');
       expect(res.status).toBe(503);
-    }));
+    });
   });
 });

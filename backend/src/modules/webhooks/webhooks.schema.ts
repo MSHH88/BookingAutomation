@@ -35,6 +35,7 @@ export const WEBHOOK_EVENTS = [
   'booking.cancelled',
   'booking.completed',
   'booking.rescheduled',
+  'booking.no_show',
   'lead.created',
   'lead.status_changed',
   'payment.succeeded',

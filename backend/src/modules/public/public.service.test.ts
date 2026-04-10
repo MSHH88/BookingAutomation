@@ -78,6 +78,9 @@ jest.mock('../../lib/prisma', () => ({
       findMany: jest.fn(),
       findFirst: jest.fn(),
     },
+    artistService: {
+      findFirst: jest.fn(),
+    },
     artistAvailability: {
       findUnique: jest.fn(),
     },
@@ -251,10 +254,11 @@ describe('public.service', () => {
       (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
       (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1' });
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
+      (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
       (getDefaultFlags as jest.Mock).mockReturnValue({ DEPOSIT_REQUIRED: false });
       (prisma.booking.create as jest.Mock).mockResolvedValue({
-        id: 'booking-1', status: 'PENDING', publicToken: 'tok-123', startAt: new Date(), endAt: new Date(),
+        id: 'booking-1', status: 'PENDING', publicToken: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),
         artist: { id: 'artist-1', slug: 'john-doe', user: { name: 'John Doe' } },
         service: { id: 'service-1', name: 'Full Sleeve', durationMinutes: 120, priceFrom: 250 },
@@ -270,10 +274,11 @@ describe('public.service', () => {
       (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
       (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1' });
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
+      (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
       (getDefaultFlags as jest.Mock).mockReturnValue({ DEPOSIT_REQUIRED: true });
       (prisma.booking.create as jest.Mock).mockResolvedValue({
-        id: 'booking-1', status: 'AWAITING_DEPOSIT', publicToken: 'tok-456', startAt: new Date(), endAt: new Date(),
+        id: 'booking-1', status: 'AWAITING_DEPOSIT', publicToken: 'b2c3d4e5-f6a7-8901-bcde-f12345678901', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),
         artist: { id: 'artist-1', slug: 'john-doe', user: { name: 'John Doe' } },
         service: { id: 'service-1', name: 'Full Sleeve', durationMinutes: 120, priceFrom: 250 },
@@ -289,11 +294,12 @@ describe('public.service', () => {
       (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
       (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1' });
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
+      (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue(null); // no existing customer
       (prisma.user.create as jest.Mock).mockResolvedValue({ id: 'new-customer' });
       (getDefaultFlags as jest.Mock).mockReturnValue({ DEPOSIT_REQUIRED: false });
       (prisma.booking.create as jest.Mock).mockResolvedValue({
-        id: 'booking-2', status: 'PENDING', publicToken: 'tok-789', startAt: new Date(), endAt: new Date(),
+        id: 'booking-2', status: 'PENDING', publicToken: 'c3d4e5f6-a7b8-9012-cdef-123456789012', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),
         artist: { id: 'artist-1', slug: 'john-doe', user: { name: 'John Doe' } },
         service: { id: 'service-1', name: 'Full Sleeve', durationMinutes: 120, priceFrom: 250 },
@@ -328,19 +334,17 @@ describe('public.service', () => {
     it('should return booking for valid token', async () => {
       (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
         id: 'booking-1', status: 'PENDING', startAt: new Date(), endAt: new Date(),
-        publicToken: 'tok-123', source: 'WIDGET', createdAt: new Date(),
+        publicToken: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', source: 'WIDGET', createdAt: new Date(),
       });
 
-      const result = await getBookingByToken('tok-123');
+      const result = await getBookingByToken('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
       expect(result.id).toBe('booking-1');
     });
 
-    it('should throw 404 for invalid token', async () => {
-      (prisma.booking.findUnique as jest.Mock).mockResolvedValue(null);
-
+    it('should throw 400 for invalid token format', async () => {
       await expect(getBookingByToken('bad-token')).rejects.toMatchObject({
-        statusCode: 404,
-        code: 'BOOKING_NOT_FOUND',
+        statusCode: 400,
+        code: 'INVALID_TOKEN',
       });
     });
   });

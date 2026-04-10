@@ -28,7 +28,6 @@
  */
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
-import { logger }   from '../../utils/logger';
 import type { Alert, GetDashboardAlertsQuery } from './alerts.schema';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -126,13 +125,13 @@ export async function getCustomerAlerts(customerId: string, tenantId: string): P
 
   // REBOOK_DUE: last booking > 30 days ago with no future booking
   const lastBooking = await prisma.booking.findFirst({
-    where: { customerId, status: { in: ['COMPLETED'] } },
+    where: { customerId, tenantId, status: { in: ['COMPLETED'] } },
     orderBy: { completedAt: 'desc' },
     select: { id: true, completedAt: true },
   });
 
   const futureBooking = await prisma.booking.findFirst({
-    where: { customerId, status: { in: ['PENDING', 'CONFIRMED', 'AWAITING_DEPOSIT'] }, startAt: { gt: new Date() } },
+    where: { customerId, tenantId, status: { in: ['PENDING', 'CONFIRMED', 'AWAITING_DEPOSIT'] }, startAt: { gt: new Date() } },
     select: { id: true },
   });
 

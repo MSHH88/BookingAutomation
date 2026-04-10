@@ -20,16 +20,60 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ── Default flag set ──────────────────────────────────────────────────────────
+
+const allEnabledFlags: Record<string, boolean> = {
+  BOOKING_ENABLED: true,
+  CALENDAR_ENABLED: true,
+  ICS_DOWNLOAD_ENABLED: true,
+  PUBLIC_BOOKING_ENABLED: true,
+  SOCIAL_BOOKING_ENABLED: true,
+  NO_SHOW_AUTOMATION_ENABLED: true,
+  LEAD_CAPTURE_ENABLED: true,
+  QUOTE_SYSTEM_ENABLED: true,
+  INSTANT_BOOKING_ENABLED: false,
+  MANNEQUIN_ENABLED: true,
+  REFERENCE_IMAGES_ENABLED: true,
+  ONLINE_PAYMENT_ENABLED: true,
+  SERVICE_MENU_ENABLED: true,
+  PRICE_LIST_VISIBLE: false,
+  TABLE_SELECTION_ENABLED: false,
+  PARTY_SIZE_ENABLED: false,
+  SPECIAL_REQUESTS_ENABLED: true,
+  PORTFOLIO_ENABLED: true,
+  GALLERY_UPLOAD_ENABLED: true,
+  EMAIL_REMINDERS_ENABLED: true,
+  SMS_REMINDERS_ENABLED: true,
+  WHATSAPP_CONTACT_ENABLED: true,
+  REVIEW_REQUEST_ENABLED: true,
+  ANALYTICS_ENABLED: true,
+  LEAD_SCORING_ENABLED: true,
+  CANCELLATION_FEE_ENABLED: false,
+  GIFT_VOUCHER_ENABLED: false,
+  WAITING_LIST_ENABLED: false,
+  RECURRING_BOOKING_ENABLED: true,
+  REBOOK_REMINDER_ENABLED: true,
+  LOYALTY_ENABLED: false,
+  FORMS_ENABLED: true,
+  GDPR_ENABLED: true,
+  TIP_COLLECTION_ENABLED: false,
+  COVERS_MANAGEMENT_ENABLED: false,
+  DAILY_REPORT_ENABLED: false,
+  SMS_ENABLED: true,
+  BIRTHDAY_AUTOMATION_ENABLED: true,
+  REBOOKING_NUDGES_ENABLED: true,
+  RECURRING_BOOKINGS_ENABLED: true,
+  CAMPAIGNS_ENABLED: true,
+  DEPOSIT_REQUIRED: false,
+  DEPOSIT_PARTIAL_ENABLED: true,
+};
+
+const mockGetDefaultFlags = jest.fn().mockReturnValue(allEnabledFlags);
 jest.mock('../../config/businessType', () => {
   const actual = jest.requireActual('../../config/businessType');
   return {
     ...actual,
-    getDefaultFlags: jest.fn((type?: string) => {
-      if (type === '__disabled_social__') {
-        return { ...actual.getDefaultFlags('tattoo_studio'), SOCIAL_BOOKING_ENABLED: false };
-      }
-      return actual.getDefaultFlags(type);
-    }),
+    getDefaultFlags: (...args: unknown[]) => mockGetDefaultFlags(...args),
   };
 });
 
@@ -77,6 +121,7 @@ describe('/api/social', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env['BUSINESS_TYPE'] = 'tattoo_studio';
+    mockGetDefaultFlags.mockReturnValue(allEnabledFlags);
   });
 
   afterAll(() => {
@@ -133,15 +178,16 @@ describe('/api/social', () => {
 
   describe('SOCIAL_BOOKING_ENABLED=false', () => {
     it('503 — feature disabled', async () => {
-      process.env['BUSINESS_TYPE'] = '__disabled_social__';
+      mockGetDefaultFlags.mockReturnValue({
+        ...allEnabledFlags,
+        SOCIAL_BOOKING_ENABLED: false,
+      });
 
       const res = await request(app)
         .get('/api/social/booking-link')
         .set('Authorization', `Bearer ${makeToken('ADMIN')}`);
 
       expect(res.status).toBe(503);
-
-      process.env['BUSINESS_TYPE'] = 'tattoo_studio';
     });
   });
 });
