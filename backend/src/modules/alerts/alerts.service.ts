@@ -176,6 +176,21 @@ export async function getCustomerAlerts(customerId: string, tenantId: string): P
     }
   }
 
+  // HEALTH_FLAG: customer has active health flags
+  const healthFlagCount = await prisma.healthFlag.count({
+    where: { customerId, tenantId },
+  });
+
+  if (healthFlagCount > 0) {
+    alerts.push({
+      type:       'HEALTH_FLAG',
+      severity:   'RED',
+      message:    `Customer has ${healthFlagCount} active health flag${healthFlagCount > 1 ? 's' : ''} — review before proceeding.`,
+      entityId:   customer.id,
+      entityType: 'Customer',
+    });
+  }
+
   return alerts;
 }
 

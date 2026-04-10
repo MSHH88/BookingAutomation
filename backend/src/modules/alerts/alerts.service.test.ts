@@ -10,15 +10,16 @@
  *  6. getCustomerAlerts — returns REBOOK_DUE when last visit > 30 days
  *  7. getCustomerAlerts — returns CARD_NOT_ON_FILE when no Stripe customer
  *  8. getCustomerAlerts — returns BIRTHDAY_TODAY on customer's birthday
- *  9. getCustomerAlerts — returns empty for healthy customer
- * 10. getCustomerAlerts — throws 404 for unknown customer
- * 11. getDashboardAlerts — aggregates overdue invoices
- * 12. getDashboardAlerts — aggregates pending deposits
- * 13. getDashboardAlerts — aggregates potential no-shows
- * 14. getDashboardAlerts — filters by severity
- * 15. getDashboardAlerts — returns empty when all healthy
+ *  9. getCustomerAlerts — returns HEALTH_FLAG when customer has active flags
+ * 10. getCustomerAlerts — returns empty for healthy customer
+ * 11. getCustomerAlerts — throws 404 for unknown customer
+ * 12. getDashboardAlerts — aggregates overdue invoices
+ * 13. getDashboardAlerts — aggregates pending deposits
+ * 14. getDashboardAlerts — aggregates potential no-shows
+ * 15. getDashboardAlerts — filters by severity
+ * 16. getDashboardAlerts — returns empty when all healthy
  *
- * Total: 15 tests
+ * Total: 16 tests
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -37,6 +38,9 @@ jest.mock('../../lib/prisma', () => ({
       count: jest.fn(),
     },
     waitlistEntry: {
+      count: jest.fn(),
+    },
+    healthFlag: {
       count: jest.fn(),
     },
   },
@@ -129,6 +133,7 @@ describe('alerts.service', () => {
       (prisma.booking.findFirst as jest.Mock)
         .mockResolvedValueOnce({ id: 'b-old', completedAt: sixtyDaysAgo }) // last booking
         .mockResolvedValueOnce(null); // no future booking
+      (prisma.healthFlag.count as jest.Mock).mockResolvedValue(0);
 
       const alerts = await getCustomerAlerts('cust-1', 'tenant-1');
 
@@ -141,6 +146,7 @@ describe('alerts.service', () => {
         dateOfBirth: null, stripeCustomerId: null,
       });
       (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.healthFlag.count as jest.Mock).mockResolvedValue(0);
 
       const alerts = await getCustomerAlerts('cust-1', 'tenant-1');
 
@@ -155,6 +161,7 @@ describe('alerts.service', () => {
         dateOfBirth: dob, stripeCustomerId: 'cus_123',
       });
       (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.healthFlag.count as jest.Mock).mockResolvedValue(0);
 
       const alerts = await getCustomerAlerts('cust-1', 'tenant-1');
 
@@ -170,12 +177,27 @@ describe('alerts.service', () => {
       (prisma.booking.findFirst as jest.Mock)
         .mockResolvedValueOnce({ id: 'b-1', completedAt: new Date() }) // last booking is today
         .mockResolvedValueOnce(null); // no future booking
+      (prisma.healthFlag.count as jest.Mock).mockResolvedValue(0);
 
       const alerts = await getCustomerAlerts('cust-1', 'tenant-1');
 
       // Only CARD_NOT_ON_FILE might show based on stripeCustomerId, but we set it
       // Last booking is today so REBOOK_DUE won't fire (< 30 days)
       expect(alerts.every(a => a.type !== 'REBOOK_DUE')).toBe(true);
+    });
+
+    it('should return HEALTH_FLAG when customer has active health flags', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        id: 'cust-1', name: 'Jane', tenantId: 'tenant-1',
+        dateOfBirth: null, stripeCustomerId: 'cus_123',
+      });
+      (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.healthFlag.count as jest.Mock).mockResolvedValue(2);
+
+      const alerts = await getCustomerAlerts('cust-1', 'tenant-1');
+
+      expect(alerts.some(a => a.type === 'HEALTH_FLAG')).toBe(true);
+      expect(alerts.find(a => a.type === 'HEALTH_FLAG')?.severity).toBe('RED');
     });
 
     it('should throw 404 for unknown customer', async () => {

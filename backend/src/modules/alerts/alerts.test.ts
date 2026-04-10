@@ -27,6 +27,9 @@ jest.mock('../../lib/prisma', () => ({
     waitlistEntry: {
       count: jest.fn(),
     },
+    healthFlag: {
+      count: jest.fn(),
+    },
   },
 }));
 
@@ -123,6 +126,7 @@ describe('/api/alerts', () => {
         dateOfBirth: null, stripeCustomerId: null,
       });
       (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.healthFlag.count as jest.Mock).mockResolvedValue(0);
 
       const res = await request(app)
         .get('/api/alerts/customer/cust-1')
