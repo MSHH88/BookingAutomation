@@ -281,6 +281,12 @@ export const FEATURE_FLAG_KEYS = [
   'PUBLIC_BOOKING_ENABLED',         // public booking widget (no auth, CAPTCHA)
   'SOCIAL_BOOKING_ENABLED',         // social media "Book Now" link generation
   'NO_SHOW_AUTOMATION_ENABLED',     // automated no-show detection and charging
+
+  // ── Phase 3: Customer Profile & Safety ─────────────────────────────────
+  'HEALTH_FLAGS_ENABLED',           // customer allergy/health flag management
+  'INTAKE_FORMS_ENABLED',           // intake/consent forms before booking
+  'BOOKING_PHOTOS_ENABLED',         // before/after photo uploads per booking
+  'REFERRALS_ENABLED',              // customer referral tracking and rewards
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -341,6 +347,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PUBLIC_BOOKING_ENABLED:     true,
     SOCIAL_BOOKING_ENABLED:     true,
     NO_SHOW_AUTOMATION_ENABLED: true,
+    HEALTH_FLAGS_ENABLED:       true,
+    INTAKE_FORMS_ENABLED:       true,
+    BOOKING_PHOTOS_ENABLED:     true,
+    REFERRALS_ENABLED:          true,
   },
 
   hair_salon: {
@@ -387,6 +397,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PUBLIC_BOOKING_ENABLED:     true,
     SOCIAL_BOOKING_ENABLED:     true,
     NO_SHOW_AUTOMATION_ENABLED: true,
+    HEALTH_FLAGS_ENABLED:       true,
+    INTAKE_FORMS_ENABLED:       false,
+    BOOKING_PHOTOS_ENABLED:     true,
+    REFERRALS_ENABLED:          true,
   },
 
   barber: {
@@ -433,6 +447,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PUBLIC_BOOKING_ENABLED:     true,
     SOCIAL_BOOKING_ENABLED:     true,
     NO_SHOW_AUTOMATION_ENABLED: true,
+    HEALTH_FLAGS_ENABLED:       false,
+    INTAKE_FORMS_ENABLED:       false,
+    BOOKING_PHOTOS_ENABLED:     true,
+    REFERRALS_ENABLED:          true,
   },
 
   nail_salon: {
@@ -479,6 +497,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PUBLIC_BOOKING_ENABLED:     true,
     SOCIAL_BOOKING_ENABLED:     true,
     NO_SHOW_AUTOMATION_ENABLED: true,
+    HEALTH_FLAGS_ENABLED:       true,
+    INTAKE_FORMS_ENABLED:       true,
+    BOOKING_PHOTOS_ENABLED:     true,
+    REFERRALS_ENABLED:          true,
   },
 
   masseuse: {
@@ -525,6 +547,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PUBLIC_BOOKING_ENABLED:     true,
     SOCIAL_BOOKING_ENABLED:     true,
     NO_SHOW_AUTOMATION_ENABLED: true,
+    HEALTH_FLAGS_ENABLED:       true,
+    INTAKE_FORMS_ENABLED:       true,
+    BOOKING_PHOTOS_ENABLED:     true,
+    REFERRALS_ENABLED:          true,
   },
 
   restaurant: {
@@ -571,6 +597,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PUBLIC_BOOKING_ENABLED:     true,
     SOCIAL_BOOKING_ENABLED:     false,
     NO_SHOW_AUTOMATION_ENABLED: false,
+    HEALTH_FLAGS_ENABLED:       false,
+    INTAKE_FORMS_ENABLED:       false,
+    BOOKING_PHOTOS_ENABLED:     false,
+    REFERRALS_ENABLED:          true,
   },
 };
 

@@ -40,11 +40,33 @@ enum QuoteStatus {
 enum BookingStatus {
   PENDING
   AWAITING_DEPOSIT
+  AWAITING_FORM
   CONFIRMED
   COMPLETED
   CANCELLED
   NO_SHOW
   RESCHEDULED
+}
+
+enum HealthFlagType {
+  LATEX_ALLERGY
+  BLOOD_THINNERS
+  SKIN_CONDITION
+  PREGNANCY
+  EPILEPSY
+  PACEMAKER
+  PRODUCT_SENSITIVITY
+  OTHER
+}
+
+enum HealthFlagSeverity {
+  HIGH
+  MEDIUM
+}
+
+enum PhotoType {
+  BEFORE
+  AFTER
 }
 
 enum BookingSource {
@@ -110,6 +132,11 @@ model Tenant {
   bookings          Booking[]
   webhooks          Webhook[]
   analyticsEvents   AnalyticsEvent[]
+  healthFlags       HealthFlag[]
+  forms             Form[]
+  formResponses     FormResponse[]
+  bookingPhotos     BookingPhoto[]
+  referrals         Referral[]
 
   @@index([isActive])
   @@map("tenants")
@@ -136,6 +163,7 @@ model User {
   noRebookNudge       Boolean              @default(false)
   unsubscribed        Boolean              @default(false)
   dateOfBirth         DateTime?
+  referralCode        String?           @unique // short code for referral tracking
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -144,6 +172,10 @@ model User {
   refreshTokens RefreshToken[]
   resetTokens   PasswordResetToken[]
   bookings      Booking[]    @relation("CustomerBookings")
+  healthFlags   HealthFlag[]
+  formResponses FormResponse[]
+  referralsGiven    Referral[] @relation("ReferrerReferrals")
+  referralsReceived Referral[] @relation("RefereeReferrals")
 
   @@index([tenantId])
   @@index([tenantId, role])
@@ -360,6 +392,8 @@ model Booking {
   invoice         Invoice?
   services        BookingService[]
   waitlistEntries WaitlistEntry[]
+  formResponses   FormResponse[]
+  photos          BookingPhoto[]
 
   @@index([tenantId])
   @@index([artistId, startAt])
@@ -771,4 +805,109 @@ model Campaign {
   @@index([status])
   @@index([scheduledAt])
   @@map("campaigns")
+}
+
+// ─── Phase 3: Customer Profile & Safety ───────────────────────────────────────
+
+model HealthFlag {
+  id          String             @id @default(cuid())
+  customerId  String
+  tenantId    String?
+  type        HealthFlagType
+  notes       String?
+  severity    HealthFlagSeverity @default(MEDIUM)
+  confirmedAt DateTime?
+  confirmedBy String?            // userId who confirmed
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  customer User    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([tenantId])
+  @@index([type])
+  @@map("health_flags")
+}
+
+model Form {
+  id           String   @id @default(cuid())
+  tenantId     String?
+  name         String
+  serviceTypes String[] // which service categories require this form
+  fields       Json     // array of field definitions: { name, type, label, required, options? }
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant    Tenant?        @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  responses FormResponse[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("forms")
+}
+
+model FormResponse {
+  id          String    @id @default(cuid())
+  formId      String
+  bookingId   String?
+  customerId  String?
+  tenantId    String?
+  answers     Json      // { fieldName: value, ... }
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  form     Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  booking  Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customer User?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  tenant   Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([formId])
+  @@index([bookingId])
+  @@index([customerId])
+  @@index([tenantId])
+  @@map("form_responses")
+}
+
+model BookingPhoto {
+  id          String    @id @default(cuid())
+  bookingId   String
+  tenantId    String?
+  url         String
+  type        PhotoType
+  uploadedBy  String?   // artistId or userId who uploaded
+  description String?
+  uploadedAt  DateTime  @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tenant  Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([tenantId])
+  @@index([type])
+  @@map("booking_photos")
+}
+
+model Referral {
+  id            String   @id @default(cuid())
+  tenantId      String?
+  referrerId    String   // customer who referred
+  refereeId     String   // customer who was referred
+  referralCode  String
+  rewardIssued  Boolean  @default(false)
+  rewardAmount  Decimal? @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  referrer User    @relation("ReferrerReferrals", fields: [referrerId], references: [id], onDelete: Cascade)
+  referee  User    @relation("RefereeReferrals", fields: [refereeId], references: [id], onDelete: Cascade)
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([referrerId])
+  @@index([refereeId])
+  @@index([referralCode])
+  @@map("referrals")
 }
