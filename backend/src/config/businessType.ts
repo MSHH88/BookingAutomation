@@ -295,6 +295,10 @@ export const FEATURE_FLAG_KEYS = [
   'POS_ENABLED',                    // point-of-sale walk-in checkout mode
   'STRIPE_TERMINAL_ENABLED',        // Stripe Terminal / card reader support
   'PAYROLL_ENABLED',                // staff payroll and commission tracking
+
+  // ── Phase 5: Packages, Loyalty & Retention ──────────────────────────────
+  'PACKAGES_ENABLED',               // service packages / bundles for customers
+  'MEMBERSHIPS_ENABLED',            // recurring memberships with Stripe Subscriptions
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -341,7 +345,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     WAITING_LIST_ENABLED:       false,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
-    LOYALTY_ENABLED:            false,
+    LOYALTY_ENABLED:            true,
     FORMS_ENABLED:              true,
     GDPR_ENABLED:               true,
     TIP_COLLECTION_ENABLED:     false,
@@ -365,6 +369,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     POS_ENABLED:                true,
     STRIPE_TERMINAL_ENABLED:    false,
     PAYROLL_ENABLED:            true,
+    PACKAGES_ENABLED:           true,
+    MEMBERSHIPS_ENABLED:        false,
   },
 
   hair_salon: {
@@ -397,7 +403,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
-    LOYALTY_ENABLED:            false,
+    LOYALTY_ENABLED:            true,
     FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
     TIP_COLLECTION_ENABLED:     false,
@@ -421,6 +427,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     POS_ENABLED:                true,
     STRIPE_TERMINAL_ENABLED:    false,
     PAYROLL_ENABLED:            true,
+    PACKAGES_ENABLED:           true,
+    MEMBERSHIPS_ENABLED:        true,
   },
 
   barber: {
@@ -453,7 +461,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
-    LOYALTY_ENABLED:            false,
+    LOYALTY_ENABLED:            true,
     FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
     TIP_COLLECTION_ENABLED:     false,
@@ -477,6 +485,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     POS_ENABLED:                true,
     STRIPE_TERMINAL_ENABLED:    false,
     PAYROLL_ENABLED:            true,
+    PACKAGES_ENABLED:           true,
+    MEMBERSHIPS_ENABLED:        false,
   },
 
   nail_salon: {
@@ -509,7 +519,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
-    LOYALTY_ENABLED:            false,
+    LOYALTY_ENABLED:            true,
     FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
     TIP_COLLECTION_ENABLED:     false,
@@ -533,6 +543,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     POS_ENABLED:                true,
     STRIPE_TERMINAL_ENABLED:    false,
     PAYROLL_ENABLED:            false,
+    PACKAGES_ENABLED:           true,
+    MEMBERSHIPS_ENABLED:        false,
   },
 
   masseuse: {
@@ -565,7 +577,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     WAITING_LIST_ENABLED:       false,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
-    LOYALTY_ENABLED:            false,
+    LOYALTY_ENABLED:            true,
     FORMS_ENABLED:              true,
     GDPR_ENABLED:               true,
     TIP_COLLECTION_ENABLED:     false,
@@ -589,6 +601,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     POS_ENABLED:                true,
     STRIPE_TERMINAL_ENABLED:    false,
     PAYROLL_ENABLED:            true,
+    PACKAGES_ENABLED:           true,
+    MEMBERSHIPS_ENABLED:        true,
   },
 
   restaurant: {
@@ -645,6 +659,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     POS_ENABLED:                true,
     STRIPE_TERMINAL_ENABLED:    false,
     PAYROLL_ENABLED:            false,
+    PACKAGES_ENABLED:           false,
+    MEMBERSHIPS_ENABLED:        false,
   },
 };
 

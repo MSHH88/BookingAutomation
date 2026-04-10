@@ -43,6 +43,8 @@ import { enqueueReviewRequest }                              from '../reviews/re
 import { enqueueBookingReminder, cancelBookingReminder }    from '../reminders/reminders.queue';
 import { enqueueWebhookEvent }                              from '../webhooks/webhooks.queue';
 import { syncCreateEvent, syncUpdateEvent, syncDeleteEvent } from '../calendar/calendar.service';
+import { matchAndNotify } from '../waitlist/waitlist.service';
+import { getDefaultFlags } from '../../config/businessType';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -548,7 +550,7 @@ export async function cancelBooking(
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
-    select: { ...bookingDetailSelect, artistId: true },
+    select: { ...bookingDetailSelect, artistId: true, serviceId: true, tenantId: true },
   });
 
   if (!booking) {
@@ -605,6 +607,19 @@ export async function cancelBooking(
     customerId:   updated.customer?.id ?? null,
     leadId:       updated.lead?.id     ?? null,
   });
+
+  // ── Phase 5.4 — Smart Waitlist Matching ──────────────────────────────────
+  // When a booking is cancelled, try to find the best-matching WAITING
+  // waitlist entry and notify them of the slot opening.
+  // Fire-and-forget: errors logged inside matchAndNotify, never surfaced to caller.
+  if (booking.tenantId && getDefaultFlags()['WAITING_LIST_ENABLED']) {
+    void matchAndNotify({
+      bookingArtistId:  booking.artistId,
+      bookingServiceId: booking.serviceId ?? null,
+      bookingStartAt:   booking.startAt,
+      tenantId:         booking.tenantId,
+    });
+  }
 
   return updated;
 }

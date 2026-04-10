@@ -50,20 +50,22 @@ import { VALID_WAITLIST_TRANSITIONS } from './waitlist.schema';
  * Full detail shape — returned by all admin mutation endpoints and GET /:id.
  */
 const waitlistDetailSelect = {
-  id:            true,
-  name:          true,
-  email:         true,
-  phone:         true,
-  artistId:      true,
-  serviceId:     true,
-  bookingId:     true,
-  requestedDate: true,
-  notes:         true,
-  status:        true,
-  notifiedAt:    true,
-  expiresAt:     true,
-  createdAt:     true,
-  updatedAt:     true,
+  id:                 true,
+  name:               true,
+  email:              true,
+  phone:              true,
+  artistId:           true,
+  serviceId:          true,
+  bookingId:          true,
+  requestedDate:      true,
+  notes:              true,
+  status:             true,
+  timePreference:     true,
+  notifiedAt:         true,
+  notificationExpiry: true,
+  expiresAt:          true,
+  createdAt:          true,
+  updatedAt:          true,
 } satisfies Prisma.WaitlistEntrySelect;
 
 /**
@@ -71,17 +73,19 @@ const waitlistDetailSelect = {
  * Omits notes and bookingId to keep list payloads compact.
  */
 const waitlistListSelect = {
-  id:            true,
-  name:          true,
-  email:         true,
-  phone:         true,
-  artistId:      true,
-  serviceId:     true,
-  requestedDate: true,
-  status:        true,
-  notifiedAt:    true,
-  expiresAt:     true,
-  createdAt:     true,
+  id:                 true,
+  name:               true,
+  email:              true,
+  phone:              true,
+  artistId:           true,
+  serviceId:          true,
+  requestedDate:      true,
+  status:             true,
+  timePreference:     true,
+  notifiedAt:         true,
+  notificationExpiry: true,
+  expiresAt:          true,
+  createdAt:          true,
 } satisfies Prisma.WaitlistEntrySelect;
 
 // ─── Inferred return types ────────────────────────────────────────────────────
@@ -125,13 +129,14 @@ export async function joinWaitlist(
 
   const entry = await prisma.waitlistEntry.create({
     data: {
-      name:          body.name,
-      email:         body.email,
-      phone:         body.phone,
-      artistId:      body.artistId,
-      serviceId:     body.serviceId,
-      requestedDate: body.requestedDate ? new Date(body.requestedDate) : undefined,
-      notes:         body.notes,
+      name:           body.name,
+      email:          body.email,
+      phone:          body.phone,
+      artistId:       body.artistId,
+      serviceId:      body.serviceId,
+      requestedDate:  body.requestedDate ? new Date(body.requestedDate) : undefined,
+      notes:          body.notes,
+      timePreference: body.timePreference ?? 'ANY',
     },
     select: waitlistDetailSelect,
   });
@@ -340,4 +345,193 @@ export async function deleteWaitlistEntry(id: string): Promise<{ id: string }> {
   logger.info('Waitlist entry deleted', { entryId: id });
 
   return { id };
+}
+
+// ─── Phase 5.4 — Smart Waitlist Matching ─────────────────────────────────────
+
+/**
+ * Ranking weights used for smart waitlist matching.
+ * Higher score = better match.
+ */
+const MATCH_SCORE = {
+  EXACT_ARTIST:   4,
+  EXACT_SERVICE:  2,
+  DATE_PROXIMITY: 1,
+  TIME_PREFERENCE:1,
+};
+
+/**
+ * Default notification window: how long (minutes) a notified waitlist entry
+ * remains open before the system tries the next match.
+ */
+const DEFAULT_MATCH_WINDOW_MINUTES = 60 * 24; // 24 hours
+
+/**
+ * Score a waitlist entry against a cancelled booking to determine match quality.
+ *
+ * Scoring rules:
+ *   +4  exact artist match (when entry.artistId == booking.artistId)
+ *   +2  service match (entry.serviceId == booking.serviceId)
+ *   +1  date proximity (entry.requestedDate within 7 days of booking slot)
+ *   +1  time preference match (entry.timePreference compatible with booking time)
+ */
+function scoreWaitlistEntry(
+  entry: {
+    artistId?:      string | null;
+    serviceId?:     string | null;
+    requestedDate?: Date | null;
+    timePreference: string;
+  },
+  booking: {
+    artistId:  string;
+    serviceId: string | null;
+    startAt:   Date;
+  },
+): number {
+  let score = 0;
+
+  if (entry.artistId  && entry.artistId  === booking.artistId)  score += MATCH_SCORE.EXACT_ARTIST;
+  if (entry.serviceId && entry.serviceId === booking.serviceId) score += MATCH_SCORE.EXACT_SERVICE;
+
+  if (entry.requestedDate) {
+    const diffDays = Math.abs(
+      (entry.requestedDate.getTime() - booking.startAt.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    if (diffDays <= 7) score += MATCH_SCORE.DATE_PROXIMITY;
+  }
+
+  if (entry.timePreference !== 'ANY') {
+    const hour = booking.startAt.getUTCHours();
+    const matches =
+      (entry.timePreference === 'MORNING'   && hour >= 6  && hour < 12) ||
+      (entry.timePreference === 'AFTERNOON' && hour >= 12 && hour < 17) ||
+      (entry.timePreference === 'EVENING'   && hour >= 17 && hour < 22);
+    if (matches) score += MATCH_SCORE.TIME_PREFERENCE;
+  }
+
+  return score;
+}
+
+export interface MatchAndNotifyOptions {
+  bookingArtistId:  string;
+  bookingServiceId: string | null;
+  bookingStartAt:   Date;
+  tenantId:         string;
+  matchWindowMinutes?: number;
+}
+
+/**
+ * Smart Waitlist Matching — Phase 5.4
+ *
+ * Called from bookings.service when a booking is CANCELLED.
+ * Finds the best-matching WAITING waitlist entry and sends them a slot-
+ * available notification with a time-limited booking token.
+ *
+ * Algorithm:
+ *   1. Query all WAITING entries for this tenant matching serviceId (or artistId).
+ *   2. Score each entry with scoreWaitlistEntry().
+ *   3. Sort by score DESC, then by createdAt ASC (FIFO tiebreak).
+ *   4. Update the top match: status = NOTIFIED, notifiedAt, notificationExpiry.
+ *   5. Send email notification (best-effort — DB state persisted first).
+ *   6. Return the notified entry, or null if no matches.
+ */
+export async function matchAndNotify(
+  options: MatchAndNotifyOptions,
+): Promise<WaitlistDetail | null> {
+  const {
+    bookingArtistId,
+    bookingServiceId,
+    bookingStartAt,
+    tenantId,
+    matchWindowMinutes = DEFAULT_MATCH_WINDOW_MINUTES,
+  } = options;
+
+  // ── 1. Find all WAITING entries for this tenant that could match ───────────
+  const candidates = await prisma.waitlistEntry.findMany({
+    where: {
+      tenantId,
+      status: 'WAITING',
+      OR: [
+        { serviceId: bookingServiceId ?? undefined },
+        { artistId:  bookingArtistId },
+        { serviceId: null, artistId: null }, // generic waitlist entries
+      ],
+    },
+    select: {
+      id:             true,
+      artistId:       true,
+      serviceId:      true,
+      requestedDate:  true,
+      timePreference: true,
+      createdAt:      true,
+      name:           true,
+      email:          true,
+    },
+  });
+
+  if (candidates.length === 0) return null;
+
+  // ── 2. Score and sort ──────────────────────────────────────────────────────
+  const scored = candidates
+    .map((c) => ({
+      id:    c.id,
+      score: scoreWaitlistEntry(c, {
+        artistId:  bookingArtistId,
+        serviceId: bookingServiceId,
+        startAt:   bookingStartAt,
+      }),
+      createdAt: c.createdAt,
+      name:      c.name,
+      email:     c.email,
+    }))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.createdAt.getTime() - b.createdAt.getTime(); // FIFO tiebreak
+    });
+
+  const best = scored[0];
+  if (!best) return null;
+
+  // ── 3. Persist notification state ─────────────────────────────────────────
+  const now              = new Date();
+  const notificationExpiry = new Date(now.getTime() + matchWindowMinutes * 60 * 1000);
+
+  const updated = await prisma.waitlistEntry.update({
+    where: { id: best.id },
+    data:  {
+      status:             'NOTIFIED',
+      notifiedAt:         now,
+      notificationExpiry: notificationExpiry,
+      expiresAt:          notificationExpiry,
+    },
+    select: waitlistDetailSelect,
+  });
+
+  logger.info('Waitlist smart match notified', {
+    entryId:           best.id,
+    score:             best.score,
+    tenantId,
+    notificationExpiry: notificationExpiry.toISOString(),
+  });
+
+  // ── 4. Best-effort email dispatch ──────────────────────────────────────────
+  try {
+    await sendEmail('waitlist-slot-available', best.email, {
+      customerName:    best.name,
+      artistId:        bookingArtistId,
+      serviceId:       bookingServiceId ?? '',
+      requestedDate:   bookingStartAt.toISOString().slice(0, 10),
+      expiresInHours:  String(Math.round(matchWindowMinutes / 60)),
+      expiresAt:       notificationExpiry.toISOString(),
+      customMessage:   '',
+    });
+  } catch (emailError) {
+    logger.warn('Waitlist match notification email failed', {
+      entryId: best.id,
+      email:   best.email,
+      error:   emailError instanceof Error ? emailError.message : String(emailError),
+    });
+  }
+
+  return updated;
 }

@@ -163,6 +163,11 @@ model Tenant {
   products          Product[]
   stockMovements    StockMovement[]
   payrollReports    PayrollReport[]
+  packages          Package[]
+  customerPackages  CustomerPackage[]
+  memberships       Membership[]
+  customerMemberships CustomerMembership[]
+  loyaltyAccounts   LoyaltyAccount[]
 
   @@index([isActive])
   @@map("tenants")
@@ -202,6 +207,9 @@ model User {
   formResponses FormResponse[]
   referralsGiven    Referral[] @relation("ReferrerReferrals")
   referralsReceived Referral[] @relation("RefereeReferrals")
+  customerPackages  CustomerPackage[]
+  customerMemberships CustomerMembership[]
+  loyaltyAccounts   LoyaltyAccount[]
 
   @@index([tenantId])
   @@index([tenantId, role])
@@ -639,21 +647,23 @@ model Table {
 // ─── Waitlist ─────────────────────────────────────────────────────────────────
 
 model WaitlistEntry {
-  id            String        @id @default(cuid())
-  tenantId      String?
-  bookingId     String?
-  artistId      String?
-  serviceId     String?
-  name          String
-  email         String
-  phone         String
-  requestedDate DateTime?
-  notes         String?
-  status        WaitlistStatus @default(WAITING)
-  notifiedAt    DateTime?
-  expiresAt     DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                  String         @id @default(cuid())
+  tenantId            String?
+  bookingId           String?
+  artistId            String?
+  serviceId           String?
+  name                String
+  email               String
+  phone               String
+  requestedDate       DateTime?
+  notes               String?
+  status              WaitlistStatus @default(WAITING)
+  timePreference      TimePreference @default(ANY)
+  notifiedAt          DateTime?
+  notificationExpiry  DateTime?
+  expiresAt           DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
@@ -662,6 +672,7 @@ model WaitlistEntry {
   @@index([status])
   @@index([email])
   @@index([artistId])
+  @@index([serviceId])
   @@map("waitlist_entries")
 }
 
@@ -1062,4 +1073,160 @@ model PayrollReport {
   @@index([artistId])
   @@index([periodStart, periodEnd])
   @@map("payroll_reports")
+}
+
+// ─── Phase 5: Packages, Loyalty & Retention ──────────────────────────────────
+
+// Package — a purchasable bundle of services sold at a fixed price.
+model Package {
+  id               String   @id @default(cuid())
+  tenantId         String?
+  name             String
+  description      String?
+  price            Decimal  @db.Decimal(10, 2)
+  includedServices Json     // Array: [{ serviceId: string, quantity: number }]
+  totalUses        Int      @default(1)
+  expiryDays       Int?     // days from purchase before the package expires (null = no expiry)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  tenant            Tenant?           @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  customerPackages  CustomerPackage[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("packages")
+}
+
+// CustomerPackage — a Package instance owned by a customer after purchase.
+model CustomerPackage {
+  id             String    @id @default(cuid())
+  customerId     String
+  packageId      String
+  tenantId       String?
+  remainingUses  Int
+  purchasedAt    DateTime  @default(now())
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  customer User?    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  package  Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  tenant   Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([packageId])
+  @@index([tenantId])
+  @@index([expiresAt])
+  @@map("customer_packages")
+}
+
+// Membership — a recurring subscription product (monthly or annual).
+model Membership {
+  id               String          @id @default(cuid())
+  tenantId         String?
+  name             String
+  price            Decimal         @db.Decimal(10, 2)
+  billingInterval  BillingInterval @default(MONTHLY)
+  includedServices Json            // Array of service IDs covered (empty = all)
+  usageLimit       Int?            // null = unlimited per billing period
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  tenant              Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  customerMemberships CustomerMembership[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("memberships")
+}
+
+// CustomerMembership — active Stripe subscription for a customer.
+model CustomerMembership {
+  id                   String           @id @default(cuid())
+  customerId           String
+  membershipId         String
+  tenantId             String?
+  stripeSubscriptionId String?          @unique
+  status               MembershipStatus @default(ACTIVE)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  customer   User?      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  tenant     Tenant?    @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([membershipId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+  @@map("customer_memberships")
+}
+
+// LoyaltyAccount — one account per customer per tenant tracking points.
+model LoyaltyAccount {
+  id           String   @id @default(cuid())
+  customerId   String
+  tenantId     String?
+  points       Int      @default(0)
+  tier         LoyaltyTier @default(BRONZE)
+  totalEarned  Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customer     User?                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant       Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  transactions LoyaltyTransaction[]
+
+  @@unique([customerId, tenantId])
+  @@index([tenantId])
+  @@index([tier])
+  @@map("loyalty_accounts")
+}
+
+// LoyaltyTransaction — audit trail of all points earned and redeemed.
+model LoyaltyTransaction {
+  id               String   @id @default(cuid())
+  loyaltyAccountId String
+  points           Int      // positive = earned, negative = redeemed
+  reason           String
+  bookingId        String?
+  createdAt        DateTime @default(now())
+
+  loyaltyAccount LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+
+  @@index([loyaltyAccountId])
+  @@index([bookingId])
+  @@index([createdAt])
+  @@map("loyalty_transactions")
+}
+
+// ─── Phase 5 Enums ────────────────────────────────────────────────────────────
+
+enum BillingInterval {
+  MONTHLY
+  ANNUAL
+}
+
+enum MembershipStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum TimePreference {
+  MORNING
+  AFTERNOON
+  EVENING
+  ANY
 }

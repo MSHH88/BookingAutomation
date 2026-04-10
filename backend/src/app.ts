@@ -48,6 +48,9 @@ import { giftCardsRoutes }         from './modules/gift-cards/gift-cards.routes'
 import { productsRoutes }          from './modules/products/products.routes';
 import { posRoutes }               from './modules/pos/pos.routes';
 import { payrollRoutes }           from './modules/payroll/payroll.routes';
+import { packagesRoutes }          from './modules/packages/packages.routes';
+import { membershipsRoutes }       from './modules/memberships/memberships.routes';
+import { loyaltyRoutes }           from './modules/loyalty/loyalty.routes';
 
 const app = express();
 
@@ -174,6 +177,9 @@ app.use('/api/gift-cards',       giftCardsRoutes);              // Phase 4 — G
 app.use('/api/products',         productsRoutes);               // Phase 4 — Inventory Management
 app.use('/api/pos',              posRoutes);                    // Phase 4 — POS Mode
 app.use('/api/payroll',          payrollRoutes);                 // Phase 4 — Staff Payroll
+app.use('/api/packages',         packagesRoutes);               // Phase 5 — Service Packages
+app.use('/api/memberships',      membershipsRoutes);            // Phase 5 — Memberships
+app.use('/api/loyalty',          loyaltyRoutes);                // Phase 5 — Loyalty Points
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

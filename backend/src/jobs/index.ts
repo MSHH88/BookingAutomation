@@ -12,6 +12,7 @@ import { startRebookWorker } from './rebook-nudge.job';
 import { setupRecurringBookingJob } from './recurring-booking.job';
 import { setupCampaignJob } from './campaign.job';
 import { startNoShowWorker } from './no-show.job';
+import { startWaitlistMatchWorker } from './waitlist-match.job';
 
 export async function registerAllJobs(): Promise<void> {
   const flags = getDefaultFlags();
@@ -39,6 +40,11 @@ export async function registerAllJobs(): Promise<void> {
   if (flags['NO_SHOW_AUTOMATION_ENABLED']) {
     startNoShowWorker();
     logger.info('No-show automation worker started');
+  }
+
+  if (flags['WAITING_LIST_ENABLED']) {
+    startWaitlistMatchWorker();
+    logger.info('Waitlist match worker started');
   }
 
   logger.info('All background jobs registered');

@@ -60,6 +60,9 @@ export const joinWaitlistSchema = z.object({
      * Capped at 1 000 characters to prevent payload abuse.
      */
     notes: z.string().max(1000, 'notes cannot exceed 1 000 characters').optional(),
+
+    /** Customer's preferred time of day. Used for Phase 5.4 smart matching. */
+    timePreference: z.enum(['MORNING', 'AFTERNOON', 'EVENING', 'ANY']).optional().default('ANY'),
   }),
 });
 
