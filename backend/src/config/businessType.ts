@@ -293,6 +293,8 @@ export const FEATURE_FLAG_KEYS = [
   'GIFT_CARDS_ENABLED',             // sell and redeem gift cards / vouchers
   'INVENTORY_ENABLED',              // product inventory management and stock alerts
   'POS_ENABLED',                    // point-of-sale walk-in checkout mode
+  'STRIPE_TERMINAL_ENABLED',        // Stripe Terminal / card reader support
+  'PAYROLL_ENABLED',                // staff payroll and commission tracking
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -361,6 +363,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     GIFT_CARDS_ENABLED:         true,
     INVENTORY_ENABLED:          true,
     POS_ENABLED:                true,
+    STRIPE_TERMINAL_ENABLED:    false,
+    PAYROLL_ENABLED:            true,
   },
 
   hair_salon: {
@@ -415,6 +419,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     GIFT_CARDS_ENABLED:         true,
     INVENTORY_ENABLED:          true,
     POS_ENABLED:                true,
+    STRIPE_TERMINAL_ENABLED:    false,
+    PAYROLL_ENABLED:            true,
   },
 
   barber: {
@@ -469,6 +475,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     GIFT_CARDS_ENABLED:         false,
     INVENTORY_ENABLED:          false,
     POS_ENABLED:                true,
+    STRIPE_TERMINAL_ENABLED:    false,
+    PAYROLL_ENABLED:            true,
   },
 
   nail_salon: {
@@ -523,6 +531,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     GIFT_CARDS_ENABLED:         true,
     INVENTORY_ENABLED:          true,
     POS_ENABLED:                true,
+    STRIPE_TERMINAL_ENABLED:    false,
+    PAYROLL_ENABLED:            false,
   },
 
   masseuse: {
@@ -577,6 +587,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     GIFT_CARDS_ENABLED:         true,
     INVENTORY_ENABLED:          true,
     POS_ENABLED:                true,
+    STRIPE_TERMINAL_ENABLED:    false,
+    PAYROLL_ENABLED:            true,
   },
 
   restaurant: {
@@ -631,6 +643,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     GIFT_CARDS_ENABLED:         true,
     INVENTORY_ENABLED:          true,
     POS_ENABLED:                true,
+    STRIPE_TERMINAL_ENABLED:    false,
+    PAYROLL_ENABLED:            false,
   },
 };
 

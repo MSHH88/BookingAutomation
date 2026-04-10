@@ -67,3 +67,23 @@ export const posSummarySchema = z.object({
 });
 
 export type PosSummaryQuery = z.infer<typeof posSummarySchema>['query'];
+
+// ─── GET /api/pos/terminal/connection-token ───────────────────────────────────
+
+export const terminalConnectionTokenSchema = z.object({});
+export type TerminalConnectionTokenQuery = Record<string, never>;
+
+// ─── POST /api/pos/terminal/payment-intent ────────────────────────────────────
+
+export const terminalPaymentIntentSchema = z.object({
+  body: z.object({
+    /** Amount in major currency units (e.g. 45.00). */
+    amount:   z.number().positive('amount must be positive'),
+    /** ISO-4217 currency code. */
+    currency: z.string().length(3).toUpperCase().default('GBP'),
+    /** Booking ID to associate with the payment intent. */
+    bookingId: z.string().optional(),
+  }),
+});
+
+export type TerminalPaymentIntentBody = z.infer<typeof terminalPaymentIntentSchema>['body'];

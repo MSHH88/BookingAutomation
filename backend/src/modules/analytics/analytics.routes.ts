@@ -32,6 +32,10 @@ import {
   bookingsAnalyticsQuerySchema,
   revenueAnalyticsQuerySchema,
   eventsListQuerySchema,
+  artistsAnalyticsQuerySchema,
+  servicesAnalyticsQuerySchema,
+  customersAnalyticsQuerySchema,
+  myPerformanceQuerySchema,
 } from './analytics.schema';
 
 const router = Router();
@@ -53,6 +57,18 @@ router.post(
 
 // ── Admin-only routes ─────────────────────────────────────────────────────────
 router.use(requireAuth);
+
+/**
+ * GET /api/analytics/my-performance
+ * ARTIST role only — must come before requireRole('ADMIN').
+ */
+router.get(
+  '/my-performance',
+  requireRole('ARTIST'),
+  validate(myPerformanceQuerySchema),
+  ctrl.myPerformance,
+);
+
 router.use(requireRole('ADMIN'));
 
 /**
@@ -112,6 +128,36 @@ router.get(
   '/events',
   validate(eventsListQuerySchema),
   ctrl.events,
+);
+
+/**
+ * GET /api/analytics/artists
+ * ADMIN only. Revenue, commission, bookings per artist.
+ */
+router.get(
+  '/artists',
+  validate(artistsAnalyticsQuerySchema),
+  ctrl.artists,
+);
+
+/**
+ * GET /api/analytics/services
+ * ADMIN only. Revenue per service type.
+ */
+router.get(
+  '/services',
+  validate(servicesAnalyticsQuerySchema),
+  ctrl.services,
+);
+
+/**
+ * GET /api/analytics/customers
+ * ADMIN only. New vs returning, top spenders, LTV distribution.
+ */
+router.get(
+  '/customers',
+  validate(customersAnalyticsQuerySchema),
+  ctrl.customers,
 );
 
 export { router as analyticsRoutes };

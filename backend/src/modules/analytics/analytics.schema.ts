@@ -88,3 +88,34 @@ export const eventsListQuerySchema = z.object({
   }),
 });
 export type EventsListQuery = z.infer<typeof eventsListQuerySchema>['query'];
+
+// ─── Artists analytics query (Phase 4.7) ─────────────────────────────────────
+
+export const artistsAnalyticsQuerySchema = z.object({
+  query: dateRangeQuery,
+});
+export type ArtistsAnalyticsQuery = z.infer<typeof artistsAnalyticsQuerySchema>['query'];
+
+// ─── Services analytics query (Phase 4.7) ────────────────────────────────────
+
+export const servicesAnalyticsQuerySchema = z.object({
+  query: dateRangeQuery,
+});
+export type ServicesAnalyticsQuery = z.infer<typeof servicesAnalyticsQuerySchema>['query'];
+
+// ─── Customers analytics query (Phase 4.7) ────────────────────────────────────
+
+export const customersAnalyticsQuerySchema = z.object({
+  query: dateRangeQuery,
+});
+export type CustomersAnalyticsQuery = z.infer<typeof customersAnalyticsQuerySchema>['query'];
+
+// ─── My performance query (Phase 4.8) ────────────────────────────────────────
+
+export const myPerformanceQuerySchema = z.object({
+  query: dateRangeQuery.extend({
+    /** Optional comparison period offset in days (default: match the query range). */
+    compareDays: z.coerce.number().int().positive().optional(),
+  }),
+});
+export type MyPerformanceQuery = z.infer<typeof myPerformanceQuerySchema>['query'];

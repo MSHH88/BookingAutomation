@@ -31,6 +31,7 @@
 import { Prisma } from '@prisma/client';
 
 import { prisma }                      from '../../lib/prisma';
+import { getRedis }                    from '../../lib/redis';
 import { paginate, PaginatedResult }   from '../../utils/paginate';
 import { logger }                      from '../../utils/logger';
 import type {
@@ -641,4 +642,396 @@ export async function listEvents(query: EventsListQuery): Promise<PaginatedResul
     },
     { page: query.page, limit: query.limit },
   );
+}
+
+// ─── Helpers (Phase 4.7) ──────────────────────────────────────────────────────
+
+function parseDateRange(from?: string, to?: string): { fromDate: Date; toDate: Date } {
+  const toDate   = to   ? new Date(to)   : new Date();
+  const fromDate = from ? new Date(from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  return { fromDate, toDate };
+}
+
+async function getCached<T>(key: string): Promise<T | null> {
+  const redis  = getRedis();
+  const cached = await redis.get(key).catch(() => null);
+  if (cached) {
+    try { return JSON.parse(cached) as T; } catch { return null; }
+  }
+  return null;
+}
+
+async function setCache(key: string, value: unknown): Promise<void> {
+  const redis = getRedis();
+  await redis.set(key, JSON.stringify(value), 'EX', 900).catch(() => {});
+}
+
+// ─── Artists analytics (Phase 4.7) ───────────────────────────────────────────
+
+/**
+ * GET /api/analytics/artists
+ * Revenue and booking count per artist for the date range.
+ */
+export async function getArtistsAnalytics(
+  tenantId: string,
+  query: import('./analytics.schema').ArtistsAnalyticsQuery,
+) {
+  const cacheKey = `analytics:artists:${tenantId}:${JSON.stringify(query)}`;
+  const cached   = await getCached<unknown>(cacheKey);
+  if (cached) return cached;
+
+  const { fromDate, toDate } = parseDateRange(query.from, query.to);
+
+  const artists = await prisma.artist.findMany({
+    where: { tenantId, isActive: true },
+    select: {
+      id:   true,
+      user: { select: { email: true } },
+    },
+  });
+
+  const artistStats = await Promise.all(
+    artists.map(async (artist) => {
+      const bookings = await prisma.booking.findMany({
+        where: {
+          tenantId,
+          artistId: artist.id,
+          status:   'COMPLETED',
+          startAt:  { gte: fromDate, lte: toDate },
+        },
+        select: { id: true },
+      });
+
+      const bookingIds = bookings.map((b) => b.id);
+
+      const payments = await prisma.payment.findMany({
+        where: {
+          tenantId,
+          status:    'SUCCEEDED',
+          bookingId: { in: bookingIds },
+        },
+        select: { amount: true, tipAmount: true },
+      });
+
+      const revenue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const tips    = payments.reduce((sum, p) => sum + Number(p.tipAmount ?? 0), 0);
+
+      return {
+        artistId:     artist.id,
+        email:        artist.user.email,
+        bookingCount: bookings.length,
+        revenue:      Math.round(revenue * 100) / 100,
+        totalTips:    Math.round(tips * 100) / 100,
+      };
+    }),
+  );
+
+  const result = {
+    period:  { from: fromDate.toISOString(), to: toDate.toISOString() },
+    artists: artistStats.sort((a, b) => b.revenue - a.revenue),
+  };
+
+  await setCache(cacheKey, result);
+  return result;
+}
+
+// ─── Services analytics (Phase 4.7) ──────────────────────────────────────────
+
+/**
+ * GET /api/analytics/services
+ * Revenue per service type for the date range.
+ */
+export async function getServicesAnalytics(
+  tenantId: string,
+  query: import('./analytics.schema').ServicesAnalyticsQuery,
+) {
+  const cacheKey = `analytics:services:${tenantId}:${JSON.stringify(query)}`;
+  const cached   = await getCached<unknown>(cacheKey);
+  if (cached) return cached;
+
+  const { fromDate, toDate } = parseDateRange(query.from, query.to);
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      tenantId,
+      status:    'COMPLETED',
+      startAt:   { gte: fromDate, lte: toDate },
+      serviceId: { not: null },
+    },
+    select: {
+      id:      true,
+      service: { select: { id: true, name: true } },
+    },
+  });
+
+  const serviceMap: Record<string, { serviceId: string; serviceName: string; bookingIds: string[] }> = {};
+
+  for (const booking of bookings) {
+    if (!booking.service) continue;
+    const sid = booking.service.id;
+    if (!serviceMap[sid]) {
+      serviceMap[sid] = {
+        serviceId:   sid,
+        serviceName: booking.service.name,
+        bookingIds:  [],
+      };
+    }
+    serviceMap[sid].bookingIds.push(booking.id);
+  }
+
+  const serviceStats = await Promise.all(
+    Object.values(serviceMap).map(async (entry) => {
+      const payments = await prisma.payment.findMany({
+        where: {
+          tenantId,
+          status:    'SUCCEEDED',
+          bookingId: { in: entry.bookingIds },
+        },
+        select: { amount: true },
+      });
+
+      const revenue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+      return {
+        serviceId:    entry.serviceId,
+        serviceName:  entry.serviceName,
+        bookingCount: entry.bookingIds.length,
+        revenue:      Math.round(revenue * 100) / 100,
+      };
+    }),
+  );
+
+  const result = {
+    period:   { from: fromDate.toISOString(), to: toDate.toISOString() },
+    services: serviceStats.sort((a, b) => b.revenue - a.revenue),
+  };
+
+  await setCache(cacheKey, result);
+  return result;
+}
+
+// ─── Customers analytics (Phase 4.7) ─────────────────────────────────────────
+
+/**
+ * GET /api/analytics/customers
+ * New vs returning customers, top spenders, LTV distribution.
+ * Uses customerId to identify customers (null = walk-in).
+ */
+export async function getCustomersAnalytics(
+  tenantId: string,
+  query: import('./analytics.schema').CustomersAnalyticsQuery,
+) {
+  const cacheKey = `analytics:customers:${tenantId}:${JSON.stringify(query)}`;
+  const cached   = await getCached<unknown>(cacheKey);
+  if (cached) return cached;
+
+  const { fromDate, toDate } = parseDateRange(query.from, query.to);
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      tenantId,
+      status:  'COMPLETED',
+      startAt: { gte: fromDate, lte: toDate },
+    },
+    select: {
+      id:         true,
+      customerId: true,
+    },
+  });
+
+  // Count bookings per customer (walk-ins grouped as "(walk-in)")
+  const customerBookingCount: Record<string, number> = {};
+  for (const b of bookings) {
+    const key = b.customerId ?? '(walk-in)';
+    customerBookingCount[key] = (customerBookingCount[key] ?? 0) + 1;
+  }
+
+  const returningCustomers = Object.values(customerBookingCount).filter((c) => c > 1).length;
+  const newCustomers       = Object.keys(customerBookingCount).length - returningCustomers;
+
+  const bookingIds = bookings.map((b) => b.id);
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      tenantId,
+      status:    'SUCCEEDED',
+      bookingId: { in: bookingIds },
+    },
+    select: { amount: true, bookingId: true },
+  });
+
+  const bookingCustomerMap: Record<string, string> = {};
+  for (const b of bookings) {
+    bookingCustomerMap[b.id] = b.customerId ?? '(walk-in)';
+  }
+
+  const revenuePerCustomer: Record<string, number> = {};
+  for (const p of payments) {
+    const key = bookingCustomerMap[p.bookingId ?? ''] ?? '(unknown)';
+    revenuePerCustomer[key] = (revenuePerCustomer[key] ?? 0) + Number(p.amount);
+  }
+
+  const topSpenders = Object.entries(revenuePerCustomer)
+    .map(([customerId, revenue]) => ({ customerId, revenue: Math.round(revenue * 100) / 100 }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 10);
+
+  const ltvValues = Object.values(revenuePerCustomer);
+  const ltvBands = {
+    under50:    ltvValues.filter((v) => v < 50).length,
+    '50to200':  ltvValues.filter((v) => v >= 50 && v < 200).length,
+    '200to500': ltvValues.filter((v) => v >= 200 && v < 500).length,
+    over500:    ltvValues.filter((v) => v >= 500).length,
+  };
+
+  const totalCustomers = Object.keys(customerBookingCount).length;
+
+  const result = {
+    period:            { from: fromDate.toISOString(), to: toDate.toISOString() },
+    totalCustomers,
+    newCustomers,
+    returningCustomers,
+    repeatRate:        totalCustomers > 0
+      ? Math.round((returningCustomers / totalCustomers) * 1000) / 10
+      : 0,
+    topSpenders,
+    ltvDistribution: ltvBands,
+  };
+
+  await setCache(cacheKey, result);
+  return result;
+}
+
+// ─── Artist performance (Phase 4.8) ──────────────────────────────────────────
+
+/**
+ * GET /api/analytics/my-performance
+ * Artist self-service stats, scoped to the calling artist.
+ */
+export async function getArtistPerformance(
+  artistId: string,
+  query: import('./analytics.schema').MyPerformanceQuery,
+) {
+  const cacheKey = `analytics:performance:${artistId}:${JSON.stringify(query)}`;
+  const cached   = await getCached<unknown>(cacheKey);
+  if (cached) return cached;
+
+  const { fromDate, toDate } = parseDateRange(query.from, query.to);
+
+  const rangeDays = query.compareDays
+    ?? Math.ceil((toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000));
+  const compareEnd   = new Date(fromDate.getTime() - 1);
+  const compareStart = new Date(compareEnd.getTime() - rangeDays * 24 * 60 * 60 * 1000);
+
+  async function getPeriodStats(start: Date, end: Date) {
+    const bookings = await prisma.booking.findMany({
+      where: {
+        artistId,
+        status:  'COMPLETED',
+        startAt: { gte: start, lte: end },
+      },
+      select: {
+        id:         true,
+        startAt:    true,
+        customerId: true,
+        service:    { select: { id: true, name: true } },
+      },
+    });
+
+    const bookingIds = bookings.map((b) => b.id);
+
+    const payments = await prisma.payment.findMany({
+      where: {
+        status:    'SUCCEEDED',
+        bookingId: { in: bookingIds },
+      },
+      select: { amount: true, tipAmount: true, bookingId: true },
+    });
+
+    const totalRevenue = payments.reduce((s, p) => s + Number(p.amount), 0);
+    const totalTips    = payments.reduce((s, p) => s + Number(p.tipAmount ?? 0), 0);
+
+    const revenueByService: Record<string, { serviceName: string; revenue: number; count: number }> = {};
+    for (const b of bookings) {
+      if (!b.service) continue;
+      const sid = b.service.id;
+      if (!revenueByService[sid]) {
+        revenueByService[sid] = { serviceName: b.service.name, revenue: 0, count: 0 };
+      }
+      const bp = payments.filter((p) => p.bookingId === b.id);
+      revenueByService[sid].revenue += bp.reduce((s, p) => s + Number(p.amount), 0);
+      revenueByService[sid].count   += 1;
+    }
+
+    const revenueByMonth: Record<string, number> = {};
+    for (const b of bookings) {
+      const monthKey = b.startAt.toISOString().slice(0, 7);
+      const bp = payments.filter((p) => p.bookingId === b.id);
+      revenueByMonth[monthKey] = (revenueByMonth[monthKey] ?? 0) +
+        bp.reduce((s, p) => s + Number(p.amount), 0);
+    }
+
+    const hourCounts: Record<number, number> = {};
+    for (const b of bookings) {
+      const hour = b.startAt.getUTCHours();
+      hourCounts[hour] = (hourCounts[hour] ?? 0) + 1;
+    }
+
+    const dayCounts: Record<number, number> = {};
+    for (const b of bookings) {
+      const day = b.startAt.getUTCDay();
+      dayCounts[day] = (dayCounts[day] ?? 0) + 1;
+    }
+
+    const customerBookingCount: Record<string, number> = {};
+    for (const b of bookings) {
+      const key = b.customerId ?? '(walk-in)';
+      customerBookingCount[key] = (customerBookingCount[key] ?? 0) + 1;
+    }
+    const uniqueCustomers    = Object.keys(customerBookingCount).length;
+    const returningCustomers = Object.values(customerBookingCount).filter((c) => c > 1).length;
+    const repeatRate         = uniqueCustomers > 0
+      ? Math.round((returningCustomers / uniqueCustomers) * 1000) / 10
+      : 0;
+
+    const avgBookingValue = bookings.length > 0
+      ? Math.round((totalRevenue / bookings.length) * 100) / 100
+      : 0;
+
+    return {
+      bookingCount:   bookings.length,
+      totalRevenue:   Math.round(totalRevenue * 100) / 100,
+      totalTips:      Math.round(totalTips * 100) / 100,
+      avgBookingValue,
+      repeatRate,
+      revenueByService: Object.values(revenueByService).sort((a, b) => b.revenue - a.revenue),
+      revenueByMonth:   Object.entries(revenueByMonth)
+        .map(([month, revenue]) => ({ month, revenue: Math.round(revenue * 100) / 100 }))
+        .sort((a, b) => a.month.localeCompare(b.month)),
+      busiestHours: Array.from({ length: 24 }, (_, h) => ({ hour: h, count: hourCounts[h] ?? 0 })),
+      busiestDays:  Array.from({ length: 7 }, (_, d) => ({ day: d, count: dayCounts[d] ?? 0 })),
+    };
+  }
+
+  const [current, previous] = await Promise.all([
+    getPeriodStats(fromDate, toDate),
+    getPeriodStats(compareStart, compareEnd),
+  ]);
+
+  const result = {
+    period:        { from: fromDate.toISOString(), to: toDate.toISOString() },
+    comparePeriod: { from: compareStart.toISOString(), to: compareEnd.toISOString() },
+    current,
+    previous,
+    delta: {
+      bookingCount:    current.bookingCount   - previous.bookingCount,
+      totalRevenue:    Math.round((current.totalRevenue   - previous.totalRevenue)   * 100) / 100,
+      totalTips:       Math.round((current.totalTips      - previous.totalTips)      * 100) / 100,
+      avgBookingValue: Math.round((current.avgBookingValue - previous.avgBookingValue) * 100) / 100,
+      repeatRate:      Math.round((current.repeatRate - previous.repeatRate) * 10) / 10,
+    },
+  };
+
+  await setCache(cacheKey, result);
+  return result;
 }

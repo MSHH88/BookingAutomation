@@ -53,3 +53,40 @@ export function getStripe(): Stripe {
 export function _resetStripe(): void {
   _stripe = null;
 }
+
+/**
+ * Creates a Stripe Terminal connection token for the frontend SDK.
+ */
+export async function createTerminalConnectionToken(): Promise<string> {
+  const stripe = getStripe();
+  const connectionToken = await stripe.terminal.connectionTokens.create();
+  return connectionToken.secret;
+}
+
+/**
+ * Creates a PaymentIntent for Terminal capture (capture_method: 'manual').
+ */
+export async function createTerminalPaymentIntent(
+  amount: number,
+  currency: string,
+  metadata?: Record<string, string>,
+): Promise<Stripe.PaymentIntent> {
+  const stripe = getStripe();
+  return stripe.paymentIntents.create({
+    amount:         Math.round(amount * 100), // convert to smallest currency unit
+    currency:       currency.toLowerCase(),
+    capture_method: 'manual',
+    payment_method_types: ['card_present'],
+    metadata:       metadata ?? {},
+  });
+}
+
+/**
+ * Captures a previously authorized Terminal PaymentIntent.
+ */
+export async function captureTerminalPaymentIntent(
+  paymentIntentId: string,
+): Promise<Stripe.PaymentIntent> {
+  const stripe = getStripe();
+  return stripe.paymentIntents.capture(paymentIntentId);
+}

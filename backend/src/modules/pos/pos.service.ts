@@ -23,7 +23,11 @@
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
 import { logger }   from '../../utils/logger';
-import type { PosCheckoutBody, PosListTransactionsQuery, PosSummaryQuery } from './pos.schema';
+import {
+  createTerminalConnectionToken as stripeCreateConnectionToken,
+  createTerminalPaymentIntent as stripeCreatePaymentIntent,
+} from '../../lib/stripe';
+import type { PosCheckoutBody, PosListTransactionsQuery, PosSummaryQuery, TerminalPaymentIntentBody } from './pos.schema';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -155,6 +159,7 @@ export async function checkout(tenantId: string, operatorId: string, data: PosCh
 
   // 5. Create a Payment record
   const effectiveMethod = data.giftCardCode ? 'GIFT_CARD' : data.method;
+  const isTerminal = effectiveMethod === 'TERMINAL';
 
   const payment = await prisma.payment.create({
     data: {
@@ -163,7 +168,7 @@ export async function checkout(tenantId: string, operatorId: string, data: PosCh
       amount:    data.amount,
       tipAmount: data.tipAmount ?? null,
       currency:  data.currency,
-      status:    'SUCCEEDED',
+      status:    isTerminal ? 'PENDING' : 'SUCCEEDED',
       method:    effectiveMethod,
       paidAt:    now,
       notes:     data.notes ?? null,
@@ -278,5 +283,40 @@ export async function getDailySummary(tenantId: string, query: PosSummaryQuery) 
     grandTotal:       Math.round((totalRevenue + totalTips) * 100) / 100,
     transactionCount,
     byMethod,
+  };
+}
+
+/**
+ * GET /api/pos/terminal/connection-token
+ * Generates a Stripe Terminal connection token for the frontend SDK.
+ */
+export async function getTerminalConnectionToken(_tenantId: string): Promise<{ secret: string }> {
+  const secret = await stripeCreateConnectionToken();
+  return { secret };
+}
+
+/**
+ * POST /api/pos/terminal/payment-intent
+ * Creates a Stripe PaymentIntent for Terminal capture (capture_method: manual).
+ */
+export async function createTerminalPaymentIntent(
+  tenantId: string,
+  data: TerminalPaymentIntentBody,
+): Promise<{ paymentIntentId: string; clientSecret: string | null }> {
+  const metadata: Record<string, string> = { tenantId };
+  if (data.bookingId) metadata['bookingId'] = data.bookingId;
+
+  const intent = await stripeCreatePaymentIntent(data.amount, data.currency, metadata);
+
+  logger.info('Terminal PaymentIntent created', {
+    tenantId,
+    paymentIntentId: intent.id,
+    amount:          data.amount,
+    currency:        data.currency,
+  });
+
+  return {
+    paymentIntentId: intent.id,
+    clientSecret:    intent.client_secret,
   };
 }

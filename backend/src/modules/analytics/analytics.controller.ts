@@ -10,6 +10,8 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as analyticsService  from './analytics.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { prisma }             from '../../lib/prisma';
+import { AppError }           from '../../errors/AppError';
 import type {
   TrackEventBody,
   OverviewQuery,
@@ -17,6 +19,10 @@ import type {
   BookingsAnalyticsQuery,
   RevenueAnalyticsQuery,
   EventsListQuery,
+  ArtistsAnalyticsQuery,
+  ServicesAnalyticsQuery,
+  CustomersAnalyticsQuery,
+  MyPerformanceQuery,
 } from './analytics.schema';
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
@@ -143,6 +149,92 @@ export async function events(
     const query  = req.query as unknown as EventsListQuery;
     const result = await analyticsService.listEvents(query);
     res.json(paginated(result.data, result.meta));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/analytics/artists
+ * ADMIN only. Revenue, commission, bookings per artist.
+ */
+export async function artists(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const tenantId = req.user!.tenantId!;
+    const query    = req.query as unknown as ArtistsAnalyticsQuery;
+    const result   = await analyticsService.getArtistsAnalytics(tenantId, query);
+    res.json(success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/analytics/services
+ * ADMIN only. Revenue per service type.
+ */
+export async function services(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const tenantId = req.user!.tenantId!;
+    const query    = req.query as unknown as ServicesAnalyticsQuery;
+    const result   = await analyticsService.getServicesAnalytics(tenantId, query);
+    res.json(success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/analytics/customers
+ * ADMIN only. New vs returning, top spenders, LTV distribution.
+ */
+export async function customers(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const tenantId = req.user!.tenantId!;
+    const query    = req.query as unknown as CustomersAnalyticsQuery;
+    const result   = await analyticsService.getCustomersAnalytics(tenantId, query);
+    res.json(success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/analytics/my-performance
+ * ARTIST role — artist self-service performance stats.
+ */
+export async function myPerformance(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const query  = req.query as unknown as MyPerformanceQuery;
+
+    const artist = await prisma.artist.findUnique({
+      where:  { userId },
+      select: { id: true },
+    });
+
+    if (!artist) {
+      throw new AppError(404, 'ARTIST_NOT_FOUND', 'Artist profile not found for this user');
+    }
+
+    const result = await analyticsService.getArtistPerformance(artist.id, query);
+    res.json(success(result));
   } catch (err) {
     next(err);
   }

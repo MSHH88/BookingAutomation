@@ -162,6 +162,7 @@ model Tenant {
   giftCards         GiftCard[]
   products          Product[]
   stockMovements    StockMovement[]
+  payrollReports    PayrollReport[]
 
   @@index([isActive])
   @@map("tenants")
@@ -219,6 +220,9 @@ model Artist {
   slotDuration          Int             @default(90)
   commissionRate        Decimal?        @db.Decimal(5, 2)
   commissionType        CommissionType?
+  basePay               Decimal?        @db.Decimal(10, 2)
+  serviceCommissionPct  Decimal?        @db.Decimal(5, 2)
+  productCommissionPct  Decimal?        @db.Decimal(5, 2)
   calendarAccessToken   String?
   calendarRefreshToken  String?
   calendarTokenExpiresAt DateTime?
@@ -233,6 +237,7 @@ model Artist {
   leads        Lead[]               @relation("ArtistLeads")
   quotes       Quote[]              @relation("ArtistQuotes")
   bookings     Booking[]            @relation("ArtistBookings")
+  payrollReports PayrollReport[]
 
   @@index([tenantId])
   @@index([isActive])
@@ -1035,4 +1040,26 @@ model StockMovement {
   @@index([reason])
   @@index([createdAt])
   @@map("stock_movements")
+}
+
+model PayrollReport {
+  id                 String   @id @default(cuid())
+  tenantId           String?
+  artistId           String
+  periodStart        DateTime
+  periodEnd          DateTime
+  basePay            Decimal  @db.Decimal(10, 2)
+  serviceCommission  Decimal  @db.Decimal(10, 2)
+  productCommission  Decimal  @db.Decimal(10, 2)
+  totalTips          Decimal  @db.Decimal(10, 2)
+  totalPay           Decimal  @db.Decimal(10, 2)
+  generatedAt        DateTime @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  artist Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([artistId])
+  @@index([periodStart, periodEnd])
+  @@map("payroll_reports")
 }

@@ -20,6 +20,7 @@ import {
   posCheckoutSchema,
   posListTransactionsSchema,
   posSummarySchema,
+  terminalPaymentIntentSchema,
 } from './pos.schema';
 
 const router = Router();
@@ -44,5 +45,22 @@ router.get(
   validate(posSummarySchema),
   ctrl.getDailySummary,
 );
+
+// ── Terminal routes (require STRIPE_TERMINAL_ENABLED) ─────────────────────────
+const terminalRouter = Router();
+terminalRouter.use(requireFeature('STRIPE_TERMINAL_ENABLED'));
+
+terminalRouter.get(
+  '/connection-token',
+  ctrl.terminalConnectionToken,
+);
+
+terminalRouter.post(
+  '/payment-intent',
+  validate(terminalPaymentIntentSchema),
+  ctrl.terminalPaymentIntent,
+);
+
+router.use('/terminal', terminalRouter);
 
 export { router as posRoutes };

@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as posService from './pos.service';
 import { success }     from '../../utils/apiResponse';
-import type { PosCheckoutBody, PosListTransactionsQuery, PosSummaryQuery } from './pos.schema';
+import type { PosCheckoutBody, PosListTransactionsQuery, PosSummaryQuery, TerminalPaymentIntentBody } from './pos.schema';
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 
@@ -64,6 +64,43 @@ export async function getDailySummary(
     const query    = req.query as unknown as PosSummaryQuery;
     const result   = await posService.getDailySummary(tenantId, query);
     res.json(success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/pos/terminal/connection-token
+ * Returns a Stripe Terminal connection token for the frontend SDK.
+ */
+export async function terminalConnectionToken(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const tenantId = req.user!.tenantId!;
+    const result   = await posService.getTerminalConnectionToken(tenantId);
+    res.json(success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * POST /api/pos/terminal/payment-intent
+ * Creates a Stripe PaymentIntent for Terminal capture.
+ */
+export async function terminalPaymentIntent(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const tenantId = req.user!.tenantId!;
+    const body     = req.body as TerminalPaymentIntentBody;
+    const result   = await posService.createTerminalPaymentIntent(tenantId, body);
+    res.status(201).json(success(result));
   } catch (err) {
     next(err);
   }
