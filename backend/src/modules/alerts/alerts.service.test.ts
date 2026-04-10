@@ -149,7 +149,7 @@ describe('alerts.service', () => {
 
     it('should return BIRTHDAY_TODAY on customer birthday', async () => {
       const today = new Date();
-      const dob   = new Date(1990, today.getUTCMonth(), today.getUTCDate());
+      const dob   = new Date(Date.UTC(1990, today.getUTCMonth(), today.getUTCDate()));
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
         id: 'cust-1', name: 'Jane', tenantId: 'tenant-1',
         dateOfBirth: dob, stripeCustomerId: 'cus_123',
