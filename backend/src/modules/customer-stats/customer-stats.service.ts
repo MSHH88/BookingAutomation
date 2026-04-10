@@ -149,7 +149,7 @@ export async function getCustomerStats(
     throw new AppError(404, 'CUSTOMER_NOT_FOUND', 'Customer not found');
   }
 
-  if (customer.tenantId && customer.tenantId !== tenantId) {
+  if (customer.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this customer');
   }
 

@@ -53,7 +53,7 @@ export async function getFormById(id: string, tenantId: string) {
     throw new AppError(404, 'FORM_NOT_FOUND', 'Form not found');
   }
 
-  if (form.tenantId && form.tenantId !== tenantId) {
+  if (form.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this form');
   }
 
@@ -81,7 +81,7 @@ export async function updateForm(id: string, tenantId: string, data: UpdateFormB
     throw new AppError(404, 'FORM_NOT_FOUND', 'Form not found');
   }
 
-  if (existing.tenantId && existing.tenantId !== tenantId) {
+  if (existing.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this form');
   }
 
@@ -104,7 +104,7 @@ export async function deleteForm(id: string, tenantId: string) {
     throw new AppError(404, 'FORM_NOT_FOUND', 'Form not found');
   }
 
-  if (existing.tenantId && existing.tenantId !== tenantId) {
+  if (existing.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this form');
   }
 
@@ -123,7 +123,7 @@ export async function listFormResponses(formId: string, tenantId: string) {
     throw new AppError(404, 'FORM_NOT_FOUND', 'Form not found');
   }
 
-  if (form.tenantId && form.tenantId !== tenantId) {
+  if (form.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this form');
   }
 
@@ -204,6 +204,15 @@ export async function submitPublicForm(bookingToken: string, answers: Record<str
 
   if (!form) {
     throw new AppError(404, 'FORM_NOT_FOUND', 'No form associated with this booking');
+  }
+
+  // Prevent duplicate submissions
+  const existingResponse = await prisma.formResponse.findFirst({
+    where: { formId: form.id, bookingId: booking.id },
+  });
+
+  if (existingResponse) {
+    throw new AppError(409, 'FORM_ALREADY_SUBMITTED', 'Form has already been submitted for this booking');
   }
 
   const response = await prisma.formResponse.create({

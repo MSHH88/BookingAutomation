@@ -105,6 +105,21 @@ describe('booking-photos.service', () => {
       });
     });
 
+    it('should throw 403 when booking has null tenantId', async () => {
+      (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+        id: 'b-1', tenantId: null,
+      });
+
+      await expect(
+        createBookingPhoto('b-1', 'tenant-1', {
+          url: 'https://cdn.example.com/photo.jpg', type: 'BEFORE',
+        }, 'artist-1'),
+      ).rejects.toMatchObject({
+        statusCode: 403,
+        code: 'FORBIDDEN',
+      });
+    });
+
     it('should store description when provided', async () => {
       (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
         id: 'b-1', tenantId: 'tenant-1',

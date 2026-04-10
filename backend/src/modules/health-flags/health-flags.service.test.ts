@@ -97,6 +97,17 @@ describe('health-flags.service', () => {
         code: 'FORBIDDEN',
       });
     });
+
+    it('should throw 403 when customer has null tenantId', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        id: 'cust-1', tenantId: null,
+      });
+
+      await expect(listHealthFlags('cust-1', 'tenant-1')).rejects.toMatchObject({
+        statusCode: 403,
+        code: 'FORBIDDEN',
+      });
+    });
   });
 
   // ── createHealthFlag ────────────────────────────────────────────────────────
@@ -227,6 +238,19 @@ describe('health-flags.service', () => {
     it('should throw 403 for wrong tenant', async () => {
       (prisma.healthFlag.findUnique as jest.Mock).mockResolvedValue({
         id: 'hf-1', customerId: 'cust-1', tenantId: 'tenant-other',
+      });
+
+      await expect(
+        deleteHealthFlag('cust-1', 'hf-1', 'tenant-1'),
+      ).rejects.toMatchObject({
+        statusCode: 403,
+        code: 'FORBIDDEN',
+      });
+    });
+
+    it('should throw 403 when flag has null tenantId', async () => {
+      (prisma.healthFlag.findUnique as jest.Mock).mockResolvedValue({
+        id: 'hf-1', customerId: 'cust-1', tenantId: null,
       });
 
       await expect(

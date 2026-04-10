@@ -183,6 +183,18 @@ describe('customer-stats.service', () => {
       });
     });
 
+    it('should throw 403 when customer has null tenantId', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        id: 'cust-1',
+        tenantId: null,
+      });
+
+      await expect(getCustomerStats('cust-1', TENANT)).rejects.toMatchObject({
+        statusCode: 403,
+        code: 'FORBIDDEN',
+      });
+    });
+
     it('should return zeros when no completed bookings', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'cust-1', tenantId: TENANT });
       mockRedisGet.mockResolvedValue(null);

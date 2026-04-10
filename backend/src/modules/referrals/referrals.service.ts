@@ -63,7 +63,7 @@ export async function getReferralById(id: string, tenantId: string) {
     throw new AppError(404, 'REFERRAL_NOT_FOUND', 'Referral not found');
   }
 
-  if (referral.tenantId && referral.tenantId !== tenantId) {
+  if (referral.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this referral');
   }
 
@@ -179,7 +179,7 @@ export async function processReward(id: string, tenantId: string, rewardAmount: 
     throw new AppError(404, 'REFERRAL_NOT_FOUND', 'Referral not found');
   }
 
-  if (referral.tenantId && referral.tenantId !== tenantId) {
+  if (referral.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this referral');
   }
 

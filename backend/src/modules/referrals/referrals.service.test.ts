@@ -123,6 +123,17 @@ describe('referrals.service', () => {
         code: 'FORBIDDEN',
       });
     });
+
+    it('should throw 403 when referral has null tenantId', async () => {
+      (prisma.referral.findUnique as jest.Mock).mockResolvedValue({
+        id: 'ref-1', tenantId: null, referrerId: 'u-1', refereeId: 'u-2',
+      });
+
+      await expect(getReferralById('ref-1', 'tenant-1')).rejects.toMatchObject({
+        statusCode: 403,
+        code: 'FORBIDDEN',
+      });
+    });
   });
 
   // ── generateReferralCode ──────────────────────────────────────────────────

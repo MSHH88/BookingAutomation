@@ -44,7 +44,7 @@ export async function createBookingPhoto(
     throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking not found');
   }
 
-  if (booking.tenantId && booking.tenantId !== tenantId) {
+  if (booking.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this booking');
   }
 
@@ -76,7 +76,7 @@ export async function listBookingPhotos(bookingId: string, tenantId: string) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking not found');
   }
 
-  if (booking.tenantId && booking.tenantId !== tenantId) {
+  if (booking.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this booking');
   }
 
@@ -102,7 +102,7 @@ export async function deleteBookingPhoto(photoId: string, tenantId: string) {
     throw new AppError(404, 'PHOTO_NOT_FOUND', 'Photo not found');
   }
 
-  if (photo.tenantId && photo.tenantId !== tenantId) {
+  if (photo.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this photo');
   }
 

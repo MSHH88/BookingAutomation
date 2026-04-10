@@ -26,8 +26,9 @@ jest.mock('../../lib/prisma', () => ({
       update:     jest.fn(),
     },
     formResponse: {
-      findMany: jest.fn(),
-      create:   jest.fn(),
+      findMany:  jest.fn(),
+      findFirst: jest.fn(),
+      create:    jest.fn(),
     },
     booking: {
       findUnique: jest.fn(),
@@ -278,6 +279,7 @@ describe('/api/forms', () => {
         service: { category: { name: 'Tattoo' } },
       });
       (prisma.form.findFirst as jest.Mock).mockResolvedValue(sampleForm);
+      (prisma.formResponse.findFirst as jest.Mock).mockResolvedValue(null);
       (prisma.formResponse.create as jest.Mock).mockResolvedValue({
         id: 'resp-1', formId: 'form-1', bookingId: 'b-1', answers: { allergies: 'None' },
       });

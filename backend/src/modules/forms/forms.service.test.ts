@@ -36,8 +36,9 @@ jest.mock('../../lib/prisma', () => ({
       update:    jest.fn(),
     },
     formResponse: {
-      findMany: jest.fn(),
-      create:   jest.fn(),
+      findMany:  jest.fn(),
+      findFirst: jest.fn(),
+      create:    jest.fn(),
     },
     booking: {
       findUnique: jest.fn(),
@@ -281,6 +282,7 @@ describe('forms.service', () => {
         service: { category: { name: 'Tattoo' } },
       });
       (prisma.form.findFirst as jest.Mock).mockResolvedValue(sampleForm);
+      (prisma.formResponse.findFirst as jest.Mock).mockResolvedValue(null);
       (prisma.formResponse.create as jest.Mock).mockResolvedValue({
         id: 'resp-1', formId: 'form-1', bookingId: 'b-1', answers: { allergies: 'None' },
       });
@@ -301,6 +303,7 @@ describe('forms.service', () => {
         service: { category: { name: 'Tattoo' } },
       });
       (prisma.form.findFirst as jest.Mock).mockResolvedValue(sampleForm);
+      (prisma.formResponse.findFirst as jest.Mock).mockResolvedValue(null);
       (prisma.formResponse.create as jest.Mock).mockResolvedValue({
         id: 'resp-2', formId: 'form-1', bookingId: 'b-1', answers: { allergies: 'None' },
       });
@@ -309,6 +312,22 @@ describe('forms.service', () => {
 
       expect(result.id).toBe('resp-2');
       expect(prisma.booking.update).not.toHaveBeenCalled();
+    });
+
+    it('should throw 409 for duplicate form submission', async () => {
+      (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+        id: 'b-1', tenantId: 'tenant-1', customerId: 'cust-1', status: 'CONFIRMED',
+        service: { category: { name: 'Tattoo' } },
+      });
+      (prisma.form.findFirst as jest.Mock).mockResolvedValue(sampleForm);
+      (prisma.formResponse.findFirst as jest.Mock).mockResolvedValue({ id: 'existing-resp' });
+
+      await expect(submitPublicForm('tok-123', { allergies: 'None' })).rejects.toMatchObject({
+        statusCode: 409,
+        code: 'FORM_ALREADY_SUBMITTED',
+      });
+
+      expect(prisma.formResponse.create).not.toHaveBeenCalled();
     });
   });
 });

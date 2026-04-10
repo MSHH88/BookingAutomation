@@ -34,7 +34,7 @@ async function verifyCustomerAccess(customerId: string, tenantId: string) {
     throw new AppError(404, 'CUSTOMER_NOT_FOUND', 'Customer not found');
   }
 
-  if (customer.tenantId && customer.tenantId !== tenantId) {
+  if (customer.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this customer');
   }
 
@@ -100,7 +100,7 @@ export async function deleteHealthFlag(
     throw new AppError(404, 'HEALTH_FLAG_NOT_FOUND', 'Health flag not found');
   }
 
-  if (flag.tenantId && flag.tenantId !== tenantId) {
+  if (flag.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'Access denied to this health flag');
   }
 
