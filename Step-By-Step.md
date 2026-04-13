@@ -1,7 +1,7 @@
 # PHASE 5 — Packages, Loyalty & Retention
 
 **Sub-phases:** 5.1 Service Packages / Bundles, 5.2 Memberships / Subscriptions, 5.3 Loyalty / Points Program, 5.4 Smart Waitlist Matching  
-**Files changed:** 26 total (5 modified + 21 new)  
+**Files changed:** 28 total (9 modified + 19 new)  
 **Feature flags added:** `PACKAGES_ENABLED`, `MEMBERSHIPS_ENABLED`, `LOYALTY_ENABLED`  
 **Expected result:** 88 suites, 1551 tests pass, 0 failures.
 
@@ -35,6 +35,7 @@ rm -f src/app.ts && \
 rm -f src/config/businessType.ts && \
 rm -f src/jobs/index.ts && \
 rm -f src/modules/bookings/bookings.service.ts && \
+rm -f src/modules/bookings/bookings.service.test.ts && \
 rm -f src/modules/waitlist/waitlist.schema.ts && \
 rm -f src/modules/waitlist/waitlist.service.ts && \
 rm -f src/modules/waitlist/waitlist.service.test.ts && \
@@ -43,112 +44,120 @@ rm -f src/jobs/waitlist-match.job.ts
 
 ---
 
-## Step 4 — Download all files (1/26 to 26/26)
+## Step 4 — Download all files (1/28 to 28/28)
 
 ```bash
-# 1/26 — prisma/schema.prisma (modified — adds Package, CustomerPackage, Membership, CustomerMembership, LoyaltyAccount, LoyaltyTransaction models + WaitlistEntry timePreference/notificationExpiry fields)
+# 1/28 — prisma/schema.prisma (modified — adds Package, CustomerPackage, Membership, CustomerMembership, LoyaltyAccount, LoyaltyTransaction models + WaitlistEntry timePreference/notificationExpiry fields)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/prisma/schema.prisma" \
-  -o prisma/schema.prisma && echo "1/26 OK" || echo "1/26 FAILED"
+  -o prisma/schema.prisma && echo "1/28 OK" || echo "1/28 FAILED"
 
-# 2/26 — src/app.ts (modified — registers /api/packages, /api/memberships, /api/loyalty routes)
+# 2/28 — src/app.ts (modified — registers /api/packages, /api/memberships, /api/loyalty, /api/me/packages, /api/me/memberships, /api/customers/:id/packages, /api/customers/:id/memberships routes)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/app.ts" \
-  -o src/app.ts && echo "2/26 OK" || echo "2/26 FAILED"
+  -o src/app.ts && echo "2/28 OK" || echo "2/28 FAILED"
 
-# 3/26 — src/config/businessType.ts (modified — adds PACKAGES_ENABLED, MEMBERSHIPS_ENABLED, LOYALTY_ENABLED flags)
+# 3/28 — src/config/businessType.ts (modified — adds PACKAGES_ENABLED, MEMBERSHIPS_ENABLED, LOYALTY_ENABLED flags)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/config/businessType.ts" \
-  -o src/config/businessType.ts && echo "3/26 OK" || echo "3/26 FAILED"
+  -o src/config/businessType.ts && echo "3/28 OK" || echo "3/28 FAILED"
 
-# 4/26 — src/jobs/index.ts (modified — starts waitlist match worker)
+# 4/28 — src/jobs/index.ts (modified — starts waitlist match worker)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/jobs/index.ts" \
-  -o src/jobs/index.ts && echo "4/26 OK" || echo "4/26 FAILED"
+  -o src/jobs/index.ts && echo "4/28 OK" || echo "4/28 FAILED"
 
-# 5/26 — src/modules/bookings/bookings.service.ts (modified — deduct package use + award loyalty points + membership coverage check on booking)
+# 5/28 — src/modules/bookings/bookings.service.ts (modified — deducts package use on confirm + awards loyalty points on complete + smart waitlist matching on cancel)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" \
-  -o src/modules/bookings/bookings.service.ts && echo "5/26 OK" || echo "5/26 FAILED"
+  -o src/modules/bookings/bookings.service.ts && echo "5/28 OK" || echo "5/28 FAILED"
 
-# 6/26 — src/modules/waitlist/waitlist.schema.ts (modified — adds timePreference field to JoinWaitlistBody)
+# 6/28 — src/modules/bookings/bookings.service.test.ts (modified — adds mocks for packages/loyalty services)
+curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" \
+  -o src/modules/bookings/bookings.service.test.ts && echo "6/28 OK" || echo "6/28 FAILED"
+
+# 7/28 — src/modules/waitlist/waitlist.schema.ts (modified — adds timePreference field to JoinWaitlistBody)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.schema.ts" \
-  -o src/modules/waitlist/waitlist.schema.ts && echo "6/26 OK" || echo "6/26 FAILED"
+  -o src/modules/waitlist/waitlist.schema.ts && echo "7/28 OK" || echo "7/28 FAILED"
 
-# 7/26 — src/modules/waitlist/waitlist.service.ts (modified — adds matchAndNotify() smart matching logic)
+# 8/28 — src/modules/waitlist/waitlist.service.ts (modified — adds matchAndNotify() smart matching logic)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.service.ts" \
-  -o src/modules/waitlist/waitlist.service.ts && echo "7/26 OK" || echo "7/26 FAILED"
+  -o src/modules/waitlist/waitlist.service.ts && echo "8/28 OK" || echo "8/28 FAILED"
 
-# 8/26 — src/modules/waitlist/waitlist.service.test.ts (modified — adds timePreference to fixtures + matchAndNotify tests)
+# 9/28 — src/modules/waitlist/waitlist.service.test.ts (modified — adds timePreference to fixtures + matchAndNotify tests)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.service.test.ts" \
-  -o src/modules/waitlist/waitlist.service.test.ts && echo "8/26 OK" || echo "8/26 FAILED"
+  -o src/modules/waitlist/waitlist.service.test.ts && echo "9/28 OK" || echo "9/28 FAILED"
 
-# 9/26 — src/jobs/waitlist-match.job.ts (new — BullMQ worker for waitlist notification expiry)
+# 10/28 — src/jobs/waitlist-match.job.ts (new — BullMQ worker for waitlist notification expiry)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/jobs/waitlist-match.job.ts" \
-  -o src/jobs/waitlist-match.job.ts && echo "9/26 OK" || echo "9/26 FAILED"
+  -o src/jobs/waitlist-match.job.ts && echo "10/28 OK" || echo "10/28 FAILED"
 
-# 10/26 — src/modules/packages/packages.schema.ts (new)
+# 11/28 — src/modules/packages/packages.schema.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/packages/packages.schema.ts" \
-  -o src/modules/packages/packages.schema.ts && echo "10/26 OK" || echo "10/26 FAILED"
+  -o src/modules/packages/packages.schema.ts && echo "11/28 OK" || echo "11/28 FAILED"
 
-# 11/26 — src/modules/packages/packages.service.ts (new)
+# 12/28 — src/modules/packages/packages.service.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/packages/packages.service.ts" \
-  -o src/modules/packages/packages.service.ts && echo "11/26 OK" || echo "11/26 FAILED"
+  -o src/modules/packages/packages.service.ts && echo "12/28 OK" || echo "12/28 FAILED"
 
-# 12/26 — src/modules/packages/packages.controller.ts (new)
+# 13/28 — src/modules/packages/packages.controller.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/packages/packages.controller.ts" \
-  -o src/modules/packages/packages.controller.ts && echo "12/26 OK" || echo "12/26 FAILED"
+  -o src/modules/packages/packages.controller.ts && echo "13/28 OK" || echo "13/28 FAILED"
 
-# 13/26 — src/modules/packages/packages.routes.ts (new)
+# 14/28 — src/modules/packages/packages.routes.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/packages/packages.routes.ts" \
-  -o src/modules/packages/packages.routes.ts && echo "13/26 OK" || echo "13/26 FAILED"
+  -o src/modules/packages/packages.routes.ts && echo "14/28 OK" || echo "14/28 FAILED"
 
-# 14/26 — src/modules/packages/packages.service.test.ts (new)
+# 15/28 — src/modules/packages/packages.service.test.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/packages/packages.service.test.ts" \
-  -o src/modules/packages/packages.service.test.ts && echo "14/26 OK" || echo "14/26 FAILED"
+  -o src/modules/packages/packages.service.test.ts && echo "15/28 OK" || echo "15/28 FAILED"
 
-# 15/26 — src/modules/packages/packages.test.ts (new)
+# 16/28 — src/modules/packages/packages.test.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/packages/packages.test.ts" \
-  -o src/modules/packages/packages.test.ts && echo "15/26 OK" || echo "15/26 FAILED"
+  -o src/modules/packages/packages.test.ts && echo "16/28 OK" || echo "16/28 FAILED"
 
-# 16/26 — src/modules/memberships/memberships.schema.ts (new)
+# 17/28 — src/modules/memberships/memberships.schema.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/memberships/memberships.schema.ts" \
-  -o src/modules/memberships/memberships.schema.ts && echo "16/26 OK" || echo "16/26 FAILED"
+  -o src/modules/memberships/memberships.schema.ts && echo "17/28 OK" || echo "17/28 FAILED"
 
-# 17/26 — src/modules/memberships/memberships.service.ts (new)
+# 18/28 — src/modules/memberships/memberships.service.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/memberships/memberships.service.ts" \
-  -o src/modules/memberships/memberships.service.ts && echo "17/26 OK" || echo "17/26 FAILED"
+  -o src/modules/memberships/memberships.service.ts && echo "18/28 OK" || echo "18/28 FAILED"
 
-# 18/26 — src/modules/memberships/memberships.controller.ts (new)
+# 19/28 — src/modules/memberships/memberships.controller.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/memberships/memberships.controller.ts" \
-  -o src/modules/memberships/memberships.controller.ts && echo "18/26 OK" || echo "18/26 FAILED"
+  -o src/modules/memberships/memberships.controller.ts && echo "19/28 OK" || echo "19/28 FAILED"
 
-# 19/26 — src/modules/memberships/memberships.routes.ts (new)
+# 20/28 — src/modules/memberships/memberships.routes.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/memberships/memberships.routes.ts" \
-  -o src/modules/memberships/memberships.routes.ts && echo "19/26 OK" || echo "19/26 FAILED"
+  -o src/modules/memberships/memberships.routes.ts && echo "20/28 OK" || echo "20/28 FAILED"
 
-# 20/26 — src/modules/memberships/memberships.service.test.ts (new)
+# 21/28 — src/modules/memberships/memberships.service.test.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/memberships/memberships.service.test.ts" \
-  -o src/modules/memberships/memberships.service.test.ts && echo "20/26 OK" || echo "20/26 FAILED"
+  -o src/modules/memberships/memberships.service.test.ts && echo "21/28 OK" || echo "21/28 FAILED"
 
-# 21/26 — src/modules/memberships/memberships.test.ts (new)
+# 22/28 — src/modules/memberships/memberships.test.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/memberships/memberships.test.ts" \
-  -o src/modules/memberships/memberships.test.ts && echo "21/26 OK" || echo "21/26 FAILED"
+  -o src/modules/memberships/memberships.test.ts && echo "22/28 OK" || echo "22/28 FAILED"
 
-# 22/26 — src/modules/loyalty/loyalty.schema.ts (new)
+# 23/28 — src/modules/loyalty/loyalty.schema.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/loyalty/loyalty.schema.ts" \
-  -o src/modules/loyalty/loyalty.schema.ts && echo "22/26 OK" || echo "22/26 FAILED"
+  -o src/modules/loyalty/loyalty.schema.ts && echo "23/28 OK" || echo "23/28 FAILED"
 
-# 23/26 — src/modules/loyalty/loyalty.service.ts (new)
+# 24/28 — src/modules/loyalty/loyalty.service.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/loyalty/loyalty.service.ts" \
-  -o src/modules/loyalty/loyalty.service.ts && echo "23/26 OK" || echo "23/26 FAILED"
+  -o src/modules/loyalty/loyalty.service.ts && echo "24/28 OK" || echo "24/28 FAILED"
 
-# 24/26 — src/modules/loyalty/loyalty.controller.ts (new)
+# 25/28 — src/modules/loyalty/loyalty.controller.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/loyalty/loyalty.controller.ts" \
-  -o src/modules/loyalty/loyalty.controller.ts && echo "24/26 OK" || echo "24/26 FAILED"
+  -o src/modules/loyalty/loyalty.controller.ts && echo "25/28 OK" || echo "25/28 FAILED"
 
-# 25/26 — src/modules/loyalty/loyalty.routes.ts (new)
+# 26/28 — src/modules/loyalty/loyalty.routes.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/loyalty/loyalty.routes.ts" \
-  -o src/modules/loyalty/loyalty.routes.ts && echo "25/26 OK" || echo "25/26 FAILED"
+  -o src/modules/loyalty/loyalty.routes.ts && echo "26/28 OK" || echo "26/28 FAILED"
 
-# 26/26 — src/modules/loyalty/loyalty.service.test.ts (new)
+# 27/28 — src/modules/loyalty/loyalty.service.test.ts (new)
 curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/loyalty/loyalty.service.test.ts" \
-  -o src/modules/loyalty/loyalty.service.test.ts && echo "26/26 OK" || echo "26/26 FAILED"
+  -o src/modules/loyalty/loyalty.service.test.ts && echo "27/28 OK" || echo "27/28 FAILED"
+
+# 28/28 — src/modules/loyalty/loyalty.test.ts (new)
+curl -sfL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/loyalty/loyalty.test.ts" \
+  -o src/modules/loyalty/loyalty.test.ts && echo "28/28 OK" || echo "28/28 FAILED"
 ```
 
 ---
@@ -172,3 +181,33 @@ npx jest --passWithNoTests
 ```
 
 **Expected output:** 88 suites, 1551/1551 tests, 0 failures.
+
+---
+
+## To delete all Phase 5 files (clean-up / rollback)
+
+```bash
+cd ~/Desktop/Automation/backend && \
+rm -f src/jobs/waitlist-match.job.ts && \
+rm -f src/modules/packages/packages.schema.ts && \
+rm -f src/modules/packages/packages.service.ts && \
+rm -f src/modules/packages/packages.controller.ts && \
+rm -f src/modules/packages/packages.routes.ts && \
+rm -f src/modules/packages/packages.service.test.ts && \
+rm -f src/modules/packages/packages.test.ts && \
+rm -f src/modules/memberships/memberships.schema.ts && \
+rm -f src/modules/memberships/memberships.service.ts && \
+rm -f src/modules/memberships/memberships.controller.ts && \
+rm -f src/modules/memberships/memberships.routes.ts && \
+rm -f src/modules/memberships/memberships.service.test.ts && \
+rm -f src/modules/memberships/memberships.test.ts && \
+rm -f src/modules/loyalty/loyalty.schema.ts && \
+rm -f src/modules/loyalty/loyalty.service.ts && \
+rm -f src/modules/loyalty/loyalty.controller.ts && \
+rm -f src/modules/loyalty/loyalty.routes.ts && \
+rm -f src/modules/loyalty/loyalty.service.test.ts && \
+rm -f src/modules/loyalty/loyalty.test.ts && \
+rmdir src/modules/packages src/modules/memberships src/modules/loyalty 2>/dev/null; true
+```
+
+> **Note:** Modified files (`prisma/schema.prisma`, `src/app.ts`, `src/config/businessType.ts`, `src/jobs/index.ts`, `src/modules/bookings/bookings.service.ts`, `src/modules/bookings/bookings.service.test.ts`, `src/modules/waitlist/waitlist.schema.ts`, `src/modules/waitlist/waitlist.service.ts`, `src/modules/waitlist/waitlist.service.test.ts`) must be restored from the previous phase's versions — they are not deleted here to avoid data loss.
