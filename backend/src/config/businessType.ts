@@ -311,6 +311,10 @@ export const FEATURE_FLAG_KEYS = [
   // ── Phase 8: Advanced Intelligence ────────────────────────────────────
   'DYNAMIC_PRICING_ENABLED',        // surge / off-peak dynamic pricing rules
   'AI_SUGGESTIONS_ENABLED',         // AI-powered rebooking / upsell suggestions
+
+  // ── Phase 9: Scale & Growth ────────────────────────────────────────────
+  'MULTI_LOCATION_ENABLED',         // multi-location support — each artist/service/booking scoped to a location
+  'GROUP_BOOKING_ENABLED',          // group / class bookings — session model with capacity management
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -389,6 +393,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     APPLE_CALENDAR_ENABLED:     false,
     DYNAMIC_PRICING_ENABLED:    false,
     AI_SUGGESTIONS_ENABLED:     false,
+    MULTI_LOCATION_ENABLED:     false,
+    GROUP_BOOKING_ENABLED:      false,
   },
 
   hair_salon: {
@@ -453,6 +459,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     APPLE_CALENDAR_ENABLED:     false,
     DYNAMIC_PRICING_ENABLED:    false,
     AI_SUGGESTIONS_ENABLED:     false,
+    MULTI_LOCATION_ENABLED:     false,
+    GROUP_BOOKING_ENABLED:      false,
   },
 
   barber: {
@@ -517,6 +525,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     APPLE_CALENDAR_ENABLED:     false,
     DYNAMIC_PRICING_ENABLED:    false,
     AI_SUGGESTIONS_ENABLED:     false,
+    MULTI_LOCATION_ENABLED:     false,
+    GROUP_BOOKING_ENABLED:      false,
   },
 
   nail_salon: {
@@ -581,6 +591,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     APPLE_CALENDAR_ENABLED:     false,
     DYNAMIC_PRICING_ENABLED:    false,
     AI_SUGGESTIONS_ENABLED:     false,
+    MULTI_LOCATION_ENABLED:     false,
+    GROUP_BOOKING_ENABLED:      false,
   },
 
   masseuse: {
@@ -645,6 +657,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     APPLE_CALENDAR_ENABLED:     false,
     DYNAMIC_PRICING_ENABLED:    false,
     AI_SUGGESTIONS_ENABLED:     false,
+    MULTI_LOCATION_ENABLED:     false,
+    GROUP_BOOKING_ENABLED:      false,
   },
 
   restaurant: {
@@ -709,6 +723,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     APPLE_CALENDAR_ENABLED:     false,
     DYNAMIC_PRICING_ENABLED:    false,
     AI_SUGGESTIONS_ENABLED:     false,
+    MULTI_LOCATION_ENABLED:     false,
+    GROUP_BOOKING_ENABLED:      false,
   },
 };
 

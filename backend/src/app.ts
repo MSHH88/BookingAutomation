@@ -63,6 +63,8 @@ import { rotaRoutes }              from './modules/rota/rota.routes';           
 import { pushRoutes }              from './modules/push/push.routes';              // Phase 6.2
 import { pricingRoutes }           from './modules/pricing/pricing.routes';        // Phase 8.1
 import { aiRoutes }                from './modules/ai/ai.routes';                  // Phase 8.2
+import { locationRoutes }          from './modules/locations/locations.routes';    // Phase 9.1
+import { sessionRoutes }           from './modules/sessions/sessions.routes';      // Phase 9.2
 
 const app = express();
 
@@ -200,6 +202,8 @@ app.use('/api/rota',             rotaRoutes);                   // Phase 6.1 —
 app.use('/api/push',             pushRoutes);                   // Phase 6.2 — Staff PWA Push Notifications
 app.use('/api/pricing-rules',    pricingRoutes);                // Phase 8.1 — Dynamic Pricing
 app.use('/api/ai',               aiRoutes);                     // Phase 8.2 — AI Suggestions
+app.use('/api/locations',        locationRoutes);               // Phase 9.1 — Multi-Location
+app.use('/api/sessions',         sessionRoutes);                // Phase 9.2 — Group/Class Bookings
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

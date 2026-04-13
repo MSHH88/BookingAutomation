@@ -173,6 +173,9 @@ model Tenant {
   artistMedia       ArtistMedia[]
   pricingRules      PricingRule[]
   aiSuggestions     AISuggestion[]
+  locations         Location[]
+  sessions          Session[]
+  sessionBookings   SessionBooking[]
 
   @@index([isActive])
   @@map("tenants")
@@ -217,6 +220,7 @@ model User {
   loyaltyAccounts   LoyaltyAccount[]
   pushSubscriptions PushSubscription[]
   aiSuggestions     AISuggestion[]  @relation("CustomerAISuggestions")
+  sessionBookings   SessionBooking[] @relation("CustomerSessionBookings")
 
   @@index([tenantId])
   @@index([tenantId, role])
@@ -246,9 +250,11 @@ model Artist {
   appleCalDAVUrl         String?
   appleCalDAVToken       String?
   isActive               Boolean         @default(true)
+  locationId             String?
 
   tenant       Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location     Location?            @relation(fields: [locationId], references: [id], onDelete: SetNull)
   availability ArtistAvailability[]
   blocks       AvailabilityBlock[]
   styles       ArtistStyle[]
@@ -259,6 +265,7 @@ model Artist {
   payrollReports PayrollReport[]
   shifts       Shift[]
   media        ArtistMedia[]
+  sessions     Session[]
 
   @@index([tenantId])
   @@index([isActive])
@@ -430,6 +437,7 @@ model Booking {
   completedAt          DateTime?
   cancelledAt          DateTime?
   cancelReason         String?
+  locationId           String?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
@@ -440,6 +448,7 @@ model Booking {
   table           Table?          @relation(fields: [tableId], references: [id], onDelete: SetNull)
   customer        User?           @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: SetNull)
   tenant          Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  location        Location?       @relation(fields: [locationId], references: [id], onDelete: SetNull)
   invoice         Invoice?
   services        BookingService[]
   waitlistEntries WaitlistEntry[]
@@ -594,17 +603,20 @@ model Service {
   bufferMinutes      Int      @default(0)
   rebookIntervalDays Int?
   isActive           Boolean  @default(true)
+  locationId         String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
   tenant          Tenant?          @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   category        ServiceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  location        Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
   artists         ArtistService[]
   bookings        Booking[]
   bookingServices BookingService[]
   leads           Lead[]
   pricingRules    PricingRule[]
   aiSuggestions   AISuggestion[]
+  sessions        Session[]
 
   @@index([tenantId])
   @@index([categoryId, isActive])
@@ -649,11 +661,13 @@ model Table {
   positionX Float?   // x coordinate for visual floor-plan (CRM)
   positionY Float?   // y coordinate for visual floor-plan (CRM)
   isActive  Boolean  @default(true)
+  locationId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  bookings Booking[]
+  tenant     Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  tableLocation Location? @relation("TableLocation", fields: [locationId], references: [id], onDelete: SetNull)
+  bookings   Booking[]
 
   @@index([tenantId])
   @@index([isActive])
@@ -1414,4 +1428,92 @@ enum AISuggestionStatus {
   APPROVED
   SENT
   DISMISSED
+}
+
+// ─── Phase 9 — Multi-Location ────────────────────────────────────────────────
+
+model Location {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  name      String
+  address   String?
+  city      String?
+  postcode  String?
+  country   String?
+  phone     String?
+  timezone  String   @default("UTC")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  artists  Artist[]
+  services Service[]
+  tables   Table[]   @relation("TableLocation")
+  bookings Booking[]
+  sessions Session[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("locations")
+}
+
+// ─── Phase 9 — Group / Class Booking ─────────────────────────────────────────
+
+enum SessionStatus {
+  OPEN
+  FULL
+  CANCELLED
+}
+
+enum SessionBookingStatus {
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
+
+model Session {
+  id               String        @id @default(cuid())
+  tenantId         String?
+  serviceId        String
+  artistId         String
+  locationId       String?
+  startTime        DateTime
+  endTime          DateTime
+  capacity         Int
+  currentAttendees Int           @default(0)
+  status           SessionStatus @default(OPEN)
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  tenant   Tenant?          @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  service  Service          @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  artist   Artist           @relation(fields: [artistId], references: [id], onDelete: Restrict)
+  location Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  bookings SessionBooking[]
+
+  @@index([tenantId])
+  @@index([artistId, startTime])
+  @@index([status])
+  @@map("sessions")
+}
+
+model SessionBooking {
+  id         String               @id @default(cuid())
+  sessionId  String
+  customerId String
+  tenantId   String?
+  status     SessionBookingStatus @default(CONFIRMED)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  session  Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  customer User    @relation("CustomerSessionBookings", fields: [customerId], references: [id], onDelete: Cascade)
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@unique([sessionId, customerId])
+  @@index([tenantId])
+  @@index([customerId])
+  @@map("session_bookings")
 }
