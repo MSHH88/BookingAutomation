@@ -621,6 +621,33 @@ These four `findMany` calls have no `take` limit. The controllers wrap the raw a
 
 ---
 
+### FINDING-031 — Tables Module Has No TenantId Scoping (All 5 Service Functions)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟠 High |
+| **Scope** | `tables` module |
+| **Phase/Step** | Phase 0 — Step 1.24 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/tables/tables.service.ts` (all functions: `listTables` line 70, `getTableAvailability` line 94, `createTable` line 136, `updateTable` line 155, `deleteTable` line 185), `prisma/schema.prisma` (Table model — `tenantId String?` present but unused) |
+
+**What's wrong:**
+The `Table` Prisma model defines `tenantId String?` (and `@@index([tenantId])`), but **not a single line in `tables.service.ts` references `tenantId`**. All five service functions operate globally across all tenants:
+
+- `listTables()`: queries `where: { isActive }` — returns tables from ALL tenants. This is a PUBLIC endpoint (no auth), so any unauthenticated user receives a combined list of every tenant's tables in a multi-tenant deployment.
+- `getTableAvailability()`: loads all active tables matching the `partySize` without a tenant filter — availability computations bleed across tenant boundaries.
+- `createTable()`: inserts a new Table row with no `tenantId` field in the `data` object — new tables are always globally scoped (no tenant owner).
+- `updateTable()`: updates by `id` only, no ownership check — an ADMIN from TenantA can PATCH TenantB's table.
+- `deleteTable()`: soft-deletes by `id` only, no ownership check — an ADMIN from TenantA can deactivate TenantB's tables, breaking their restaurant floor plan.
+
+The controller (`tables.controller.ts`) never extracts `req.user?.tenantId` and never passes it to any service function.
+
+**Risk/Impact:** In a multi-tenant restaurant deployment: (1) public listing exposes all tenants' table layouts; (2) any ADMIN can corrupt or deactivate another tenant's tables; (3) availability checks mix bookings across tenants, returning incorrect results. This is the same systemic pattern as FINDING-003, -004, -022–026: the DB schema has the `tenantId` column but the service layer never uses it.
+
+**Recommended fix:** Add `tenantId: string | null` to all five functions. In `listTables`, `getTableAvailability`, and `createTable`, inject `tenantId` into the Prisma `where`/`data` clause. In `updateTable` and `deleteTable`, fetch the record first and assert `existing.tenantId === tenantId` (same pattern as `sessions.service.ts` and `locations.service.ts`). Pass `req.user!.tenantId ?? null` from the controller for admin routes; for the public list/availability routes, accept a `?tenantSlug=` query param and resolve the tenantId from it (matching the public booking widget pattern in `public.service.ts`).
+
+---
+
 ## Pass 2 Summary
 
 | # | Severity | Status | Title |
@@ -634,5 +661,110 @@ These four `findMany` calls have no `take` limit. The controllers wrap the raw a
 | 028 | 🟡 Medium | ❌ Open | Inconsistent DELETE Response Shape (204 vs 200+body) |
 | 029 | 🟡 Medium | ❌ Open | Password Reset Token Logged at debug Level |
 | 030 | 🟡 Medium | ❌ Open | sessions / pricing / locations Lists Are Unbounded (No Pagination Cap) |
+| 031 | 🟠 High | ❌ Open | Tables Module Has No TenantId Scoping (All 5 Service Functions) |
 
-**Pass 2 verdict:** 9 additional findings identified (2 🔴 Critical, 4 🟠 High, 3 🟡 Medium). The two new Critical findings (022, 023) are in the same category as Pass 1's FINDING-003 and FINDING-004 — cross-tenant data scoping gaps — confirming this is a systemic pattern across the codebase. FINDING-027 (booking double-booking race) is a new class of bug not covered in Pass 1. The full audit now documents **30 open findings** across both passes.
+**Pass 2 verdict (updated after second scan):** 10 findings total (2 🔴 Critical, 5 🟠 High, 3 🟡 Medium). FINDING-031 was uncovered in the second scan of Pass 2 — the Tables module is missing tenantId scoping across all five service functions, continuing the systemic cross-tenant data isolation pattern seen in FINDING-003, -004, -022–026. The full audit now documents **31 open findings** across both passes.
+
+---
+
+### FINDING-032 — Payments Service Has No Tenant Scoping (createPaymentIntent / getPaymentStatus / refundPayment)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟠 High |
+| **Scope** | `payments` module |
+| **Phase/Step** | Phase 0 — Step 1.23 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/payments/payments.service.ts` (`createPaymentIntent` line 73, `getPaymentStatus` line 262, `refundPayment` line 312), `src/modules/payments/payments.controller.ts` (all three handlers) |
+
+**What's wrong:**
+All three payment service functions accept a `bookingId` and look up the booking with `prisma.booking.findUnique({ where: { id: bookingId } })` — with **no `tenantId` check**. The controller passes only the bookingId from the request (params or body); `req.user.tenantId` is never extracted or forwarded. Any ADMIN user (regardless of tenant) can supply any bookingId and:
+
+- `createPaymentIntent`: obtain a valid Stripe `clientSecret` for another tenant's booking — enabling a cross-tenant charge attempt (though Stripe funds still land on the platform account).
+- `getPaymentStatus`: read another tenant's payment status, `depositPaidAt`, `depositAmount`, and `stripePaymentIntentId`.
+- `refundPayment`: issue a real Stripe refund on another tenant's booking deposit and mark `depositRefunded = true` on that booking row — a destructive, irreversible financial action.
+
+Additionally, the helper `resolveDepositPence()` (line 393) calls `prisma.studioSettings.findFirst()` with **no tenant filter** to retrieve the deposit percentage, potentially using the wrong tenant's deposit configuration for the payment amount calculation.
+
+**Risk/Impact:** An ADMIN from TenantA can refund TenantB's customer deposits and corrupt TenantB's payment ledger. `getPaymentStatus` leaks Stripe payment intent IDs and financial state across tenants. Cross-tenant Stripe operations are irreversible.
+
+**Recommended fix:** Pass `tenantId: req.user!.tenantId ?? null` from the controller to each service function. In each service function, after fetching the booking, assert `if (tenantId && booking.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', ...)`. In `resolveDepositPence`, scope `findFirst({ where: { tenantId: tenantId ?? undefined } })` to the calling tenant.
+
+---
+
+### FINDING-033 — Quotes Module: ADMIN listQuotes / getQuoteById / acceptQuote Returns All Quotes Cross-Tenant
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟡 Medium |
+| **Scope** | `quotes` module |
+| **Phase/Step** | Phase 0 — Step 1.8 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/quotes/quotes.service.ts` (`listQuotes` line 249, `getQuoteById` line 293, `acceptQuote` line 437), `src/modules/quotes/quotes.controller.ts` |
+
+**What's wrong:**
+The `Quote` Prisma model has **no `tenantId` column** (confirmed in `schema.prisma`). For the ARTIST role, quotes are correctly scoped by `artistId` (the ARTIST can only read their own quotes). However, for the ADMIN role:
+
+- `listQuotes()`: builds a `where` clause with no tenant constraint. An ADMIN calling `GET /api/quotes` receives a paginated listing of **every quote across every tenant** in the system. Each row exposes `lead.name`, `lead.email`, `lead.phone`, `artist.user.name`, `price`, `hours`, and `notes`.
+- `getQuoteById()`: ADMIN can retrieve the full detail of any quote by ID (any tenant's quote).
+- `acceptQuote()` / `rejectQuote()`: ADMIN can accept or reject any tenant's quotes, creating bookings in other tenants' accounts.
+
+The previous Pass 2 scan noted this as "intentionally unscoped" because the Quote model lacks a `tenantId` column. However, the ADMIN path allows enumeration of all quotes via pagination — no explicit ID knowledge is required. `listQuotes` with `page=1` returns the first page of all quotes globally.
+
+**Risk/Impact:** Cross-tenant PII (lead names, emails, prices) exposed to any ADMIN via quote listing. ADMINs can accept or reject quotes for other tenants' leads, creating bookings or closing deals they have no authority over.
+
+**Recommended fix:** Add a `tenantId String?` column to the `Quote` model (linked to `Lead.tenantId` or `Artist.tenantId`). Populate it on `createQuote`. In `listQuotes()`, `getQuoteById()`, `acceptQuote()`, and `rejectQuote()`, scope the query through the `artist.tenantId` join: `where: { artist: { tenantId: tenantId ?? undefined } }`. Pass `req.user!.tenantId ?? null` from the controller.
+
+---
+
+### FINDING-034 — Settings Service: getCachedSettings / updateSettings Missing Tenant Scoping in Multi-Tenant Mode
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟡 Medium |
+| **Scope** | `settings` module |
+| **Phase/Step** | Phase 0 — Step 1.29 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/settings/settings.service.ts` (`getCachedSettings` line 101, `updateSettings` line 149), `src/modules/settings/settings.controller.ts` (both handlers), `src/modules/payments/payments.service.ts` (`resolveDepositPence` line 393) |
+
+**What's wrong:**
+The `StudioSettings` model has `tenantId String? @unique` — designed for one settings row per tenant. However, neither `getCachedSettings()` nor `updateSettings()` applies a `tenantId` filter:
+
+- `getCachedSettings()` calls `prisma.studioSettings.findFirst()` with no `where` clause — in a multi-tenant deployment with multiple settings rows, this returns the **first row in DB insertion order**, which may belong to a different tenant.
+- The Redis cache key is the hardcoded string `'settings:public'` with no tenant discriminator. When TenantA's admin updates settings, TenantB's next `GET /api/settings` will read TenantA's updated settings from the cache (or vice versa).
+- `updateSettings()` also calls `findFirst()` to find the existing row to update — it will patch the first row found, regardless of which tenant's admin called the endpoint.
+- `resolveDepositPence()` in `payments.service.ts` (line 393) also calls `prisma.studioSettings.findFirst()` with no filter, potentially computing payment deposit amounts using another tenant's `depositPercentage`.
+
+The `GET /api/settings` endpoint is intentionally public (no auth), but the controller never extracts a `tenantId` (e.g., from a query param or subdomain) to scope the lookup. The `PATCH /api/settings` endpoint requires ADMIN auth but the controller (`patchSettings`) never passes `req.user.tenantId` to the service.
+
+**Risk/Impact:** In a multi-tenant deployment, tenants can see and overwrite each other's studio settings. Payment deposit percentages computed from the wrong tenant's settings cause incorrect charge amounts. Cache poisoning is a realistic failure mode — one tenant updating settings breaks the public widget for all tenants.
+
+**Recommended fix:** Pass `tenantId` to both service functions. In `getCachedSettings`, accept an optional `tenantId` param (for public routes, resolve from a `?tenant=` slug or default to the single-tenant row). Use `'settings:public:{tenantId}'` as the Redis cache key. In `updateSettings`, add `tenantId: string | null` parameter and scope the `findFirst` / `upsert` with `where: { tenantId: tenantId ?? undefined }`. Fix `resolveDepositPence` the same way (pass tenantId from the calling payment service function).
+
+---
+
+### Pass 2 — Second-Pass Coverage Audit (Nothing Missed Check)
+
+**Second-scan notes (2026-04-13 — updated after third scan):** Two independent scans were performed across the full Pass 2 checklist.
+
+**Scan 1 results (previously recorded):**
+
+1. **API contract consistency** — FINDING-028 (DELETE shape inconsistency) covers the main issue. The majority of endpoints use consistent `success()` / `paginated()` wrappers and standard HTTP status codes. No additional contract gaps found.
+2. **Auth/RBAC coverage** — Routes for sessions, locations, webhooks, invoices, notifications all correctly apply `requireAuth` + `requireRole('ADMIN')` before any data access. Payroll middleware ordering issue (FINDING-006) is already documented. No additional RBAC gaps found beyond FINDING-006.
+3. **Data scoping / leakage** — FINDING-031 (Tables) was newly identified in scan 1.
+4. **Validation + safety guardrails** — File upload (`uploads.service.ts`) has proper MIME + magic-byte double validation and per-file/per-request limits. No new validation gaps found.
+5. **Error handling + observability** — FINDING-029 (token in logs) and FINDING-007 (silent credential defaults) cover the key observability gaps. No new error-swallowing patterns found beyond FINDING-009.
+6. **Clean code gaps** — FINDING-013 (`where: any` type) and FINDING-019 (tenantId nullability inconsistency) cover the main clean-code gaps.
+
+**Scan 2 results (this pass):**
+
+After a deeper, file-by-file inspection of modules not covered in scan 1 — specifically `payments`, `quotes`, `settings`, `captures`, `roles`, `waitlist`, `recurring-bookings`, `customer-stats`, `campaigns`, `social`, `whatsapp-templates`, `email-templates`, `sms-templates`, `uploads` — **three additional findings were identified:**
+
+1. **Data scoping / leakage:**
+   - **FINDING-032** (🟠 High): Payments service has no tenant scoping on `createPaymentIntent`, `getPaymentStatus`, `refundPayment`. An ADMIN can issue real Stripe refunds on another tenant's booking. `resolveDepositPence` also uses an unscoped `studioSettings.findFirst()`.
+   - **FINDING-033** (🟡 Medium): `listQuotes()` ADMIN path has no tenant scoping and returns all quotes from all tenants. The previous scan noted this as "intentionally unscoped" but the ADMIN path allows full enumeration without knowing a specific ID.
+   - **FINDING-034** (🟡 Medium): `getCachedSettings()` uses an unscoped `studioSettings.findFirst()` and a global Redis cache key with no tenant discriminator. `updateSettings()` patches whichever row `findFirst()` returns.
+
+2. **Modules confirmed correctly scoped in scan 2** (no new findings): `campaigns`, `social`, `whatsapp-templates`, `email-templates`, `sms-templates`, `recurring-bookings`, `customer-stats`, `roles`, `waitlist`, `uploads`, `capture`, `customers` (portal `/api/me` — scoped by authenticated userId). The `styles` / `TattooStyle` model has no tenantId by design (global shared lookup). The `StudioSettings` singleton is scoped per-tenant via `tenantId @unique` but the service layer fails to enforce it (FINDING-034).
+
+**Final verdict:** Pass 2 third scan identified **3 additional findings** (FINDING-032 🟠 High, FINDING-033 🟡 Medium, FINDING-034 🟡 Medium). `BUGS_AND_GAPS.md` now reflects the complete set of **34 known issues** from this audit. The backend is not ready for frontend work until at minimum the 6 🔴 Critical findings (001–004, 022–023) and the two new data-scoping highs (031, 032) are resolved.
