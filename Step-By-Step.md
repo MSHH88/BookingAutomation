@@ -1,17 +1,14 @@
-# Phase 7 — Calendar & Integration Expansion  
-# Phase 8 — Advanced Intelligence
+# Phase 9 — Scale & Growth (Multi-Location Support + Group Bookings)
 
-**Phase 7 sub-phases:**  7.1 Outlook Calendar Sync · 7.2 Apple iCloud Calendar Sync  
-**Phase 8 sub-phases:**  8.1 Dynamic / Surge Pricing · 8.2 AI-Powered Booking Suggestions
+**Phase 9 sub-phases:**  9.1 Multi-Location Support · 9.2 Group / Class Bookings
 
-**Files changed:**  
-- 5 modified  (`backend/package.json`, `backend/package-lock.json`, `backend/prisma/schema.prisma`, `backend/src/app.ts`, `backend/src/config/businessType.ts`, `backend/src/config/index.ts`, `backend/src/jobs/index.ts`, `backend/src/modules/bookings/bookings.service.ts`, `backend/src/modules/calendar/calendar.routes.ts`, `backend/src/modules/public/public.service.ts`)  
-- 22 new files created (see full list in Step 4)
+**Files changed:**
+- 3 modified (`backend/prisma/schema.prisma`, `backend/src/app.ts`, `backend/src/config/businessType.ts`)
+- 10 new files created (see full list in Step 4)
 
-**New feature flags:** `OUTLOOK_CALENDAR_ENABLED`, `APPLE_CALENDAR_ENABLED`, `DYNAMIC_PRICING_ENABLED`, `AI_SUGGESTIONS_ENABLED`  
-**New npm packages:** `@microsoft/microsoft-graph-client`, `tsdav`, `openai`  
-**New DB models:** `PricingRule`, `AISuggestion`; new fields on `Artist`: `microsoftAccessToken`, `microsoftRefreshToken`, `appleCalDAVUrl`, `appleCalDAVToken`  
-**Expected result:** 98 test suites, 1712/1712 tests, 0 TS errors.
+**New feature flags:** `MULTI_LOCATION_ENABLED`, `GROUP_BOOKING_ENABLED`  
+**New DB models:** `Location`, `Session`, `SessionBooking`; new `locationId` field on `Artist`, `Service`, `Table`, `Booking`  
+**Expected result:** 100 test suites, 1756/1756 tests, 0 TS errors.
 
 ---
 
@@ -26,14 +23,11 @@ cd ~/Desktop/Automation/backend
 ## Step 2 — Create new directories
 
 ```bash
-mkdir -p src/modules/ai
-mkdir -p src/modules/pricing
-mkdir -p src/modules/calendar
-mkdir -p src/lib
-mkdir -p src/jobs
+mkdir -p src/modules/locations
+mkdir -p src/modules/sessions
 ```
 
-*(Most of these directories already exist from previous phases — `mkdir -p` is safe to run even if they do.)*
+*(These directories are new — `mkdir -p` is safe to run even if they already exist.)*
 
 ---
 
@@ -41,284 +35,176 @@ mkdir -p src/jobs
 
 ```bash
 # Modified existing files — remove before downloading fresh copies
-rm -f package.json
-rm -f package-lock.json
 rm -f prisma/schema.prisma
 rm -f src/app.ts
 rm -f src/config/businessType.ts
-rm -f src/config/index.ts
-rm -f src/jobs/index.ts
-rm -f src/modules/bookings/bookings.service.ts
-rm -f src/modules/calendar/calendar.routes.ts
-rm -f src/modules/public/public.service.ts
 ```
 
 ---
 
-## Step 4 — Download all Phase 7 + Phase 8 files
+## Step 4 — Download all Phase 9 files
 
 Run the commands below from inside `~/Desktop/Automation/backend`.  
 Each command prints `OK` or `FAILED` — all must show `OK` before continuing.
 
-### 4a — Modified existing files (10 files)
-
 ```bash
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
-
-curl -sfL -o package.json                                      "$BASE/package.json"                                               && echo "OK  package.json"                                               || echo "FAILED  package.json"
-curl -sfL -o package-lock.json                                 "$BASE/package-lock.json"                                          && echo "OK  package-lock.json"                                          || echo "FAILED  package-lock.json"
-curl -sfL -o prisma/schema.prisma                              "$BASE/prisma/schema.prisma"                                       && echo "OK  prisma/schema.prisma"                                       || echo "FAILED  prisma/schema.prisma"
-curl -sfL -o src/app.ts                                        "$BASE/src/app.ts"                                                 && echo "OK  src/app.ts"                                                 || echo "FAILED  src/app.ts"
-curl -sfL -o src/config/businessType.ts                        "$BASE/src/config/businessType.ts"                                 && echo "OK  src/config/businessType.ts"                                 || echo "FAILED  src/config/businessType.ts"
-curl -sfL -o src/config/index.ts                               "$BASE/src/config/index.ts"                                        && echo "OK  src/config/index.ts"                                        || echo "FAILED  src/config/index.ts"
-curl -sfL -o src/jobs/index.ts                                 "$BASE/src/jobs/index.ts"                                          && echo "OK  src/jobs/index.ts"                                          || echo "FAILED  src/jobs/index.ts"
-curl -sfL -o src/modules/bookings/bookings.service.ts          "$BASE/src/modules/bookings/bookings.service.ts"                   && echo "OK  src/modules/bookings/bookings.service.ts"                   || echo "FAILED  src/modules/bookings/bookings.service.ts"
-curl -sfL -o src/modules/calendar/calendar.routes.ts           "$BASE/src/modules/calendar/calendar.routes.ts"                    && echo "OK  src/modules/calendar/calendar.routes.ts"                    || echo "FAILED  src/modules/calendar/calendar.routes.ts"
-curl -sfL -o src/modules/public/public.service.ts              "$BASE/src/modules/public/public.service.ts"                       && echo "OK  src/modules/public/public.service.ts"                       || echo "FAILED  src/modules/public/public.service.ts"
 ```
 
-### 4b — New files: Phase 7.1 — Outlook Calendar (4 files)
+### 4a — Modified existing files (3 files)
 
 ```bash
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
-
-curl -sfL -o src/lib/outlook-calendar.ts                                         "$BASE/src/lib/outlook-calendar.ts"                                                && echo "OK  src/lib/outlook-calendar.ts"                                                || echo "FAILED  src/lib/outlook-calendar.ts"
-curl -sfL -o src/modules/calendar/outlook-calendar.service.ts                    "$BASE/src/modules/calendar/outlook-calendar.service.ts"                           && echo "OK  src/modules/calendar/outlook-calendar.service.ts"                           || echo "FAILED  src/modules/calendar/outlook-calendar.service.ts"
-curl -sfL -o src/modules/calendar/outlook-calendar.controller.ts                 "$BASE/src/modules/calendar/outlook-calendar.controller.ts"                        && echo "OK  src/modules/calendar/outlook-calendar.controller.ts"                        || echo "FAILED  src/modules/calendar/outlook-calendar.controller.ts"
-curl -sfL -o src/modules/calendar/outlook-calendar.service.test.ts               "$BASE/src/modules/calendar/outlook-calendar.service.test.ts"                      && echo "OK  src/modules/calendar/outlook-calendar.service.test.ts"                      || echo "FAILED  src/modules/calendar/outlook-calendar.service.test.ts"
+curl -sfL -o prisma/schema.prisma                              "$BASE/prisma/schema.prisma"                                          && echo "OK  prisma/schema.prisma"                                          || echo "FAILED  prisma/schema.prisma"
+curl -sfL -o src/app.ts                                        "$BASE/src/app.ts"                                                     && echo "OK  src/app.ts"                                                    || echo "FAILED  src/app.ts"
+curl -sfL -o src/config/businessType.ts                        "$BASE/src/config/businessType.ts"                                     && echo "OK  src/config/businessType.ts"                                    || echo "FAILED  src/config/businessType.ts"
 ```
 
-### 4c — New files: Phase 7.2 — Apple iCloud Calendar (4 files)
+### 4b — New files: Phase 9.1 — Multi-Location Support (5 files)
 
 ```bash
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
-
-curl -sfL -o src/lib/apple-calendar.ts                                           "$BASE/src/lib/apple-calendar.ts"                                                  && echo "OK  src/lib/apple-calendar.ts"                                                  || echo "FAILED  src/lib/apple-calendar.ts"
-curl -sfL -o src/modules/calendar/apple-calendar.service.ts                      "$BASE/src/modules/calendar/apple-calendar.service.ts"                             && echo "OK  src/modules/calendar/apple-calendar.service.ts"                             || echo "FAILED  src/modules/calendar/apple-calendar.service.ts"
-curl -sfL -o src/modules/calendar/apple-calendar.controller.ts                   "$BASE/src/modules/calendar/apple-calendar.controller.ts"                          && echo "OK  src/modules/calendar/apple-calendar.controller.ts"                          || echo "FAILED  src/modules/calendar/apple-calendar.controller.ts"
-curl -sfL -o src/modules/calendar/apple-calendar.service.test.ts                 "$BASE/src/modules/calendar/apple-calendar.service.test.ts"                        && echo "OK  src/modules/calendar/apple-calendar.service.test.ts"                        || echo "FAILED  src/modules/calendar/apple-calendar.service.test.ts"
+curl -sfL -o src/modules/locations/locations.controller.ts     "$BASE/src/modules/locations/locations.controller.ts"                  && echo "OK  locations.controller.ts"                                       || echo "FAILED  locations.controller.ts"
+curl -sfL -o src/modules/locations/locations.routes.ts         "$BASE/src/modules/locations/locations.routes.ts"                      && echo "OK  locations.routes.ts"                                           || echo "FAILED  locations.routes.ts"
+curl -sfL -o src/modules/locations/locations.schema.ts         "$BASE/src/modules/locations/locations.schema.ts"                      && echo "OK  locations.schema.ts"                                           || echo "FAILED  locations.schema.ts"
+curl -sfL -o src/modules/locations/locations.service.ts        "$BASE/src/modules/locations/locations.service.ts"                     && echo "OK  locations.service.ts"                                          || echo "FAILED  locations.service.ts"
+curl -sfL -o src/modules/locations/locations.test.ts           "$BASE/src/modules/locations/locations.test.ts"                        && echo "OK  locations.test.ts"                                             || echo "FAILED  locations.test.ts"
 ```
 
-### 4d — New files: Phase 8.1 — Dynamic Pricing (7 files)
+### 4c — New files: Phase 9.2 — Group / Class Bookings (5 files)
 
 ```bash
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
-
-curl -sfL -o src/lib/pricing-engine.ts                                           "$BASE/src/lib/pricing-engine.ts"                                                  && echo "OK  src/lib/pricing-engine.ts"                                                  || echo "FAILED  src/lib/pricing-engine.ts"
-curl -sfL -o src/lib/pricing-engine.test.ts                                      "$BASE/src/lib/pricing-engine.test.ts"                                             && echo "OK  src/lib/pricing-engine.test.ts"                                             || echo "FAILED  src/lib/pricing-engine.test.ts"
-curl -sfL -o src/modules/pricing/pricing.schema.ts                               "$BASE/src/modules/pricing/pricing.schema.ts"                                      && echo "OK  src/modules/pricing/pricing.schema.ts"                                      || echo "FAILED  src/modules/pricing/pricing.schema.ts"
-curl -sfL -o src/modules/pricing/pricing.service.ts                              "$BASE/src/modules/pricing/pricing.service.ts"                                     && echo "OK  src/modules/pricing/pricing.service.ts"                                     || echo "FAILED  src/modules/pricing/pricing.service.ts"
-curl -sfL -o src/modules/pricing/pricing.controller.ts                           "$BASE/src/modules/pricing/pricing.controller.ts"                                  && echo "OK  src/modules/pricing/pricing.controller.ts"                                  || echo "FAILED  src/modules/pricing/pricing.controller.ts"
-curl -sfL -o src/modules/pricing/pricing.routes.ts                               "$BASE/src/modules/pricing/pricing.routes.ts"                                      && echo "OK  src/modules/pricing/pricing.routes.ts"                                      || echo "FAILED  src/modules/pricing/pricing.routes.ts"
-curl -sfL -o src/modules/pricing/pricing.test.ts                                 "$BASE/src/modules/pricing/pricing.test.ts"                                        && echo "OK  src/modules/pricing/pricing.test.ts"                                        || echo "FAILED  src/modules/pricing/pricing.test.ts"
-```
-
-### 4e — New files: Phase 8.2 — AI Suggestions (7 files)
-
-```bash
-BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
-
-curl -sfL -o src/lib/openai.ts                                                   "$BASE/src/lib/openai.ts"                                                          && echo "OK  src/lib/openai.ts"                                                          || echo "FAILED  src/lib/openai.ts"
-curl -sfL -o src/jobs/ai-suggestion.job.ts                                       "$BASE/src/jobs/ai-suggestion.job.ts"                                              && echo "OK  src/jobs/ai-suggestion.job.ts"                                              || echo "FAILED  src/jobs/ai-suggestion.job.ts"
-curl -sfL -o src/modules/ai/ai.schema.ts                                         "$BASE/src/modules/ai/ai.schema.ts"                                                && echo "OK  src/modules/ai/ai.schema.ts"                                                || echo "FAILED  src/modules/ai/ai.schema.ts"
-curl -sfL -o src/modules/ai/ai.service.ts                                        "$BASE/src/modules/ai/ai.service.ts"                                               && echo "OK  src/modules/ai/ai.service.ts"                                               || echo "FAILED  src/modules/ai/ai.service.ts"
-curl -sfL -o src/modules/ai/ai.controller.ts                                     "$BASE/src/modules/ai/ai.controller.ts"                                            && echo "OK  src/modules/ai/ai.controller.ts"                                            || echo "FAILED  src/modules/ai/ai.controller.ts"
-curl -sfL -o src/modules/ai/ai.routes.ts                                         "$BASE/src/modules/ai/ai.routes.ts"                                                && echo "OK  src/modules/ai/ai.routes.ts"                                                || echo "FAILED  src/modules/ai/ai.routes.ts"
-curl -sfL -o src/modules/ai/ai.service.test.ts                                   "$BASE/src/modules/ai/ai.service.test.ts"                                          && echo "OK  src/modules/ai/ai.service.test.ts"                                          || echo "FAILED  src/modules/ai/ai.service.test.ts"
+curl -sfL -o src/modules/sessions/sessions.controller.ts       "$BASE/src/modules/sessions/sessions.controller.ts"                    && echo "OK  sessions.controller.ts"                                        || echo "FAILED  sessions.controller.ts"
+curl -sfL -o src/modules/sessions/sessions.routes.ts           "$BASE/src/modules/sessions/sessions.routes.ts"                        && echo "OK  sessions.routes.ts"                                            || echo "FAILED  sessions.routes.ts"
+curl -sfL -o src/modules/sessions/sessions.schema.ts           "$BASE/src/modules/sessions/sessions.schema.ts"                        && echo "OK  sessions.schema.ts"                                            || echo "FAILED  sessions.schema.ts"
+curl -sfL -o src/modules/sessions/sessions.service.ts          "$BASE/src/modules/sessions/sessions.service.ts"                       && echo "OK  sessions.service.ts"                                           || echo "FAILED  sessions.service.ts"
+curl -sfL -o src/modules/sessions/sessions.test.ts             "$BASE/src/modules/sessions/sessions.test.ts"                          && echo "OK  sessions.test.ts"                                              || echo "FAILED  sessions.test.ts"
 ```
 
 ---
 
-## Step 5 — Install new npm packages
+## Step 5 — Install dependencies (no new packages in Phase 9)
 
-```bash
-cd ~/Desktop/Automation/backend && npm install
-```
-
-This installs three new runtime packages and updates the lockfile:
-- `@microsoft/microsoft-graph-client` — Microsoft Graph API client for Outlook Calendar
-- `tsdav` — CalDAV client for Apple iCloud Calendar
-- `openai` — OpenAI API client for AI suggestions
+Phase 9 introduces no new npm packages. Skip this step unless you are setting up from scratch.
 
 ---
 
-## Step 6 — Run Prisma migration
+## Step 6 — Generate Prisma client and run migration
 
 ```bash
-cd ~/Desktop/Automation/backend && npx prisma generate && npx prisma migrate dev --name phase7-8
+npx prisma generate
+npx prisma migrate dev --name phase9_multi_location_group_bookings
 ```
-
-This migration adds:
-- **`PricingRule`** model (dynamic/surge pricing rules)
-- **`AISuggestion`** model (AI-generated rebooking suggestions)
-- Fields on **`Artist`**: `microsoftAccessToken`, `microsoftRefreshToken`, `appleCalDAVUrl`, `appleCalDAVToken`
 
 ---
 
-## Step 7 — Run tests
+## Step 7 — Run the test suite
 
 ```bash
-cd ~/Desktop/Automation/backend && \
-npx jest --clearCache --silent && \
-npx jest --passWithNoTests
+npm test
 ```
 
-**Expected output:** 98 suites pass, 1712/1712 tests pass, 0 failures.
+**Expected output:**
+
+```
+Test Suites: 100 passed, 100 total
+Tests:       1756 passed, 1756 total
+```
 
 ---
 
-## Complete file list — Phase 7 + Phase 8
+## Phase 9 — Complete file list
 
-### Modified files (10)
+### Modified files (3)
 
 | File | What changed |
 |------|-------------|
-| `backend/package.json` | Added `@microsoft/microsoft-graph-client`, `tsdav`, `openai` to dependencies |
-| `backend/package-lock.json` | Updated lockfile for new packages |
-| `backend/prisma/schema.prisma` | Added `PricingRule`, `AISuggestion` models; MS/Apple fields on `Artist` |
-| `backend/src/app.ts` | Mounted `/api/pricing-rules` (Phase 8.1) and `/api/ai` (Phase 8.2) |
-| `backend/src/config/businessType.ts` | Added `OUTLOOK_CALENDAR_ENABLED`, `APPLE_CALENDAR_ENABLED`, `DYNAMIC_PRICING_ENABLED`, `AI_SUGGESTIONS_ENABLED` flags |
-| `backend/src/config/index.ts` | Added `MICROSOFT_CLIENT_ID/SECRET/REDIRECT_URI/TENANT_ID`, `OPENAI_API_KEY` env vars |
-| `backend/src/jobs/index.ts` | Exported `startAISuggestionWorker` alongside existing workers |
-| `backend/src/modules/bookings/bookings.service.ts` | Added Outlook/Apple sync calls + `enqueueAISuggestion` on booking completion |
-| `backend/src/modules/calendar/calendar.routes.ts` | Added Outlook + Apple CalDAV endpoint groups |
-| `backend/src/modules/public/public.service.ts` | Integrated pricing engine for slot price display |
+| `backend/prisma/schema.prisma` | Added `Location`, `Session`, `SessionBooking` models; `locationId` field on `Artist`, `Service`, `Table`, `Booking`; `MULTI_LOCATION_ENABLED` and `GROUP_BOOKING_ENABLED` feature enums |
+| `backend/src/app.ts` | Mounted `/api/locations` (Phase 9.1) and `/api/sessions` (Phase 9.2) |
+| `backend/src/config/businessType.ts` | Added `MULTI_LOCATION_ENABLED`, `GROUP_BOOKING_ENABLED` flags to all business-type configs |
 
-### New files — Phase 7.1 — Outlook Calendar (4)
+### New files — Phase 9.1 — Multi-Location Support (5)
 
 | File | Description |
 |------|-------------|
-| `backend/src/lib/outlook-calendar.ts` | Microsoft Graph OAuth2 flow + event CRUD |
-| `backend/src/modules/calendar/outlook-calendar.service.ts` | Outlook connect/disconnect/sync service |
-| `backend/src/modules/calendar/outlook-calendar.controller.ts` | HTTP handlers for Outlook endpoints |
-| `backend/src/modules/calendar/outlook-calendar.service.test.ts` | Unit tests for Outlook service |
+| `backend/src/modules/locations/locations.controller.ts` | HTTP handlers for location CRUD |
+| `backend/src/modules/locations/locations.routes.ts` | Router for `/api/locations` — gated by `MULTI_LOCATION_ENABLED` |
+| `backend/src/modules/locations/locations.schema.ts` | Zod schemas for location create/update/list |
+| `backend/src/modules/locations/locations.service.ts` | Tenant-scoped CRUD service for `Location` |
+| `backend/src/modules/locations/locations.test.ts` | Integration tests for all location endpoints |
 
-### New files — Phase 7.2 — Apple iCloud Calendar (4)
-
-| File | Description |
-|------|-------------|
-| `backend/src/lib/apple-calendar.ts` | CalDAV (tsdav) client for iCloud events |
-| `backend/src/modules/calendar/apple-calendar.service.ts` | Apple connect/disconnect/sync service |
-| `backend/src/modules/calendar/apple-calendar.controller.ts` | HTTP handlers for Apple endpoints |
-| `backend/src/modules/calendar/apple-calendar.service.test.ts` | Unit tests for Apple service |
-
-### New files — Phase 8.1 — Dynamic Pricing (7)
+### New files — Phase 9.2 — Group / Class Bookings (5)
 
 | File | Description |
 |------|-------------|
-| `backend/src/lib/pricing-engine.ts` | Pure `calculatePrice()` function with rule matching |
-| `backend/src/lib/pricing-engine.test.ts` | Comprehensive unit tests for all rule combinations |
-| `backend/src/modules/pricing/pricing.schema.ts` | Zod schemas for pricing rule CRUD |
-| `backend/src/modules/pricing/pricing.service.ts` | CRUD + price calculation service |
-| `backend/src/modules/pricing/pricing.controller.ts` | HTTP handlers for pricing rule endpoints |
-| `backend/src/modules/pricing/pricing.routes.ts` | Router for `/api/pricing-rules` |
-| `backend/src/modules/pricing/pricing.test.ts` | Integration tests for pricing endpoints |
-
-### New files — Phase 8.2 — AI Suggestions (7)
-
-| File | Description |
-|------|-------------|
-| `backend/src/lib/openai.ts` | OpenAI client singleton + `generateSuggestion()` helper |
-| `backend/src/jobs/ai-suggestion.job.ts` | BullMQ worker: generate AI message, persist AISuggestion |
-| `backend/src/modules/ai/ai.schema.ts` | Zod schemas for AI suggestion CRUD |
-| `backend/src/modules/ai/ai.service.ts` | List/get/send/dismiss suggestion service |
-| `backend/src/modules/ai/ai.controller.ts` | HTTP handlers for AI suggestion endpoints |
-| `backend/src/modules/ai/ai.routes.ts` | Router for `/api/ai` |
-| `backend/src/modules/ai/ai.service.test.ts` | Unit tests for AI service |
+| `backend/src/modules/sessions/sessions.controller.ts` | HTTP handlers for session CRUD and spot booking |
+| `backend/src/modules/sessions/sessions.routes.ts` | Router for `/api/sessions` — gated by `GROUP_BOOKING_ENABLED` |
+| `backend/src/modules/sessions/sessions.schema.ts` | Zod schemas for session create/update/list/book/cancel |
+| `backend/src/modules/sessions/sessions.service.ts` | Atomic capacity management, tenant + customer tenant validation |
+| `backend/src/modules/sessions/sessions.test.ts` | Integration tests including customer cross-tenant guard |
 
 ---
 
 ## New API endpoints
 
-### Phase 7.1 — Outlook Calendar  (`OUTLOOK_CALENDAR_ENABLED`)
+### Phase 9.1 — Multi-Location  (`MULTI_LOCATION_ENABLED`)
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/calendar/outlook/auth-url` | ADMIN or ARTIST | Get Microsoft OAuth consent URL |
-| GET | `/api/calendar/outlook/callback` | Public | Microsoft OAuth2 redirect handler |
-| GET | `/api/calendar/outlook/status` | ADMIN or ARTIST | Check Outlook connection status |
-| DELETE | `/api/calendar/outlook/disconnect` | ADMIN or ARTIST | Revoke Outlook tokens |
+| GET | `/api/locations` | ADMIN | List all locations for this tenant |
+| POST | `/api/locations` | ADMIN | Create a new location |
+| GET | `/api/locations/:id` | ADMIN | Get a single location |
+| PATCH | `/api/locations/:id` | ADMIN | Update a location |
+| DELETE | `/api/locations/:id` | ADMIN | Delete a location |
 
-### Phase 7.2 — Apple iCloud Calendar  (`APPLE_CALENDAR_ENABLED`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/calendar/apple/connect` | ADMIN or ARTIST | Store iCloud credentials + discover CalDAV URL |
-| GET | `/api/calendar/apple/status` | ADMIN or ARTIST | Check Apple connection status |
-| DELETE | `/api/calendar/apple/disconnect` | ADMIN or ARTIST | Remove Apple CalDAV credentials |
-
-### Phase 8.1 — Dynamic Pricing  (`DYNAMIC_PRICING_ENABLED`)
+### Phase 9.2 — Group / Class Bookings  (`GROUP_BOOKING_ENABLED`)
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/pricing-rules` | ADMIN | List all pricing rules |
-| POST | `/api/pricing-rules` | ADMIN | Create a pricing rule |
-| PATCH | `/api/pricing-rules/:id` | ADMIN | Update a pricing rule |
-| DELETE | `/api/pricing-rules/:id` | ADMIN | Delete a pricing rule |
-| GET | `/api/pricing-rules/calculate` | ADMIN | Preview price for a given slot |
-
-### Phase 8.2 — AI Suggestions  (`AI_SUGGESTIONS_ENABLED`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/ai/suggestions` | ADMIN | List AI suggestions (paginated) |
-| GET | `/api/ai/suggestions/:id` | ADMIN | Get a single suggestion |
-| PATCH | `/api/ai/suggestions/:id` | ADMIN | Edit message / status |
-| POST | `/api/ai/suggestions/:id/send` | ADMIN | Approve and send to customer |
-| POST | `/api/ai/suggestions/:id/dismiss` | ADMIN | Dismiss a suggestion |
+| GET | `/api/sessions` | ADMIN | List sessions (filterable by service/artist/location/status/date) |
+| POST | `/api/sessions` | ADMIN | Create a new group session |
+| GET | `/api/sessions/:id` | ADMIN | Get session with full attendee list |
+| PATCH | `/api/sessions/:id` | ADMIN | Update session details or status |
+| DELETE | `/api/sessions/:id` | ADMIN | Delete a session |
+| POST | `/api/sessions/:id/book` | ADMIN | Book a customer spot (atomic capacity decrement) |
+| GET | `/api/sessions/:id/bookings` | ADMIN | List all bookings for a session |
+| DELETE | `/api/sessions/:id/bookings/:bookingId` | ADMIN | Cancel a session booking (reopens spot) |
 
 ---
 
-## Delete / clean-up (to remove Phase 7 + Phase 8)
+## Delete / clean-up (to remove Phase 9 new files)
 
 Run these from `~/Desktop/Automation/backend`:
 
 ```bash
-# New files — Phase 7.1 Outlook
-rm -f src/lib/outlook-calendar.ts
-rm -f src/modules/calendar/outlook-calendar.service.ts
-rm -f src/modules/calendar/outlook-calendar.controller.ts
-rm -f src/modules/calendar/outlook-calendar.service.test.ts
+# New files — Phase 9.1 Multi-Location
+rm -f src/modules/locations/locations.controller.ts
+rm -f src/modules/locations/locations.routes.ts
+rm -f src/modules/locations/locations.schema.ts
+rm -f src/modules/locations/locations.service.ts
+rm -f src/modules/locations/locations.test.ts
+rmdir --ignore-fail-on-non-empty src/modules/locations
 
-# New files — Phase 7.2 Apple
-rm -f src/lib/apple-calendar.ts
-rm -f src/modules/calendar/apple-calendar.service.ts
-rm -f src/modules/calendar/apple-calendar.controller.ts
-rm -f src/modules/calendar/apple-calendar.service.test.ts
-
-# New files — Phase 8.1 Pricing
-rm -f src/lib/pricing-engine.ts
-rm -f src/lib/pricing-engine.test.ts
-rm -f src/modules/pricing/pricing.schema.ts
-rm -f src/modules/pricing/pricing.service.ts
-rm -f src/modules/pricing/pricing.controller.ts
-rm -f src/modules/pricing/pricing.routes.ts
-rm -f src/modules/pricing/pricing.test.ts
-rmdir --ignore-fail-on-non-empty src/modules/pricing
-
-# New files — Phase 8.2 AI
-rm -f src/lib/openai.ts
-rm -f src/jobs/ai-suggestion.job.ts
-rm -f src/modules/ai/ai.schema.ts
-rm -f src/modules/ai/ai.service.ts
-rm -f src/modules/ai/ai.controller.ts
-rm -f src/modules/ai/ai.routes.ts
-rm -f src/modules/ai/ai.service.test.ts
-rmdir --ignore-fail-on-non-empty src/modules/ai
+# New files — Phase 9.2 Group Bookings
+rm -f src/modules/sessions/sessions.controller.ts
+rm -f src/modules/sessions/sessions.routes.ts
+rm -f src/modules/sessions/sessions.schema.ts
+rm -f src/modules/sessions/sessions.service.ts
+rm -f src/modules/sessions/sessions.test.ts
+rmdir --ignore-fail-on-non-empty src/modules/sessions
 ```
 
-To revert the 10 modified files, download the Phase 6 versions from the `backend` folder of the previous commit, or restore via git:
+---
 
-```bash
-git checkout HEAD~1 -- \
-  backend/package.json \
-  backend/package-lock.json \
-  backend/prisma/schema.prisma \
-  backend/src/app.ts \
-  backend/src/config/businessType.ts \
-  backend/src/config/index.ts \
-  backend/src/jobs/index.ts \
-  backend/src/modules/bookings/bookings.service.ts \
-  backend/src/modules/calendar/calendar.routes.ts \
-  backend/src/modules/public/public.service.ts
-```
+## Replace / outdated files (modified files)
+
+The 3 files below were modified for Phase 9. If you need to replace an outdated local copy,
+download the current version using the curl commands in Step 4a above.
+
+> **Do not delete** `prisma/schema.prisma`, `src/app.ts`, or `src/config/businessType.ts`
+> unless you intend to revert to the pre-Phase-9 state — they contain content from all earlier phases too.
+
+| File | How to replace |
+|------|----------------|
+| `backend/prisma/schema.prisma` | `rm -f prisma/schema.prisma && curl … (Step 4a)` then re-run `npx prisma generate` |
+| `backend/src/app.ts` | `rm -f src/app.ts && curl … (Step 4a)` |
+| `backend/src/config/businessType.ts` | `rm -f src/config/businessType.ts && curl … (Step 4a)` |
+
