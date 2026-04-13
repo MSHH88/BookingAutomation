@@ -435,3 +435,204 @@ Redis connection errors are only logged via `logger.error(...)`. If Redis is una
 **Verdict: Backend is NOT ready for frontend integration in its current state.**
 The 4 critical-severity findings (001–004) must be resolved before frontend development begins.
 FINDING-001 (Control Centre is non-functional) and FINDING-003 (cross-tenant admin data leak) are the most urgent and must be fixed first.
+
+---
+
+## Pass 2 — Second-Pass Coverage Audit (2026-04-13)
+
+**Auditor:** Copilot Task Agent — Pass 2 tighter review
+**Scope:** API contract consistency, Auth/RBAC coverage, data scoping/leakage, validation guardrails, error handling/observability, clean code gaps.
+
+---
+
+### FINDING-022 — Analytics Dashboard (Overview / Leads / Bookings / Revenue) Returns Cross-Tenant Data to Any ADMIN
+
+| Field | Value |
+|---|---|
+| **Severity** | 🔴 Critical |
+| **Scope** | `analytics` module |
+| **Phase/Step** | Phase 4.7 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/analytics/analytics.service.ts` (`getOverview` line 223, `getLeadsAnalytics` line 317, `getBookingsAnalytics` line 409, `getRevenueAnalytics` line 515), `src/modules/analytics/analytics.controller.ts` (`overview` line 67, `leads` line 88, `bookings` line 109, `revenue` line 130) |
+
+**What's wrong:**
+The four core analytics service functions — `getOverview`, `getLeadsAnalytics`, `getBookingsAnalytics`, and `getRevenueAnalytics` — accept **no `tenantId` parameter** and build their Prisma `where` clauses with no tenant filter. Every Prisma query in these functions (`prisma.lead.count`, `prisma.booking.groupBy`, `prisma.invoice.findMany`, etc.) runs across the full database, aggregating data from **all tenants** into a single result. The controller passes no `tenantId` from `req.user`. Only the four supplementary functions added later (`getArtistsAnalytics`, `getServicesAnalytics`, `getCustomersAnalytics`, `getArtistPerformance`) receive `tenantId`.
+
+**Risk/Impact:** An ADMIN at TenantA's Control Centre dashboard sees global revenue, global lead counts, and global booking volumes that include every other tenant's business data. In a SaaS deployment with multiple studios, this is a critical GDPR breach and a competitive data leak.
+
+**Recommended fix:** Add `tenantId: string | null` parameter to all four functions. Inject it into every `where` clause (`prisma.lead.count`, `prisma.booking.count`, etc.) using the existing pattern in the other analytics functions: `if (tenantId) { where.tenantId = tenantId; }`. The controller should pass `req.user!.tenantId ?? null`.
+
+---
+
+### FINDING-023 — Leads Module (listLeads + exportLeadsCsv) Has No TenantId Scoping
+
+| Field | Value |
+|---|---|
+| **Severity** | 🔴 Critical |
+| **Scope** | `leads` module |
+| **Phase/Step** | Phase 0 — Step 1.7 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/leads/leads.service.ts` (`listLeads` line 332, `exportLeadsCsv` line 376), `src/modules/leads/leads.controller.ts` (`listLeads` line ~70, `exportLeads` line ~90) |
+
+**What's wrong:**
+`listLeads()` and `exportLeadsCsv()` build their `where` clauses from query filters (`status`, `businessType`, `artistId`, `country`, `source`, date range) but **never include `tenantId`**. The Lead model in `schema.prisma` has a `tenantId?: String` column, and the controller never passes `req.user.tenantId` to either function. An ADMIN at TenantA with lead access can enumerate all leads for every tenant. `exportLeadsCsv` is additionally unbounded — it has no `take` limit and will attempt to load and serialise the entire leads table into memory (see FINDING-030).
+
+**Risk/Impact:** Full cross-tenant PII exposure via the leads list and CSV export. Names, emails, phone numbers, IP addresses, UTM data, and service interests of every customer across all tenants are accessible to any `ADMIN` with `canViewLeads=true`.
+
+**Recommended fix:** Add `tenantId: string | null` to both service functions. Add `if (tenantId) where.tenantId = tenantId;` in each `where` builder. The controller should pass `req.user!.tenantId ?? null`. For `exportLeadsCsv`, also add `take: 10000` to prevent memory exhaustion on large tenants.
+
+---
+
+### FINDING-024 — Webhooks Module Has No TenantId Scoping (CRUD Fully Cross-Tenant)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟠 High |
+| **Scope** | `webhooks` module |
+| **Phase/Step** | Phase 0 — Step 1.27 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/webhooks/webhooks.service.ts` (`listWebhooks` line ~100, `createWebhook` line ~139, `getWebhookById` line ~118, `updateWebhook`, `deleteWebhook`), `src/modules/webhooks/webhooks.controller.ts` |
+
+**What's wrong:**
+The Webhook model has a `tenantId?: String` column in `schema.prisma`, but `webhooks.service.ts` contains **no references to `tenantId`** in any function. `listWebhooks()` returns all webhooks across all tenants. `getWebhookById()`, `updateWebhook()`, and `deleteWebhook()` perform no ownership check against the calling user's tenant — an ADMIN from TenantA can delete TenantB's webhooks by ID. The controller also never passes `req.user.tenantId` to any service function.
+
+**Risk/Impact:** Cross-tenant webhook enumeration, modification, and deletion. An ADMIN can view the webhook URLs and event subscriptions of other tenants (competitive intelligence), and can delete or disable their webhooks (denial of integration service). The webhook secret is stored plaintext in the DB (noted in service doc: "Phase 2: encrypt at rest with KMS") — an admin listing all webhooks would obtain valid signing secrets for other tenants' integrations.
+
+**Recommended fix:** Add `tenantId: string | null` to all webhook service functions. Scope `listWebhooks` with `if (tenantId) where.tenantId = tenantId`. For `getWebhookById`/`update`/`delete`, fetch the record then assert `record.tenantId === tenantId` (same pattern as sessions service). Pass `req.user!.tenantId ?? null` from controller.
+
+---
+
+### FINDING-025 — Invoices listInvoices Has No TenantId Scoping
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟠 High |
+| **Scope** | `invoices` module |
+| **Phase/Step** | Phase 0 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/invoices/invoices.service.ts` (`listInvoices` line 160), `src/modules/invoices/invoices.controller.ts` |
+
+**What's wrong:**
+`listInvoices()` takes a `ListInvoicesQuery` and builds a `where` clause with only `status` and date-range filters. No `tenantId` parameter exists. The controller (`list` handler) calls `leadsService.listInvoices(query)` without passing the caller's `tenantId`. The Invoice model is linked to bookings which are tenant-scoped, but the invoice table itself is not directly filtered by `tenantId` at query time. An ADMIN can page through all invoices across all tenants.
+
+**Risk/Impact:** Cross-tenant financial data exposure. Invoice amounts, statuses, due dates, and linked booking references for all tenants are visible to any authenticated ADMIN.
+
+**Recommended fix:** Add `tenantId: string | null` to `listInvoices`. Scope the query through the booking relation: `where: { booking: { tenantId: tenantId ?? undefined } }` or add a `tenantId` denorm column to the Invoice model (already present on Booking). Pass `req.user!.tenantId ?? null` from controller.
+
+---
+
+### FINDING-026 — Notifications Module (Email Template Admin) Has No TenantId Scoping
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟠 High |
+| **Scope** | `notifications` module |
+| **Phase/Step** | Phase 0 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/notifications/notifications.service.ts` (`listTemplates` line 99, `getTemplateById` line 120, `createTemplate` line 139, `updateTemplate` line 175, `deleteTemplate` line 214), `src/modules/notifications/notifications.controller.ts` |
+
+**What's wrong:**
+`listTemplates()` queries `prisma.emailTemplate` with no `tenantId` filter. None of the CRUD functions in this service accept or use `tenantId`. The `notifications` routes are `requireRole('ADMIN')` gated but the service functions operate on global email template records. Note: the separate `email-templates` module *does* scope by `tenantId`; this is the admin notification send API which uses its own template store.
+
+**Risk/Impact:** An ADMIN can read and modify system-level email templates that belong to other tenants. If tenants have custom brand templates (logos, copy), those are exposed across tenant boundaries.
+
+**Recommended fix:** Add `tenantId: string | null` to all service functions. Scope all Prisma queries with `if (tenantId) where.tenantId = tenantId`. Apply ownership assertion in `getTemplateById`/`update`/`delete` after fetch. Pass `req.user!.tenantId ?? null` from controller.
+
+---
+
+### FINDING-027 — Booking Conflict Check TOCTOU Race Condition (Not in Transaction)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟠 High |
+| **Scope** | `bookings` module |
+| **Phase/Step** | Phase 0 — Step 1.9 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/bookings/bookings.service.ts` (`confirmBooking` lines 278–296, `rescheduleBooking` lines 719–740) |
+
+**What's wrong:**
+In both `confirmBooking` and `rescheduleBooking`, the conflict check (`prisma.booking.findFirst` for overlapping CONFIRMED slots) and the subsequent `prisma.booking.update` (setting status to CONFIRMED/RESCHEDULED) are **two separate non-transactional Prisma calls**. Under concurrent load, two simultaneous requests to confirm different bookings that overlap the same artist slot will both pass the `findFirst` check before either has updated the status — a classic time-of-check / time-of-use (TOCTOU) race condition that results in double-booking.
+
+**Risk/Impact:** Two customers can be confirmed for the same artist slot simultaneously. This is a real-world production failure mode that will occur under moderate concurrent load (e.g., two bookings submitted within milliseconds during a popular availability opening). Results in artist schedule conflicts and customer dissatisfaction.
+
+**Recommended fix:** Wrap the conflict check + status update in a single `prisma.$transaction(async (tx) => { ... })`. Inside the transaction, use `tx.booking.findFirst` for the conflict check and `tx.booking.update` for the status change. Use `SELECT ... FOR UPDATE` semantics by relying on Prisma's default serializable transaction isolation or an explicit `prisma.$executeRaw` lock on the artist row.
+
+---
+
+### FINDING-028 — Inconsistent DELETE Response Shape (204 vs 200 + body)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟡 Medium |
+| **Scope** | Multiple modules |
+| **Phase/Step** | All Phases |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/rota/rota.controller.ts` (returns `success({ deleted: true })`), `src/modules/availability/availability.controller.ts` (returns `success({ deleted: true })`), `src/modules/artists/artist-media.controller.ts` (returns `success({ deleted: true })`), vs `src/modules/locations/locations.controller.ts` (204), `src/modules/sessions/sessions.controller.ts` (204), `src/modules/webhooks/webhooks.controller.ts` (204), `src/modules/styles/styles.controller.ts` (204), `src/modules/artists/artists.controller.ts` (204), `src/modules/services/services.controller.ts` (204), `src/modules/pricing/pricing.controller.ts` (204), `src/modules/tables/tables.controller.ts` (204) |
+
+**What's wrong:**
+There is no agreed DELETE response convention. The majority of DELETE endpoints return HTTP 204 No Content (no response body). Three modules — `rota`, `availability`, and `artist-media` — return HTTP 200 with `{ success: true, data: { deleted: true }, ... }`. The frontend cannot write a single generic delete handler; it must special-case each resource type to avoid JSON parse errors on 204 responses.
+
+**Recommended fix:** Standardise on one pattern. The REST convention is 204 No Content for destructive deletes with no meaningful body. Update `rota.controller.ts`, `availability.controller.ts`, and `artist-media.controller.ts` to return `res.status(204).send()` instead.
+
+---
+
+### FINDING-029 — Password Reset Token Logged at `debug` Level (Sensitive Token in Logs)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟡 Medium |
+| **Scope** | `auth` module |
+| **Phase/Step** | Phase 0 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/auth/auth.service.ts` (lines 287–292) |
+
+**What's wrong:**
+```ts
+logger.debug('[Auth] Password reset token (dev only — never logged in production)', {
+  email,
+  resetToken: token,
+  expiresAt,
+});
+```
+The comment claims this is "never logged in production", but the logger uses `config.LOG_LEVEL` which defaults to `'info'` but can be overridden via the `LOG_LEVEL` environment variable. If `LOG_LEVEL=debug` is set in any environment (staging, production with verbose debugging enabled), the raw reset token is logged in plain text alongside the user's email address. A log aggregation system (Datadog, CloudWatch, etc.) would ingest and retain this sensitive token.
+
+**Risk/Impact:** Password reset tokens in logs are a credential exposure risk. A log viewer with read access to logs could use a valid token to reset any user's password within the 1-hour window.
+
+**Recommended fix:** Remove this debug log entirely. If development-time token inspection is needed, use a dedicated test helper or check the DB directly. Never log security tokens, even at debug level.
+
+---
+
+### FINDING-030 — sessions / pricing / locations List Endpoints Are Unbounded (No Pagination Cap)
+
+| Field | Value |
+|---|---|
+| **Severity** | 🟡 Medium |
+| **Scope** | `sessions` module, `pricing` module, `locations` module |
+| **Phase/Step** | Phase 8.1, 9.1, 9.2 |
+| **Status** | ❌ Open |
+| **Files** | `src/modules/sessions/sessions.service.ts` (`listSessions` line 27 — no `take`), `src/modules/pricing/pricing.service.ts` (`listPricingRules` line 26 — no `take`), `src/modules/locations/locations.service.ts` (`listLocations` line 24 — no `take`). Also `src/modules/sessions/sessions.service.ts` (`listSessionBookings` line 357 — no `take`) |
+
+**What's wrong:**
+These four `findMany` calls have no `take` limit. The controllers wrap the raw arrays in a `paginated()` response with fake pagination metadata (`page: 1, limit: array.length, totalPages: 1`), giving the frontend the impression of pagination while actually loading and transferring all records. With 10,000 sessions in a busy studio (realistic over 2+ years), `listSessions` will load all 10,000 into Node.js memory on every request. The `exportLeadsCsv` in FINDING-023 has the same issue.
+
+**Risk/Impact:** Memory exhaustion and slow API responses under real production data volumes. A single request can cause the Node.js process to allocate hundreds of MB. Represents a DoS vector for any authenticated user.
+
+**Recommended fix:** Add proper pagination to all three endpoints. Replace raw `findMany` with the existing `paginate()` utility (already used in 20+ other services). Add `page`/`limit` query parameters to the schemas. Update controllers to pass real pagination meta from the `paginate()` result.
+
+---
+
+## Pass 2 Summary
+
+| # | Severity | Status | Title |
+|---|---|---|---|
+| 022 | 🔴 Critical | ❌ Open | Analytics Dashboard (4 functions) Returns Cross-Tenant Aggregate Data |
+| 023 | 🔴 Critical | ❌ Open | Leads listLeads + exportLeadsCsv Has No TenantId Scoping |
+| 024 | 🟠 High | ❌ Open | Webhooks Module CRUD Has No TenantId Scoping |
+| 025 | 🟠 High | ❌ Open | Invoices listInvoices Has No TenantId Scoping |
+| 026 | 🟠 High | ❌ Open | Notifications Email Template Admin Has No TenantId Scoping |
+| 027 | 🟠 High | ❌ Open | Booking Conflict Check TOCTOU Race (Not in Transaction) |
+| 028 | 🟡 Medium | ❌ Open | Inconsistent DELETE Response Shape (204 vs 200+body) |
+| 029 | 🟡 Medium | ❌ Open | Password Reset Token Logged at debug Level |
+| 030 | 🟡 Medium | ❌ Open | sessions / pricing / locations Lists Are Unbounded (No Pagination Cap) |
+
+**Pass 2 verdict:** 9 additional findings identified (2 🔴 Critical, 4 🟠 High, 3 🟡 Medium). The two new Critical findings (022, 023) are in the same category as Pass 1's FINDING-003 and FINDING-004 — cross-tenant data scoping gaps — confirming this is a systemic pattern across the codebase. FINDING-027 (booking double-booking race) is a new class of bug not covered in Pass 1. The full audit now documents **30 open findings** across both passes.
