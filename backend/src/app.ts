@@ -61,6 +61,8 @@ import {
 import { loyaltyRoutes }           from './modules/loyalty/loyalty.routes';
 import { rotaRoutes }              from './modules/rota/rota.routes';              // Phase 6.1
 import { pushRoutes }              from './modules/push/push.routes';              // Phase 6.2
+import { pricingRoutes }           from './modules/pricing/pricing.routes';        // Phase 8.1
+import { aiRoutes }                from './modules/ai/ai.routes';                  // Phase 8.2
 
 const app = express();
 
@@ -196,6 +198,8 @@ app.use('/api/me/packages',      myPackagesRoutes);             // Phase 5 — M
 app.use('/api/me/memberships',   myMembershipsRoutes);          // Phase 5 — My memberships (customer portal)
 app.use('/api/rota',             rotaRoutes);                   // Phase 6.1 — Staff Rota
 app.use('/api/push',             pushRoutes);                   // Phase 6.2 — Staff PWA Push Notifications
+app.use('/api/pricing-rules',    pricingRoutes);                // Phase 8.1 — Dynamic Pricing
+app.use('/api/ai',               aiRoutes);                     // Phase 8.2 — AI Suggestions
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

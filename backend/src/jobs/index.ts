@@ -13,6 +13,7 @@ import { setupRecurringBookingJob } from './recurring-booking.job';
 import { setupCampaignJob } from './campaign.job';
 import { startNoShowWorker } from './no-show.job';
 import { startWaitlistMatchWorker } from './waitlist-match.job';
+import { startAISuggestionWorker }  from './ai-suggestion.job';
 
 export async function registerAllJobs(): Promise<void> {
   const flags = getDefaultFlags();
@@ -45,6 +46,11 @@ export async function registerAllJobs(): Promise<void> {
   if (flags['WAITING_LIST_ENABLED']) {
     startWaitlistMatchWorker();
     logger.info('Waitlist match worker started');
+  }
+
+  if (flags['AI_SUGGESTIONS_ENABLED']) {
+    startAISuggestionWorker();
+    logger.info('AI suggestion worker started');
   }
 
   logger.info('All background jobs registered');

@@ -26,6 +26,7 @@ import { AppError }     from '../../errors/AppError';
 import { logger }       from '../../utils/logger';
 import { getDefaultFlags } from '../../config/businessType';
 import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
+import { calculatePrice } from '../../lib/pricing-engine';
 import type {
   GetBusinessArtistsQuery,
   GetBusinessSlotsQuery,
@@ -244,6 +245,25 @@ export async function getBusinessSlots(slug: string, query: GetBusinessSlotsQuer
       return sStart < bEnd && sEnd > bStart;
     });
   });
+
+  // ── Dynamic pricing: if DYNAMIC_PRICING_ENABLED, annotate each slot with price ──
+  const flags = getDefaultFlags();
+  if (flags.DYNAMIC_PRICING_ENABLED) {
+    const pricedSlots = await Promise.all(
+      available.map(async (slot) => {
+        const priceResult = await calculatePrice(tenant.id, query.serviceId, new Date(slot.startAt));
+        return {
+          ...slot,
+          ...(priceResult ? {
+            basePrice:       priceResult.basePrice,
+            adjustedPrice:   priceResult.adjustedPrice,
+            totalAdjustment: priceResult.totalAdjustment,
+          } : {}),
+        };
+      }),
+    );
+    return pricedSlots;
+  }
 
   return available;
 }

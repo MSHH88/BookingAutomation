@@ -171,6 +171,8 @@ model Tenant {
   shifts            Shift[]
   pushSubscriptions PushSubscription[]
   artistMedia       ArtistMedia[]
+  pricingRules      PricingRule[]
+  aiSuggestions     AISuggestion[]
 
   @@index([isActive])
   @@map("tenants")
@@ -214,6 +216,7 @@ model User {
   customerMemberships CustomerMembership[]
   loyaltyAccounts   LoyaltyAccount[]
   pushSubscriptions PushSubscription[]
+  aiSuggestions     AISuggestion[]  @relation("CustomerAISuggestions")
 
   @@index([tenantId])
   @@index([tenantId, role])
@@ -235,10 +238,14 @@ model Artist {
   basePay               Decimal?        @db.Decimal(10, 2)
   serviceCommissionPct  Decimal?        @db.Decimal(5, 2)
   productCommissionPct  Decimal?        @db.Decimal(5, 2)
-  calendarAccessToken   String?
-  calendarRefreshToken  String?
+  calendarAccessToken    String?
+  calendarRefreshToken   String?
   calendarTokenExpiresAt DateTime?
-  isActive              Boolean         @default(true)
+  microsoftAccessToken   String?
+  microsoftRefreshToken  String?
+  appleCalDAVUrl         String?
+  appleCalDAVToken       String?
+  isActive               Boolean         @default(true)
 
   tenant       Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -439,6 +446,7 @@ model Booking {
   formResponses   FormResponse[]
   photos          BookingPhoto[]
   payments        Payment[]
+  aiSuggestions   AISuggestion[]
 
   @@index([tenantId])
   @@index([artistId, startAt])
@@ -595,6 +603,8 @@ model Service {
   bookings        Booking[]
   bookingServices BookingService[]
   leads           Lead[]
+  pricingRules    PricingRule[]
+  aiSuggestions   AISuggestion[]
 
   @@index([tenantId])
   @@index([categoryId, isActive])
@@ -1325,4 +1335,83 @@ model ArtistMedia {
 enum ArtistMediaType {
   PROFILE
   PORTFOLIO
+}
+
+// ─── Phase 7: Calendar & Integration Expansion ────────────────────────────────
+// (No additional models — Outlook and Apple fields are on the Artist model above)
+
+// ─── Phase 8: Advanced Intelligence ──────────────────────────────────────────
+
+// PricingRule — dynamic/surge pricing rule applied to services or all bookings.
+model PricingRule {
+  id              String            @id @default(cuid())
+  tenantId        String?
+  serviceId       String?           // null = applies to all services
+  ruleType        PricingRuleType
+  daysOfWeek      Int[]             // 0=Sun … 6=Sat; empty = every day
+  startTime       String?           // HH:MM — null = all day
+  endTime         String?           // HH:MM — null = all day
+  dateFrom        DateTime?         @db.Date
+  dateTo          DateTime?         @db.Date
+  adjustmentType  AdjustmentType
+  adjustmentValue Decimal           @db.Decimal(10, 2) // positive=surcharge, negative=discount
+  priority        Int               @default(0)        // higher = applied last (wins)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([serviceId])
+  @@index([ruleType])
+  @@index([isActive])
+  @@map("pricing_rules")
+}
+
+// AISuggestion — AI-generated rebooking/upsell suggestion for a customer.
+model AISuggestion {
+  id           String              @id @default(cuid())
+  tenantId     String?
+  customerId   String
+  bookingId    String?             // source booking that triggered the suggestion
+  message      String              // 1–2 sentence personalised message
+  serviceId    String?             // recommended service (optional)
+  suggestedAt  DateTime?           // recommended slot datetime (optional)
+  status       AISuggestionStatus  @default(PENDING)
+  sentAt       DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  customer User      @relation("CustomerAISuggestions", fields: [customerId], references: [id], onDelete: Cascade)
+  booking  Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  service  Service?  @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([customerId])
+  @@index([status])
+  @@map("ai_suggestions")
+}
+
+// ─── Phase 8 Enums ────────────────────────────────────────────────────────────
+
+enum PricingRuleType {
+  PEAK
+  OFF_PEAK
+  SEASONAL
+  DEMAND
+}
+
+enum AdjustmentType {
+  PERCENTAGE
+  FLAT
+}
+
+enum AISuggestionStatus {
+  PENDING
+  APPROVED
+  SENT
+  DISMISSED
 }

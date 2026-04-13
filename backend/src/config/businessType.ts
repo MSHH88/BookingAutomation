@@ -303,6 +303,14 @@ export const FEATURE_FLAG_KEYS = [
   // ── Phase 6: Staff & HR ────────────────────────────────────────────────
   'ROTA_ENABLED',                   // staff rota / shift scheduling
   'STAFF_APP_ENABLED',              // staff mobile PWA push notifications + schedule
+
+  // ── Phase 7: Calendar & Integration Expansion ─────────────────────────
+  'OUTLOOK_CALENDAR_ENABLED',       // Microsoft Outlook / Exchange calendar sync
+  'APPLE_CALENDAR_ENABLED',         // Apple iCloud CalDAV calendar sync
+
+  // ── Phase 8: Advanced Intelligence ────────────────────────────────────
+  'DYNAMIC_PRICING_ENABLED',        // surge / off-peak dynamic pricing rules
+  'AI_SUGGESTIONS_ENABLED',         // AI-powered rebooking / upsell suggestions
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -377,6 +385,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     MEMBERSHIPS_ENABLED:        false,
     ROTA_ENABLED:               true,
     STAFF_APP_ENABLED:          true,
+    OUTLOOK_CALENDAR_ENABLED:   false,
+    APPLE_CALENDAR_ENABLED:     false,
+    DYNAMIC_PRICING_ENABLED:    false,
+    AI_SUGGESTIONS_ENABLED:     false,
   },
 
   hair_salon: {
@@ -437,6 +449,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     MEMBERSHIPS_ENABLED:        true,
     ROTA_ENABLED:               true,
     STAFF_APP_ENABLED:          true,
+    OUTLOOK_CALENDAR_ENABLED:   false,
+    APPLE_CALENDAR_ENABLED:     false,
+    DYNAMIC_PRICING_ENABLED:    false,
+    AI_SUGGESTIONS_ENABLED:     false,
   },
 
   barber: {
@@ -497,6 +513,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     MEMBERSHIPS_ENABLED:        false,
     ROTA_ENABLED:               true,
     STAFF_APP_ENABLED:          true,
+    OUTLOOK_CALENDAR_ENABLED:   false,
+    APPLE_CALENDAR_ENABLED:     false,
+    DYNAMIC_PRICING_ENABLED:    false,
+    AI_SUGGESTIONS_ENABLED:     false,
   },
 
   nail_salon: {
@@ -557,6 +577,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     MEMBERSHIPS_ENABLED:        false,
     ROTA_ENABLED:               true,
     STAFF_APP_ENABLED:          true,
+    OUTLOOK_CALENDAR_ENABLED:   false,
+    APPLE_CALENDAR_ENABLED:     false,
+    DYNAMIC_PRICING_ENABLED:    false,
+    AI_SUGGESTIONS_ENABLED:     false,
   },
 
   masseuse: {
@@ -617,6 +641,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     MEMBERSHIPS_ENABLED:        true,
     ROTA_ENABLED:               true,
     STAFF_APP_ENABLED:          true,
+    OUTLOOK_CALENDAR_ENABLED:   false,
+    APPLE_CALENDAR_ENABLED:     false,
+    DYNAMIC_PRICING_ENABLED:    false,
+    AI_SUGGESTIONS_ENABLED:     false,
   },
 
   restaurant: {
@@ -677,6 +705,10 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     MEMBERSHIPS_ENABLED:        false,
     ROTA_ENABLED:               true,
     STAFF_APP_ENABLED:          true,
+    OUTLOOK_CALENDAR_ENABLED:   false,
+    APPLE_CALENDAR_ENABLED:     false,
+    DYNAMIC_PRICING_ENABLED:    false,
+    AI_SUGGESTIONS_ENABLED:     false,
   },
 };
 

@@ -43,9 +43,12 @@ import { enqueueReviewRequest }                              from '../reviews/re
 import { enqueueBookingReminder, cancelBookingReminder }    from '../reminders/reminders.queue';
 import { enqueueWebhookEvent }                              from '../webhooks/webhooks.queue';
 import { syncCreateEvent, syncUpdateEvent, syncDeleteEvent } from '../calendar/calendar.service';
+import { syncOutlookCreateEvent, syncOutlookUpdateEvent, syncOutlookDeleteEvent } from '../calendar/outlook-calendar.service';
+import { syncAppleCreateEvent, syncAppleUpdateEvent, syncAppleDeleteEvent } from '../calendar/apple-calendar.service';
 import { matchAndNotify } from '../waitlist/waitlist.service';
 import { deductPackageUse } from '../packages/packages.service';
 import { awardPoints, calculatePointsForBooking } from '../loyalty/loyalty.service';
+import { enqueueAISuggestion } from '../../jobs/ai-suggestion.job';
 import { getDefaultFlags } from '../../config/businessType';
 import type {
   ListBookingsQuery,
@@ -303,6 +306,9 @@ export async function confirmBooking(
   // ── Google Calendar — create event on confirm ─────────────────────────────
   // Fire-and-forget: syncCreateEvent swallows all errors internally.
   void syncCreateEvent(id);
+  // ── Outlook / Apple Calendar — Phase 7 ────────────────────────────────────
+  void syncOutlookCreateEvent(id);
+  void syncAppleCreateEvent(id);
 
   // ── Email Reminder — 24 h before the appointment ─────────────────────────
   // Fire-and-forget: queue errors are caught inside enqueueBookingReminder.
@@ -552,6 +558,9 @@ export async function completeBooking(
     }).catch((err) => logger.warn('awardPoints failed (non-fatal)', { err, bookingId: id }));
   }
 
+  // ── Phase 8.2 — Enqueue AI suggestion (fire-and-forget) ──────────────────
+  enqueueAISuggestion(id);
+
   return updated;
 }
 
@@ -619,6 +628,9 @@ export async function cancelBooking(
   // ── Google Calendar — delete event on cancel ──────────────────────────────
   // Fire-and-forget: syncDeleteEvent swallows all errors internally.
   void syncDeleteEvent(id);
+  // ── Outlook / Apple Calendar — Phase 7 ────────────────────────────────────
+  void syncOutlookDeleteEvent(id);
+  void syncAppleDeleteEvent(id);
 
   // ── Cancel pending reminder — appointment no longer exists ───────────────
   // Fire-and-forget: queue errors are caught inside cancelBookingReminder.
@@ -741,6 +753,9 @@ export async function rescheduleBooking(
   // ── Google Calendar — update event on reschedule ──────────────────────────
   // Fire-and-forget: syncUpdateEvent swallows all errors internally.
   void syncUpdateEvent(id);
+  // ── Outlook / Apple Calendar — Phase 7 ────────────────────────────────────
+  void syncOutlookUpdateEvent(id);
+  void syncAppleUpdateEvent(id);
 
   // ── Reminder: cancel old (stale time) + enqueue new (updated time) ───────
   // Fire-and-forget: queue errors are caught inside each helper.

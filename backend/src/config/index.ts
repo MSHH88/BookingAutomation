@@ -59,6 +59,15 @@ export interface AppConfig {
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_REDIRECT_URI: string;
 
+  // Microsoft Outlook OAuth (Phase 7.1)
+  MICROSOFT_CLIENT_ID: string;
+  MICROSOFT_CLIENT_SECRET: string;
+  MICROSOFT_REDIRECT_URI: string;
+  MICROSOFT_TENANT_ID: string;
+
+  // OpenAI (Phase 8.2)
+  OPENAI_API_KEY: string;
+
   // Stripe
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
@@ -155,6 +164,13 @@ function loadConfig(): AppConfig {
     GOOGLE_CLIENT_ID: optional('GOOGLE_CLIENT_ID', ''),
     GOOGLE_CLIENT_SECRET: optional('GOOGLE_CLIENT_SECRET', ''),
     GOOGLE_REDIRECT_URI: optional('GOOGLE_REDIRECT_URI', ''),
+
+    MICROSOFT_CLIENT_ID: optional('MICROSOFT_CLIENT_ID', ''),
+    MICROSOFT_CLIENT_SECRET: optional('MICROSOFT_CLIENT_SECRET', ''),
+    MICROSOFT_REDIRECT_URI: optional('MICROSOFT_REDIRECT_URI', ''),
+    MICROSOFT_TENANT_ID: optional('MICROSOFT_TENANT_ID', 'common'),
+
+    OPENAI_API_KEY: optional('OPENAI_API_KEY', ''),
 
     STRIPE_SECRET_KEY: optional('STRIPE_SECRET_KEY', ''),
     STRIPE_WEBHOOK_SECRET: optional('STRIPE_WEBHOOK_SECRET', ''),
