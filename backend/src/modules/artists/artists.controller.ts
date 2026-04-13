@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as artistsService from './artists.service';
 import { success, paginated } from '../../utils/apiResponse';
 import { prisma } from '../../lib/prisma';
+import { AppError } from '../../errors/AppError';
 import type {
   CreateArtistBody,
   UpdateArtistBody,
@@ -226,8 +227,7 @@ export async function getMySchedule(
     });
 
     if (!artist) {
-      res.status(404).json({ error: 'Artist profile not found' });
-      return;
+      throw new AppError(404, 'NOT_FOUND', 'Artist profile not found');
     }
 
     const schedule = await artistsService.getMySchedule(artist.id, date);
