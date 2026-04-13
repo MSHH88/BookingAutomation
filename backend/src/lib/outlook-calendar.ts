@@ -131,7 +131,7 @@ export async function refreshOutlookToken(
 // ─── Graph API helpers ────────────────────────────────────────────────────────
 
 async function graphRequest<T>(
-  method:      'GET' | 'POST' | 'PATCH' | 'DELETE',
+  method:      'GET' | 'POST' | 'PATCH',
   path:        string,
   accessToken: string,
   body?:       unknown,
@@ -144,8 +144,6 @@ async function graphRequest<T>(
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
-
-  if (method === 'DELETE') return null;
 
   if (!res.ok) {
     const text = await res.text();
@@ -202,32 +200,28 @@ export async function updateOutlookEvent(
   logger.info('Outlook Calendar event updated', { eventId });
 }
 
-/** Deletes an Outlook calendar event. Swallows 404 errors. */
+/** Deletes an Outlook calendar event. Swallows 404/410 errors. */
 export async function deleteOutlookEvent(
   tokens:  OutlookTokenSet,
   eventId: string,
 ): Promise<void> {
   const accessToken = await resolveAccessToken(tokens);
 
-  try {
-    const res = await fetch(`${GRAPH_BASE}/me/events/${eventId}`, {
-      method:  'DELETE',
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+  const res = await fetch(`${GRAPH_BASE}/me/events/${eventId}`, {
+    method:  'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 
-    if (res.status === 404 || res.status === 410) {
-      logger.warn('Outlook Calendar event not found during delete (already removed)', { eventId });
-      return;
-    }
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`[OutlookCalendar] DELETE /me/events/${eventId} failed (${res.status}): ${text}`);
-    }
-
-    logger.info('Outlook Calendar event deleted', { eventId });
-  } catch (err) {
-    throw err;
+  if (res.status === 404 || res.status === 410) {
+    logger.warn('Outlook Calendar event not found during delete (already removed)', { eventId });
+    return;
   }
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`[OutlookCalendar] DELETE /me/events/${eventId} failed (${res.status}): ${text}`);
+  }
+
+  logger.info('Outlook Calendar event deleted', { eventId });
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────

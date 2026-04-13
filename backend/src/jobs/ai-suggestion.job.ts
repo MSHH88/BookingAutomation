@@ -113,6 +113,16 @@ async function processAISuggestionJob(job: Job<AISuggestionJobData>): Promise<vo
     return;
   }
 
+  // Idempotency guard: skip if a suggestion was already created for this booking
+  const existing = await prisma.aISuggestion.findFirst({
+    where:  { bookingId },
+    select: { id: true },
+  });
+  if (existing) {
+    logger.debug('AI suggestion job: suggestion already exists, skipping', { bookingId });
+    return;
+  }
+
   const customerName = booking.customer?.name ?? booking.lead?.name ?? 'Valued Customer';
   const service      = booking.services[0]?.service;
   const serviceName  = service?.name ?? 'your recent appointment';

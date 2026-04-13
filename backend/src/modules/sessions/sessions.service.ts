@@ -211,6 +211,18 @@ export async function bookSessionSpot(
       throw new AppError(409, 'SESSION_FULL', 'Session is fully booked');
     }
 
+    // Validate customer belongs to this tenant
+    const customer = await tx.user.findUnique({
+      where:  { id: customerId },
+      select: { id: true, tenantId: true },
+    });
+    if (!customer) {
+      throw new AppError(404, 'CUSTOMER_NOT_FOUND', `Customer ${customerId} not found`);
+    }
+    if (customer.tenantId !== tenantId) {
+      throw new AppError(403, 'FORBIDDEN', 'Customer does not belong to this tenant');
+    }
+
     // Check for duplicate booking
     const existing = await tx.sessionBooking.findUnique({
       where: { sessionId_customerId: { sessionId, customerId } },

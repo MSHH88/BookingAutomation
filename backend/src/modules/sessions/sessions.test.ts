@@ -35,6 +35,7 @@ const mockSessionBookingFindMany   = jest.fn();
 const mockServiceFindUnique  = jest.fn();
 const mockArtistFindUnique   = jest.fn();
 const mockLocationFindUnique = jest.fn();
+const mockUserFindUnique     = jest.fn();
 const mockTransaction        = jest.fn();
 
 jest.mock('../../lib/prisma', () => ({
@@ -60,6 +61,9 @@ jest.mock('../../lib/prisma', () => ({
     },
     location: {
       findUnique: (...a: unknown[]) => mockLocationFindUnique(...a),
+    },
+    user: {
+      findUnique: (...a: unknown[]) => mockUserFindUnique(...a),
     },
     $transaction: (...a: unknown[]) => mockTransaction(...a),
   },
@@ -356,6 +360,9 @@ describe('POST /api/sessions/:id/book', () => {
           findUnique: jest.fn().mockResolvedValue(null),
           create:     jest.fn().mockResolvedValue(sessionBookingFixture),
         },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cust_1', tenantId: 'tenant_1' }),
+        },
       });
     });
 
@@ -377,6 +384,9 @@ describe('POST /api/sessions/:id/book', () => {
         sessionBooking: {
           findUnique: jest.fn().mockResolvedValue(null),
         },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cust_1', tenantId: 'tenant_1' }),
+        },
       });
     });
 
@@ -396,6 +406,9 @@ describe('POST /api/sessions/:id/book', () => {
         },
         sessionBooking: {
           findUnique: jest.fn().mockResolvedValue({ ...sessionBookingFixture, status: 'CONFIRMED' }),
+        },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cust_1', tenantId: 'tenant_1' }),
         },
       });
     });
@@ -417,6 +430,9 @@ describe('POST /api/sessions/:id/book', () => {
         sessionBooking: {
           findUnique: jest.fn().mockResolvedValue(null),
         },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cust_1', tenantId: 'tenant_1' }),
+        },
       });
     });
 
@@ -426,6 +442,52 @@ describe('POST /api/sessions/:id/book', () => {
       .send({ customerId: 'cust_1' });
 
     expect(res.status).toBe(404);
+  });
+
+  it('returns 404 when customer not found', async () => {
+    mockTransaction.mockImplementation(async (fn: Function) => {
+      return fn({
+        session: {
+          findUnique: jest.fn().mockResolvedValue(sessionFixture),
+        },
+        sessionBooking: {
+          findUnique: jest.fn().mockResolvedValue(null),
+        },
+        user: {
+          findUnique: jest.fn().mockResolvedValue(null),
+        },
+      });
+    });
+
+    const res = await request(app)
+      .post('/api/sessions/session_1/book')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ customerId: 'unknown_cust' });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 403 when customer belongs to a different tenant', async () => {
+    mockTransaction.mockImplementation(async (fn: Function) => {
+      return fn({
+        session: {
+          findUnique: jest.fn().mockResolvedValue(sessionFixture),
+        },
+        sessionBooking: {
+          findUnique: jest.fn().mockResolvedValue(null),
+        },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cust_other', tenantId: 'other_tenant' }),
+        },
+      });
+    });
+
+    const res = await request(app)
+      .post('/api/sessions/session_1/book')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ customerId: 'cust_other' });
+
+    expect(res.status).toBe(403);
   });
 
   it('returns 400 when customerId is missing', async () => {
