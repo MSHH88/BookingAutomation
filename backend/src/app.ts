@@ -48,8 +48,16 @@ import { giftCardsRoutes }         from './modules/gift-cards/gift-cards.routes'
 import { productsRoutes }          from './modules/products/products.routes';
 import { posRoutes }               from './modules/pos/pos.routes';
 import { payrollRoutes }           from './modules/payroll/payroll.routes';
-import { packagesRoutes }          from './modules/packages/packages.routes';
-import { membershipsRoutes }       from './modules/memberships/memberships.routes';
+import {
+  packagesRoutes,
+  customerPackagesRoutes,
+  myPackagesRoutes,
+}                                  from './modules/packages/packages.routes';
+import {
+  membershipsRoutes,
+  customerMembershipsRoutes,
+  myMembershipsRoutes,
+}                                  from './modules/memberships/memberships.routes';
 import { loyaltyRoutes }           from './modules/loyalty/loyalty.routes';
 
 const app = express();
@@ -178,8 +186,12 @@ app.use('/api/products',         productsRoutes);               // Phase 4 — I
 app.use('/api/pos',              posRoutes);                    // Phase 4 — POS Mode
 app.use('/api/payroll',          payrollRoutes);                 // Phase 4 — Staff Payroll
 app.use('/api/packages',         packagesRoutes);               // Phase 5 — Service Packages
+app.use('/api/customers/:customerId/packages', customerPackagesRoutes);  // Phase 5 — Customer packages (admin)
 app.use('/api/memberships',      membershipsRoutes);            // Phase 5 — Memberships
+app.use('/api/customers/:customerId/memberships', customerMembershipsRoutes); // Phase 5 — Customer memberships (admin)
 app.use('/api/loyalty',          loyaltyRoutes);                // Phase 5 — Loyalty Points
+app.use('/api/me/packages',      myPackagesRoutes);             // Phase 5 — My packages (customer portal)
+app.use('/api/me/memberships',   myMembershipsRoutes);          // Phase 5 — My memberships (customer portal)
 
 // ─── 9. 404 — unknown route ───────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

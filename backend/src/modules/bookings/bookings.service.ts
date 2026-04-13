@@ -44,6 +44,8 @@ import { enqueueBookingReminder, cancelBookingReminder }    from '../reminders/r
 import { enqueueWebhookEvent }                              from '../webhooks/webhooks.queue';
 import { syncCreateEvent, syncUpdateEvent, syncDeleteEvent } from '../calendar/calendar.service';
 import { matchAndNotify } from '../waitlist/waitlist.service';
+import { deductPackageUse } from '../packages/packages.service';
+import { awardPoints, calculatePointsForBooking } from '../loyalty/loyalty.service';
 import { getDefaultFlags } from '../../config/businessType';
 import type {
   ListBookingsQuery,
@@ -243,7 +245,7 @@ export async function confirmBooking(
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
-    select: { ...bookingDetailSelect, artistId: true },
+    select: { ...bookingDetailSelect, artistId: true, serviceId: true, tenantId: true },
   });
 
   if (!booking) {
@@ -353,6 +355,17 @@ export async function confirmBooking(
     leadId:     updated.lead?.id       ?? null,
   });
 
+  // ── Phase 5.1 — Deduct package use if customer has an applicable package ──
+  // Fire-and-forget: errors logged inside deductPackageUse, never surfaced.
+  if (booking.tenantId && updated.customer?.id && getDefaultFlags()['PACKAGES_ENABLED']) {
+    const serviceId = booking.serviceId ?? updated.services[0]?.service?.id ?? null;
+    if (serviceId) {
+      void deductPackageUse(updated.customer.id, booking.tenantId, serviceId).catch(
+        (err) => logger.warn('deductPackageUse failed (non-fatal)', { err, bookingId: id }),
+      );
+    }
+  }
+
   return updated;
 }
 
@@ -384,6 +397,7 @@ export async function completeBooking(
     select: {
       ...bookingDetailSelect,
       artistId:    true,
+      tenantId:    true,
       totalAmount: true,
       quote:       { select: { price: true } },
       services:    {
@@ -524,6 +538,19 @@ export async function completeBooking(
     customerId:  updated.customer?.id ?? null,
     leadId:      updated.lead?.id     ?? null,
   });
+
+  // ── Phase 5.3 — Award loyalty points on booking completion ───────────────
+  // Fire-and-forget: errors logged inside awardPoints, never surfaced.
+  if (booking.tenantId && updated.customer?.id && getDefaultFlags()['LOYALTY_ENABLED']) {
+    const points = calculatePointsForBooking(invoiceAmount);
+    void awardPoints({
+      customerId: updated.customer.id,
+      tenantId:   booking.tenantId,
+      points,
+      reason:     'booking_completed',
+      bookingId:  id,
+    }).catch((err) => logger.warn('awardPoints failed (non-fatal)', { err, bookingId: id }));
+  }
 
   return updated;
 }

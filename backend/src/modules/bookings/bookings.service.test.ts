@@ -107,6 +107,24 @@ jest.mock('../calendar/calendar.service', () => ({
   syncDeleteEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
+// bookings.service.ts imports matchAndNotify from waitlist.service.ts which
+// may import BullMQ/Redis at module load. Mock it to prevent connection attempts.
+jest.mock('../waitlist/waitlist.service', () => ({
+  matchAndNotify: jest.fn().mockResolvedValue(undefined),
+}));
+
+// bookings.service.ts imports deductPackageUse from packages.service.ts (Phase 5.1).
+jest.mock('../packages/packages.service', () => ({
+  deductPackageUse: jest.fn().mockResolvedValue(null),
+}));
+
+// bookings.service.ts imports awardPoints / calculatePointsForBooking from
+// loyalty.service.ts (Phase 5.3).
+jest.mock('../loyalty/loyalty.service', () => ({
+  awardPoints:               jest.fn().mockResolvedValue(undefined),
+  calculatePointsForBooking: jest.fn().mockReturnValue(10),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as bookingsService from './bookings.service';
