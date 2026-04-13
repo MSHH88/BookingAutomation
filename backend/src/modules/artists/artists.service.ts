@@ -380,6 +380,61 @@ export async function setArtistServices(
   });
 }
 
+// ─── getMySchedule ────────────────────────────────────────────────────────────
+
+/**
+ * Returns an artist's daily/weekly bookings schedule.
+ *
+ * When `date` is provided, returns only bookings for that specific day.
+ * When omitted, returns bookings for the next 7 days.
+ *
+ * Only returns non-cancelled bookings (PENDING, CONFIRMED, COMPLETED,
+ * AWAITING_DEPOSIT).
+ */
+export async function getMySchedule(artistId: string, date?: string) {
+  let startAt: Date;
+  let endAt:   Date;
+
+  if (date) {
+    startAt = new Date(date);
+    startAt.setHours(0, 0, 0, 0);
+    endAt = new Date(date);
+    endAt.setHours(23, 59, 59, 999);
+  } else {
+    startAt = new Date();
+    startAt.setHours(0, 0, 0, 0);
+    endAt = new Date(startAt);
+    endAt.setDate(endAt.getDate() + 6);
+    endAt.setHours(23, 59, 59, 999);
+  }
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      artistId,
+      status: { notIn: ['CANCELLED'] },
+      startAt: { gte: startAt, lte: endAt },
+    },
+    orderBy: { startAt: 'asc' },
+    select: {
+      id:          true,
+      startAt:     true,
+      endAt:       true,
+      status:      true,
+      notes:       true,
+      customer: {
+        select: { id: true, name: true, email: true, phone: true },
+      },
+    },
+  });
+
+  return {
+    date:    date ?? null,
+    startAt: startAt.toISOString(),
+    endAt:   endAt.toISOString(),
+    bookings,
+  };
+}
+
 // ─── Prisma select shapes ─────────────────────────────────────────────────────
 
 /** Lean public listing — no internal data. */

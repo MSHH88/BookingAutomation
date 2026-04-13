@@ -299,6 +299,10 @@ export const FEATURE_FLAG_KEYS = [
   // ── Phase 5: Packages, Loyalty & Retention ──────────────────────────────
   'PACKAGES_ENABLED',               // service packages / bundles for customers
   'MEMBERSHIPS_ENABLED',            // recurring memberships with Stripe Subscriptions
+
+  // ── Phase 6: Staff & HR ────────────────────────────────────────────────
+  'ROTA_ENABLED',                   // staff rota / shift scheduling
+  'STAFF_APP_ENABLED',              // staff mobile PWA push notifications + schedule
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -371,6 +375,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PAYROLL_ENABLED:            true,
     PACKAGES_ENABLED:           true,
     MEMBERSHIPS_ENABLED:        false,
+    ROTA_ENABLED:               true,
+    STAFF_APP_ENABLED:          true,
   },
 
   hair_salon: {
@@ -429,6 +435,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PAYROLL_ENABLED:            true,
     PACKAGES_ENABLED:           true,
     MEMBERSHIPS_ENABLED:        true,
+    ROTA_ENABLED:               true,
+    STAFF_APP_ENABLED:          true,
   },
 
   barber: {
@@ -487,6 +495,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PAYROLL_ENABLED:            true,
     PACKAGES_ENABLED:           true,
     MEMBERSHIPS_ENABLED:        false,
+    ROTA_ENABLED:               true,
+    STAFF_APP_ENABLED:          true,
   },
 
   nail_salon: {
@@ -545,6 +555,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PAYROLL_ENABLED:            false,
     PACKAGES_ENABLED:           true,
     MEMBERSHIPS_ENABLED:        false,
+    ROTA_ENABLED:               true,
+    STAFF_APP_ENABLED:          true,
   },
 
   masseuse: {
@@ -603,6 +615,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PAYROLL_ENABLED:            true,
     PACKAGES_ENABLED:           true,
     MEMBERSHIPS_ENABLED:        true,
+    ROTA_ENABLED:               true,
+    STAFF_APP_ENABLED:          true,
   },
 
   restaurant: {
@@ -661,6 +675,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     PAYROLL_ENABLED:            false,
     PACKAGES_ENABLED:           false,
     MEMBERSHIPS_ENABLED:        false,
+    ROTA_ENABLED:               true,
+    STAFF_APP_ENABLED:          true,
   },
 };
 

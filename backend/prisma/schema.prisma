@@ -168,6 +168,9 @@ model Tenant {
   memberships       Membership[]
   customerMemberships CustomerMembership[]
   loyaltyAccounts   LoyaltyAccount[]
+  shifts            Shift[]
+  pushSubscriptions PushSubscription[]
+  artistMedia       ArtistMedia[]
 
   @@index([isActive])
   @@map("tenants")
@@ -210,6 +213,7 @@ model User {
   customerPackages  CustomerPackage[]
   customerMemberships CustomerMembership[]
   loyaltyAccounts   LoyaltyAccount[]
+  pushSubscriptions PushSubscription[]
 
   @@index([tenantId])
   @@index([tenantId, role])
@@ -246,6 +250,8 @@ model Artist {
   quotes       Quote[]              @relation("ArtistQuotes")
   bookings     Booking[]            @relation("ArtistBookings")
   payrollReports PayrollReport[]
+  shifts       Shift[]
+  media        ArtistMedia[]
 
   @@index([tenantId])
   @@index([isActive])
@@ -1229,4 +1235,94 @@ enum TimePreference {
   AFTERNOON
   EVENING
   ANY
+}
+
+// ─── Phase 6: Staff & HR ──────────────────────────────────────────────────────
+
+// Shift — defines a recurring weekly work pattern for an artist.
+model Shift {
+  id              String    @id @default(cuid())
+  tenantId        String?
+  artistId        String
+  dayOfWeek       Int       // 0 = Sunday … 6 = Saturday
+  startTime       String    // HH:MM (24-hour)
+  endTime         String    // HH:MM (24-hour)
+  isRecurring     Boolean   @default(true)
+  effectiveFrom   DateTime
+  effectiveUntil  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  artist    Artist          @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tenant    Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  overrides ShiftOverride[]
+
+  @@index([artistId])
+  @@index([tenantId])
+  @@index([dayOfWeek])
+  @@index([effectiveFrom])
+  @@map("shifts")
+}
+
+// ShiftOverride — a one-off change or day-off for a specific shift on a specific date.
+model ShiftOverride {
+  id         String    @id @default(cuid())
+  shiftId    String
+  date       DateTime  @db.Date
+  startTime  String?   // null when isOff = true
+  endTime    String?   // null when isOff = true
+  isOff      Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  shift  Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, date])
+  @@index([shiftId])
+  @@index([date])
+  @@map("shift_overrides")
+}
+
+// PushSubscription — Web Push subscription record for a staff member (PWA).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  tenantId  String?
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([tenantId])
+  @@map("push_subscriptions")
+}
+
+// ArtistMedia — profile photo and portfolio images for an artist.
+model ArtistMedia {
+  id                 String          @id @default(cuid())
+  artistId           String
+  tenantId           String?
+  url                String
+  cloudinaryPublicId String
+  type               ArtistMediaType @default(PORTFOLIO)
+  sortOrder          Int             @default(0)
+  uploadedAt         DateTime        @default(now())
+
+  artist Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([artistId])
+  @@index([tenantId])
+  @@index([type])
+  @@map("artist_media")
+}
+
+// ─── Phase 6 Enums ────────────────────────────────────────────────────────────
+
+enum ArtistMediaType {
+  PROFILE
+  PORTFOLIO
 }

@@ -7,6 +7,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as artistsService from './artists.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { prisma } from '../../lib/prisma';
 import type {
   CreateArtistBody,
   UpdateArtistBody,
@@ -198,6 +199,39 @@ export async function setArtistServices(
     const body = req.body as SetArtistServicesBody;
     const services = await artistsService.setArtistServices(id, body);
     res.json(success(services));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/artists/me/schedule
+ * Artist: returns own daily or weekly booking schedule.
+ * Query: ?date=YYYY-MM-DD (optional) — single day; omit for 7-day window.
+ */
+export async function getMySchedule(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    // Resolve artistId from the JWT user
+    const userId = req.user!.id;
+    const date   = (req.query as { date?: string }).date;
+
+    // Look up the Artist row for the authenticated user
+    const artist = await prisma.artist.findUnique({
+      where:  { userId },
+      select: { id: true, tenantId: true },
+    });
+
+    if (!artist) {
+      res.status(404).json({ error: 'Artist profile not found' });
+      return;
+    }
+
+    const schedule = await artistsService.getMySchedule(artist.id, date);
+    res.json(success(schedule));
   } catch (err) {
     next(err);
   }
