@@ -105,34 +105,38 @@ import * as waitlistService from './waitlist.service';
 const NOW = new Date('2026-04-07T10:00:00Z');
 
 const baseEntry = {
-  id:            'wl_1',
-  name:          'Jane Smith',
-  email:         'jane@example.com',
-  phone:         '+44 7700 900001',
-  artistId:      'artist_1',
-  serviceId:     'svc_1',
-  bookingId:     null,
-  requestedDate: new Date('2026-05-01T00:00:00Z'),
-  notes:         'Prefer afternoon slots',
-  status:        'WAITING' as const,
-  notifiedAt:    null,
-  expiresAt:     null,
-  createdAt:     NOW,
-  updatedAt:     NOW,
+  id:                 'wl_1',
+  name:               'Jane Smith',
+  email:              'jane@example.com',
+  phone:              '+44 7700 900001',
+  artistId:           'artist_1',
+  serviceId:          'svc_1',
+  bookingId:          null,
+  requestedDate:      new Date('2026-05-01T00:00:00Z'),
+  notes:              'Prefer afternoon slots',
+  status:             'WAITING' as const,
+  timePreference:     'ANY' as const,
+  notifiedAt:         null,
+  notificationExpiry: null,
+  expiresAt:          null,
+  createdAt:          NOW,
+  updatedAt:          NOW,
 };
 
 const baseListItem = {
-  id:            'wl_1',
-  name:          'Jane Smith',
-  email:         'jane@example.com',
-  phone:         '+44 7700 900001',
-  artistId:      'artist_1',
-  serviceId:     'svc_1',
-  requestedDate: new Date('2026-05-01T00:00:00Z'),
-  status:        'WAITING' as const,
-  notifiedAt:    null,
-  expiresAt:     null,
-  createdAt:     NOW,
+  id:                 'wl_1',
+  name:               'Jane Smith',
+  email:              'jane@example.com',
+  phone:              '+44 7700 900001',
+  artistId:           'artist_1',
+  serviceId:          'svc_1',
+  requestedDate:      new Date('2026-05-01T00:00:00Z'),
+  status:             'WAITING' as const,
+  timePreference:     'ANY' as const,
+  notifiedAt:         null,
+  notificationExpiry: null,
+  expiresAt:          null,
+  createdAt:          NOW,
 };
 
 // ─── beforeEach reset ─────────────────────────────────────────────────────────
@@ -145,13 +149,14 @@ beforeEach(() => {
 
 describe('joinWaitlist', () => {
   const joinBody = {
-    name:          'Jane Smith',
-    email:         'jane@example.com',
-    phone:         '+44 7700 900001',
-    artistId:      'artist_1',
-    serviceId:     'svc_1',
-    requestedDate: '2026-05-01T00:00:00Z',
-    notes:         'Prefer afternoon slots',
+    name:           'Jane Smith',
+    email:          'jane@example.com',
+    phone:          '+44 7700 900001',
+    artistId:       'artist_1',
+    serviceId:      'svc_1',
+    requestedDate:  '2026-05-01T00:00:00Z',
+    notes:          'Prefer afternoon slots',
+    timePreference: 'ANY' as const,
   };
 
   it('creates and returns a waitlist entry on success', async () => {
