@@ -7,7 +7,7 @@
  *  ✓ GET    /api/sessions                       — list (empty, with results)
  *  ✓ POST   /api/sessions                       — create (success, missing fields, service not found, forbidden)
  *  ✓ GET    /api/sessions/:id                   — get (success, not found, forbidden)
- *  ✓ PATCH  /api/sessions/:id                   — update (success, not found, forbidden, cancelled)
+ *  ✓ PATCH  /api/sessions/:id                   — update (success, not found, forbidden, cancelled, location cross-tenant, capacity→FULL, capacity→OPEN)
  *  ✓ DELETE /api/sessions/:id                   — delete (success, not found, forbidden)
  *  ✓ POST   /api/sessions/:id/book              — book (success, full, duplicate, cancelled, not found)
  *  ✓ GET    /api/sessions/:id/bookings          — list bookings
@@ -319,7 +319,48 @@ describe('PATCH /api/sessions/:id', () => {
 
     expect(res.status).toBe(409);
   });
-});
+
+  it('returns 403 when new locationId belongs to a different tenant', async () => {
+    mockSessionFindUnique.mockResolvedValue(sessionFixture);
+    mockLocationFindUnique.mockResolvedValue({ id: 'loc_other', tenantId: 'other_tenant' });
+
+    const res = await request(app)
+      .patch('/api/sessions/session_1')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ locationId: 'loc_other' });
+
+    expect(res.status).toBe(403);
+  });
+
+  it('auto-sets status FULL when capacity reduced to at or below currentAttendees', async () => {
+    const fullSession = { ...sessionFixture, currentAttendees: 8, status: 'OPEN' };
+    mockSessionFindUnique.mockResolvedValue(fullSession);
+    mockSessionUpdate.mockResolvedValue({ ...fullSession, capacity: 8, status: 'FULL' });
+
+    const res = await request(app)
+      .patch('/api/sessions/session_1')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ capacity: 8 });
+
+    expect(res.status).toBe(200);
+    const updateCall = mockSessionUpdate.mock.calls[0][0];
+    expect(updateCall.data.status).toBe('FULL');
+  });
+
+  it('auto-sets status OPEN when capacity increased above currentAttendees while FULL', async () => {
+    const fullSession = { ...sessionFixture, currentAttendees: 5, status: 'FULL' };
+    mockSessionFindUnique.mockResolvedValue(fullSession);
+    mockSessionUpdate.mockResolvedValue({ ...fullSession, capacity: 10, status: 'OPEN' });
+
+    const res = await request(app)
+      .patch('/api/sessions/session_1')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ capacity: 10 });
+
+    expect(res.status).toBe(200);
+    const updateCall = mockSessionUpdate.mock.calls[0][0];
+    expect(updateCall.data.status).toBe('OPEN');
+  });
 
 // ── DELETE /api/sessions/:id ──────────────────────────────────────────────────
 

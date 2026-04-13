@@ -154,6 +154,31 @@ export async function updateSession(
     throw new AppError(409, 'SESSION_CANCELLED', 'Cannot update a cancelled session');
   }
 
+  // Validate locationId belongs to this tenant when being updated
+  if (body.locationId) {
+    const location = await prisma.location.findUnique({
+      where:  { id: body.locationId },
+      select: { id: true, tenantId: true },
+    });
+    if (!location) {
+      throw new AppError(404, 'LOCATION_NOT_FOUND', `Location ${body.locationId} not found`);
+    }
+    if (location.tenantId !== tenantId) {
+      throw new AppError(403, 'FORBIDDEN', 'Location does not belong to this tenant');
+    }
+  }
+
+  // Recalculate status when capacity is being changed and no explicit status override is given
+  let derivedStatus: 'OPEN' | 'FULL' | undefined;
+  if (body.capacity !== undefined && body.status === undefined) {
+    const effectiveCapacity = body.capacity;
+    if (effectiveCapacity <= existing.currentAttendees && existing.status !== 'FULL') {
+      derivedStatus = 'FULL';
+    } else if (effectiveCapacity > existing.currentAttendees && existing.status === 'FULL') {
+      derivedStatus = 'OPEN';
+    }
+  }
+
   const session = await prisma.session.update({
     where: { id },
     data: {
@@ -161,7 +186,7 @@ export async function updateSession(
       ...(body.startTime  !== undefined ? { startTime:  body.startTime  } : {}),
       ...(body.endTime    !== undefined ? { endTime:    body.endTime    } : {}),
       ...(body.capacity   !== undefined ? { capacity:   body.capacity   } : {}),
-      ...(body.status     !== undefined ? { status:     body.status     } : {}),
+      ...(body.status     !== undefined ? { status:     body.status     } : derivedStatus !== undefined ? { status: derivedStatus } : {}),
       ...(body.notes      !== undefined ? { notes:      body.notes      } : {}),
     },
   });

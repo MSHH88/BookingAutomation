@@ -138,8 +138,8 @@ Tests:       1756 passed, 1756 total
 | `backend/src/modules/sessions/sessions.controller.ts` | HTTP handlers for session CRUD and spot booking |
 | `backend/src/modules/sessions/sessions.routes.ts` | Router for `/api/sessions` — gated by `GROUP_BOOKING_ENABLED` |
 | `backend/src/modules/sessions/sessions.schema.ts` | Zod schemas for session create/update/list/book/cancel |
-| `backend/src/modules/sessions/sessions.service.ts` | Atomic capacity management, tenant + customer tenant validation |
-| `backend/src/modules/sessions/sessions.test.ts` | Integration tests including customer cross-tenant guard |
+| `backend/src/modules/sessions/sessions.service.ts` | Atomic capacity management, tenant + customer tenant validation; updateSession locationId cross-tenant guard + capacity→status sync (bug fix) |
+| `backend/src/modules/sessions/sessions.test.ts` | Integration tests including customer cross-tenant guard, location cross-tenant guard, and capacity-driven status transitions (bug fix) |
 
 ---
 
