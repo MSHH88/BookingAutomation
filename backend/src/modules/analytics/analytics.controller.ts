@@ -63,8 +63,9 @@ export async function overview(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as unknown as OverviewQuery;
-    const result = await analyticsService.getOverview(query);
+    const query    = req.query as unknown as OverviewQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await analyticsService.getOverview(query, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -84,8 +85,9 @@ export async function leads(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as unknown as LeadsAnalyticsQuery;
-    const result = await analyticsService.getLeadsAnalytics(query);
+    const query    = req.query as unknown as LeadsAnalyticsQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await analyticsService.getLeadsAnalytics(query, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -105,8 +107,9 @@ export async function bookings(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as unknown as BookingsAnalyticsQuery;
-    const result = await analyticsService.getBookingsAnalytics(query);
+    const query    = req.query as unknown as BookingsAnalyticsQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await analyticsService.getBookingsAnalytics(query, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -126,8 +129,9 @@ export async function revenue(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as unknown as RevenueAnalyticsQuery;
-    const result = await analyticsService.getRevenueAnalytics(query);
+    const query    = req.query as unknown as RevenueAnalyticsQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await analyticsService.getRevenueAnalytics(query, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);

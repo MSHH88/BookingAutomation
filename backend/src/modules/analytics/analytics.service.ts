@@ -220,7 +220,7 @@ export async function trackEvent(
  *
  * All DB round-trips run in a single `Promise.all()` for minimal latency.
  */
-export async function getOverview(query: OverviewQuery): Promise<OverviewResult> {
+export async function getOverview(query: OverviewQuery, tenantId: string | null = null): Promise<OverviewResult> {
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
@@ -242,21 +242,21 @@ export async function getOverview(query: OverviewQuery): Promise<OverviewResult>
     waitlistNotified,
     whatsappEventCount,
   ] = await Promise.all([
-    prisma.lead.count({ where: { createdAt: df } }),
-    prisma.lead.count({ where: { createdAt: todayFilter } }),
-    prisma.booking.count({ where: { createdAt: df } }),
-    prisma.booking.count({ where: { createdAt: todayFilter } }),
+    prisma.lead.count({ where: { createdAt: df, ...(tenantId !== null ? { tenantId } : {}) } }),
+    prisma.lead.count({ where: { createdAt: todayFilter, ...(tenantId !== null ? { tenantId } : {}) } }),
+    prisma.booking.count({ where: { createdAt: df, ...(tenantId !== null ? { tenantId } : {}) } }),
+    prisma.booking.count({ where: { createdAt: todayFilter, ...(tenantId !== null ? { tenantId } : {}) } }),
     prisma.booking.groupBy({
       by:     ['status'],
-      where:  { createdAt: df },
+      where:  { createdAt: df, ...(tenantId !== null ? { tenantId } : {}) },
       _count: { _all: true },
     }),
     prisma.invoice.findMany({
-      where:  { createdAt: df },
+      where:  { createdAt: df, ...(tenantId !== null ? { booking: { tenantId } } : {}) },
       select: { amount: true, status: true, currency: true },
     }),
-    prisma.waitlistEntry.count({ where: { status: 'WAITING' } }),
-    prisma.waitlistEntry.count({ where: { status: 'NOTIFIED' } }),
+    prisma.waitlistEntry.count({ where: { status: 'WAITING', ...(tenantId !== null ? { tenantId } : {}) } }),
+    prisma.waitlistEntry.count({ where: { status: 'NOTIFIED', ...(tenantId !== null ? { tenantId } : {}) } }),
     // WhatsApp automation events tracked as ANALYTICS events with the prefix
     prisma.analyticsEvent.count({
       where: { eventType: { startsWith: 'WHATSAPP_' }, createdAt: df },
@@ -314,13 +314,14 @@ export async function getOverview(query: OverviewQuery): Promise<OverviewResult>
 /**
  * Lead funnel and attribution analytics for the requested period.
  */
-export async function getLeadsAnalytics(query: LeadsAnalyticsQuery): Promise<LeadsAnalyticsResult> {
+export async function getLeadsAnalytics(query: LeadsAnalyticsQuery, tenantId: string | null = null): Promise<LeadsAnalyticsResult> {
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
   const where: Prisma.LeadWhereInput = { createdAt: df };
   if (query.artistId)    where.artistId    = query.artistId;
   if (query.businessType) where.businessType = query.businessType;
+  if (tenantId !== null) where.tenantId = tenantId;
 
   const [
     total,
@@ -408,12 +409,14 @@ export async function getLeadsAnalytics(query: LeadsAnalyticsQuery): Promise<Lea
  */
 export async function getBookingsAnalytics(
   query: BookingsAnalyticsQuery,
+  tenantId: string | null = null,
 ): Promise<BookingsAnalyticsResult> {
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
   const where: Prisma.BookingWhereInput = { createdAt: df };
   if (query.artistId) where.artistId = query.artistId;
+  if (tenantId !== null) where.tenantId = tenantId;
 
   const [
     total,
@@ -512,12 +515,12 @@ export async function getBookingsAnalytics(
  * Revenue analytics — invoice aggregations with monthly trend and
  * per-service attribution.
  */
-export async function getRevenueAnalytics(query: RevenueAnalyticsQuery): Promise<RevenueAnalyticsResult> {
+export async function getRevenueAnalytics(query: RevenueAnalyticsQuery, tenantId: string | null = null): Promise<RevenueAnalyticsResult> {
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
   const invoices = await prisma.invoice.findMany({
-    where: { createdAt: df },
+    where: { createdAt: df, ...(tenantId !== null ? { booking: { tenantId } } : {}) },
     select: {
       amount:    true,
       status:    true,
