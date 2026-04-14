@@ -50,6 +50,238 @@ None. All AUDIT-001..AUDIT-010 items are implemented and committed on `copilot/c
 
 ---
 
+## ULTRA AUDIT — Backend Quality, Feature-Flag Coverage, and CRM Manageability (2026-04-14)
+
+> **Audit date:** 2026-04-14
+> **Commit ref / branch audited:** `76153ca` — `copilot/create-detailed-automation-plan`
+> **Analysis only.** No code was modified during this audit. All findings are recommendations only.
+
+---
+
+### AUDIT-011 — `admin.service.ts` `getStudioSettings` / `updateStudioSettings` Missing Tenant Scoping
+
+- **Severity:** 🔴 Critical
+- **Files:**
+  - `backend/src/modules/admin/admin.service.ts` (lines 127, 141–163)
+  - `backend/src/modules/admin/admin.controller.ts` (lines 33–73)
+- **What's wrong:** `getStudioSettings()` queries `prisma.studioSettings.findFirst({ select: settingsSelect })` with **no tenantId WHERE clause**, returning whichever settings row the DB returns first. `updateStudioSettings(body)` does the same — `findFirst({ select: { id: true } })` with no tenant filter and then updates that row. The `StudioSettings` model has a `tenantId String? @unique` column and one row per tenant, yet neither the service function nor `admin.controller.ts` passes a `tenantId` argument. Contrast: the parallel `settings.service.ts` (`GET/PATCH /api/settings`) correctly uses `where: { tenantId }` throughout.
+- **Impact:** In a multi-tenant deployment every ADMIN user's `GET /api/admin/settings` returns the **same first row** (likely Tenant A's data exposed to Tenant B, C, …). `PATCH /api/admin/settings` overwrites that same shared row, wiping another tenant's studio name, timezone, deposit rules, cancellation policy, etc.
+- **Regression risk:** High — this was never tenant-scoped in the admin service path.
+- **Recommended fix:** Add a `tenantId: string | null` parameter to both `getStudioSettings(tenantId)` and `updateStudioSettings(tenantId, body)`. Apply `where: { tenantId }` in all four `prisma.studioSettings` calls. Update `admin.controller.ts` `getSettings` and `patchSettings` to extract `tenantId` via `extractTenantId(req)` and pass it down.
+
+---
+
+### AUDIT-012 — Duplicate / Conflicting Feature Flag Key Pairs — Route vs Job Mismatches
+
+- **Severity:** 🟠 High
+- **Files:**
+  - `backend/src/config/businessType.ts` — `FEATURE_FLAG_KEYS` array
+  - `backend/src/modules/recurring-bookings/recurring-bookings.routes.ts` — uses `RECURRING_BOOKING_ENABLED`
+  - `backend/src/jobs/index.ts` — uses `RECURRING_BOOKINGS_ENABLED` (plural)
+  - `backend/src/jobs/index.ts` — uses `REBOOKING_NUDGES_ENABLED`; no code ever uses `REBOOK_REMINDER_ENABLED`
+  - `backend/src/modules/forms/forms.routes.ts` — uses `INTAKE_FORMS_ENABLED`; no code ever uses `FORMS_ENABLED`
+  - `backend/src/modules/payments/payments.schema.ts` — comment references `TIPS_ENABLED`; no code enforces it; `TIP_COLLECTION_ENABLED` also exists but is also never enforced
+- **What's wrong:** `FEATURE_FLAG_KEYS` contains **four legacy/duplicate pairs** where two distinct keys cover the same functional area but different code paths use different keys:
+  1. `RECURRING_BOOKING_ENABLED` (route) vs `RECURRING_BOOKINGS_ENABLED` (job) — toggling the route key does not affect the job worker registration and vice versa.
+  2. `REBOOK_REMINDER_ENABLED` (FEATURE_FLAG_KEYS only — never used) vs `REBOOKING_NUDGES_ENABLED` (jobs/index.ts).
+  3. `TIP_COLLECTION_ENABLED` (FEATURE_FLAG_KEYS only — never used) vs `TIPS_ENABLED` (FEATURE_FLAG_KEYS only — never enforced either; mentioned only in a schema comment).
+  4. `FORMS_ENABLED` (FEATURE_FLAG_KEYS only — never used) vs `INTAKE_FORMS_ENABLED` (forms.routes.ts).
+- **Impact:** High — a SUPER_ADMIN toggling `RECURRING_BOOKING_ENABLED` to `false` in the Control Centre blocks the API routes but the BullMQ recurring-booking job worker continues running (it checks `RECURRING_BOOKINGS_ENABLED`). Symmetrically, disabling `RECURRING_BOOKINGS_ENABLED` stops the worker but leaves the API live. Both must be in sync for the feature to behave correctly.
+- **Regression risk:** Medium — the mismatch pre-dates Phase 1; all defaults are `true` so the divergence is silent in production unless someone explicitly disables one flag.
+- **Recommended fix:** (1) Pick one canonical key per feature and remove the duplicate from `FEATURE_FLAG_KEYS` and all `getDefaultFlags` blocks. (2) Update all call sites to the canonical key. Suggested resolutions: use `RECURRING_BOOKINGS_ENABLED` everywhere (rename route call site); use `REBOOKING_NUDGES_ENABLED` everywhere (remove `REBOOK_REMINDER_ENABLED`); use `INTAKE_FORMS_ENABLED` everywhere (remove `FORMS_ENABLED`); pick `TIPS_ENABLED` and add enforcement (see AUDIT-015).
+
+---
+
+### AUDIT-013 — ~16 Orphan Feature Flag Keys — Toggleable in Control Centre but Never Enforced at Runtime
+
+- **Severity:** 🟠 High
+- **Files:**
+  - `backend/src/config/businessType.ts` — `FEATURE_FLAG_KEYS` array (all entries below)
+- **What's wrong:** The following flag keys exist in `FEATURE_FLAG_KEYS`, have per-business-type defaults, appear in the SUPER_ADMIN Control Centre, and can be toggled — but **zero routes, services, middleware, or jobs** ever call `requireFeature()` or `isFeatureEnabled()` with these keys:
+
+  | Flag key | Expected behaviour |
+  |---|---|
+  | `GDPR_ENABLED` | Consent capture on booking/registration |
+  | `DAILY_REPORT_ENABLED` | Automated daily/weekly summary email |
+  | `COVERS_MANAGEMENT_ENABLED` | Max covers per slot pacing |
+  | `PARTY_SIZE_ENABLED` | Ask party size on reservation |
+  | `SPECIAL_REQUESTS_ENABLED` | Free-text special requests |
+  | `PORTFOLIO_ENABLED` | Artist portfolio visible on site |
+  | `GALLERY_UPLOAD_ENABLED` | Gallery image uploads via CRM |
+  | `LEAD_SCORING_ENABLED` | AI/rule-based lead score in CRM |
+  | `ICS_DOWNLOAD_ENABLED` | Customer `.ics` download link |
+  | `DEPOSIT_PARTIAL_ENABLED` | Configurable-% deposit mode |
+  | `PRICE_LIST_VISIBLE` | Show prices publicly |
+  | `INSTANT_BOOKING_ENABLED` | Skip lead form — direct book |
+  | `MANNEQUIN_ENABLED` | 3-D body placement on inquiry |
+  | `REFERENCE_IMAGES_ENABLED` | Customer uploads reference photos |
+  | `REBOOK_REMINDER_ENABLED` | Automated rebook reminder (duplicate — see AUDIT-012) |
+  | `TIP_COLLECTION_ENABLED` | Tip collection (duplicate — see AUDIT-015) |
+  | `FORMS_ENABLED` | Intake/consent forms (duplicate — see AUDIT-012) |
+
+- **Impact:** High — the Control Centre gives SUPER_ADMIN a false impression of control. Toggling these 17 flags does nothing. If a business deactivates `LEAD_SCORING_ENABLED`, `PARTY_SIZE_ENABLED`, etc., those features remain active. This is a UX/trust problem for the product.
+- **Regression risk:** None — flags are currently all defaulted appropriately; no code relies on them being enforced.
+- **Recommended fix:** For each orphan flag, either (a) add the enforcement gate (requireFeature call in the appropriate route or isFeatureEnabled check in the service/schema), or (b) remove the flag from `FEATURE_FLAG_KEYS` and the defaults if the feature is not yet implemented. Prioritise flags tied to high-visibility UX (PARTY_SIZE, PORTFOLIO, INSTANT_BOOKING) and compliance (GDPR).
+
+---
+
+### AUDIT-014 — `notification-dispatcher.ts` and `reminders.queue.ts` Call `isFeatureEnabled()` Without tenantId
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/lib/notification-dispatcher.ts` — `resolveChannels()` at lines 58–60
+  - `backend/src/modules/reminders/reminders.queue.ts` — `enqueueBookingReminder` at lines 210, 279
+- **What's wrong:** `resolveChannels(channel)` checks `isFeatureEnabled('WHATSAPP_CONTACT_ENABLED')`, `isFeatureEnabled('SMS_REMINDERS_ENABLED')`, and `isFeatureEnabled('EMAIL_REMINDERS_ENABLED')` without passing `tenantId`. The `NotificationPayload` interface already carries `tenantId?: string` but it is not threaded into `resolveChannels`. The result is that all per-tenant flag overrides for notification channels are ignored — every tenant's notification dispatch uses the global (or first-matched) DB row. Similarly, `enqueueBookingReminder` calls `isFeatureEnabled('EMAIL_REMINDERS_ENABLED')` without tenant context.
+- **Impact:** Medium — if a specific tenant has `WHATSAPP_CONTACT_ENABLED=false` (override row in DB) their customers still receive WhatsApp messages because the dispatcher uses the global flag value. Conversely, a globally-disabled channel cannot be enabled for a single tenant.
+- **Regression risk:** Low — the bug pre-dates per-tenant flag support; behaviour is unchanged from before AUDIT-001 was fixed. It only matters once per-tenant overrides are actively used.
+- **Recommended fix:** Change `resolveChannels(channel: ChannelPreference)` to `resolveChannels(channel: ChannelPreference, tenantId?: string | null)` and pass `tenantId` to each `isFeatureEnabled()` call. Thread `payload.tenantId` from `dispatchNotification` → `resolveChannels`. Apply the same fix to `enqueueBookingReminder` — add `tenantId?: string | null` to `EnqueueReminderParams` and pass it to `isFeatureEnabled`.
+
+---
+
+### AUDIT-015 — `TIPS_ENABLED` Feature Flag Has No Runtime Enforcement Point
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/modules/payments/payments.service.ts` — `createPaymentIntent()` (lines 155–170)
+  - `backend/src/modules/payments/payments.schema.ts` — schema comment only (line 26)
+- **What's wrong:** The `TIPS_ENABLED` flag is defined in `FEATURE_FLAG_KEYS` (and `TIP_COLLECTION_ENABLED` is the legacy duplicate). `payments.schema.ts` comments that `tipAmount` is "Added to the PaymentIntent amount when TIPS_ENABLED", but `createPaymentIntent()` in `payments.service.ts` unconditionally processes any non-zero `tipAmount` from the request body — it never calls `isFeatureEnabled('TIPS_ENABLED')`. A SUPER_ADMIN toggling `TIPS_ENABLED` to `false` has no effect; tip collection remains active.
+- **Impact:** Medium — tips can be collected even when the flag is off, which may cause accounting discrepancies for businesses that use the Control Centre to disable tip collection (e.g., switching business model).
+- **Regression risk:** None — tips are currently processed correctly; this is a missing feature-gate, not a data-integrity regression.
+- **Recommended fix:** In `createPaymentIntent()`, check `await isFeatureEnabled('TIPS_ENABLED', tenantId)` before processing `data.tipAmount`. If the flag is off, ignore `tipAmount` (set `tipPence = 0`) and optionally return a warning in the response. Remove `TIP_COLLECTION_ENABLED` as a duplicate (see AUDIT-012).
+
+---
+
+### AUDIT-016 — Background Jobs Registered Once at Startup — Feature Flag Toggles Take No Effect Until Restart
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/jobs/index.ts` — `registerAllJobs()`
+  - `backend/src/jobs/birthday.job.ts`, `campaign.job.ts`, `rebook-nudge.job.ts`, `recurring-booking.job.ts`, `no-show.job.ts`, `waitlist-match.job.ts`
+- **What's wrong:** `registerAllJobs()` is called once at server startup and checks each feature flag exactly once to decide whether to start BullMQ workers/queues. If a SUPER_ADMIN later toggles `BIRTHDAY_AUTOMATION_ENABLED`, `CAMPAIGNS_ENABLED`, `REBOOKING_NUDGES_ENABLED`, `RECURRING_BOOKINGS_ENABLED`, `NO_SHOW_AUTOMATION_ENABLED`, or `WAITING_LIST_ENABLED` via the Control Centre: (a) toggling OFF does not stop the already-running worker — it continues consuming jobs, (b) toggling ON does not start a new worker — no jobs are processed until the next server restart. The AI suggestion worker (`ai-suggestion.job.ts`) correctly re-checks the flag inside each job execution, but the others do not.
+- **Impact:** Medium — this is an operational gap, not a data-corruption risk. A SUPER_ADMIN may believe a job has been stopped when it is still running (or started when it hasn't). The 60-second Redis cache means any flag check inside a job loop would re-read the flag quickly.
+- **Regression risk:** None.
+- **Recommended fix:** Two options: (1) Mirror the `ai-suggestion.job.ts` pattern — add a per-job `isFeatureEnabled` check at the top of each worker's `process()` function so the job no-ops when the flag is off, and document that ON→job requires restart; (2) More robust: add a post-flag-update hook in `admin.service.ts` `updateFeatureFlag()` that triggers worker start/stop (hard to do cleanly with BullMQ). Option 1 is simpler and prevents unwanted job execution without needing to manage live worker lifecycle.
+
+---
+
+### AUDIT-017 — CAPTCHA and Rate-Limit Parameters Are `.env`-Only — Not CRM-Editable
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/config/index.ts` — `CAPTCHA_ENABLED`, `CAPTCHA_PROVIDER`, `CAPTCHA_SECRET`, `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX`
+  - `backend/src/middleware/captcha.ts`
+  - `backend/src/app.ts` — global rate limiter
+- **What's wrong:** CAPTCHA enforcement (`CAPTCHA_ENABLED=true/false`) and the global rate-limit parameters are read once from environment variables at process start and are fixed for the lifetime of the server. The Control Centre (`/api/admin/feature-flags`) has no way to toggle CAPTCHA on/off at runtime, meaning enabling CAPTCHA in production requires a deployment/restart. For a multi-tenant SaaS product, operators typically want to enable CAPTCHA for specific tenants under bot attack without redeploying.
+- **Impact:** Medium — workable but degrades real-world operational agility; CAPTCHA changes require server restarts.
+- **Regression risk:** None.
+- **Recommended fix:** Add `CAPTCHA_ENABLED` as a `FeatureFlagKey` (or separate it into a well-named `PUBLIC_CAPTCHA_ENABLED` flag) so it can be toggled from the Control Centre like other feature flags. The `requireCaptcha` middleware can check `isFeatureEnabled('PUBLIC_CAPTCHA_ENABLED')` instead of the env var. Rate-limit parameters can remain env-only (they are infrastructure-level), but document this explicitly.
+
+---
+
+### AUDIT-018 — `reminders.queue.ts` and Several Background Job Files Use Global (Non-Tenant) Feature Flag Checks
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/modules/reminders/reminders.queue.ts` (lines 210, 279)
+  - `backend/src/jobs/birthday.job.ts` (no per-tenant isFeatureEnabled check inside job processing)
+  - `backend/src/jobs/no-show.job.ts` (no per-tenant isFeatureEnabled check)
+  - `backend/src/jobs/rebook-nudge.job.ts` (no per-tenant isFeatureEnabled check)
+- **What's wrong:** Background jobs that process individual bookings/customers do not perform per-tenant feature flag checks when executing. A job started for Tenant A's `BIRTHDAY_AUTOMATION_ENABLED` flag being `true` will also process customers from Tenant B, even if Tenant B has `BIRTHDAY_AUTOMATION_ENABLED=false` in a per-tenant override row. The jobs query all records matching a time window without filtering by tenant-flag pairs.
+- **Impact:** Medium — per-tenant feature override system is partially bypassed for background automations. If a tenant disables a job-driven feature (e.g., birthday automation), they may still receive automated messages because the global worker processes all tenants.
+- **Regression risk:** Low — per-tenant overrides are a new capability; before AUDIT-001 all flag checks were global anyway.
+- **Recommended fix:** In each job's per-record processing loop, extract the record's `tenantId` and call `await isFeatureEnabled(flagKey, tenantId)` before processing that record. This ensures per-tenant overrides are respected at job execution time, not just at worker startup.
+
+---
+
+### B) Feature Flag System "Control Centre" Completeness — Explicit Assessment
+
+**1. Can Super Admin globally enable/disable every feature?**
+Mostly yes — all flags are accessible via `PATCH /api/admin/feature-flags/:key` (SUPER_ADMIN only). However, 17 orphan flags (AUDIT-013) and 4 duplicate-key mismatches (AUDIT-012) mean that toggling ~21 of the ~85 defined flags has zero runtime effect.
+
+**2. Can Super Admin set per-tenant overrides and do they actually take effect everywhere?**
+Partially. The DB model and admin API correctly support per-tenant override rows (AUDIT-001..004 fixed). However, per-tenant overrides are **not respected** in: (a) notification dispatch (`notification-dispatcher.ts` — AUDIT-014), (b) reminder enqueueing (`reminders.queue.ts` — AUDIT-014/018), (c) background job per-record processing (AUDIT-018).
+
+**3. Are there any remaining `getDefaultFlags()` or other static-default checks?**
+`getDefaultFlags()` is now only called as a **fallback** inside `requireFeature.ts` when both Redis and the DB are unavailable (lines 85, 93). This is correct and intentional. No production-path code calls `getDefaultFlags()` unconditionally.
+
+**4. Are enforcement points consistent?**
+- Middleware `requireFeature`: ✅ All feature-gated route modules use it correctly (45+ usages found).
+- Service-level `isFeatureEnabled`: ✅ Used in bookings, leads, reminders, reviews, calendar, whatsapp, AI job.
+- Job registration: ✅ `jobs/index.ts` checks flags at startup; ❌ no per-job re-check for most workers (AUDIT-016/018).
+- Background processors: ❌ Per-tenant override not applied during per-record processing (AUDIT-018).
+
+**5. Cache correctness**
+- Cache keys are now tenant-scoped: `feature:{flag}:{tenantId||'global'}` ✅ (AUDIT-007 fixed).
+- TTL is 60 seconds — sensible for a feature-flag system ✅.
+- No cross-tenant bleed: ✅ (per-tenant scope key isolates tenant-specific values).
+
+---
+
+### C) CRM Manageability / Admin Editability — Assessment
+
+| Area | Status | Notes |
+|---|---|---|
+| Business settings (timezone, currency, deposit, cancellation policy) | ✅ CRM-editable | `PATCH /api/settings` (correctly scoped); `PATCH /api/admin/settings` broken (AUDIT-011) |
+| Services & categories | ✅ CRM-editable | Full CRUD at `/api/services` (SERVICE_MENU_ENABLED gate) |
+| Artists/staff | ✅ CRM-editable | CRUD at `/api/artists` + `/api/admin/artists` |
+| Artist availability & breaks | ✅ CRM-editable | `/api/availability` (CRUD) |
+| Staff rota / shifts | ✅ CRM-editable | `/api/rota` (ROTA_ENABLED gate) |
+| Pricing rules | ✅ CRM-editable | `/api/pricing-rules` CRUD (DYNAMIC_PRICING_ENABLED gate) |
+| Locations | ✅ CRM-editable | `/api/locations` CRUD (MULTI_LOCATION_ENABLED gate) |
+| Email templates | ✅ CRM-editable | `/api/notifications` + `/api/email-templates` CRUD |
+| WhatsApp templates | ✅ CRM-editable | `/api/whatsapp-templates` CRUD |
+| SMS templates | ✅ CRM-editable | `/api/sms-templates` CRUD |
+| Roles & permissions | ✅ CRM-editable | `/api/roles` CRUD |
+| Feature flags (global) | ✅ CRM-editable | `PATCH /api/admin/feature-flags/:key` (SUPER_ADMIN) |
+| Feature flags (per-tenant) | ✅ CRM-editable | `PATCH /api/admin/feature-flags/:key?tenantId=X` (SUPER_ADMIN) |
+| Packages & memberships | ✅ CRM-editable | `/api/packages`, `/api/memberships` CRUD |
+| Loyalty rules | ✅ CRM-editable | `/api/loyalty` CRUD |
+| Gift cards | ✅ CRM-editable | `/api/gift-cards` CRUD |
+| Products / inventory | ✅ CRM-editable | `/api/products` CRUD (INVENTORY_ENABLED gate) |
+| Sessions / classes | ✅ CRM-editable | `/api/sessions` CRUD (GROUP_BOOKING_ENABLED gate) |
+| Public booking widget toggle | ✅ CRM-editable | Via `BOOKING_ENABLED` + `PUBLIC_BOOKING_ENABLED` flags |
+| Tenant provisioning | ✅ CRM-editable | `/api/tenants` CRUD (SUPER_ADMIN) |
+| CAPTCHA enforcement | ❌ `.env`-only | `CAPTCHA_ENABLED` env var — requires restart (AUDIT-017) |
+| Rate limit parameters | ❌ `.env`-only | `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX` — infra level, acceptable |
+| Calendar OAuth credentials | ❌ Per-artist flow only | No unified admin view; per-artist via `/api/calendar` connect flows |
+| Stripe API keys | ❌ `.env`-only | Appropriate for security; no per-tenant payment gateway config |
+| Background job schedules | ❌ `.env`-only | No DB-configurable cron expressions; job timing is hardcoded |
+| Studio name in notification templates | ⚠️ Mixed | `config.STUDIO_NAME` (env) used in some job templates instead of `StudioSettings.studioName` (DB) |
+
+---
+
+### D) Security & Compliance — Assessment
+
+| Area | Status | Notes |
+|---|---|---|
+| JWT auth (access + refresh) | ✅ | HS256, 15 min access, 7 day refresh, jti revocation via Redis |
+| SUPER_ADMIN null tenantId | ✅ | No crashes found; `listUsers`, `listArtistsAdmin`, `listFeatureFlags` handle null correctly |
+| Logging safety | ✅ | Request logger logs method/path/status/duration/IP only; no body/headers in logs |
+| PII in logs | ✅ | Email and phone masked in notification-dispatcher logs (`'***'`); password-reset email logged as `{ email }` only (acceptable) |
+| Rate limiting | ✅ | Global limiter + stricter limiters on `/api/capture` (5/15min) and `/api/public/*/bookings` (5/15min) |
+| CAPTCHA | ✅ | `requireCaptcha` middleware on public booking POST; ⚠️ env-only toggle (AUDIT-017) |
+| Stripe webhook signature | ✅ | `stripe.webhooks.constructEvent()` used; raw body preserved on `/api/payments/webhook` |
+| Outgoing webhook secret | ✅ | 32-byte cryptographic secret per webhook; secret returned only on creation (one-time reveal pattern) |
+| Bcrypt cost | ✅ | Cost factor 12; timing-safe dummy hash for non-existent users |
+| CORS | ✅ | `ALLOWED_ORIGINS` allowlist; `credentials: true`; `SameSite=Strict` on refresh token cookie |
+| Prisma cross-tenant leakage | ✅ (with caveat) | All major modules correctly scope queries to tenantId; admin.service.ts StudioSettings is the exception (AUDIT-011) |
+| Multi-tenant bypass via null tenantId | ✅ | Post AUDIT-006/015 fixes: all critical tenant checks use strict inequality (`!==`) not `&&` pattern |
+
+---
+
+> **Ultra Audit Summary:**
+> - **New findings: AUDIT-011 through AUDIT-018** (8 total)
+> - **Highest severity: 🔴 Critical** — AUDIT-011 (`admin.service.ts` StudioSettings missing tenant scoping)
+> - **🔴 Critical: 1** (AUDIT-011)
+> - **🟠 High: 2** (AUDIT-012, AUDIT-013)
+> - **🟡 Medium: 5** (AUDIT-014, AUDIT-015, AUDIT-016, AUDIT-017, AUDIT-018)
+>
+> **Can every feature be turned on/off in Control Centre?** **Partially** — ~64 of ~85 flags are correctly enforced; ~17 orphan flags (AUDIT-013) and 4 duplicate-key mismatches (AUDIT-012) mean roughly 25% of the flags have no runtime effect.
+>
+> **Is everything manageable/editable from CRM?** **Mostly yes** — all core operational data (services, artists, settings, templates, pricing, packages, memberships, locations, sessions, feature flags) is CRM-editable. Key gaps: CAPTCHA toggle requires restart (AUDIT-017); StudioSettings via `/api/admin/settings` is broken (AUDIT-011); some notification templates use `config.STUDIO_NAME` (env) instead of DB-backed `studioName`.
+
+---
+
 # Phase 1–3 Implementation File Register (AUTO-GENERATED)
 
 > Generated: 2026-04-14 by post-phase-3 verification agent.
