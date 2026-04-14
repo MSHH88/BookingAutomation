@@ -18,6 +18,7 @@ import { requireFeature } from '../../middleware/requireFeature';
 import { validate }       from '../../middleware/validate';
 import { AppError }       from '../../errors/AppError';
 import { success }        from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import * as pushService   from './push.service';
 
 const router = Router();
@@ -71,7 +72,7 @@ router.post(
   async (req, res, next) => {
     try {
       const userId   = req.user!.id;
-      const tenantId = req.user!.tenantId;
+      const tenantId = extractTenantId(req);
 
       if (!tenantId) {
         throw new AppError(403, 'FORBIDDEN', 'tenantId required for push subscriptions');
@@ -101,7 +102,7 @@ router.delete(
   async (req, res, next) => {
     try {
       const userId   = req.user!.id;
-      const tenantId = req.user!.tenantId;
+      const tenantId = extractTenantId(req);
 
       if (!tenantId) {
         throw new AppError(403, 'FORBIDDEN', 'tenantId required for push subscriptions');

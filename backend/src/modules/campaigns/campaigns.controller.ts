@@ -8,6 +8,8 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as campaignsService from './campaigns.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
+import { AppError } from '../../errors/AppError';
 import type {
   ListCampaignsQuery,
   CreateCampaignBody,
@@ -26,7 +28,8 @@ export async function listCampaigns(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const query    = req.query as unknown as ListCampaignsQuery;
     const result   = await campaignsService.listCampaigns(tenantId, query);
     res.json(paginated(result.data, result.meta));
@@ -45,7 +48,8 @@ export async function getCampaign(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { id }   = req.params as { id: string };
     const record   = await campaignsService.getCampaign(tenantId, id);
     res.json(success(record));
@@ -64,7 +68,8 @@ export async function createCampaign(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const body     = req.body as CreateCampaignBody;
     const record   = await campaignsService.createCampaign(tenantId, body);
     res.status(201).json(success(record));
@@ -83,7 +88,8 @@ export async function updateCampaign(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateCampaignBody;
     const record   = await campaignsService.updateCampaign(tenantId, id, body);
@@ -103,7 +109,8 @@ export async function getCampaignStats(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { id }   = req.params as { id: string };
     const stats    = await campaignsService.getCampaignStats(tenantId, id);
     res.json(success(stats));

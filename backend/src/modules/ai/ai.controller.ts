@@ -6,6 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as svc from './ai.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   ListAISuggestionsQuery,
   AISuggestionIdParams,
@@ -21,7 +22,7 @@ export async function listSuggestions(
 ): Promise<void> {
   try {
     const query  = req.query as unknown as ListAISuggestionsQuery;
-    const result = await svc.listSuggestions(req.user!.tenantId ?? null, query);
+    const result = await svc.listSuggestions(extractTenantId(req), query);
     res.json(paginated(result.items, {
       total:      result.total,
       page:       result.page,
@@ -42,7 +43,7 @@ export async function getSuggestion(
 ): Promise<void> {
   try {
     const { id } = req.params as unknown as AISuggestionIdParams;
-    const result = await svc.getSuggestion(req.user!.tenantId ?? null, id);
+    const result = await svc.getSuggestion(extractTenantId(req), id);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -59,7 +60,7 @@ export async function updateSuggestion(
   try {
     const { id } = req.params as unknown as AISuggestionIdParams;
     const body   = req.body  as unknown as UpdateAISuggestionBody;
-    const result = await svc.updateSuggestion(req.user!.tenantId ?? null, id, body);
+    const result = await svc.updateSuggestion(extractTenantId(req), id, body);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -75,7 +76,7 @@ export async function sendSuggestion(
 ): Promise<void> {
   try {
     const { id } = req.params as unknown as AISuggestionIdParams;
-    await svc.sendSuggestion(req.user!.tenantId ?? null, id);
+    await svc.sendSuggestion(extractTenantId(req), id);
     res.json(success({ sent: true }));
   } catch (err) {
     next(err);
@@ -91,7 +92,7 @@ export async function dismissSuggestion(
 ): Promise<void> {
   try {
     const { id } = req.params as unknown as AISuggestionIdParams;
-    await svc.dismissSuggestion(req.user!.tenantId ?? null, id);
+    await svc.dismissSuggestion(extractTenantId(req), id);
     res.sendStatus(204);
   } catch (err) {
     next(err);

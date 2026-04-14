@@ -20,6 +20,7 @@ import { Request, Response, NextFunction } from 'express';
 import { success } from '../../utils/apiResponse';
 import * as svc    from './webhooks.service';
 import type {
+import { extractTenantId } from '../../utils/extractTenantId';
   ListWebhooksQuery,
   CreateWebhookBody,
   UpdateWebhookBody,

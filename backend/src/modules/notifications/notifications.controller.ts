@@ -12,6 +12,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as notificationsService from './notifications.service';
 import { success, paginated }    from '../../utils/apiResponse';
 import type {
+import { extractTenantId } from '../../utils/extractTenantId';
   ListTemplatesQuery,
   CreateTemplateBody,
   UpdateTemplateBody,

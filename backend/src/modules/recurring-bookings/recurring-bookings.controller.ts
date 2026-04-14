@@ -8,6 +8,8 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as recurringService from './recurring-bookings.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
+import { AppError } from '../../errors/AppError';
 import type {
   ListRecurringQuery,
   CreateRecurringBody,
@@ -26,7 +28,8 @@ export async function listRecurringBookings(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const query    = req.query as unknown as ListRecurringQuery;
     const result   = await recurringService.listRecurringBookings(tenantId, query);
     res.json(paginated(result.data, result.meta));
@@ -45,7 +48,8 @@ export async function getRecurringBooking(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { id }   = req.params as { id: string };
     const record   = await recurringService.getRecurringBooking(tenantId, id);
     res.json(success(record));
@@ -64,7 +68,8 @@ export async function createRecurringBooking(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const body     = req.body as CreateRecurringBody;
     const record   = await recurringService.createRecurringBooking(tenantId, body);
     res.status(201).json(success(record));
@@ -83,7 +88,8 @@ export async function updateRecurringBooking(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateRecurringBody;
     const record   = await recurringService.updateRecurringBooking(tenantId, id, body);
@@ -103,7 +109,8 @@ export async function deactivateRecurringBooking(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { id }   = req.params as { id: string };
     const record   = await recurringService.deactivateRecurringBooking(tenantId, id);
     res.json(success(record));

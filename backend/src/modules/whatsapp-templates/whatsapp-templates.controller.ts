@@ -10,6 +10,8 @@
 import { Request, Response, NextFunction } from 'express';
 
 import * as templateService from './whatsapp-templates.service';
+import { extractTenantId } from '../../utils/extractTenantId';
+import { AppError } from '../../errors/AppError';
 import { success, paginated } from '../../utils/apiResponse';
 import type {
   ListWhatsAppTemplatesQuery,
@@ -31,7 +33,8 @@ export async function listTemplates(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId as string;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const query = req.query as unknown as ListWhatsAppTemplatesQuery;
     const result = await templateService.listTemplates(tenantId, query);
     res.json(paginated(result.data, result.meta));
@@ -53,7 +56,8 @@ export async function getTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId as string;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { key } = req.params;
     const template = await templateService.getTemplateByKey(tenantId, key);
     res.json(success(template));
@@ -75,7 +79,8 @@ export async function updateTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId as string;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { key } = req.params;
     const body = req.body as UpdateWhatsAppTemplateBody;
     const template = await templateService.updateTemplate(tenantId, key, body);
@@ -98,7 +103,8 @@ export async function previewTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId as string;
+    const tenantId = extractTenantId(req);
+    if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
     const { key } = req.params;
     const { variables } = req.body as PreviewWhatsAppTemplateBody;
     const preview = await templateService.previewTemplate(tenantId, key, variables);

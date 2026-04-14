@@ -5,6 +5,12 @@
  * with a 60-second Redis cache. Falls back to static per-business-type
  * defaults when neither is available.
  *
+ * Per-tenant override support:
+ *   When tenantId is provided, the lookup first checks for a tenant-specific
+ *   override row ({ key, tenantId }), then falls back to the global row
+ *   ({ key, tenantId: null }), then to static defaults.  Cache keys are
+ *   tenant-scoped so TenantA overrides never bleed into TenantB.
+ *
  * Usage:
  *   router.post('/leads', requireFeature('LEAD_CAPTURE_ENABLED'), ctrl.create);
  *   router.get('/waitlist', requireFeature('WAITING_LIST_ENABLED'), ctrl.list);
@@ -17,6 +23,7 @@ import { AppError } from '../errors/AppError';
 import type { FeatureFlagKey } from '../config/businessType';
 import { getDefaultFlags, BUSINESS_TYPES, activeBusinessType } from '../config/businessType';
 import type { BusinessType } from '../config/businessType';
+import { extractTenantId } from '../utils/extractTenantId';
 
 const CACHE_TTL_SECONDS = 60;
 
@@ -24,10 +31,25 @@ const CACHE_TTL_SECONDS = 60;
  * Looks up a feature flag value, using Redis as a 60-second cache
  * and the DB (FeatureFlag table) as the source of truth.
  * Falls back to static defaults if the DB row does not exist.
+ *
+ * When tenantId is provided the lookup is:
+ *   1. Redis cache   — key: `feature:{flag}:{tenantId}` (tenant-scoped)
+ *   2. DB tenant row — { key: flag, tenantId }
+ *   3. DB global row — { key: flag, tenantId: null }
+ *   4. Static defaults
+ *
+ * Without tenantId:
+ *   1. Redis cache   — key: `feature:{flag}:global`
+ *   2. DB global row — { key: flag, tenantId: null }
+ *   3. Static defaults
  */
-export async function isFeatureEnabled(flag: FeatureFlagKey): Promise<boolean> {
+export async function isFeatureEnabled(
+  flag: FeatureFlagKey,
+  tenantId?: string | null,
+): Promise<boolean> {
   const redis = getRedis();
-  const cacheKey = `feature:${flag}`;
+  const scopeKey = tenantId ?? 'global';
+  const cacheKey = `feature:${flag}:${scopeKey}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -38,10 +60,20 @@ export async function isFeatureEnabled(flag: FeatureFlagKey): Promise<boolean> {
     // Redis unavailable — fall through to DB
   }
 
-  // DB lookup — use findFirst since key is no longer a standalone unique field
   let enabled: boolean;
   try {
-    const row = await prisma.featureFlag.findFirst({ where: { key: flag } });
+    let row = null;
+
+    // Check per-tenant override first (only when tenantId is known)
+    if (tenantId) {
+      row = await prisma.featureFlag.findFirst({ where: { key: flag, tenantId } });
+    }
+
+    // Fall back to global row if no tenant-specific override was found
+    if (row === null) {
+      row = await prisma.featureFlag.findFirst({ where: { key: flag, tenantId: null } });
+    }
+
     if (row !== null) {
       enabled = row.isEnabled;
     } else {
@@ -61,7 +93,7 @@ export async function isFeatureEnabled(flag: FeatureFlagKey): Promise<boolean> {
     enabled = getDefaultFlags(type)[flag] ?? false;
   }
 
-  // Cache the result
+  // Cache the result using the tenant-scoped key
   try {
     await getRedis().setex(cacheKey, CACHE_TTL_SECONDS, enabled ? '1' : '0');
   } catch {
@@ -74,11 +106,15 @@ export async function isFeatureEnabled(flag: FeatureFlagKey): Promise<boolean> {
 /**
  * Returns an async Express middleware that rejects the request with 503 when
  * the named feature flag is disabled.
+ *
+ * Tenant context is extracted from the authenticated user (if present) so
+ * per-tenant overrides are respected automatically.
  */
 export function requireFeature(flag: FeatureFlagKey) {
-  return async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      const enabled = await isFeatureEnabled(flag);
+      const tenantId = extractTenantId(req);
+      const enabled = await isFeatureEnabled(flag, tenantId);
       if (!enabled) {
         next(new AppError(503, 'FEATURE_DISABLED', `Feature '${flag}' is not enabled`));
         return;

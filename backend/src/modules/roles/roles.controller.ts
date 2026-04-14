@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Role } from '@prisma/client';
 
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import * as svc from './roles.service';
 import type {
   ListRoleUsersQuery,
@@ -28,7 +29,7 @@ export async function listUsers(
     const result = await svc.listUsers(
       req.query as unknown as ListRoleUsersQuery,
       req.user!.role as Role,
-      req.user!.tenantId,
+      extractTenantId(req),
     );
     res.json(paginated(result.data, result.meta));
   } catch (err) {
@@ -51,7 +52,7 @@ export async function updateUserRole(
       id,
       req.body as UpdateUserRoleBody,
       req.user!.role as Role,
-      req.user!.tenantId,
+      extractTenantId(req),
     );
     res.json(success(user));
   } catch (err) {

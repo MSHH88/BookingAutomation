@@ -13,6 +13,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as settingsService from './settings.service';
 import { success } from '../../utils/apiResponse';
 import type { UpdateSettingsBody } from './settings.schema';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 // ─── GET /api/settings ────────────────────────────────────────────────────────
 
