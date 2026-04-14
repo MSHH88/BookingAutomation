@@ -65,7 +65,7 @@ router.post('/login', authLimiter, validate(loginSchema), ctrl.login);
 /** POST /api/auth/refresh — exchange refresh token for new token pair */
 router.post('/refresh', authLimiter, validate(refreshSchema), ctrl.refreshToken);
 
-/** POST /api/auth/forgot-password — generate reset token + queue email */
+/** POST /api/auth/forgot-password — generate reset token and enqueue password reset email */
 router.post('/forgot-password', resetLimiter, validate(forgotPasswordSchema), ctrl.forgotPassword);
 
 /** POST /api/auth/reset-password — validate token, set new password */

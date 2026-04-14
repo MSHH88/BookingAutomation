@@ -164,7 +164,7 @@ export async function logout(
 
 /**
  * POST /api/auth/forgot-password
- * Generates a password reset token and queues a reset email.
+ * Generates a password reset token and enqueues a password reset email via BullMQ.
  * Always returns 200 — no user enumeration.
  */
 export async function forgotPassword(
