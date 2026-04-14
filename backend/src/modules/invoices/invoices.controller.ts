@@ -12,8 +12,8 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as invoicesService from './invoices.service';
 import { success, paginated } from '../../utils/apiResponse';
-import type {
 import { extractTenantId } from '../../utils/extractTenantId';
+import type {
   ListInvoicesQuery,
   MarkPaidBody,
   VoidInvoiceBody,
@@ -38,7 +38,7 @@ export async function listInvoices(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const query    = req.query as ListInvoicesQuery;
     const result   = await invoicesService.listInvoices(tenantId, query);
     res.json(paginated(result.data, result.meta));

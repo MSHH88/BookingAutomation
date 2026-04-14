@@ -11,8 +11,8 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as quotesService from './quotes.service';
 import { success, paginated } from '../../utils/apiResponse';
-import type {
 import { extractTenantId } from '../../utils/extractTenantId';
+import type {
   CreateQuoteBody,
   ListQuotesQuery,
   UpdateQuoteBody,
@@ -37,7 +37,7 @@ export async function createQuote(
     const body      = req.body as CreateQuoteBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const tenantId  = req.user!.tenantId ?? null;
+    const tenantId  = extractTenantId(req);
     const quote     = await quotesService.createQuote(body, actorId, actorRole, tenantId);
     res.status(201).json(success(quote));
   } catch (err) {
@@ -61,7 +61,7 @@ export async function listQuotes(
     const query     = req.query as ListQuotesQuery;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const tenantId  = req.user!.tenantId ?? null;
+    const tenantId  = extractTenantId(req);
     const result    = await quotesService.listQuotes(query, actorId, actorRole, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
@@ -84,7 +84,7 @@ export async function getQuoteById(
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const tenantId  = req.user!.tenantId ?? null;
+    const tenantId  = extractTenantId(req);
     const quote     = await quotesService.getQuoteById(id, actorId, actorRole, tenantId);
     res.json(success(quote));
   } catch (err) {
@@ -154,7 +154,7 @@ export async function acceptQuote(
   try {
     const { id }   = req.params as { id: string };
     const body     = req.body as AcceptQuoteBody;
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const quote    = await quotesService.acceptQuote(id, body, tenantId);
     res.json(success(quote));
   } catch (err) {
@@ -175,7 +175,7 @@ export async function rejectQuote(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const quote    = await quotesService.rejectQuote(id, tenantId);
     res.json(success(quote));
   } catch (err) {

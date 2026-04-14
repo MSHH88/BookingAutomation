@@ -53,7 +53,7 @@ export async function patchSettings(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const body     = req.body as UpdateSettingsBody;
     const settings = await settingsService.updateSettings(tenantId, body);
     res.json(success(settings));

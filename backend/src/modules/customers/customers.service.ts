@@ -35,7 +35,7 @@ import { prisma }       from '../../lib/prisma';
 import { AppError }     from '../../errors/AppError';
 import { paginate, PaginatedResult } from '../../utils/paginate';
 import { logger }       from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import type {
   ListMyBookingsQuery,
   CancelMyBookingBody,
@@ -236,6 +236,7 @@ export async function cancelMyBooking(
       customerId: true,
       status:     true,
       startAt:    true,
+      tenantId:   true,
     },
   });
 
@@ -256,9 +257,7 @@ export async function cancelMyBooking(
   const windowMs     = getCancellationWindowMs();
   const insideWindow = booking.startAt.getTime() - Date.now() < windowMs;
 
-  const flags = getDefaultFlags();
-
-  if (insideWindow && flags.CANCELLATION_FEE_ENABLED) {
+  if (insideWindow && await isFeatureEnabled('CANCELLATION_FEE_ENABLED', booking.tenantId)) {
     // Stub: in Phase 2 this triggers a Stripe charge for the cancellation fee.
     logger.warn('Cancellation fee triggered (stub)', {
       bookingId:  id,

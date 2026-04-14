@@ -40,7 +40,7 @@ import { Queue } from 'bullmq';
 
 import { config }          from '../../config';
 import { logger }          from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -89,6 +89,8 @@ export interface EnqueueReviewParams {
   googleReviewUrl: string;
   artistName?:     string;
   serviceName?:    string;
+  /** Tenant context used for per-tenant feature flag lookup. */
+  tenantId?:       string | null;
   /**
    * Override the default 36-hour delay in milliseconds.
    * Intended for automated tests — do not use in production callers.
@@ -149,8 +151,7 @@ export const reviewQueue = new Queue<ReviewJobData>(REVIEW_QUEUE_NAME, {
  * Called from: bookings.service.ts → completeBooking
  */
 export async function enqueueReviewRequest(params: EnqueueReviewParams): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags['REVIEW_REQUEST_ENABLED']) return;
+  if (!await isFeatureEnabled('REVIEW_REQUEST_ENABLED', params.tenantId)) return;
 
   if (!params.customerEmail) return; // nothing to send
 

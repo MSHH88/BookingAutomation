@@ -36,7 +36,7 @@
  */
 import { AppError }                 from '../../errors/AppError';
 import { logger }                   from '../../utils/logger';
-import { getDefaultFlags }          from '../../config/businessType';
+import { isFeatureEnabled }         from '../../middleware/requireFeature';
 import { sendWhatsAppMessage }      from '../../lib/twilio';
 import { whatsappQueue }            from './whatsapp.queue';
 import type { WhatsAppJobData, WhatsAppJobName } from './whatsapp.queue';
@@ -94,12 +94,13 @@ export interface RestaurantReminderParams {
  * Common guard: returns true when both the customer opt-in flag and the
  * `WHATSAPP_CONTACT_ENABLED` feature flag are active and a valid phone
  * number is present.
+ *
+ * Async because the flag check is DB-backed (with Redis caching).
  */
-function canSend(preferWhatsApp: boolean, phone: string | null): boolean {
+async function canSend(preferWhatsApp: boolean, phone: string | null): Promise<boolean> {
   if (!preferWhatsApp) return false;
   if (!phone)          return false;
-  const flags = getDefaultFlags();
-  return Boolean(flags['WHATSAPP_CONTACT_ENABLED']);
+  return isFeatureEnabled('WHATSAPP_CONTACT_ENABLED');
 }
 
 /**
@@ -138,7 +139,7 @@ async function safeEnqueue(
  * Called from: leads.service.ts → createLead side-effect
  */
 export async function enqueueLeadInquiry(params: LeadInquiryParams): Promise<void> {
-  if (!canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone)) return;
 
   await safeEnqueue('lead-inquiry', {
     to:           params.phone as string,
@@ -160,7 +161,7 @@ export async function enqueueLeadInquiry(params: LeadInquiryParams): Promise<voi
  * Called from: bookings.service.ts → confirmBooking side-effect
  */
 export async function enqueueBookingConfirmed(params: BookingConfirmedParams): Promise<void> {
-  if (!canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone)) return;
 
   const commonData = {
     to:           params.phone as string,
@@ -194,7 +195,7 @@ export async function enqueueBookingConfirmed(params: BookingConfirmedParams): P
  * Called from: bookings.service.ts → completeBooking side-effect
  */
 export async function enqueuePostVisitReview(params: PostVisitReviewParams): Promise<void> {
-  if (!canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone)) return;
   if (!params.googleReviewUrl) return; // skip — broken message if URL is empty
 
   const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
@@ -224,7 +225,7 @@ export async function enqueuePostVisitReview(params: PostVisitReviewParams): Pro
  * Called from: bookings.service.ts → confirmBooking side-effect (restaurant only)
  */
 export async function enqueueRestaurantReminder(params: RestaurantReminderParams): Promise<void> {
-  if (!canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone)) return;
 
   const reminderDelay = new Date(params.startAt).getTime() - Date.now() - 2 * 60 * 60 * 1000;
   if (reminderDelay <= 0) return; // reservation is too close or already past

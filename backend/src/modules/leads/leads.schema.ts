@@ -13,7 +13,7 @@
  */
 import { z } from 'zod';
 
-import { getDefaultFlags } from '../../config/businessType';
+import { activeBusinessType } from '../../config/businessType';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -42,8 +42,10 @@ const phone = z
  * all 6 business types without separate routes.
  */
 function buildCreateLeadSchema() {
-  const flags = getDefaultFlags();
-  const placementRequired = flags['MANNEQUIN_ENABLED'] === true;
+  // MANNEQUIN_ENABLED is determined entirely by business type (tattoo studios only).
+  // This is a startup-time configuration, not a runtime-toggled flag, so we use the
+  // active business type directly rather than an async DB lookup.
+  const placementRequired = activeBusinessType === 'tattoo_studio';
 
   /**
    * Tattoo placement — arbitrary JSON object from the body-map widget.

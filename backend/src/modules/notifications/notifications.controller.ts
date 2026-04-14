@@ -11,8 +11,8 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as notificationsService from './notifications.service';
 import { success, paginated }    from '../../utils/apiResponse';
-import type {
 import { extractTenantId } from '../../utils/extractTenantId';
+import type {
   ListTemplatesQuery,
   CreateTemplateBody,
   UpdateTemplateBody,
@@ -36,7 +36,7 @@ export async function listTemplates(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as ListTemplatesQuery;
     const result   = await notificationsService.listTemplates(tenantId, query);
     res.json(paginated(result.data, result.meta));
@@ -56,7 +56,7 @@ export async function getTemplateById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId  = req.user!.tenantId ?? null;
+    const tenantId  = extractTenantId(req);
     const { id }    = req.params as { id: string };
     const template  = await notificationsService.getTemplateById(tenantId, id);
     res.json(success(template));
@@ -78,7 +78,7 @@ export async function createTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const body     = req.body as CreateTemplateBody;
     const template = await notificationsService.createTemplate(tenantId, body);
     res.status(201).json(success(template));
@@ -100,7 +100,7 @@ export async function updateTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateTemplateBody;
     const template = await notificationsService.updateTemplate(tenantId, id, body);
@@ -123,7 +123,7 @@ export async function deleteTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const template = await notificationsService.deleteTemplate(tenantId, id);
     res.json(success(template));

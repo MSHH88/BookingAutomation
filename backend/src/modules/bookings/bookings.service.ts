@@ -519,6 +519,7 @@ export async function completeBooking(
     googleReviewUrl: config.GOOGLE_REVIEW_URL || '',
     artistName:      booking.artist.user.name,
     serviceName:     booking.services[0]?.service?.name,
+    tenantId:        booking.tenantId,
   }).catch((err) => logger.warn('enqueueReviewRequest failed', { err, bookingId: id }));
 
   // ── WhatsApp — Message 4 (post-visit review, +2 h) ───────────────────────

@@ -24,7 +24,7 @@ import { prisma }         from '../../lib/prisma';
 import { config }         from '../../config';
 import { AppError }       from '../../errors/AppError';
 import { logger }         from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import {
   discoverCalendarUrl,
   createAppleEvent,
@@ -171,8 +171,7 @@ function parseCreds(token: string, calendarUrl: string | null): AppleCredentials
 // ─── syncAppleCreateEvent ─────────────────────────────────────────────────────
 
 export async function syncAppleCreateEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.APPLE_CALENDAR_ENABLED) return;
+  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED')) return;
 
   try {
     const booking = await prisma.booking.findUnique({
@@ -236,8 +235,7 @@ export async function syncAppleCreateEvent(bookingId: string): Promise<void> {
 // ─── syncAppleUpdateEvent ─────────────────────────────────────────────────────
 
 export async function syncAppleUpdateEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.APPLE_CALENDAR_ENABLED) return;
+  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED')) return;
 
   try {
     const booking = await prisma.booking.findUnique({
@@ -301,8 +299,7 @@ export async function syncAppleUpdateEvent(bookingId: string): Promise<void> {
 // ─── syncAppleDeleteEvent ─────────────────────────────────────────────────────
 
 export async function syncAppleDeleteEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.APPLE_CALENDAR_ENABLED) return;
+  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED')) return;
 
   try {
     const booking = await prisma.booking.findUnique({

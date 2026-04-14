@@ -18,9 +18,9 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { success } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import * as svc    from './webhooks.service';
 import type {
-import { extractTenantId } from '../../utils/extractTenantId';
   ListWebhooksQuery,
   CreateWebhookBody,
   UpdateWebhookBody,
@@ -35,7 +35,7 @@ export async function listWebhooks(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const result = await svc.listWebhooks(tenantId, req.query as unknown as ListWebhooksQuery);
     res.json(success(result));
   } catch (err) {
@@ -51,7 +51,7 @@ export async function createWebhook(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const webhook = await svc.createWebhook(tenantId, req.body as CreateWebhookBody);
     // 201 Created — the secret is included in this response only
     res.status(201).json(success(webhook));
@@ -68,7 +68,7 @@ export async function getWebhookById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const webhook = await svc.getWebhookById(tenantId, req.params['id'] as string);
     res.json(success(webhook));
   } catch (err) {
@@ -84,7 +84,7 @@ export async function updateWebhook(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const webhook = await svc.updateWebhook(
       tenantId,
       req.params['id'] as string,
@@ -104,7 +104,7 @@ export async function deleteWebhook(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     await svc.deleteWebhook(tenantId, req.params['id'] as string);
     res.status(204).send();
   } catch (err) {
@@ -120,7 +120,7 @@ export async function listWebhookDeliveries(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const result = await svc.listWebhookDeliveries(
       tenantId,
       req.params['id'] as string,
@@ -140,7 +140,7 @@ export async function testWebhook(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const result = await svc.testWebhook(tenantId, req.params['id'] as string);
     res.json(success(result));
   } catch (err) {
