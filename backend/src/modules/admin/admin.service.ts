@@ -169,7 +169,7 @@ export async function updateStudioSettings(
 /**
  * Returns every feature flag ordered alphabetically by key.
  */
-export async function listFeatureFlags(): Promise<FeatureFlagResult[]> {
+export async function listFeatureFlags(_tenantId?: string | null): Promise<FeatureFlagResult[]> {
   return prisma.featureFlag.findMany({
     select:  featureFlagSelect,
     orderBy: { key: 'asc' },
@@ -210,8 +210,11 @@ export async function updateFeatureFlag(
  */
 export async function listUsers(
   query: ListUsersQuery,
+  tenantId: string | null,
 ): Promise<PaginatedResult<UserListItem>> {
   const where: Prisma.UserWhereInput = {};
+
+  if (tenantId !== null) where.tenantId = tenantId;
 
   if (query.role) {
     where.role = query.role;
@@ -245,13 +248,18 @@ export async function listUsers(
  * @throws AppError 404 — user with the given id does not exist.
  */
 export async function updateUser(
-  id:   string,
-  body: UpdateUserBody,
+  id:       string,
+  body:     UpdateUserBody,
+  tenantId: string | null,
 ): Promise<UserListItem> {
   const user = await prisma.user.findUnique({ where: { id } });
 
   if (!user) {
     throw new AppError(404, 'NOT_FOUND', 'User not found');
+  }
+
+  if (tenantId !== null && user.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'User not in your tenant');
   }
 
   const data: Prisma.UserUpdateInput = {};
@@ -275,12 +283,17 @@ export async function updateUser(
  *  - isActive — "true" / "false" string converted to boolean
  */
 export async function listArtistsAdmin(
-  query: ListArtistsAdminQuery,
+  query:    ListArtistsAdminQuery,
+  tenantId: string | null,
 ): Promise<PaginatedResult<ArtistListItem>> {
   const where: Prisma.ArtistWhereInput = {};
 
   if (query.isActive !== undefined) {
     where.isActive = query.isActive === 'true';
+  }
+
+  if (tenantId !== null) {
+    where.tenantId = tenantId;
   }
 
   return paginate(
@@ -300,13 +313,18 @@ export async function listArtistsAdmin(
  * @throws AppError 404 — artist with the given id does not exist.
  */
 export async function updateArtistAdmin(
-  id:   string,
-  body: UpdateArtistAdminBody,
+  id:       string,
+  body:     UpdateArtistAdminBody,
+  tenantId: string | null,
 ): Promise<ArtistListItem> {
-  const artist = await prisma.artist.findUnique({ where: { id } });
+  const artist = await prisma.artist.findUnique({ where: { id }, include: { user: { select: { tenantId: true } } } });
 
   if (!artist) {
     throw new AppError(404, 'NOT_FOUND', 'Artist not found');
+  }
+
+  if (tenantId !== null && artist.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Artist not in your tenant');
   }
 
   const data: Prisma.ArtistUpdateInput = {};

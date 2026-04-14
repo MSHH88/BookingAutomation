@@ -70,12 +70,13 @@ export async function patchSettings(
  * Returns all feature flags ordered alphabetically by key.
  */
 export async function getFeatureFlags(
-  _req: Request,
+  req:  Request,
   res:  Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const flags = await adminService.listFeatureFlags();
+    const tenantId = req.user?.tenantId ?? null;
+    const flags = await adminService.listFeatureFlags(tenantId);
     res.json(success(flags));
   } catch (err) {
     next(err);
@@ -114,8 +115,9 @@ export async function getUsers(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as ListUsersQuery;
-    const result = await adminService.listUsers(query);
+    const query    = req.query as ListUsersQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await adminService.listUsers(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -132,9 +134,10 @@ export async function patchUser(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as UpdateUserParams;
-    const body   = req.body as UpdateUserBody;
-    const user   = await adminService.updateUser(id, body);
+    const { id }   = req.params as UpdateUserParams;
+    const body     = req.body as UpdateUserBody;
+    const tenantId = req.user?.tenantId ?? null;
+    const user     = await adminService.updateUser(id, body, tenantId);
     res.json(success(user));
   } catch (err) {
     next(err);
@@ -154,8 +157,9 @@ export async function getArtists(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as ListArtistsAdminQuery;
-    const result = await adminService.listArtistsAdmin(query);
+    const query    = req.query as ListArtistsAdminQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await adminService.listArtistsAdmin(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -172,9 +176,10 @@ export async function patchArtist(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as UpdateArtistAdminParams;
-    const body   = req.body as UpdateArtistAdminBody;
-    const artist = await adminService.updateArtistAdmin(id, body);
+    const { id }   = req.params as UpdateArtistAdminParams;
+    const body     = req.body as UpdateArtistAdminBody;
+    const tenantId = req.user?.tenantId ?? null;
+    const artist   = await adminService.updateArtistAdmin(id, body, tenantId);
     res.json(success(artist));
   } catch (err) {
     next(err);
