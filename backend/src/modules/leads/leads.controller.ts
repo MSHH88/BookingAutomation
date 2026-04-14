@@ -65,8 +65,9 @@ export async function listLeads(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as ListLeadsQuery;
-    const result = await leadsService.listLeads(query);
+    const query    = req.query as ListLeadsQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const result   = await leadsService.listLeads(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -86,8 +87,9 @@ export async function exportLeads(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query = req.query as ExportLeadsQuery;
-    const { csv, filename } = await leadsService.exportLeadsCsv(query);
+    const query    = req.query as ExportLeadsQuery;
+    const tenantId = req.user?.tenantId ?? null;
+    const { csv, filename } = await leadsService.exportLeadsCsv(query, tenantId);
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

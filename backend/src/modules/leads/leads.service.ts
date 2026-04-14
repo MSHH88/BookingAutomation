@@ -329,8 +329,10 @@ export async function createLead(
 /**
  * List all leads (ADMIN only) with optional filters and pagination.
  */
-export async function listLeads(query: ListLeadsQuery) {
+export async function listLeads(query: ListLeadsQuery, tenantId: string | null = null) {
   const where: Prisma.LeadWhereInput = {};
+
+  if (tenantId !== null) where.tenantId = tenantId;
 
   if (query.status)       where.status       = query.status;
   if (query.businessType) where.businessType = query.businessType;
@@ -375,8 +377,11 @@ export async function getLeadById(id: string): Promise<LeadDetail> {
  */
 export async function exportLeadsCsv(
   query: ExportLeadsQuery,
+  tenantId: string | null = null,
 ): Promise<{ csv: string; filename: string }> {
   const where: Prisma.LeadWhereInput = {};
+
+  if (tenantId !== null) where.tenantId = tenantId;
 
   if (query.status)       where.status       = query.status;
   if (query.businessType) where.businessType = query.businessType;
@@ -417,6 +422,7 @@ export async function exportLeadsCsv(
       serviceId:        true,
     },
     orderBy: { createdAt: 'desc' },
+    take: 10000,
   });
 
   const headers = [
