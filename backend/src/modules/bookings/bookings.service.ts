@@ -278,31 +278,32 @@ export async function confirmBooking(
     );
   }
 
-  // ── Conflict detection ────────────────────────────────────────────────────
-  // Check CONFIRMED and RESCHEDULED bookings — both represent active time slots.
-  const conflict = await prisma.booking.findFirst({
-    where: {
-      artistId: booking.artistId,
-      status:   { in: ['CONFIRMED', 'RESCHEDULED'] },
-      id:       { not: id },
-      startAt:  { lt: booking.endAt },
-      endAt:    { gt: booking.startAt },
-    },
-    select: { id: true, startAt: true, endAt: true },
-  });
+  // ── Conflict detection + status update (atomic transaction) ────────────────
+  const updated = await prisma.$transaction(async (tx) => {
+    const conflict = await tx.booking.findFirst({
+      where: {
+        artistId: booking.artistId,
+        status:   { in: ['CONFIRMED', 'RESCHEDULED'] },
+        id:       { not: id },
+        startAt:  { lt: booking.endAt },
+        endAt:    { gt: booking.startAt },
+      },
+      select: { id: true, startAt: true, endAt: true },
+    });
 
-  if (conflict) {
-    throw new AppError(
-      409,
-      'SCHEDULING_CONFLICT',
-      `This time slot conflicts with an existing confirmed booking (${conflict.id})`,
-    );
-  }
+    if (conflict) {
+      throw new AppError(
+        409,
+        'SCHEDULING_CONFLICT',
+        `This time slot conflicts with an existing confirmed booking (${conflict.id})`,
+      );
+    }
 
-  const updated = await prisma.booking.update({
-    where:  { id },
-    data:   { status: 'CONFIRMED', confirmedAt: new Date() },
-    select: bookingDetailSelect,
+    return tx.booking.update({
+      where:  { id },
+      data:   { status: 'CONFIRMED', confirmedAt: new Date() },
+      select: bookingDetailSelect,
+    });
   });
 
   // ── Side-effects — log stubs (Phase 2 wires Resend + Google Calendar) ────
@@ -731,37 +732,38 @@ export async function rescheduleBooking(
   const newStart = new Date(body.startAt);
   const newEnd   = new Date(body.endAt);
 
-  // ── Conflict detection on new time slot ───────────────────────────────────
-  // Check CONFIRMED and RESCHEDULED bookings — both represent active time slots.
-  const conflict = await prisma.booking.findFirst({
-    where: {
-      artistId: booking.artistId,
-      status:   { in: ['CONFIRMED', 'RESCHEDULED'] },
-      id:       { not: id },
-      startAt:  { lt: newEnd },
-      endAt:    { gt: newStart },
-    },
-    select: { id: true, startAt: true, endAt: true },
-  });
+  // ── Conflict detection + status update (atomic transaction) ─────────────
+  const updated = await prisma.$transaction(async (tx) => {
+    const conflict = await tx.booking.findFirst({
+      where: {
+        artistId: booking.artistId,
+        status:   { in: ['CONFIRMED', 'RESCHEDULED'] },
+        id:       { not: id },
+        startAt:  { lt: newEnd },
+        endAt:    { gt: newStart },
+      },
+      select: { id: true, startAt: true, endAt: true },
+    });
 
-  if (conflict) {
-    throw new AppError(
-      409,
-      'SCHEDULING_CONFLICT',
-      `The new time slot conflicts with an existing confirmed booking (${conflict.id})`,
-    );
-  }
+    if (conflict) {
+      throw new AppError(
+        409,
+        'SCHEDULING_CONFLICT',
+        `The new time slot conflicts with an existing confirmed booking (${conflict.id})`,
+      );
+    }
 
-  const updated = await prisma.booking.update({
-    where:  { id },
-    data:   {
-      status:          'RESCHEDULED',
-      startAt:         newStart,
-      endAt:           newEnd,
-      rescheduledFrom: id,
-      ...(body.notes !== undefined ? { notes: body.notes } : {}),
-    },
-    select: bookingDetailSelect,
+    return tx.booking.update({
+      where:  { id },
+      data:   {
+        status:          'RESCHEDULED',
+        startAt:         newStart,
+        endAt:           newEnd,
+        rescheduledFrom: id,
+        ...(body.notes !== undefined ? { notes: body.notes } : {}),
+      },
+      select: bookingDetailSelect,
+    });
   });
 
   // ── Side-effects — log stubs (Phase 2 wires Resend + Google Calendar) ────
