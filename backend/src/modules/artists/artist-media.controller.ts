@@ -2,6 +2,7 @@
  * Artist Media controller — Phase 6.4
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type { ArtistMediaType } from '@prisma/client';
 import multer from 'multer';
 
@@ -30,7 +31,7 @@ export async function listMedia(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const media    = await mediaService.listMedia(id, tenantId);
     res.json(success(media));
@@ -55,7 +56,7 @@ export const uploadMedia = [
   },
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const tenantId = req.user!.tenantId!;
+      const tenantId = extractTenantId(req);
       const { id }   = req.params as { id: string };
 
       const file = req.file;
@@ -85,10 +86,10 @@ export async function deleteMedia(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId  = req.user!.tenantId!;
+    const tenantId  = extractTenantId(req);
     const { id, publicId } = req.params as { id: string; publicId: string };
     await mediaService.deleteMedia(id, tenantId, publicId);
-    res.json(success({ deleted: true }));
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
@@ -105,7 +106,7 @@ export async function setProfilePhoto(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const { cloudinaryPublicId } = req.body as { cloudinaryPublicId: string };
 

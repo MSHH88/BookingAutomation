@@ -2,6 +2,7 @@
  * Rota controller — Phase 6.1
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as rotaService from './rota.service';
 import { success }         from '../../utils/apiResponse';
@@ -19,7 +20,7 @@ export async function getWeekRota(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { from } = req.query as WeekRotaQuery;
     const rota = await rotaService.getWeekRota(tenantId, from);
     res.json(success(rota));
@@ -34,7 +35,7 @@ export async function listShifts(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId  = req.user!.tenantId!;
+    const tenantId  = extractTenantId(req);
     const { artistId } = req.query as ListShiftsQuery;
     const shifts = await rotaService.listShifts(tenantId, artistId);
     res.json(success(shifts));
@@ -49,7 +50,7 @@ export async function createShift(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as CreateShiftBody;
     const shift    = await rotaService.createShift(tenantId, body);
     res.status(201).json(success(shift));
@@ -64,7 +65,7 @@ export async function getShift(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const shift    = await rotaService.getShift(id, tenantId);
     res.json(success(shift));
@@ -79,7 +80,7 @@ export async function updateShift(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateShiftBody;
     const shift    = await rotaService.updateShift(id, tenantId, body);
@@ -95,10 +96,10 @@ export async function deleteShift(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     await rotaService.deleteShift(id, tenantId);
-    res.json(success({ deleted: true }));
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
@@ -110,7 +111,7 @@ export async function createOverride(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const body     = req.body as CreateOverrideBody;
     const override = await rotaService.createOverride(id, tenantId, body);

@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as formsService from './forms.service';
 import { success }       from '../../utils/apiResponse';
@@ -18,7 +19,7 @@ export async function listForms(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const forms    = await formsService.listForms(tenantId);
     res.json(success(forms));
   } catch (err) {
@@ -34,7 +35,7 @@ export async function getFormById(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const form     = await formsService.getFormById(id, tenantId);
     res.json(success(form));
   } catch (err) {
@@ -49,7 +50,7 @@ export async function createForm(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const data     = req.body as CreateFormBody;
     const form     = await formsService.createForm(tenantId, data);
     res.status(201).json(success(form));
@@ -66,7 +67,7 @@ export async function updateForm(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const data     = req.body as UpdateFormBody;
     const form     = await formsService.updateForm(id, tenantId, data);
     res.json(success(form));
@@ -83,7 +84,7 @@ export async function deleteForm(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     await formsService.deleteForm(id, tenantId);
     res.json(success({ message: 'Form deactivated' }));
   } catch (err) {
@@ -99,7 +100,7 @@ export async function listFormResponses(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const responses = await formsService.listFormResponses(id, tenantId);
     res.json(success(responses));
   } catch (err) {

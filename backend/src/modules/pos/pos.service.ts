@@ -35,7 +35,7 @@ import type { PosCheckoutBody, PosListTransactionsQuery, PosSummaryQuery, Termin
  * POST /api/pos/checkout
  * Creates a walk-in booking + payment record in a single atomic operation.
  */
-export async function checkout(tenantId: string, operatorId: string, data: PosCheckoutBody) {
+export async function checkout(tenantId: string | null, operatorId: string, data: PosCheckoutBody) {
   const now = new Date();
 
   // 1. Validate gift card if provided
@@ -207,7 +207,7 @@ export async function checkout(tenantId: string, operatorId: string, data: PosCh
  * GET /api/pos/transactions
  * Paginated list of POS Payment records for a tenant.
  */
-export async function listTransactions(tenantId: string, query: PosListTransactionsQuery) {
+export async function listTransactions(tenantId: string | null, query: PosListTransactionsQuery) {
   const { page = 1, limit = 20, date } = query;
   const skip = (page - 1) * limit;
 
@@ -242,7 +242,7 @@ export async function listTransactions(tenantId: string, query: PosListTransacti
  * Aggregates POS revenue, tips, and transaction count for a given date.
  * Defaults to today when no date is provided.
  */
-export async function getDailySummary(tenantId: string, query: PosSummaryQuery) {
+export async function getDailySummary(tenantId: string | null, query: PosSummaryQuery) {
   const dateStr = query.date ?? new Date().toISOString().slice(0, 10);
   const start   = new Date(`${dateStr}T00:00:00.000Z`);
   const end     = new Date(`${dateStr}T23:59:59.999Z`);
@@ -290,7 +290,7 @@ export async function getDailySummary(tenantId: string, query: PosSummaryQuery) 
  * GET /api/pos/terminal/connection-token
  * Generates a Stripe Terminal connection token for the frontend SDK.
  */
-export async function getTerminalConnectionToken(_tenantId: string): Promise<{ secret: string }> {
+export async function getTerminalConnectionToken(_tenantId: string | null): Promise<{ secret: string }> {
   const secret = await stripeCreateConnectionToken();
   return { secret };
 }
@@ -300,10 +300,11 @@ export async function getTerminalConnectionToken(_tenantId: string): Promise<{ s
  * Creates a Stripe PaymentIntent for Terminal capture (capture_method: manual).
  */
 export async function createTerminalPaymentIntent(
-  tenantId: string,
+  tenantId: string | null,
   data: TerminalPaymentIntentBody,
 ): Promise<{ paymentIntentId: string; clientSecret: string | null }> {
-  const metadata: Record<string, string> = { tenantId };
+  const metadata: Record<string, string> = {};
+  if (tenantId) metadata['tenantId'] = tenantId;
   if (data.bookingId) metadata['bookingId'] = data.bookingId;
 
   const intent = await stripeCreatePaymentIntent(data.amount, data.currency, metadata);

@@ -29,12 +29,14 @@ export async function listRules(
         ? false
         : undefined;
 
-    const rules = await svc.listPricingRules(
+    const result = await svc.listPricingRules(
       req.user!.tenantId ?? null,
       query.serviceId,
       isActive,
+      query.page,
+      query.limit,
     );
-    res.json(paginated(rules, { total: rules.length, page: 1, limit: rules.length, totalPages: 1 }));
+    res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
   }

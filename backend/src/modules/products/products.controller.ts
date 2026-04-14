@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as productsService from './products.service';
 import { success }          from '../../utils/apiResponse';
@@ -25,7 +26,7 @@ export async function listProducts(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as ListProductsQuery;
     const result   = await productsService.listProducts(tenantId, query);
     res.json(success(result));
@@ -44,7 +45,7 @@ export async function getProductById(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const product  = await productsService.getProductById(id, tenantId);
     res.json(success(product));
   } catch (err) {
@@ -61,7 +62,7 @@ export async function createProduct(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as CreateProductBody;
     const product  = await productsService.createProduct(tenantId, body);
     res.status(201).json(success(product));
@@ -80,7 +81,7 @@ export async function updateProduct(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as UpdateProductBody;
     const product  = await productsService.updateProduct(id, tenantId, body);
     res.json(success(product));
@@ -99,7 +100,7 @@ export async function deleteProduct(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const result   = await productsService.deleteProduct(id, tenantId);
     res.json(success(result));
   } catch (err) {
@@ -117,7 +118,7 @@ export async function adjustStock(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as AdjustStockBody;
     const result   = await productsService.adjustStock(id, tenantId, body);
     res.json(success(result));

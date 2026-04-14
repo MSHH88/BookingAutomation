@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as posService from './pos.service';
 import { success }     from '../../utils/apiResponse';
@@ -21,7 +22,7 @@ export async function checkout(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId   = req.user!.tenantId!;
+    const tenantId   = extractTenantId(req);
     const operatorId = req.user!.id;
     const body       = req.body as PosCheckoutBody;
     const result     = await posService.checkout(tenantId, operatorId, body);
@@ -41,7 +42,7 @@ export async function listTransactions(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as PosListTransactionsQuery;
     const result   = await posService.listTransactions(tenantId, query);
     res.json(success(result));
@@ -60,7 +61,7 @@ export async function getDailySummary(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as PosSummaryQuery;
     const result   = await posService.getDailySummary(tenantId, query);
     res.json(success(result));
@@ -79,7 +80,7 @@ export async function terminalConnectionToken(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const result   = await posService.getTerminalConnectionToken(tenantId);
     res.json(success(result));
   } catch (err) {
@@ -97,7 +98,7 @@ export async function terminalPaymentIntent(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as TerminalPaymentIntentBody;
     const result   = await posService.createTerminalPaymentIntent(tenantId, body);
     res.status(201).json(success(result));

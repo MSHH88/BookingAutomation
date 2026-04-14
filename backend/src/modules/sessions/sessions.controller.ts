@@ -23,9 +23,9 @@ export async function listSessionsHandler(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query = req.query as unknown as ListSessionsQuery;
-    const sessions = await svc.listSessions(req.user!.tenantId ?? null, query);
-    res.json(paginated(sessions, { total: sessions.length, page: 1, limit: sessions.length, totalPages: 1 }));
+    const query    = req.query as unknown as ListSessionsQuery;
+    const result   = await svc.listSessions(req.user!.tenantId ?? null, query);
+    res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
   }
@@ -145,9 +145,11 @@ export async function listBookingsHandler(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as unknown as SessionIdParams;
-    const bookings = await svc.listSessionBookings(req.user!.tenantId ?? null, id);
-    res.json(paginated(bookings, { total: bookings.length, page: 1, limit: bookings.length, totalPages: 1 }));
+    const { id }  = req.params as unknown as SessionIdParams;
+    const page    = req.query['page'] ? Number(req.query['page']) : undefined;
+    const limit   = req.query['limit'] ? Number(req.query['limit']) : undefined;
+    const result  = await svc.listSessionBookings(req.user!.tenantId ?? null, id, page, limit);
+    res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
   }

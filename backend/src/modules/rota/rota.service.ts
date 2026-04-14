@@ -79,7 +79,7 @@ const shiftSelect = {
 
 // ─── listShifts ───────────────────────────────────────────────────────────────
 
-export async function listShifts(tenantId: string, artistId?: string) {
+export async function listShifts(tenantId: string | null, artistId?: string) {
   const where: Prisma.ShiftWhereInput = {
     tenantId,
     ...(artistId ? { artistId } : {}),
@@ -94,7 +94,7 @@ export async function listShifts(tenantId: string, artistId?: string) {
 
 // ─── createShift ──────────────────────────────────────────────────────────────
 
-export async function createShift(tenantId: string, body: CreateShiftBody) {
+export async function createShift(tenantId: string | null, body: CreateShiftBody) {
   // Verify artist belongs to this tenant
   const artist = await prisma.artist.findUnique({
     where: { id: body.artistId },
@@ -129,7 +129,7 @@ export async function createShift(tenantId: string, body: CreateShiftBody) {
 
 // ─── getShift ─────────────────────────────────────────────────────────────────
 
-export async function getShift(id: string, tenantId: string) {
+export async function getShift(id: string, tenantId: string | null) {
   const shift = await prisma.shift.findUnique({
     where: { id },
     select: shiftSelect,
@@ -144,7 +144,7 @@ export async function getShift(id: string, tenantId: string) {
 
 // ─── updateShift ──────────────────────────────────────────────────────────────
 
-export async function updateShift(id: string, tenantId: string, body: UpdateShiftBody) {
+export async function updateShift(id: string, tenantId: string | null, body: UpdateShiftBody) {
   const existing = await prisma.shift.findUnique({
     where: { id },
     select: { id: true, tenantId: true, startTime: true, endTime: true },
@@ -174,7 +174,7 @@ export async function updateShift(id: string, tenantId: string, body: UpdateShif
 
 // ─── deleteShift ──────────────────────────────────────────────────────────────
 
-export async function deleteShift(id: string, tenantId: string) {
+export async function deleteShift(id: string, tenantId: string | null) {
   const existing = await prisma.shift.findUnique({
     where: { id },
     select: { id: true, tenantId: true },
@@ -192,7 +192,7 @@ export async function deleteShift(id: string, tenantId: string) {
 
 export async function createOverride(
   shiftId:  string,
-  tenantId: string,
+  tenantId: string | null,
   body:     CreateOverrideBody,
 ) {
   const shift = await prisma.shift.findUnique({
@@ -247,7 +247,7 @@ export async function createOverride(
  *
  * The override takes precedence over the base shift for its date.
  */
-export async function getWeekRota(tenantId: string, from: string) {
+export async function getWeekRota(tenantId: string | null, from: string) {
   const startDate = new Date(from);
   const endDate   = new Date(startDate);
   endDate.setDate(endDate.getDate() + 6);

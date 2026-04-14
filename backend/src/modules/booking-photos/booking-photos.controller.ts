@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as bookingPhotosService from './booking-photos.service';
 import { success }               from '../../utils/apiResponse';
@@ -22,7 +23,7 @@ export async function createBookingPhoto(
 ): Promise<void> {
   try {
     const { bookingId } = req.params as { bookingId: string };
-    const tenantId      = req.user!.tenantId!;
+    const tenantId      = extractTenantId(req);
     const uploadedBy    = req.user!.id;
     const body          = req.body as CreateBookingPhotoBody;
     const photo         = await bookingPhotosService.createBookingPhoto(bookingId, tenantId, body, uploadedBy);
@@ -43,7 +44,7 @@ export async function listBookingPhotos(
 ): Promise<void> {
   try {
     const { bookingId } = req.params as { bookingId: string };
-    const tenantId      = req.user!.tenantId!;
+    const tenantId      = extractTenantId(req);
     const photos        = await bookingPhotosService.listBookingPhotos(bookingId, tenantId);
     res.json(success(photos));
   } catch (err) {
@@ -62,7 +63,7 @@ export async function deleteBookingPhoto(
 ): Promise<void> {
   try {
     const { photoId } = req.params as { photoId: string };
-    const tenantId    = req.user!.tenantId!;
+    const tenantId    = extractTenantId(req);
     const result      = await bookingPhotosService.deleteBookingPhoto(photoId, tenantId);
     res.json(success(result));
   } catch (err) {

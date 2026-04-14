@@ -34,13 +34,13 @@ import type {
 const CACHE_PREFIX = 'customer_stats';
 const CACHE_TTL    = 3600; // 1 hour
 
-function cacheKey(tenantId: string, customerId: string): string {
+function cacheKey(tenantId: string | null, customerId: string): string {
   return `${CACHE_PREFIX}:${tenantId}:${customerId}`;
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-async function computeStats(customerId: string, tenantId: string): Promise<CustomerStats> {
+async function computeStats(customerId: string, tenantId: string | null): Promise<CustomerStats> {
   // 1 — Completed bookings
   const completedBookings = await prisma.booking.findMany({
     where: { customerId, tenantId, status: 'COMPLETED' },
@@ -137,7 +137,7 @@ async function computeStats(customerId: string, tenantId: string): Promise<Custo
  */
 export async function getCustomerStats(
   customerId: string,
-  tenantId: string,
+  tenantId: string | null,
 ): Promise<CustomerStats> {
   // Verify customer exists and belongs to the tenant
   const customer = await prisma.user.findUnique({
@@ -188,7 +188,7 @@ export async function getCustomerStats(
  * Paginated list of CUSTOMER-role users with stats appended.
  */
 export async function listCustomersWithStats(
-  tenantId: string,
+  tenantId: string | null,
   query: ListCustomersWithStatsQuery,
 ): Promise<{ customers: CustomerWithStats[]; total: number }> {
   const { page, limit, sortBy, minSpend, lastVisitBefore } = query;

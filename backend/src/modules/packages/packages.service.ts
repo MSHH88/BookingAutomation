@@ -98,7 +98,7 @@ export type CustomerPackageDetail = Prisma.CustomerPackageGetPayload<{ select: t
  * Creates a new package template for the tenant.
  */
 export async function createPackage(
-  tenantId: string,
+  tenantId: string | null,
   body:     CreatePackageBody,
 ): Promise<PackageDetail> {
   const pkg = await prisma.package.create({
@@ -123,7 +123,7 @@ export async function createPackage(
  * Paginated list of packages for a tenant.
  */
 export async function listPackages(
-  tenantId: string,
+  tenantId: string | null,
   query:    ListPackagesQuery,
 ): Promise<PaginatedResult<PackageDetail>> {
   const where: Prisma.PackageWhereInput = { tenantId };
@@ -144,7 +144,7 @@ export async function listPackages(
  */
 export async function getPackageById(
   id:       string,
-  tenantId: string,
+  tenantId: string | null,
 ): Promise<PackageDetail> {
   const pkg = await prisma.package.findUnique({
     where:  { id },
@@ -167,7 +167,7 @@ export async function getPackageById(
  */
 export async function updatePackage(
   id:       string,
-  tenantId: string,
+  tenantId: string | null,
   body:     UpdatePackageBody,
 ): Promise<PackageDetail> {
   const existing = await prisma.package.findUnique({
@@ -206,7 +206,7 @@ export async function updatePackage(
  */
 export async function deletePackage(
   id:       string,
-  tenantId: string,
+  tenantId: string | null,
 ): Promise<PackageDetail> {
   const existing = await prisma.package.findUnique({
     where:  { id },
@@ -238,7 +238,7 @@ export async function deletePackage(
 export async function purchasePackage(
   packageId:  string,
   body:       PurchasePackageBody,
-  tenantId:   string,
+  tenantId:   string | null,
 ): Promise<CustomerPackageDetail> {
   const pkg = await prisma.package.findUnique({
     where:  { id: packageId },
@@ -301,7 +301,7 @@ export async function purchasePackage(
  */
 export async function listCustomerPackages(
   customerId: string,
-  tenantId:   string,
+  tenantId:   string | null,
   query:      ListCustomerPackagesQuery,
 ): Promise<PaginatedResult<CustomerPackageDetail>> {
   const where: Prisma.CustomerPackageWhereInput = { customerId, tenantId };
@@ -318,7 +318,7 @@ export async function listCustomerPackages(
  */
 export async function getMyPackages(
   customerId: string,
-  tenantId:   string,
+  tenantId:   string | null,
   query:      ListCustomerPackagesQuery,
 ): Promise<PaginatedResult<CustomerPackageDetail>> {
   return listCustomerPackages(customerId, tenantId, query);

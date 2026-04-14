@@ -29,7 +29,11 @@ import type { GetBookingLinkQuery, GetBookingSourcesQuery } from './social.schem
  * GET /api/social/booking-link
  * Generates a shareable booking URL with platform-specific UTM params.
  */
-export async function getBookingLink(tenantId: string, query: GetBookingLinkQuery) {
+export async function getBookingLink(tenantId: string | null, query: GetBookingLinkQuery) {
+  if (!tenantId) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'tenantId is required for booking link generation');
+  }
+
   // Fetch tenant slug for URL generation
   const tenant = await prisma.tenant.findUnique({
     where:  { id: tenantId },
@@ -83,7 +87,7 @@ export async function getBookingLink(tenantId: string, query: GetBookingLinkQuer
  * GET /api/social/sources
  * Aggregates booking counts by source within an optional date range.
  */
-export async function getBookingSources(tenantId: string, query: GetBookingSourcesQuery) {
+export async function getBookingSources(tenantId: string | null, query: GetBookingSourcesQuery) {
   const where: Prisma.BookingWhereInput = { tenantId };
 
   if (query.from || query.to) {

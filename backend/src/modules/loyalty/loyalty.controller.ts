@@ -2,6 +2,7 @@
  * Loyalty controller — Phase 5.3
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as loyaltyService from './loyalty.service';
 import { success }         from '../../utils/apiResponse';
@@ -14,7 +15,7 @@ export async function getMyLoyalty(
 ): Promise<void> {
   try {
     const customerId = req.user!.id;
-    const tenantId   = req.user!.tenantId!;
+    const tenantId   = extractTenantId(req);
     const account    = await loyaltyService.getLoyaltyAccount(customerId, tenantId);
     res.json(success(account));
   } catch (err) {
@@ -28,7 +29,7 @@ export async function getCustomerLoyalty(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId       = req.user!.tenantId!;
+    const tenantId       = extractTenantId(req);
     const { customerId } = req.params as { customerId: string };
     const account        = await loyaltyService.getLoyaltyAccount(customerId, tenantId);
     res.json(success(account));
@@ -43,7 +44,7 @@ export async function redeemPoints(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as RedeemPointsBody;
     const result   = await loyaltyService.redeemPoints(body.customerId, tenantId, body);
     res.json(success(result));

@@ -61,6 +61,8 @@ export const listSessionsSchema = z.object({
     status:     z.enum(sessionStatusValues).optional(),
     from:       z.coerce.date().optional(),
     to:         z.coerce.date().optional(),
+    page:       z.coerce.number().int().min(1).optional(),
+    limit:      z.coerce.number().int().min(1).max(100).optional(),
   }),
 });
 

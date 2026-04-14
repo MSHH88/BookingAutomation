@@ -12,6 +12,7 @@
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
 import { logger }   from '../../utils/logger';
+import { paginate, PaginatedResult } from '../../utils/paginate';
 import type {
   CreateSessionBody,
   UpdateSessionBody,
@@ -23,30 +24,36 @@ import type {
 export async function listSessions(
   tenantId: string | null,
   query: ListSessionsQuery,
-) {
-  return prisma.session.findMany({
-    where: {
-      tenantId,
-      ...(query.serviceId  ? { serviceId:  query.serviceId  } : {}),
-      ...(query.artistId   ? { artistId:   query.artistId   } : {}),
-      ...(query.locationId ? { locationId: query.locationId } : {}),
-      ...(query.status     ? { status:     query.status     } : {}),
-      ...(query.from || query.to
-        ? {
-            startTime: {
-              ...(query.from ? { gte: query.from } : {}),
-              ...(query.to   ? { lte: query.to   } : {}),
-            },
-          }
-        : {}),
+): Promise<PaginatedResult<object>> {
+  const where = {
+    tenantId,
+    ...(query.serviceId  ? { serviceId:  query.serviceId  } : {}),
+    ...(query.artistId   ? { artistId:   query.artistId   } : {}),
+    ...(query.locationId ? { locationId: query.locationId } : {}),
+    ...(query.status     ? { status:     query.status     } : {}),
+    ...(query.from || query.to
+      ? {
+          startTime: {
+            ...(query.from ? { gte: query.from } : {}),
+            ...(query.to   ? { lte: query.to   } : {}),
+          },
+        }
+      : {}),
+  };
+
+  return paginate(
+    prisma.session,
+    {
+      where,
+      include: {
+        service:  { select: { id: true, name: true } },
+        artist:   { select: { id: true, slug: true } },
+        location: { select: { id: true, name: true } },
+      },
+      orderBy: { startTime: 'asc' },
     },
-    include: {
-      service:  { select: { id: true, name: true } },
-      artist:   { select: { id: true, slug: true } },
-      location: { select: { id: true, name: true } },
-    },
-    orderBy: { startTime: 'asc' },
-  });
+    { page: query.page, limit: query.limit },
+  );
 }
 
 // ─── getById ──────────────────────────────────────────────────────────────────
@@ -345,7 +352,9 @@ export async function cancelSessionBooking(
 export async function listSessionBookings(
   tenantId:  string | null,
   sessionId: string,
-) {
+  page?: number,
+  limit?: number,
+): Promise<PaginatedResult<object>> {
   const session = await prisma.session.findUnique({ where: { id: sessionId } });
   if (!session) {
     throw new AppError(404, 'SESSION_NOT_FOUND', `Session ${sessionId} not found`);
@@ -354,11 +363,15 @@ export async function listSessionBookings(
     throw new AppError(403, 'FORBIDDEN', 'Session does not belong to this tenant');
   }
 
-  return prisma.sessionBooking.findMany({
-    where: { sessionId },
-    include: {
-      customer: { select: { id: true, name: true, email: true } },
+  return paginate(
+    prisma.sessionBooking,
+    {
+      where: { sessionId },
+      include: {
+        customer: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { createdAt: 'asc' },
     },
-    orderBy: { createdAt: 'asc' },
-  });
+    { page, limit },
+  );
 }

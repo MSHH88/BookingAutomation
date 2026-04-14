@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as healthFlagsService from './health-flags.service';
 import { success }             from '../../utils/apiResponse';
@@ -22,7 +23,7 @@ export async function listHealthFlags(
 ): Promise<void> {
   try {
     const { customerId } = req.params as { customerId: string };
-    const tenantId       = req.user!.tenantId!;
+    const tenantId       = extractTenantId(req);
     const flags          = await healthFlagsService.listHealthFlags(customerId, tenantId);
     res.json(success(flags));
   } catch (err) {
@@ -41,7 +42,7 @@ export async function createHealthFlag(
 ): Promise<void> {
   try {
     const { customerId } = req.params as { customerId: string };
-    const tenantId       = req.user!.tenantId!;
+    const tenantId       = extractTenantId(req);
     const body           = req.body as CreateHealthFlagBody;
     const flag           = await healthFlagsService.createHealthFlag(customerId, tenantId, body);
     res.status(201).json(success(flag));
@@ -61,7 +62,7 @@ export async function deleteHealthFlag(
 ): Promise<void> {
   try {
     const { customerId, flagId } = req.params as { customerId: string; flagId: string };
-    const tenantId               = req.user!.tenantId!;
+    const tenantId               = extractTenantId(req);
     const result                 = await healthFlagsService.deleteHealthFlag(customerId, flagId, tenantId);
     res.json(success(result));
   } catch (err) {

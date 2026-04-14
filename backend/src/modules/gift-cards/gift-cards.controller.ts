@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as giftCardsService from './gift-cards.service';
 import { success }           from '../../utils/apiResponse';
@@ -21,7 +22,7 @@ export async function createGiftCard(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as CreateGiftCardBody;
     const card     = await giftCardsService.createGiftCard(tenantId, body);
     res.status(201).json(success(card));
@@ -40,7 +41,7 @@ export async function listGiftCards(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as ListGiftCardsQuery;
     const result   = await giftCardsService.listGiftCards(tenantId, query);
     res.json(success(result));
@@ -79,7 +80,7 @@ export async function redeemGiftCard(
 ): Promise<void> {
   try {
     const { code } = req.params as { code: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { amount } = req.body as RedeemGiftCardBody;
     const result   = await giftCardsService.redeemGiftCard(code, tenantId, amount);
     res.json(success(result));

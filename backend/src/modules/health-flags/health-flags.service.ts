@@ -24,7 +24,7 @@ import type { CreateHealthFlagBody } from './health-flags.schema';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-async function verifyCustomerAccess(customerId: string, tenantId: string) {
+async function verifyCustomerAccess(customerId: string, tenantId: string | null) {
   const customer = await prisma.user.findUnique({
     where: { id: customerId },
     select: { id: true, tenantId: true },
@@ -47,7 +47,7 @@ async function verifyCustomerAccess(customerId: string, tenantId: string) {
  * GET /api/health-flags/:customerId
  * Returns all health flags for a customer.
  */
-export async function listHealthFlags(customerId: string, tenantId: string) {
+export async function listHealthFlags(customerId: string, tenantId: string | null) {
   await verifyCustomerAccess(customerId, tenantId);
 
   return prisma.healthFlag.findMany({
@@ -62,7 +62,7 @@ export async function listHealthFlags(customerId: string, tenantId: string) {
  */
 export async function createHealthFlag(
   customerId: string,
-  tenantId: string,
+  tenantId: string | null,
   data: CreateHealthFlagBody,
 ) {
   await verifyCustomerAccess(customerId, tenantId);
@@ -85,7 +85,7 @@ export async function createHealthFlag(
 export async function deleteHealthFlag(
   customerId: string,
   flagId: string,
-  tenantId: string,
+  tenantId: string | null,
 ) {
   const flag = await prisma.healthFlag.findUnique({
     where: { id: flagId },

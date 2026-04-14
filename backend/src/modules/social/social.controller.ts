@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as socialService from './social.service';
 import { success }        from '../../utils/apiResponse';
@@ -21,7 +22,7 @@ export async function getBookingLink(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as GetBookingLinkQuery;
     const result   = await socialService.getBookingLink(tenantId, query);
     res.json(success(result));
@@ -40,7 +41,7 @@ export async function getBookingSources(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as GetBookingSourcesQuery;
     const result   = await socialService.getBookingSources(tenantId, query);
     res.json(success(result));

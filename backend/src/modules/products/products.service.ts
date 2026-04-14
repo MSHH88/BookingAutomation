@@ -37,7 +37,7 @@ import type { ListProductsQuery, CreateProductBody, UpdateProductBody, AdjustSto
  * Paginated list of active products for a tenant.
  * Supports filtering by category and by low-stock status.
  */
-export async function listProducts(tenantId: string, query: ListProductsQuery) {
+export async function listProducts(tenantId: string | null, query: ListProductsQuery) {
   const { page = 1, limit = 20, category, lowStock } = query;
   const skip = (page - 1) * limit;
 
@@ -70,7 +70,7 @@ export async function listProducts(tenantId: string, query: ListProductsQuery) {
  * GET /api/products/:id
  * Get a single product by ID, verifying tenant access.
  */
-export async function getProductById(id: string, tenantId: string) {
+export async function getProductById(id: string, tenantId: string | null) {
   const product = await prisma.product.findUnique({ where: { id } });
 
   if (!product) {
@@ -88,7 +88,7 @@ export async function getProductById(id: string, tenantId: string) {
  * POST /api/products
  * Create a new product for a tenant.
  */
-export async function createProduct(tenantId: string, data: CreateProductBody) {
+export async function createProduct(tenantId: string | null, data: CreateProductBody) {
   const product = await prisma.product.create({
     data: {
       tenantId,
@@ -122,7 +122,7 @@ export async function createProduct(tenantId: string, data: CreateProductBody) {
  * PATCH /api/products/:id
  * Update product details.
  */
-export async function updateProduct(id: string, tenantId: string, data: UpdateProductBody) {
+export async function updateProduct(id: string, tenantId: string | null, data: UpdateProductBody) {
   const product = await prisma.product.findUnique({ where: { id } });
 
   if (!product) {
@@ -153,7 +153,7 @@ export async function updateProduct(id: string, tenantId: string, data: UpdatePr
  * DELETE /api/products/:id
  * Soft-delete a product (sets isActive = false).
  */
-export async function deleteProduct(id: string, tenantId: string) {
+export async function deleteProduct(id: string, tenantId: string | null) {
   const product = await prisma.product.findUnique({ where: { id } });
 
   if (!product) {
@@ -178,7 +178,7 @@ export async function deleteProduct(id: string, tenantId: string) {
  * Creates an audit record in StockMovement.
  * Logs a LOW_STOCK warning when stock falls to or below the threshold.
  */
-export async function adjustStock(id: string, tenantId: string, data: AdjustStockBody) {
+export async function adjustStock(id: string, tenantId: string | null, data: AdjustStockBody) {
   const product = await prisma.product.findUnique({ where: { id } });
 
   if (!product) {

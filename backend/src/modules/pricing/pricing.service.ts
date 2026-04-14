@@ -10,6 +10,7 @@
 import { prisma }      from '../../lib/prisma';
 import { AppError }    from '../../errors/AppError';
 import { logger }      from '../../utils/logger';
+import { paginate, PaginatedResult } from '../../utils/paginate';
 import { calculatePrice } from '../../lib/pricing-engine';
 import type {
   CreatePricingRuleBody,
@@ -22,15 +23,21 @@ export async function listPricingRules(
   tenantId:  string | null,
   serviceId? : string,
   isActive?:  boolean,
-) {
-  return prisma.pricingRule.findMany({
-    where: {
-      tenantId,
-      ...(serviceId !== undefined ? { serviceId } : {}),
-      ...(isActive  !== undefined ? { isActive  } : {}),
+  page?:      number,
+  limit?:     number,
+): Promise<PaginatedResult<object>> {
+  return paginate(
+    prisma.pricingRule,
+    {
+      where: {
+        tenantId,
+        ...(serviceId !== undefined ? { serviceId } : {}),
+        ...(isActive  !== undefined ? { isActive  } : {}),
+      },
+      orderBy: [{ priority: 'asc' }, { createdAt: 'asc' }],
     },
-    orderBy: [{ priority: 'asc' }, { createdAt: 'asc' }],
-  });
+    { page, limit },
+  );
 }
 
 // ─── create ───────────────────────────────────────────────────────────────────

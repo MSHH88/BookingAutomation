@@ -25,7 +25,7 @@ const mediaSelect = {
 
 // ─── listMedia ────────────────────────────────────────────────────────────────
 
-export async function listMedia(artistId: string, tenantId: string) {
+export async function listMedia(artistId: string, tenantId: string | null) {
   await assertArtistOwnership(artistId, tenantId);
 
   return prisma.artistMedia.findMany({
@@ -39,7 +39,7 @@ export async function listMedia(artistId: string, tenantId: string) {
 
 export async function uploadMedia(
   artistId: string,
-  tenantId: string,
+  tenantId: string | null,
   file:     Express.Multer.File,
   type:     ArtistMediaType = 'PORTFOLIO',
 ) {
@@ -79,7 +79,7 @@ export async function uploadMedia(
 
 export async function deleteMedia(
   artistId:           string,
-  tenantId:           string,
+  tenantId:           string | null,
   cloudinaryPublicId: string,
 ) {
   const media = await prisma.artistMedia.findFirst({
@@ -106,7 +106,7 @@ export async function deleteMedia(
 
 export async function setProfilePhoto(
   artistId:           string,
-  tenantId:           string,
+  tenantId:           string | null,
   cloudinaryPublicId: string,
 ) {
   await assertArtistOwnership(artistId, tenantId);
@@ -141,7 +141,7 @@ export async function setProfilePhoto(
 
 // ─── assertArtistOwnership ────────────────────────────────────────────────────
 
-async function assertArtistOwnership(artistId: string, tenantId: string) {
+async function assertArtistOwnership(artistId: string, tenantId: string | null) {
   const artist = await prisma.artist.findUnique({
     where:  { id: artistId },
     select: { id: true, tenantId: true },

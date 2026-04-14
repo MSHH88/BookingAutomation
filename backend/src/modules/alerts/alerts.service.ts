@@ -36,7 +36,7 @@ import type { Alert, GetDashboardAlertsQuery } from './alerts.schema';
  * GET /api/alerts/booking/:id
  * Returns alerts for a specific booking.
  */
-export async function getBookingAlerts(bookingId: string, tenantId: string): Promise<Alert[]> {
+export async function getBookingAlerts(bookingId: string, tenantId: string | null): Promise<Alert[]> {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     select: {
@@ -101,7 +101,7 @@ export async function getBookingAlerts(bookingId: string, tenantId: string): Pro
  * GET /api/alerts/customer/:id
  * Returns alerts for a specific customer.
  */
-export async function getCustomerAlerts(customerId: string, tenantId: string): Promise<Alert[]> {
+export async function getCustomerAlerts(customerId: string, tenantId: string | null): Promise<Alert[]> {
   const customer = await prisma.user.findUnique({
     where: { id: customerId },
     select: {
@@ -199,7 +199,7 @@ export async function getCustomerAlerts(customerId: string, tenantId: string): P
  * Returns global dashboard alerts for the admin CRM.
  */
 export async function getDashboardAlerts(
-  tenantId: string,
+  tenantId: string | null,
   query: GetDashboardAlertsQuery,
 ): Promise<Alert[]> {
   const alerts: Alert[] = [];

@@ -31,7 +31,7 @@ import type { CreateBookingPhotoBody } from './booking-photos.schema';
  */
 export async function createBookingPhoto(
   bookingId:  string,
-  tenantId:   string,
+  tenantId:   string | null,
   data:       CreateBookingPhotoBody,
   uploadedBy: string,
 ) {
@@ -66,7 +66,7 @@ export async function createBookingPhoto(
  * GET /api/booking-photos/:bookingId
  * Lists all photos for a booking.
  */
-export async function listBookingPhotos(bookingId: string, tenantId: string) {
+export async function listBookingPhotos(bookingId: string, tenantId: string | null) {
   const booking = await prisma.booking.findUnique({
     where:  { id: bookingId },
     select: { id: true, tenantId: true },
@@ -92,7 +92,7 @@ export async function listBookingPhotos(bookingId: string, tenantId: string) {
  * DELETE /api/booking-photos/:photoId
  * Deletes a specific photo.
  */
-export async function deleteBookingPhoto(photoId: string, tenantId: string) {
+export async function deleteBookingPhoto(photoId: string, tenantId: string | null) {
   const photo = await prisma.bookingPhoto.findUnique({
     where:  { id: photoId },
     select: { id: true, tenantId: true },

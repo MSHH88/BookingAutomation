@@ -87,7 +87,7 @@ function calculateTier(totalEarned: number): LoyaltyTier {
  */
 export async function getLoyaltyAccount(
   customerId: string,
-  tenantId:   string,
+  tenantId:   string | null,
 ): Promise<LoyaltyAccountDetail> {
   let account = await prisma.loyaltyAccount.findFirst({
     where:  { customerId, tenantId },
@@ -179,7 +179,7 @@ export async function awardPoints(
  */
 export async function redeemPoints(
   customerId: string,
-  tenantId:   string,
+  tenantId:   string | null,
   body:       RedeemPointsBody,
 ): Promise<{ discountAmount: number; remainingPoints: number }> {
   const { pointsToUse, bookingId } = body;

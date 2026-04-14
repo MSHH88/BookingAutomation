@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as alertsService from './alerts.service';
 import { success }        from '../../utils/apiResponse';
@@ -22,7 +23,7 @@ export async function getBookingAlerts(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const alerts   = await alertsService.getBookingAlerts(id, tenantId);
     res.json(success(alerts));
   } catch (err) {
@@ -41,7 +42,7 @@ export async function getCustomerAlerts(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const alerts   = await alertsService.getCustomerAlerts(id, tenantId);
     res.json(success(alerts));
   } catch (err) {
@@ -59,7 +60,7 @@ export async function getDashboardAlerts(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as GetDashboardAlertsQuery;
     const alerts   = await alertsService.getDashboardAlerts(tenantId, query);
     res.json(success(alerts));

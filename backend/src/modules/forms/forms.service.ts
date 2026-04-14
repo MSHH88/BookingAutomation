@@ -38,7 +38,7 @@ import type { CreateFormBody, UpdateFormBody } from './forms.schema';
 // ─── Admin API ────────────────────────────────────────────────────────────────
 
 /** List all active forms for a tenant. */
-export async function listForms(tenantId: string) {
+export async function listForms(tenantId: string | null) {
   return prisma.form.findMany({
     where: { tenantId, isActive: true },
     orderBy: { createdAt: 'desc' },
@@ -46,7 +46,7 @@ export async function listForms(tenantId: string) {
 }
 
 /** Get a single form by ID, verifying tenant access. */
-export async function getFormById(id: string, tenantId: string) {
+export async function getFormById(id: string, tenantId: string | null) {
   const form = await prisma.form.findUnique({ where: { id } });
 
   if (!form) {
@@ -61,7 +61,7 @@ export async function getFormById(id: string, tenantId: string) {
 }
 
 /** Create a new form for a tenant. */
-export async function createForm(tenantId: string, data: CreateFormBody) {
+export async function createForm(tenantId: string | null, data: CreateFormBody) {
   return prisma.form.create({
     data: {
       tenantId,
@@ -74,7 +74,7 @@ export async function createForm(tenantId: string, data: CreateFormBody) {
 }
 
 /** Update a form, verifying tenant access. */
-export async function updateForm(id: string, tenantId: string, data: UpdateFormBody) {
+export async function updateForm(id: string, tenantId: string | null, data: UpdateFormBody) {
   const existing = await prisma.form.findUnique({ where: { id } });
 
   if (!existing) {
@@ -97,7 +97,7 @@ export async function updateForm(id: string, tenantId: string, data: UpdateFormB
 }
 
 /** Soft-delete a form (set isActive = false), verifying tenant access. */
-export async function deleteForm(id: string, tenantId: string) {
+export async function deleteForm(id: string, tenantId: string | null) {
   const existing = await prisma.form.findUnique({ where: { id } });
 
   if (!existing) {
@@ -115,7 +115,7 @@ export async function deleteForm(id: string, tenantId: string) {
 }
 
 /** List all responses for a given form, verifying tenant access. */
-export async function listFormResponses(formId: string, tenantId: string) {
+export async function listFormResponses(formId: string, tenantId: string | null) {
   // Verify the form exists and belongs to this tenant
   const form = await prisma.form.findUnique({ where: { id: formId } });
 

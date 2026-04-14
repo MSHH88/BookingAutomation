@@ -21,15 +21,15 @@ export async function listLocationsHandler(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query = req.query as unknown as ListLocationsQuery;
+    const query    = req.query as unknown as ListLocationsQuery;
     const isActive = query.isActive === 'true'
       ? true
       : query.isActive === 'false'
         ? false
         : undefined;
 
-    const locations = await svc.listLocations(req.user!.tenantId ?? null, isActive);
-    res.json(paginated(locations, { total: locations.length, page: 1, limit: locations.length, totalPages: 1 }));
+    const result = await svc.listLocations(req.user!.tenantId ?? null, isActive, query.page, query.limit);
+    res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
   }

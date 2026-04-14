@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as referralsService from './referrals.service';
 import { success }           from '../../utils/apiResponse';
@@ -21,7 +22,7 @@ export async function listReferrals(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as ListReferralsQuery;
     const result   = await referralsService.listReferrals(tenantId, query);
     res.json(success(result));
@@ -41,7 +42,7 @@ export async function getReferralById(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const referral = await referralsService.getReferralById(id, tenantId);
     res.json(success(referral));
   } catch (err) {
@@ -95,7 +96,7 @@ export async function linkReferral(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as LinkReferralBody;
     const referral = await referralsService.linkReferral(tenantId, body);
     res.status(201).json(success(referral));
@@ -115,7 +116,7 @@ export async function processReward(
 ): Promise<void> {
   try {
     const { id }   = req.params as { id: string };
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { rewardAmount } = req.body as ProcessRewardBody;
     const referral = await referralsService.processReward(id, tenantId, rewardAmount);
     res.json(success(referral));

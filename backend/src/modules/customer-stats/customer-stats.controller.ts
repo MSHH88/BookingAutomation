@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as statsService from './customer-stats.service';
 import { success, paginated } from '../../utils/apiResponse';
@@ -22,7 +23,7 @@ export async function getCustomerStats(
 ): Promise<void> {
   try {
     const { customerId } = req.params as { customerId: string };
-    const tenantId       = req.user!.tenantId!;
+    const tenantId       = extractTenantId(req);
     const stats          = await statsService.getCustomerStats(customerId, tenantId);
     res.json(success(stats));
   } catch (err) {
@@ -40,7 +41,7 @@ export async function listCustomersWithStats(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as ListCustomersWithStatsQuery;
     const result   = await statsService.listCustomersWithStats(tenantId, query);
 

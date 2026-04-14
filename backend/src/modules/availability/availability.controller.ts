@@ -135,7 +135,7 @@ export async function deleteBlock(
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
 
     await availabilityService.deleteBlock(id, actorId, actorRole);
-    res.json(success({ deleted: true }));
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

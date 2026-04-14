@@ -35,7 +35,7 @@ import type { ListReferralsQuery, LinkReferralBody } from './referrals.schema';
  * GET /api/referrals
  * Paginated list of referrals for a tenant.
  */
-export async function listReferrals(tenantId: string, query: ListReferralsQuery) {
+export async function listReferrals(tenantId: string | null, query: ListReferralsQuery) {
   const { page = 1, limit = 20 } = query;
   const skip = (page - 1) * limit;
 
@@ -56,7 +56,7 @@ export async function listReferrals(tenantId: string, query: ListReferralsQuery)
  * GET /api/referrals/:id
  * Get referral details, verifying tenant access.
  */
-export async function getReferralById(id: string, tenantId: string) {
+export async function getReferralById(id: string, tenantId: string | null) {
   const referral = await prisma.referral.findUnique({ where: { id } });
 
   if (!referral) {
@@ -119,7 +119,7 @@ export async function lookupReferralCode(code: string) {
  * POST /api/referrals/link
  * Create a referral link between referrer and referee.
  */
-export async function linkReferral(tenantId: string, data: LinkReferralBody) {
+export async function linkReferral(tenantId: string | null, data: LinkReferralBody) {
   const { referrerCode, refereeId } = data;
 
   // Look up referrer by code
@@ -172,7 +172,7 @@ export async function linkReferral(tenantId: string, data: LinkReferralBody) {
  * POST /api/referrals/:id/process-reward
  * Mark referral as rewarded and credit referrer's loyaltyBalance.
  */
-export async function processReward(id: string, tenantId: string, rewardAmount: number) {
+export async function processReward(id: string, tenantId: string | null, rewardAmount: number) {
   const referral = await prisma.referral.findUnique({ where: { id } });
 
   if (!referral) {

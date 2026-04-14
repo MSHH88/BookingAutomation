@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId } from '../../utils/extractTenantId';
 
 import * as packagesService from './packages.service';
 import { success }          from '../../utils/apiResponse';
@@ -23,7 +24,7 @@ export async function createPackage(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const body     = req.body as CreatePackageBody;
     const pkg      = await packagesService.createPackage(tenantId, body);
     res.status(201).json(success(pkg));
@@ -38,7 +39,7 @@ export async function listPackages(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const query    = req.query as unknown as ListPackagesQuery;
     const result   = await packagesService.listPackages(tenantId, query);
     res.json(success(result));
@@ -53,7 +54,7 @@ export async function getPackageById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const pkg      = await packagesService.getPackageById(id, tenantId);
     res.json(success(pkg));
@@ -68,7 +69,7 @@ export async function updatePackage(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdatePackageBody;
     const pkg      = await packagesService.updatePackage(id, tenantId, body);
@@ -84,7 +85,7 @@ export async function deletePackage(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const pkg      = await packagesService.deletePackage(id, tenantId);
     res.json(success(pkg));
@@ -101,7 +102,7 @@ export async function purchasePackage(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = extractTenantId(req);
     const { id }   = req.params as { id: string };
     const body     = req.body as PurchasePackageBody;
     const result   = await packagesService.purchasePackage(id, body, tenantId);
@@ -119,7 +120,7 @@ export async function listCustomerPackages(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId    = req.user!.tenantId!;
+    const tenantId    = extractTenantId(req);
     const { customerId } = req.params as { customerId: string };
     const query       = req.query as unknown as ListCustomerPackagesQuery;
     const result      = await packagesService.listCustomerPackages(customerId, tenantId, query);
@@ -136,7 +137,7 @@ export async function getMyPackages(
 ): Promise<void> {
   try {
     const customerId = req.user!.id;
-    const tenantId   = req.user!.tenantId!;
+    const tenantId   = extractTenantId(req);
     const query      = req.query as unknown as ListCustomerPackagesQuery;
     const result     = await packagesService.getMyPackages(customerId, tenantId, query);
     res.json(success(result));

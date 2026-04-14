@@ -10,6 +10,7 @@
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
 import { logger }   from '../../utils/logger';
+import { paginate, PaginatedResult } from '../../utils/paginate';
 import type {
   CreateLocationBody,
   UpdateLocationBody,
@@ -20,14 +21,20 @@ import type {
 export async function listLocations(
   tenantId: string | null,
   isActive?: boolean,
-) {
-  return prisma.location.findMany({
-    where: {
-      tenantId,
-      ...(isActive !== undefined ? { isActive } : {}),
+  page?:     number,
+  limit?:    number,
+): Promise<PaginatedResult<object>> {
+  return paginate(
+    prisma.location,
+    {
+      where: {
+        tenantId,
+        ...(isActive !== undefined ? { isActive } : {}),
+      },
+      orderBy: { name: 'asc' },
     },
-    orderBy: { name: 'asc' },
-  });
+    { page, limit },
+  );
 }
 
 // ─── getById ──────────────────────────────────────────────────────────────────

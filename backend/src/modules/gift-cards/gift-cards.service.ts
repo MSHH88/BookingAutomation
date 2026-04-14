@@ -36,7 +36,7 @@ const CODE_LENGTH_BYTES = 6; // 6 random bytes → 12 hex chars
  * POST /api/gift-cards
  * Creates (issues) a new gift card with a cryptographically-random code.
  */
-export async function createGiftCard(tenantId: string, data: CreateGiftCardBody) {
+export async function createGiftCard(tenantId: string | null, data: CreateGiftCardBody) {
   const code = generateCode();
 
   const card = await prisma.giftCard.create({
@@ -58,7 +58,7 @@ export async function createGiftCard(tenantId: string, data: CreateGiftCardBody)
  * GET /api/gift-cards
  * Paginated list of gift cards for a tenant.
  */
-export async function listGiftCards(tenantId: string, query: ListGiftCardsQuery) {
+export async function listGiftCards(tenantId: string | null, query: ListGiftCardsQuery) {
   const { page = 1, limit = 20 } = query;
   const skip = (page - 1) * limit;
 
@@ -111,7 +111,7 @@ export async function getGiftCardByCode(code: string, tenantId?: string) {
  * Partial redemption is supported — remaining balance stays on the card.
  * Marks the card as fully redeemed when balance reaches zero.
  */
-export async function redeemGiftCard(code: string, tenantId: string, amount: number) {
+export async function redeemGiftCard(code: string, tenantId: string | null, amount: number) {
   const card = await prisma.giftCard.findUnique({ where: { code } });
 
   if (!card) {
