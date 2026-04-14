@@ -27,7 +27,8 @@ export async function listTables(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tables = await tablesService.listTables(req.query as ListTablesQuery);
+    const tenantId = req.user?.tenantId ?? null;
+    const tables   = await tablesService.listTables(req.query as ListTablesQuery, tenantId);
     res.json(success(tables));
   } catch (err) {
     next(err);
@@ -45,8 +46,9 @@ export async function getTableAvailability(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query = req.query as unknown as ListTableAvailQuery;
-    const tables = await tablesService.getTableAvailability(query);
+    const tenantId = req.user?.tenantId ?? null;
+    const query    = req.query as unknown as ListTableAvailQuery;
+    const tables   = await tablesService.getTableAvailability(query, tenantId);
     res.json(success(tables));
   } catch (err) {
     next(err);
@@ -63,7 +65,8 @@ export async function createTable(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const table = await tablesService.createTable(req.body as CreateTableBody);
+    const tenantId = req.user?.tenantId ?? null;
+    const table    = await tablesService.createTable(req.body as CreateTableBody, tenantId);
     res.status(201).json(success(table));
   } catch (err) {
     next(err);
@@ -80,8 +83,9 @@ export async function updateTable(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    const table = await tablesService.updateTable(id, req.body as UpdateTableBody);
+    const { id }   = req.params as { id: string };
+    const tenantId = req.user?.tenantId ?? null;
+    const table    = await tablesService.updateTable(id, req.body as UpdateTableBody, tenantId);
     res.json(success(table));
   } catch (err) {
     next(err);
@@ -99,8 +103,9 @@ export async function deleteTable(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    await tablesService.deleteTable(id);
+    const { id }   = req.params as { id: string };
+    const tenantId = req.user?.tenantId ?? null;
+    await tablesService.deleteTable(id, tenantId);
     res.status(204).send();
   } catch (err) {
     next(err);

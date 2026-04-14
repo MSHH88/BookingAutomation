@@ -67,12 +67,15 @@ const tableSelect = {
  * Admins may pass isActive=false to see deactivated tables.
  * Ordered by name ASC.
  */
-export async function listTables(query: ListTablesQuery) {
+export async function listTables(query: ListTablesQuery, tenantId: string | null = null) {
   const isActive =
     query.isActive !== undefined ? query.isActive === 'true' : true;
 
+  const where: Prisma.TableWhereInput = { isActive };
+  if (tenantId !== null) where.tenantId = tenantId;
+
   return prisma.table.findMany({
-    where:   { isActive },
+    where,
     select:  tableSelect,
     orderBy: { name: 'asc' },
   });
@@ -91,7 +94,7 @@ export async function listTables(query: ListTablesQuery) {
  *   startAt = <date> + <time> (parsed as UTC for consistency with stored timestamps)
  *   endAt   = startAt + durationMinutes (default 120)
  */
-export async function getTableAvailability(query: ListTableAvailQuery) {
+export async function getTableAvailability(query: ListTableAvailQuery, tenantId: string | null = null) {
   const durationMinutes =
     query.durationMinutes ?? DEFAULT_SITTING_DURATION_MINUTES;
 
@@ -103,8 +106,13 @@ export async function getTableAvailability(query: ListTableAvailQuery) {
   const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
 
   // All active tables with sufficient capacity
+  const activeTablesWhere: Prisma.TableWhereInput = {
+    isActive: true,
+    capacity: { gte: query.partySize },
+    ...(tenantId !== null ? { tenantId } : {}),
+  };
   const activeTables = await prisma.table.findMany({
-    where:  { isActive: true, capacity: { gte: query.partySize } },
+    where:  activeTablesWhere,
     select: { ...tableSelect, _count: false },
     orderBy: { name: 'asc' },
   });
@@ -133,7 +141,7 @@ export async function getTableAvailability(query: ListTableAvailQuery) {
 /**
  * Create a new table (ADMIN only).
  */
-export async function createTable(body: CreateTableBody) {
+export async function createTable(body: CreateTableBody, tenantId: string | null = null) {
   return prisma.table.create({
     data: {
       name:      body.name,
@@ -142,6 +150,7 @@ export async function createTable(body: CreateTableBody) {
       positionX: body.positionX ?? null,
       positionY: body.positionY ?? null,
       isActive:  body.isActive  ?? true,
+      ...(tenantId !== null ? { tenantId } : {}),
     },
     select: tableSelect,
   });
@@ -152,13 +161,17 @@ export async function createTable(body: CreateTableBody) {
  *
  * Throws 404 if the table does not exist.
  */
-export async function updateTable(id: string, body: UpdateTableBody) {
+export async function updateTable(id: string, body: UpdateTableBody, tenantId: string | null = null) {
   const existing = await prisma.table.findUnique({
     where:  { id },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
   if (!existing) {
     throw new AppError(404, 'TABLE_NOT_FOUND', 'Table not found');
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Table not in your tenant');
   }
 
   return prisma.table.update({
@@ -182,13 +195,17 @@ export async function updateTable(id: string, body: UpdateTableBody) {
  * Throws 404 if the table does not exist.
  * Throws 409 if the table has active (PENDING/CONFIRMED/RESCHEDULED) bookings.
  */
-export async function deleteTable(id: string) {
+export async function deleteTable(id: string, tenantId: string | null = null) {
   const existing = await prisma.table.findUnique({
     where:  { id },
-    select: { id: true, name: true, isActive: true },
+    select: { id: true, name: true, isActive: true, tenantId: true },
   });
   if (!existing) {
     throw new AppError(404, 'TABLE_NOT_FOUND', 'Table not found');
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Table not in your tenant');
   }
 
   const activeBookingCount = await prisma.booking.count({
