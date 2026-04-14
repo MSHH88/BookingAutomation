@@ -50,6 +50,7 @@ import { prisma }    from '../../lib/prisma';
 import { getStripe } from '../../lib/stripe';
 import { AppError }  from '../../errors/AppError';
 import { logger }    from '../../utils/logger';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
 import type { CreatePaymentIntentBody, RefundBody } from './payments.schema';
 
@@ -153,8 +154,12 @@ export async function createPaymentIntent(data: CreatePaymentIntentBody, tenantI
     );
   }
 
-  // 4. Create PaymentIntent
-  const tipPence = data.tipAmount ? Math.round(data.tipAmount * SUBUNIT_MULTIPLIER) : 0;
+  // 4. Create PaymentIntent — enforce TIPS_ENABLED gate
+  const tipsEnabled = await isFeatureEnabled('TIPS_ENABLED', tenantId);
+  const tipPence = (tipsEnabled && data.tipAmount) ? Math.round(data.tipAmount * SUBUNIT_MULTIPLIER) : 0;
+  if (!tipsEnabled && data.tipAmount) {
+    logger.warn('Tip amount ignored — TIPS_ENABLED is off', { bookingId: booking.id, tipAmount: data.tipAmount });
+  }
   const totalAmountPence = amountPence + tipPence;
 
   const intentParams: Stripe.PaymentIntentCreateParams = {
