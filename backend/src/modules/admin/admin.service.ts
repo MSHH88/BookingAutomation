@@ -19,7 +19,8 @@
  *   updateArtistAdmin       — update isActive or commission config of an artist
  *
  * Data ownership / invariants:
- *  - StudioSettings is a singleton row (no uniqueKey — we use findFirst / id).
+ *  - StudioSettings is scoped by tenantId (@unique).  We use findUnique by
+ *    tenantId; a null tenantId is rejected with 403 to prevent cross-tenant reads.
  *  - FeatureFlag rows are keyed by `key` (unique).  update() throws P2025 which
  *    is caught here and re-thrown as AppError 404 for a clean API response.
  *  - User and Artist updates first fetch the record so the 404 message is
@@ -120,25 +121,36 @@ type ArtistListItem = Prisma.ArtistGetPayload<{ select: typeof artistListSelect 
 // ─── Studio Settings ──────────────────────────────────────────────────────────
 
 /**
- * Returns the current studio settings row, or null if the studio has not been
- * configured yet (e.g. fresh deployment before the seed has run).
+ * Returns the studio settings row for the given tenant, or null if the studio
+ * has not been configured yet (e.g. fresh deployment before the seed has run).
+ *
+ * @throws AppError 403 — when tenantId is null (SUPER_ADMIN without tenant context).
  */
-export async function getStudioSettings(): Promise<StudioSettingsResult | null> {
-  return prisma.studioSettings.findFirst({ select: settingsSelect });
+export async function getStudioSettings(tenantId: string | null): Promise<StudioSettingsResult | null> {
+  if (tenantId === null) {
+    throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
+  }
+  return prisma.studioSettings.findUnique({ where: { tenantId }, select: settingsSelect });
 }
 
 /**
- * Updates the studio settings row.  If no row exists yet (fresh deployment),
- * a new row is created and `studioName` is required.
+ * Updates the studio settings row for the given tenant.  If no row exists yet
+ * (fresh deployment), a new row is created and `studioName` is required.
  *
  * Fields not present in `body` are left unchanged when updating.
  *
+ * @throws AppError 403 — when tenantId is null (SUPER_ADMIN without tenant context).
  * @throws AppError 400 — studioName required when creating for the first time.
  */
 export async function updateStudioSettings(
-  body: UpdateSettingsBody,
+  body:     UpdateSettingsBody,
+  tenantId: string | null,
 ): Promise<StudioSettingsResult> {
-  const existing = await prisma.studioSettings.findFirst({ select: { id: true } });
+  if (tenantId === null) {
+    throw new AppError(403, 'FORBIDDEN', 'Tenant context required');
+  }
+
+  const existing = await prisma.studioSettings.findUnique({ where: { tenantId }, select: { id: true } });
 
   if (existing) {
     return prisma.studioSettings.update({
@@ -159,7 +171,7 @@ export async function updateStudioSettings(
   }
 
   return prisma.studioSettings.create({
-    data:   body as Prisma.StudioSettingsCreateInput,
+    data:   { ...(body as Prisma.StudioSettingsUncheckedCreateInput), tenantId },
     select: settingsSelect,
   });
 }

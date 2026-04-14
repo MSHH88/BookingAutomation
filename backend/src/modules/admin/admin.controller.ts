@@ -31,12 +31,13 @@ import type {
  * Returns the current studio settings, or null if not yet configured.
  */
 export async function getSettings(
-  _req: Request,
+  req:  Request,
   res:  Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const settings = await adminService.getStudioSettings();
+    const tenantId = extractTenantId(req);
+    const settings = await adminService.getStudioSettings(tenantId);
     res.json(success(settings));
   } catch (err) {
     next(err);
@@ -57,7 +58,8 @@ export async function patchSettings(
 ): Promise<void> {
   try {
     const body     = req.body as UpdateSettingsBody;
-    const settings = await adminService.updateStudioSettings(body);
+    const tenantId = extractTenantId(req);
+    const settings = await adminService.updateStudioSettings(body, tenantId);
     res.json(success(settings));
   } catch (err) {
     next(err);

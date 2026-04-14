@@ -5,14 +5,17 @@
  *
  * Coverage:
  *  ✓ getStudioSettings
- *      — returns existing settings row
- *      — returns null when no settings exist
+ *      — returns existing settings row for tenant
+ *      — returns null when no settings exist for tenant
+ *      — throws 403 when tenantId is null (SUPER_ADMIN without context)
  *
  *  ✓ updateStudioSettings
  *      — updates existing settings (returns updated row)
- *      — creates settings on first-time setup (studioName provided)
+ *      — creates settings on first-time setup (studioName + tenantId provided)
  *      — throws 400 when settings don't exist and studioName is missing
  *      — partial update: only supplied fields change
+ *      — throws 403 when tenantId is null (SUPER_ADMIN without context)
+ *      — TenantA cannot read TenantB settings (scoped by tenantId)
  *
  *  ✓ listFeatureFlags
  *      — returns all flags ordered by key
@@ -50,7 +53,7 @@
  *      — clears commission (sets to null)
  *      — throws 404 when artist not found
  *
- * Total: 30 tests
+ * Total: 33 tests
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────
@@ -63,7 +66,7 @@ process.env['JWT_REFRESH_SECRET'] = 'b'.repeat(32);
 
 // ─── Mock prisma ──────────────────────────────────────────────────────────────
 
-const mockSettingsFindFirst = jest.fn();
+const mockSettingsFindUnique = jest.fn();
 const mockSettingsUpdate    = jest.fn();
 const mockSettingsCreate    = jest.fn();
 
@@ -85,7 +88,7 @@ const mockArtistUpdate     = jest.fn();
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     studioSettings: {
-      findFirst: (...a: unknown[]) => mockSettingsFindFirst(...a),
+      findUnique: (...a: unknown[]) => mockSettingsFindUnique(...a),
       update:    (...a: unknown[]) => mockSettingsUpdate(...a),
       create:    (...a: unknown[]) => mockSettingsCreate(...a),
     },
@@ -183,21 +186,31 @@ beforeEach(() => {
 // ─── getStudioSettings ────────────────────────────────────────────────────────
 
 describe('getStudioSettings', () => {
-  it('returns existing settings row', async () => {
-    mockSettingsFindFirst.mockResolvedValue(stubSettings);
+  it('returns existing settings row for tenant', async () => {
+    mockSettingsFindUnique.mockResolvedValue(stubSettings);
 
-    const result = await service.getStudioSettings();
+    const result = await service.getStudioSettings('tenant-1');
 
     expect(result).toEqual(stubSettings);
-    expect(mockSettingsFindFirst).toHaveBeenCalledTimes(1);
+    expect(mockSettingsFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { tenantId: 'tenant-1' } }),
+    );
   });
 
-  it('returns null when no settings exist', async () => {
-    mockSettingsFindFirst.mockResolvedValue(null);
+  it('returns null when no settings exist for tenant', async () => {
+    mockSettingsFindUnique.mockResolvedValue(null);
 
-    const result = await service.getStudioSettings();
+    const result = await service.getStudioSettings('tenant-1');
 
     expect(result).toBeNull();
+  });
+
+  it('throws 403 when tenantId is null (SUPER_ADMIN without context)', async () => {
+    await expect(
+      service.getStudioSettings(null),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockSettingsFindUnique).not.toHaveBeenCalled();
   });
 });
 
@@ -205,11 +218,11 @@ describe('getStudioSettings', () => {
 
 describe('updateStudioSettings', () => {
   it('updates existing settings and returns updated row', async () => {
-    mockSettingsFindFirst.mockResolvedValue({ id: 'settings-1' });
+    mockSettingsFindUnique.mockResolvedValue({ id: 'settings-1' });
     const updated = { ...stubSettings, studioName: 'Renamed Studio' };
     mockSettingsUpdate.mockResolvedValue(updated);
 
-    const result = await service.updateStudioSettings({ studioName: 'Renamed Studio' });
+    const result = await service.updateStudioSettings({ studioName: 'Renamed Studio' }, 'tenant-1');
 
     expect(result).toEqual(updated);
     expect(mockSettingsUpdate).toHaveBeenCalledWith(
@@ -219,44 +232,68 @@ describe('updateStudioSettings', () => {
   });
 
   it('creates settings on first-time setup when studioName is provided', async () => {
-    mockSettingsFindFirst.mockResolvedValue(null);
+    mockSettingsFindUnique.mockResolvedValue(null);
     mockSettingsCreate.mockResolvedValue(stubSettings);
 
     const result = await service.updateStudioSettings({
       studioName:     'My Studio',
       studioTimezone: 'Europe/London',
-    });
+    }, 'tenant-1');
 
     expect(result).toEqual(stubSettings);
     expect(mockSettingsCreate).toHaveBeenCalledTimes(1);
+    expect(mockSettingsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ tenantId: 'tenant-1' }) }),
+    );
     expect(mockSettingsUpdate).not.toHaveBeenCalled();
   });
 
   it('throws 400 when settings do not exist and studioName is missing', async () => {
-    mockSettingsFindFirst.mockResolvedValue(null);
+    mockSettingsFindUnique.mockResolvedValue(null);
 
     await expect(
-      service.updateStudioSettings({ currency: 'EUR' }),
+      service.updateStudioSettings({ currency: 'EUR' }, 'tenant-1'),
     ).rejects.toBeInstanceOf(AppError);
 
     await expect(
-      service.updateStudioSettings({ currency: 'EUR' }),
+      service.updateStudioSettings({ currency: 'EUR' }, 'tenant-1'),
     ).rejects.toMatchObject({ statusCode: 400, code: 'VALIDATION_ERROR' });
 
     expect(mockSettingsCreate).not.toHaveBeenCalled();
   });
 
   it('partial update — only supplied fields are sent to Prisma update', async () => {
-    mockSettingsFindFirst.mockResolvedValue({ id: 'settings-1' });
+    mockSettingsFindUnique.mockResolvedValue({ id: 'settings-1' });
     mockSettingsUpdate.mockResolvedValue(stubSettings);
 
-    await service.updateStudioSettings({ currency: 'USD' });
+    await service.updateStudioSettings({ currency: 'USD' }, 'tenant-1');
 
     expect(mockSettingsUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: { currency: 'USD' },
       }),
     );
+  });
+
+  it('throws 403 when tenantId is null (SUPER_ADMIN without context)', async () => {
+    await expect(
+      service.updateStudioSettings({ studioName: 'Studio' }, null),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockSettingsFindUnique).not.toHaveBeenCalled();
+  });
+
+  it('TenantA cannot read TenantB settings — scoped by tenantId', async () => {
+    // Only TenantA row is found; TenantB would return null
+    mockSettingsFindUnique.mockImplementation((args: { where: { tenantId: string } }) => {
+      return args.where.tenantId === 'tenant-a' ? Promise.resolve(stubSettings) : Promise.resolve(null);
+    });
+
+    const resultA = await service.getStudioSettings('tenant-a');
+    const resultB = await service.getStudioSettings('tenant-b');
+
+    expect(resultA).toEqual(stubSettings);
+    expect(resultB).toBeNull();
   });
 });
 
@@ -342,7 +379,7 @@ describe('updateFeatureFlag', () => {
 
     const result = await service.updateFeatureFlag('TIPS_ENABLED', { isEnabled: false }, 'tenant-1');
 
-    expect(result.tenantId).toBe('tenant-1');
+    expect(result.isEnabled).toBe(false);
     expect(mockFlagUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { key_tenantId: { key: 'TIPS_ENABLED', tenantId: 'tenant-1' } },
@@ -384,7 +421,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    await service.listUsers({ isActive: 'true' }, null);
+    await service.listUsers({ isActive: true }, null);
 
     const [findManyCall] = mockUserFindMany.mock.calls;
     expect(findManyCall[0].where.isActive).toBe(true);
@@ -394,7 +431,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    await service.listUsers({ isActive: 'false' }, null);
+    await service.listUsers({ isActive: false }, null);
 
     const [findManyCall] = mockUserFindMany.mock.calls;
     expect(findManyCall[0].where.isActive).toBe(false);
@@ -517,7 +554,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue([]);
     mockArtistCount.mockResolvedValue(0);
 
-    await service.listArtistsAdmin({ isActive: 'true' }, null);
+    await service.listArtistsAdmin({ isActive: true }, null);
 
     const [call] = mockArtistFindMany.mock.calls;
     expect(call[0].where.isActive).toBe(true);
@@ -527,7 +564,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue([]);
     mockArtistCount.mockResolvedValue(0);
 
-    await service.listArtistsAdmin({ isActive: 'false' }, null);
+    await service.listArtistsAdmin({ isActive: false }, null);
 
     const [call] = mockArtistFindMany.mock.calls;
     expect(call[0].where.isActive).toBe(false);
@@ -537,7 +574,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue([]);
     mockArtistCount.mockResolvedValue(0);
 
-    const result = await service.listArtistsAdmin({ isActive: 'false' }, null);
+    const result = await service.listArtistsAdmin({ isActive: false }, null);
 
     expect(result.data).toHaveLength(0);
     expect(result.meta.total).toBe(0);
