@@ -343,7 +343,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue(users);
     mockUserCount.mockResolvedValue(2);
 
-    const result = await service.listUsers({});
+    const result = await service.listUsers({}, null);
 
     expect(result.data).toHaveLength(2);
     expect(result.meta.total).toBe(2);
@@ -356,7 +356,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    await service.listUsers({ role: 'ADMIN' });
+    await service.listUsers({ role: 'ADMIN' }, null);
 
     const [findManyCall] = mockUserFindMany.mock.calls;
     expect(findManyCall[0].where.role).toBe('ADMIN');
@@ -366,7 +366,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    await service.listUsers({ isActive: 'true' });
+    await service.listUsers({ isActive: 'true' }, null);
 
     const [findManyCall] = mockUserFindMany.mock.calls;
     expect(findManyCall[0].where.isActive).toBe(true);
@@ -376,7 +376,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    await service.listUsers({ isActive: 'false' });
+    await service.listUsers({ isActive: 'false' }, null);
 
     const [findManyCall] = mockUserFindMany.mock.calls;
     expect(findManyCall[0].where.isActive).toBe(false);
@@ -386,7 +386,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    await service.listUsers({ search: 'alice' });
+    await service.listUsers({ search: 'alice' }, null);
 
     const [findManyCall] = mockUserFindMany.mock.calls;
     expect(findManyCall[0].where.OR).toEqual([
@@ -399,7 +399,7 @@ describe('listUsers', () => {
     mockUserFindMany.mockResolvedValue([]);
     mockUserCount.mockResolvedValue(0);
 
-    const result = await service.listUsers({ role: 'ADMIN' });
+    const result = await service.listUsers({ role: 'ADMIN' }, null);
 
     expect(result.data).toHaveLength(0);
     expect(result.meta.total).toBe(0);
@@ -414,7 +414,7 @@ describe('updateUser', () => {
     const deactivated = stubUser({ isActive: false });
     mockUserUpdate.mockResolvedValue(deactivated);
 
-    const result = await service.updateUser('user-1', { isActive: false });
+    const result = await service.updateUser('user-1', { isActive: false }, null);
 
     expect(result.isActive).toBe(false);
     expect(mockUserUpdate).toHaveBeenCalledWith(
@@ -429,7 +429,7 @@ describe('updateUser', () => {
     mockUserFindUnique.mockResolvedValue(stubUser({ role: 'CUSTOMER' }));
     mockUserUpdate.mockResolvedValue(stubUser({ role: 'ADMIN' }));
 
-    const result = await service.updateUser('user-1', { role: 'ADMIN' });
+    const result = await service.updateUser('user-1', { role: 'ADMIN' }, null);
 
     expect(result.role).toBe('ADMIN');
     expect(mockUserUpdate).toHaveBeenCalledWith(
@@ -441,7 +441,7 @@ describe('updateUser', () => {
     mockUserFindUnique.mockResolvedValue(stubUser());
     mockUserUpdate.mockResolvedValue(stubUser({ name: 'Alice' }));
 
-    const result = await service.updateUser('user-1', { name: 'Alice' });
+    const result = await service.updateUser('user-1', { name: 'Alice' }, null);
 
     expect(result.name).toBe('Alice');
     expect(mockUserUpdate).toHaveBeenCalledWith(
@@ -455,7 +455,7 @@ describe('updateUser', () => {
       stubUser({ role: 'ARTIST', isActive: true, name: 'Bob' }),
     );
 
-    await service.updateUser('user-1', { role: 'ARTIST', isActive: true, name: 'Bob' });
+    await service.updateUser('user-1', { role: 'ARTIST', isActive: true, name: 'Bob' }, null);
 
     expect(mockUserUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -468,11 +468,11 @@ describe('updateUser', () => {
     mockUserFindUnique.mockResolvedValue(null);
 
     await expect(
-      service.updateUser('nonexistent', { isActive: false }),
+      service.updateUser('nonexistent', { isActive: false }, null),
     ).rejects.toBeInstanceOf(AppError);
 
     await expect(
-      service.updateUser('nonexistent', { isActive: false }),
+      service.updateUser('nonexistent', { isActive: false }, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
 
     expect(mockUserUpdate).not.toHaveBeenCalled();
@@ -487,7 +487,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue(artists);
     mockArtistCount.mockResolvedValue(2);
 
-    const result = await service.listArtistsAdmin({});
+    const result = await service.listArtistsAdmin({}, null);
 
     expect(result.data).toHaveLength(2);
     expect(result.meta.total).toBe(2);
@@ -499,7 +499,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue([]);
     mockArtistCount.mockResolvedValue(0);
 
-    await service.listArtistsAdmin({ isActive: 'true' });
+    await service.listArtistsAdmin({ isActive: 'true' }, null);
 
     const [call] = mockArtistFindMany.mock.calls;
     expect(call[0].where.isActive).toBe(true);
@@ -509,7 +509,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue([]);
     mockArtistCount.mockResolvedValue(0);
 
-    await service.listArtistsAdmin({ isActive: 'false' });
+    await service.listArtistsAdmin({ isActive: 'false' }, null);
 
     const [call] = mockArtistFindMany.mock.calls;
     expect(call[0].where.isActive).toBe(false);
@@ -519,7 +519,7 @@ describe('listArtistsAdmin', () => {
     mockArtistFindMany.mockResolvedValue([]);
     mockArtistCount.mockResolvedValue(0);
 
-    const result = await service.listArtistsAdmin({ isActive: 'false' });
+    const result = await service.listArtistsAdmin({ isActive: 'false' }, null);
 
     expect(result.data).toHaveLength(0);
     expect(result.meta.total).toBe(0);
@@ -534,7 +534,7 @@ describe('updateArtistAdmin', () => {
     const deactivated = stubArtist({ isActive: false });
     mockArtistUpdate.mockResolvedValue(deactivated);
 
-    const result = await service.updateArtistAdmin('artist-1', { isActive: false });
+    const result = await service.updateArtistAdmin('artist-1', { isActive: false }, null);
 
     expect(result.isActive).toBe(false);
     expect(mockArtistUpdate).toHaveBeenCalledWith(
@@ -554,7 +554,7 @@ describe('updateArtistAdmin', () => {
     const result = await service.updateArtistAdmin('artist-1', {
       commissionRate: 15,
       commissionType: 'PERCENTAGE',
-    });
+    }, null);
 
     expect(result.commissionRate).toBe(15);
     expect(result.commissionType).toBe('PERCENTAGE');
@@ -576,7 +576,7 @@ describe('updateArtistAdmin', () => {
     const result = await service.updateArtistAdmin('artist-1', {
       commissionRate: null,
       commissionType: null,
-    });
+    }, null);
 
     expect(result.commissionRate).toBeNull();
     expect(result.commissionType).toBeNull();
@@ -586,11 +586,11 @@ describe('updateArtistAdmin', () => {
     mockArtistFindUnique.mockResolvedValue(null);
 
     await expect(
-      service.updateArtistAdmin('nonexistent', { isActive: true }),
+      service.updateArtistAdmin('nonexistent', { isActive: true }, null),
     ).rejects.toBeInstanceOf(AppError);
 
     await expect(
-      service.updateArtistAdmin('nonexistent', { isActive: true }),
+      service.updateArtistAdmin('nonexistent', { isActive: true }, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
 
     expect(mockArtistUpdate).not.toHaveBeenCalled();

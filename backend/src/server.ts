@@ -20,7 +20,8 @@ import { reviewQueue }                        from './modules/reviews/reviews.qu
 import { startReminderWorker }                from './modules/reminders/reminders.processor';
 import { reminderQueue }                      from './modules/reminders/reminders.queue';
 import { startWebhookWorker, webhookQueue }   from './modules/webhooks/webhooks.queue';
-import { startAuthEmailWorker, authEmailQueue } from './modules/auth/auth.email.processor';
+import { startAuthEmailWorker }                from './modules/auth/auth.email.processor';
+import { authEmailQueue }                     from './modules/auth/auth.email.queue';
 
 // ─── Create server ────────────────────────────────────────────────────────────
 

@@ -259,7 +259,11 @@ export async function getOverview(query: OverviewQuery, tenantId: string | null 
     prisma.waitlistEntry.count({ where: { status: 'NOTIFIED', ...(tenantId !== null ? { tenantId } : {}) } }),
     // WhatsApp automation events tracked as ANALYTICS events with the prefix
     prisma.analyticsEvent.count({
-      where: { eventType: { startsWith: 'WHATSAPP_' }, createdAt: df },
+      where: {
+        eventType: { startsWith: 'WHATSAPP_' },
+        createdAt: df,
+        ...(tenantId !== null ? { tenantId } : {}),
+      },
     }),
   ]);
 

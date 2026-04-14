@@ -395,16 +395,21 @@ export async function refundPayment(data: RefundBody, tenantId: string | null = 
 /**
  * Resolves the deposit amount in pence for the given booking.
  * Priority: explicit depositAmount > percentage of totalAmount > error.
+ *
+ * Scopes the StudioSettings lookup to the booking's tenant so that deposit
+ * percentages are not leaked across tenant boundaries.
  */
 async function resolveDepositPence(
-  booking: { depositAmount: unknown; totalAmount: unknown },
+  booking: { depositAmount: unknown; totalAmount: unknown; tenantId?: string | null },
 ): Promise<number> {
   let amountPence: number;
 
   if (booking.depositAmount !== null && booking.depositAmount !== undefined) {
     amountPence = Math.round(Number(booking.depositAmount) * SUBUNIT_MULTIPLIER);
   } else if (booking.totalAmount !== null && booking.totalAmount !== undefined) {
-    const settings     = await prisma.studioSettings.findFirst();
+    const settings     = await prisma.studioSettings.findFirst({
+      where: booking.tenantId != null ? { tenantId: booking.tenantId } : {},
+    });
     const depositPct   = settings ? Number(settings.depositPercentage) : DEFAULT_DEPOSIT_PCT;
     amountPence        = Math.round(Number(booking.totalAmount) * (depositPct / 100) * SUBUNIT_MULTIPLIER);
   } else {

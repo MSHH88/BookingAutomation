@@ -32,6 +32,22 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ─── Mock Redis (used by verifyAccessToken + logout jti revocation) ───────────
+const mockRedisGet    = jest.fn().mockResolvedValue(null); // null = not revoked
+const mockRedisSetex  = jest.fn().mockResolvedValue('OK');
+
+jest.mock('../../lib/redis', () => ({
+  getRedis: () => ({
+    get:   (...a: unknown[]) => mockRedisGet(...a),
+    setex: (...a: unknown[]) => mockRedisSetex(...a),
+  }),
+}));
+
+// ─── Mock auth email queue (prevents real BullMQ/Redis connection) ────────────
+jest.mock('./auth.email.queue', () => ({
+  enqueuePasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Mock bcryptjs ────────────────────────────────────────────────────────────
 jest.mock('bcryptjs', () => ({
   hashSync: jest.fn(() => '$2a$12$mocked_sync_hash'),
@@ -325,15 +341,15 @@ describe('verifyAccessToken', () => {
     mockCreate.mockResolvedValueOnce({ id: 'rt_1', token: 'refresh_hex', expiresAt: new Date() });
 
     const tokens = await authService.login({ email: baseUser.email, password: 'pass' });
-    const payload = authService.verifyAccessToken(tokens.accessToken);
+    const payload = await authService.verifyAccessToken(tokens.accessToken);
 
     expect(payload.sub).toBe(baseUser.id);
     expect(payload.email).toBe(baseUser.email);
   });
 
-  it('throws 401 for a tampered / invalid token', () => {
-    expect(() => authService.verifyAccessToken('not.a.valid.jwt')).toThrow(AppError);
-    expect(() => authService.verifyAccessToken('not.a.valid.jwt')).toThrow(
+  it('throws 401 for a tampered / invalid token', async () => {
+    await expect(authService.verifyAccessToken('not.a.valid.jwt')).rejects.toBeInstanceOf(AppError);
+    await expect(authService.verifyAccessToken('not.a.valid.jwt')).rejects.toMatchObject(
       expect.objectContaining({ statusCode: 401, code: 'INVALID_TOKEN' }),
     );
   });

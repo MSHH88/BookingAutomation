@@ -317,6 +317,14 @@ describe('confirmBooking', () => {
     mockBookingFindUnique.mockResolvedValue(baseBooking);
     mockBookingFindFirst.mockResolvedValue(null); // no conflict
     mockBookingUpdate.mockResolvedValue(confirmedResult);
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     const result = await bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN');
 
@@ -343,6 +351,14 @@ describe('confirmBooking', () => {
       startAt: FUTURE_START,
       endAt:   FUTURE_END,
     });
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     await expect(
       bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN'),
@@ -356,6 +372,14 @@ describe('confirmBooking', () => {
       startAt: FUTURE_START,
       endAt:   FUTURE_END,
     });
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     await expect(
       bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN'),
@@ -367,6 +391,14 @@ describe('confirmBooking', () => {
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
     mockBookingFindFirst.mockResolvedValue(null);
     mockBookingUpdate.mockResolvedValue(confirmedResult);
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     const result = await bookingsService.confirmBooking('booking_1', 'user_1', 'ARTIST');
 
@@ -624,6 +656,14 @@ describe('rescheduleBooking', () => {
     mockBookingFindUnique.mockResolvedValue(confirmedBooking);
     mockBookingFindFirst.mockResolvedValue(null); // no conflict
     mockBookingUpdate.mockResolvedValue(rescheduledResult);
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     const result = await bookingsService.rescheduleBooking(
       'booking_1', rescheduleBody, 'admin_1', 'ADMIN',
@@ -650,6 +690,14 @@ describe('rescheduleBooking', () => {
       startAt: NEW_START,
       endAt:   NEW_END,
     });
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     await expect(
       bookingsService.rescheduleBooking('booking_1', rescheduleBody, 'admin_1', 'ADMIN'),
@@ -663,6 +711,14 @@ describe('rescheduleBooking', () => {
       startAt: NEW_START,
       endAt:   NEW_END,
     });
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     await expect(
       bookingsService.rescheduleBooking('booking_1', rescheduleBody, 'admin_1', 'ADMIN'),
@@ -682,6 +738,14 @@ describe('rescheduleBooking', () => {
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
     mockBookingFindFirst.mockResolvedValue(null);
     mockBookingUpdate.mockResolvedValue(rescheduledResult);
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
 
     const result = await bookingsService.rescheduleBooking(
       'booking_1', rescheduleBody, 'user_1', 'ARTIST',
