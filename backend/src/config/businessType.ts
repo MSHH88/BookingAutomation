@@ -251,7 +251,6 @@ export const FEATURE_FLAG_KEYS = [
   // ── Payments ─────────────────────────────────────────────────────────────
   'ONLINE_PAYMENT_ENABLED',     // Stripe payment collection (deposit or full)
   'CANCELLATION_FEE_ENABLED',   // enforce cancellation fee per policy
-  'GIFT_VOUCHER_ENABLED',       // sell/redeem gift vouchers
 
   // ── Retention & automation ────────────────────────────────────────────────
   'WAITING_LIST_ENABLED',       // waitlist when artist / slot fully booked
@@ -357,7 +356,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     LEAD_SCORING_ENABLED:       true,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
-    GIFT_VOUCHER_ENABLED:       false,
     WAITING_LIST_ENABLED:       false,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
@@ -423,7 +421,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
-    GIFT_VOUCHER_ENABLED:       false,
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
@@ -489,7 +486,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
-    GIFT_VOUCHER_ENABLED:       false,
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
@@ -555,7 +551,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
-    GIFT_VOUCHER_ENABLED:       false,
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
@@ -621,7 +616,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
-    GIFT_VOUCHER_ENABLED:       false,
     WAITING_LIST_ENABLED:       false,
     RECURRING_BOOKING_ENABLED:  true,
     REBOOK_REMINDER_ENABLED:    true,
@@ -687,7 +681,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     false,
     CANCELLATION_FEE_ENABLED:   false,
-    GIFT_VOUCHER_ENABLED:       false,
     WAITING_LIST_ENABLED:       true,
     RECURRING_BOOKING_ENABLED:  false,
     REBOOK_REMINDER_ENABLED:    false,
