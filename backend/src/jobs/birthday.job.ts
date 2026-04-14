@@ -119,6 +119,14 @@ async function processBirthdayJob(job: Job<BirthdayJobData>): Promise<void> {
 
   for (const customer of customers) {
     try {
+      // Per-tenant flag check — skip customers whose tenant has disabled birthday automation
+      if (!(await isFeatureEnabled('BIRTHDAY_AUTOMATION_ENABLED', customer.tenantId))) {
+        logger.debug('Birthday message skipped — BIRTHDAY_AUTOMATION_ENABLED off for tenant', {
+          customerId: customer.id, tenantId: customer.tenantId,
+        });
+        continue;
+      }
+
       await dispatchNotification({
         templateKey: 'birthday-greeting',
         phone: customer.phone,

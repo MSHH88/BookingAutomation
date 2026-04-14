@@ -153,6 +153,14 @@ async function processCampaign(job: Job<CampaignJobData>): Promise<void> {
     return;
   }
 
+  // Per-tenant flag check — campaigns are scoped to a tenant
+  if (!(await isFeatureEnabled('CAMPAIGNS_ENABLED', campaign.tenantId))) {
+    logger.debug('Campaign skipped — CAMPAIGNS_ENABLED off for tenant', {
+      campaignId, tenantId: campaign.tenantId,
+    });
+    return;
+  }
+
   if (campaign.status !== 'SCHEDULED' && campaign.status !== 'SENDING') {
     logger.info('Campaign not in sendable state', { campaignId, status: campaign.status });
     return;

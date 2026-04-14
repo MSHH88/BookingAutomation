@@ -73,6 +73,14 @@ async function processRecurringBookings(job: Job<RecurringBookingJobData>): Prom
 
   for (const recurring of dueRecurrings) {
     try {
+      // Per-tenant flag check — skip records whose tenant has disabled recurring bookings
+      if (!(await isFeatureEnabled('RECURRING_BOOKINGS_ENABLED', recurring.tenantId))) {
+        logger.debug('Recurring booking skipped — RECURRING_BOOKINGS_ENABLED off for tenant', {
+          recurringId: recurring.id, tenantId: recurring.tenantId,
+        });
+        continue;
+      }
+
       const customer = await prisma.user.findUnique({
         where: { id: recurring.customerId },
         select: { id: true, name: true, phone: true, email: true, notificationChannel: true, isActive: true },
