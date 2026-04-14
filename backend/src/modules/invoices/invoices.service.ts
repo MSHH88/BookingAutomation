@@ -158,9 +158,12 @@ function parseDateFilter(raw: string | undefined, endOfDay = false): Date | unde
  * Returns a paginated result ordered by createdAt descending.
  */
 export async function listInvoices(
+  tenantId: string | null,
   query: ListInvoicesQuery,
 ): Promise<PaginatedResult<InvoiceListItem>> {
-  const where: Prisma.InvoiceWhereInput = {};
+  const where: Prisma.InvoiceWhereInput = {
+    booking: { tenantId },
+  };
 
   if (query.status) where.status = query.status;
 

@@ -62,6 +62,7 @@ import type {
  */
 const templateDetailSelect = {
   id:        true,
+  tenantId:  true,
   key:       true,
   subject:   true,
   htmlBody:  true,
@@ -76,6 +77,7 @@ const templateDetailSelect = {
  */
 const templateListSelect = {
   id:        true,
+  tenantId:  true,
   key:       true,
   subject:   true,
   variables: true,
@@ -97,9 +99,10 @@ export type TemplateListItem = Prisma.EmailTemplateGetPayload<{ select: typeof t
  * Ordered by key ascending so templates appear in alphabetical order.
  */
 export async function listTemplates(
+  tenantId: string | null,
   query: ListTemplatesQuery,
 ): Promise<PaginatedResult<TemplateListItem>> {
-  const where: Prisma.EmailTemplateWhereInput = {};
+  const where: Prisma.EmailTemplateWhereInput = { tenantId };
 
   if (query.isActive !== undefined) {
     where.isActive = query.isActive;
@@ -115,9 +118,9 @@ export async function listTemplates(
 /**
  * Fetch a single email template by its database ID (ADMIN only).
  *
- * Throws 404 when the template does not exist.
+ * Throws 404 when the template does not exist or belongs to a different tenant.
  */
-export async function getTemplateById(id: string): Promise<TemplateDetail> {
+export async function getTemplateById(tenantId: string | null, id: string): Promise<TemplateDetail> {
   const template = await prisma.emailTemplate.findUnique({
     where:  { id },
     select: templateDetailSelect,
@@ -127,18 +130,22 @@ export async function getTemplateById(id: string): Promise<TemplateDetail> {
     throw new AppError(404, 'TEMPLATE_NOT_FOUND', `Email template '${id}' not found`);
   }
 
+  if (template.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have access to this template');
+  }
+
   return template;
 }
 
 /**
- * Create a new email template (ADMIN only).
+ * Create a new email template (ADMIN only), scoped to the given tenant.
  *
- * The `key` must be globally unique.
- * Throws 409 when a template with the same key already exists.
+ * The `key` must be unique within the tenant.
+ * Throws 409 when a template with the same key already exists for this tenant.
  */
-export async function createTemplate(body: CreateTemplateBody): Promise<TemplateDetail> {
-  const existing = await prisma.emailTemplate.findUnique({
-    where:  { key: body.key },
+export async function createTemplate(tenantId: string | null, body: CreateTemplateBody): Promise<TemplateDetail> {
+  const existing = await prisma.emailTemplate.findFirst({
+    where:  { key: body.key, tenantId },
     select: { id: true },
   });
 
@@ -152,6 +159,7 @@ export async function createTemplate(body: CreateTemplateBody): Promise<Template
 
   const template = await prisma.emailTemplate.create({
     data: {
+      tenantId,
       key:       body.key,
       subject:   body.subject,
       htmlBody:  body.htmlBody,
@@ -161,7 +169,7 @@ export async function createTemplate(body: CreateTemplateBody): Promise<Template
     select: templateDetailSelect,
   });
 
-  logger.info('Email template created', { templateId: template.id, key: template.key });
+  logger.info('Email template created', { templateId: template.id, key: template.key, tenantId });
 
   return template;
 }
@@ -170,19 +178,24 @@ export async function createTemplate(body: CreateTemplateBody): Promise<Template
  * Update an existing email template (ADMIN only).
  *
  * Supports partial updates — only the provided fields are changed.
- * Throws 404 when the template does not exist.
+ * Throws 404 when the template does not exist or 403 if cross-tenant.
  */
 export async function updateTemplate(
+  tenantId: string | null,
   id:   string,
   body: UpdateTemplateBody,
 ): Promise<TemplateDetail> {
   const existing = await prisma.emailTemplate.findUnique({
     where:  { id },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
 
   if (!existing) {
     throw new AppError(404, 'TEMPLATE_NOT_FOUND', `Email template '${id}' not found`);
+  }
+
+  if (existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have access to this template');
   }
 
   const data: Prisma.EmailTemplateUpdateInput = {};
@@ -197,7 +210,7 @@ export async function updateTemplate(
     select: templateDetailSelect,
   });
 
-  logger.info('Email template updated', { templateId: id });
+  logger.info('Email template updated', { templateId: id, tenantId });
 
   return updated;
 }
@@ -208,17 +221,21 @@ export async function updateTemplate(
  * We never hard-delete templates — historical records and audit trails remain
  * intact.  Deactivated templates cannot be dispatched via `sendEmail`.
  *
- * Throws 404 when the template does not exist.
+ * Throws 404 when the template does not exist or 403 if cross-tenant.
  * Throws 409 when the template is already inactive.
  */
-export async function deleteTemplate(id: string): Promise<TemplateDetail> {
+export async function deleteTemplate(tenantId: string | null, id: string): Promise<TemplateDetail> {
   const existing = await prisma.emailTemplate.findUnique({
     where:  { id },
-    select: { id: true, isActive: true },
+    select: { id: true, isActive: true, tenantId: true },
   });
 
   if (!existing) {
     throw new AppError(404, 'TEMPLATE_NOT_FOUND', `Email template '${id}' not found`);
+  }
+
+  if (existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have access to this template');
   }
 
   if (!existing.isActive) {
@@ -235,7 +252,7 @@ export async function deleteTemplate(id: string): Promise<TemplateDetail> {
     select: templateDetailSelect,
   });
 
-  logger.info('Email template deactivated', { templateId: id });
+  logger.info('Email template deactivated', { templateId: id, tenantId });
 
   return updated;
 }

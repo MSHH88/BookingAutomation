@@ -23,12 +23,15 @@ import type { UpdateSettingsBody } from './settings.schema';
  * HTTP 200 even when settings have not been seeded yet — `data` will be null.
  */
 export async function getSettings(
-  _req: Request,
+  req:  Request,
   res:  Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const settings = await settingsService.getCachedSettings();
+    // For public endpoint, derive tenantId from req.user if authenticated,
+    // otherwise use null (falls back to single-tenant legacy row).
+    const tenantId = req.user?.tenantId ?? null;
+    const settings = await settingsService.getCachedSettings(tenantId);
     res.json(success(settings));
   } catch (err) {
     next(err);
@@ -49,8 +52,9 @@ export async function patchSettings(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = req.user!.tenantId ?? null;
     const body     = req.body as UpdateSettingsBody;
-    const settings = await settingsService.updateSettings(body);
+    const settings = await settingsService.updateSettings(tenantId, body);
     res.json(success(settings));
   } catch (err) {
     next(err);

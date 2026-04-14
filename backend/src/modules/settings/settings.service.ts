@@ -32,8 +32,12 @@ import type { UpdateSettingsBody } from './settings.schema';
 
 // ─── Cache configuration ──────────────────────────────────────────────────────
 
-const CACHE_KEY = 'settings:public';
 const CACHE_TTL = 300; // seconds (5 minutes)
+
+/** Returns the per-tenant Redis cache key. */
+function cacheKey(tenantId: string | null): string {
+  return tenantId ? `settings:public:${tenantId}` : 'settings:public';
+}
 
 // ─── Prisma select shapes ─────────────────────────────────────────────────────
 
@@ -98,8 +102,9 @@ export type FullSettingsResult = Prisma.StudioSettingsGetPayload<{
  *     CACHE_TTL seconds.
  *  4. Returns null when the studio settings row has not yet been seeded.
  */
-export async function getCachedSettings(): Promise<PublicSettingsResult | null> {
+export async function getCachedSettings(tenantId: string | null): Promise<PublicSettingsResult | null> {
   const redis = getRedis();
+  const CACHE_KEY = cacheKey(tenantId);
 
   // 1 — Try the cache
   try {
@@ -113,8 +118,9 @@ export async function getCachedSettings(): Promise<PublicSettingsResult | null> 
     });
   }
 
-  // 2 — Cache miss: fetch from DB
+  // 2 — Cache miss: fetch from DB, scoped to tenant
   const settings = await prisma.studioSettings.findFirst({
+    where:  { tenantId },
     select: publicSettingsSelect,
   });
 
@@ -147,9 +153,11 @@ export async function getCachedSettings(): Promise<PublicSettingsResult | null> 
  * @throws AppError 400 — studioName required when creating for the first time.
  */
 export async function updateSettings(
+  tenantId: string | null,
   body: UpdateSettingsBody,
 ): Promise<FullSettingsResult> {
   const existing = await prisma.studioSettings.findFirst({
+    where:  { tenantId },
     select: { id: true },
   });
 
@@ -171,15 +179,15 @@ export async function updateSettings(
     }
 
     result = await prisma.studioSettings.create({
-      data:   body as Prisma.StudioSettingsCreateInput,
+      data:   { tenantId, ...body } as Prisma.StudioSettingsCreateInput,
       select: fullSettingsSelect,
     });
   }
 
-  // Invalidate the public cache so GET /api/settings returns fresh data
+  // Invalidate the per-tenant public cache so GET /api/settings returns fresh data
   try {
     const redis = getRedis();
-    await redis.del(CACHE_KEY);
+    await redis.del(cacheKey(tenantId));
   } catch (err) {
     logger.warn('[Settings] Redis DEL failed after update, cache may be stale', {
       error: err instanceof Error ? err.message : String(err),

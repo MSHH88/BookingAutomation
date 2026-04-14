@@ -35,8 +35,9 @@ export async function listTemplates(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as unknown as ListTemplatesQuery;
-    const result = await notificationsService.listTemplates(query);
+    const tenantId = req.user!.tenantId ?? null;
+    const query    = req.query as unknown as ListTemplatesQuery;
+    const result   = await notificationsService.listTemplates(tenantId, query);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -54,8 +55,9 @@ export async function getTemplateById(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId  = req.user!.tenantId ?? null;
     const { id }    = req.params as { id: string };
-    const template  = await notificationsService.getTemplateById(id);
+    const template  = await notificationsService.getTemplateById(tenantId, id);
     res.json(success(template));
   } catch (err) {
     next(err);
@@ -66,7 +68,7 @@ export async function getTemplateById(
  * POST /api/notifications/templates
  * ADMIN only. Creates a new email template.
  *
- * The template `key` must be unique across all templates.
+ * The template `key` must be unique within the tenant.
  * Returns 409 when a duplicate key is detected.
  */
 export async function createTemplate(
@@ -75,8 +77,9 @@ export async function createTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = req.user!.tenantId ?? null;
     const body     = req.body as CreateTemplateBody;
-    const template = await notificationsService.createTemplate(body);
+    const template = await notificationsService.createTemplate(tenantId, body);
     res.status(201).json(success(template));
   } catch (err) {
     next(err);
@@ -88,7 +91,7 @@ export async function createTemplate(
  * ADMIN only. Partially updates an email template.
  *
  * At least one field (subject, htmlBody, variables, isActive) must be provided.
- * Returns 404 when the template does not exist.
+ * Returns 404 when the template does not exist or 403 if cross-tenant.
  */
 export async function updateTemplate(
   req:  Request,
@@ -96,9 +99,10 @@ export async function updateTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = req.user!.tenantId ?? null;
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateTemplateBody;
-    const template = await notificationsService.updateTemplate(id, body);
+    const template = await notificationsService.updateTemplate(tenantId, id, body);
     res.json(success(template));
   } catch (err) {
     next(err);
@@ -110,7 +114,7 @@ export async function updateTemplate(
  * ADMIN only. Soft-deletes (deactivates) an email template.
  *
  * Templates are never hard-deleted — historical references remain intact.
- * Returns 409 when the template is already inactive.
+ * Returns 409 when the template is already inactive or 403 if cross-tenant.
  */
 export async function deleteTemplate(
   req:  Request,
@@ -118,8 +122,9 @@ export async function deleteTemplate(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = req.user!.tenantId ?? null;
     const { id }   = req.params as { id: string };
-    const template = await notificationsService.deleteTemplate(id);
+    const template = await notificationsService.deleteTemplate(tenantId, id);
     res.json(success(template));
   } catch (err) {
     next(err);

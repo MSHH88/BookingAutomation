@@ -36,7 +36,8 @@ export async function createQuote(
     const body      = req.body as CreateQuoteBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const quote     = await quotesService.createQuote(body, actorId, actorRole);
+    const tenantId  = req.user!.tenantId ?? null;
+    const quote     = await quotesService.createQuote(body, actorId, actorRole, tenantId);
     res.status(201).json(success(quote));
   } catch (err) {
     next(err);
@@ -48,7 +49,7 @@ export async function createQuote(
  * ADMIN/ARTIST. Returns a paginated list of quotes.
  *
  * ARTISTs are automatically scoped to their own quotes.
- * ADMINs see all quotes, optionally filtered by query params.
+ * ADMINs see all quotes within their tenant, optionally filtered by query params.
  */
 export async function listQuotes(
   req: Request,
@@ -59,7 +60,8 @@ export async function listQuotes(
     const query     = req.query as ListQuotesQuery;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const result    = await quotesService.listQuotes(query, actorId, actorRole);
+    const tenantId  = req.user!.tenantId ?? null;
+    const result    = await quotesService.listQuotes(query, actorId, actorRole, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -81,7 +83,8 @@ export async function getQuoteById(
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const quote     = await quotesService.getQuoteById(id, actorId, actorRole);
+    const tenantId  = req.user!.tenantId ?? null;
+    const quote     = await quotesService.getQuoteById(id, actorId, actorRole, tenantId);
     res.json(success(quote));
   } catch (err) {
     next(err);
@@ -148,9 +151,10 @@ export async function acceptQuote(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    const body   = req.body as AcceptQuoteBody;
-    const quote  = await quotesService.acceptQuote(id, body);
+    const { id }   = req.params as { id: string };
+    const body     = req.body as AcceptQuoteBody;
+    const tenantId = req.user!.tenantId ?? null;
+    const quote    = await quotesService.acceptQuote(id, body, tenantId);
     res.json(success(quote));
   } catch (err) {
     next(err);
@@ -169,8 +173,9 @@ export async function rejectQuote(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    const quote  = await quotesService.rejectQuote(id);
+    const { id }   = req.params as { id: string };
+    const tenantId = req.user!.tenantId ?? null;
+    const quote    = await quotesService.rejectQuote(id, tenantId);
     res.json(success(quote));
   } catch (err) {
     next(err);

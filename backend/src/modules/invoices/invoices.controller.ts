@@ -37,8 +37,9 @@ export async function listInvoices(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as ListInvoicesQuery;
-    const result = await invoicesService.listInvoices(query);
+    const tenantId = req.user!.tenantId ?? null;
+    const query    = req.query as ListInvoicesQuery;
+    const result   = await invoicesService.listInvoices(tenantId, query);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);

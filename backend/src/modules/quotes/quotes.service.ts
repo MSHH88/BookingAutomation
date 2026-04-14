@@ -49,6 +49,7 @@ type ActorRole = 'ADMIN' | 'ARTIST';
  */
 const quoteDetailSelect = {
   id:          true,
+  tenantId:    true,
   leadId:      true,
   artistId:    true,
   price:       true,
@@ -198,6 +199,7 @@ export async function createQuote(
   body: CreateQuoteBody,
   actorId: string,
   actorRole: ActorRole,
+  tenantId: string | null,
 ): Promise<QuoteDetail> {
   // Resolve artistId based on caller role
   let resolvedArtistId: string;
@@ -226,6 +228,7 @@ export async function createQuote(
 
   const created = await prisma.quote.create({
     data: {
+      tenantId,
       leadId:     body.leadId,
       artistId:   resolvedArtistId,
       price:      body.price,
@@ -250,6 +253,7 @@ export async function listQuotes(
   query: ListQuotesQuery,
   actorId: string,
   actorRole: ActorRole,
+  tenantId: string | null,
 ): Promise<PaginatedResult<QuoteListItem>> {
   // Determine the artistId constraint
   let artistIdFilter: string | undefined;
@@ -266,6 +270,7 @@ export async function listQuotes(
   const to   = parseDateFilter(query.to, true);
 
   const where: Prisma.QuoteWhereInput = {
+    tenantId,
     ...(artistIdFilter && { artistId: artistIdFilter }),
     ...(query.status   && { status:   query.status }),
     ...(query.leadId   && { leadId:   query.leadId }),
@@ -294,8 +299,13 @@ export async function getQuoteById(
   id: string,
   actorId: string,
   actorRole: ActorRole,
+  tenantId: string | null,
 ): Promise<QuoteDetail> {
   const quote = await fetchQuoteDetail(id);
+
+  if (quote.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to view this quote');
+  }
 
   if (actorRole === 'ARTIST') {
     const artistId = await findArtistIdForUser(actorId);
@@ -437,13 +447,18 @@ export async function sendQuote(
 export async function acceptQuote(
   id: string,
   body: AcceptQuoteBody,
+  tenantId: string | null,
 ): Promise<QuoteDetail> {
   const quote = await prisma.quote.findUnique({
     where:  { id },
-    select: { id: true, status: true, leadId: true, artistId: true, price: true, hours: true, validUntil: true },
+    select: { id: true, status: true, leadId: true, artistId: true, price: true, hours: true, validUntil: true, tenantId: true },
   });
 
   if (!quote) throw new AppError(404, 'NOT_FOUND', 'Quote not found');
+
+  if (quote.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this quote');
+  }
 
   if (quote.status !== 'SENT') {
     throw new AppError(
@@ -520,13 +535,17 @@ export async function acceptQuote(
  *
  * ADMIN only (enforced at the router level).
  */
-export async function rejectQuote(id: string): Promise<QuoteDetail> {
+export async function rejectQuote(id: string, tenantId: string | null): Promise<QuoteDetail> {
   const quote = await prisma.quote.findUnique({
     where:  { id },
-    select: { id: true, status: true, leadId: true },
+    select: { id: true, status: true, leadId: true, tenantId: true },
   });
 
   if (!quote) throw new AppError(404, 'NOT_FOUND', 'Quote not found');
+
+  if (quote.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this quote');
+  }
 
   if (quote.status !== 'SENT') {
     throw new AppError(

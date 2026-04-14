@@ -407,8 +407,9 @@ async function resolveDepositPence(
   if (booking.depositAmount !== null && booking.depositAmount !== undefined) {
     amountPence = Math.round(Number(booking.depositAmount) * SUBUNIT_MULTIPLIER);
   } else if (booking.totalAmount !== null && booking.totalAmount !== undefined) {
+    // Always scope settings lookup to the booking's tenant (null = single-tenant mode)
     const settings     = await prisma.studioSettings.findFirst({
-      where: booking.tenantId != null ? { tenantId: booking.tenantId } : {},
+      where: { tenantId: booking.tenantId ?? null },
     });
     const depositPct   = settings ? Number(settings.depositPercentage) : DEFAULT_DEPOSIT_PCT;
     amountPence        = Math.round(Number(booking.totalAmount) * (depositPct / 100) * SUBUNIT_MULTIPLIER);

@@ -176,6 +176,7 @@ model Tenant {
   locations         Location[]
   sessions          Session[]
   sessionBookings   SessionBooking[]
+  quotes            Quote[]              @relation("TenantQuotes")
 
   @@index([isActive])
   @@map("tenants")
@@ -383,6 +384,7 @@ model Lead {
 
 model Quote {
   id          String      @id @default(cuid())
+  tenantId    String?
   leadId      String
   artistId    String
   price       Decimal     @db.Decimal(10, 2)
@@ -395,10 +397,12 @@ model Quote {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
+  tenant  Tenant? @relation("TenantQuotes", fields: [tenantId], references: [id], onDelete: SetNull)
   lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
   artist  Artist  @relation("ArtistQuotes", fields: [artistId], references: [id], onDelete: Restrict)
   booking Booking?
 
+  @@index([tenantId])
   @@index([leadId])
   @@index([artistId, status])
   @@map("quotes")

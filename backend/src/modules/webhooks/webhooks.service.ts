@@ -56,6 +56,7 @@ import type {
  */
 const webhookPublicSelect = {
   id:          true,
+  tenantId:    true,
   url:         true,
   events:      true,
   description: true,
@@ -94,13 +95,14 @@ export type DeliveryRecord    = Prisma.WebhookDeliveryGetPayload<{ select: typeo
 // ─── List ─────────────────────────────────────────────────────────────────────
 
 /**
- * Returns a paginated list of registered webhooks.
+ * Returns a paginated list of webhooks scoped to the given tenant.
  * Optionally filter by `isActive`.
  */
 export async function listWebhooks(
+  tenantId: string | null,
   query: ListWebhooksQuery,
 ): Promise<PaginatedResult<WebhookPublic>> {
-  const where: Prisma.WebhookWhereInput = {};
+  const where: Prisma.WebhookWhereInput = { tenantId };
   if (query.isActive !== undefined) {
     where.isActive = query.isActive;
   }
@@ -116,9 +118,9 @@ export async function listWebhooks(
 
 /**
  * Returns a single webhook by ID (secret excluded).
- * Throws 404 if not found.
+ * Throws 404 if not found or belongs to a different tenant.
  */
-export async function getWebhookById(id: string): Promise<WebhookPublic> {
+export async function getWebhookById(tenantId: string | null, id: string): Promise<WebhookPublic> {
   const webhook = await prisma.webhook.findUnique({
     where:  { id },
     select: webhookPublicSelect,
@@ -128,23 +130,28 @@ export async function getWebhookById(id: string): Promise<WebhookPublic> {
     throw new AppError(404, 'WEBHOOK_NOT_FOUND', `Webhook '${id}' not found`);
   }
 
+  if (webhook.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have access to this webhook');
+  }
+
   return webhook;
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
 /**
- * Creates a new webhook registration.
+ * Creates a new webhook registration scoped to the given tenant.
  *
  * A cryptographically random 32-byte secret is generated automatically and
  * returned ONCE in this response.  The caller must store it securely — it
  * will not be returned by any other endpoint.
  */
-export async function createWebhook(data: CreateWebhookBody): Promise<WebhookWithSecret> {
+export async function createWebhook(tenantId: string | null, data: CreateWebhookBody): Promise<WebhookWithSecret> {
   const secret = crypto.randomBytes(32).toString('hex'); // 64 hex chars
 
   const webhook = await prisma.webhook.create({
     data: {
+      tenantId,
       url:         data.url,
       events:      data.events,
       description: data.description ?? null,
@@ -154,7 +161,7 @@ export async function createWebhook(data: CreateWebhookBody): Promise<WebhookWit
     select: webhookWithSecretSelect,
   });
 
-  logger.info('Webhook registered', { id: webhook.id, url: webhook.url, events: webhook.events });
+  logger.info('Webhook registered', { id: webhook.id, url: webhook.url, events: webhook.events, tenantId });
 
   return webhook;
 }
@@ -163,13 +170,14 @@ export async function createWebhook(data: CreateWebhookBody): Promise<WebhookWit
 
 /**
  * Partially updates a webhook registration.
- * Throws 404 if not found.
+ * Throws 404 if not found or 403 if it belongs to a different tenant.
  */
 export async function updateWebhook(
+  tenantId: string | null,
   id:   string,
   data: UpdateWebhookBody,
 ): Promise<WebhookPublic> {
-  await assertWebhookExists(id);
+  await assertWebhookOwnership(tenantId, id);
 
   const updated = await prisma.webhook.update({
     where:  { id },
@@ -182,7 +190,7 @@ export async function updateWebhook(
     select: webhookPublicSelect,
   });
 
-  logger.info('Webhook updated', { id });
+  logger.info('Webhook updated', { id, tenantId });
 
   return updated;
 }
@@ -191,14 +199,14 @@ export async function updateWebhook(
 
 /**
  * Permanently deletes a webhook and all its delivery history.
- * Throws 404 if not found.
+ * Throws 404 if not found or 403 if it belongs to a different tenant.
  */
-export async function deleteWebhook(id: string): Promise<void> {
-  await assertWebhookExists(id);
+export async function deleteWebhook(tenantId: string | null, id: string): Promise<void> {
+  await assertWebhookOwnership(tenantId, id);
 
   await prisma.webhook.delete({ where: { id } });
 
-  logger.info('Webhook deleted', { id });
+  logger.info('Webhook deleted', { id, tenantId });
 }
 
 // ─── Delivery history ─────────────────────────────────────────────────────────
@@ -206,13 +214,14 @@ export async function deleteWebhook(id: string): Promise<void> {
 /**
  * Returns a paginated delivery history for a specific webhook.
  * Optionally filter by `success` (true = delivered, false = failed).
- * Throws 404 if the webhook is not found.
+ * Throws 404 if the webhook is not found or 403 if cross-tenant.
  */
 export async function listWebhookDeliveries(
+  tenantId:  string | null,
   webhookId: string,
   query:     ListDeliveriesQuery,
 ): Promise<PaginatedResult<DeliveryRecord>> {
-  await assertWebhookExists(webhookId);
+  await assertWebhookOwnership(tenantId, webhookId);
 
   const where: Prisma.WebhookDeliveryWhereInput = { webhookId };
   if (query.success !== undefined) {
@@ -236,17 +245,21 @@ export async function listWebhookDeliveries(
  * The test payload is a minimal envelope:
  *   { event: 'webhook.test', timestamp: <ISO>, webhookId: <id> }
  *
- * Throws 404 if the webhook is not found.
+ * Throws 404 if the webhook is not found or 403 if cross-tenant.
  * Throws 422 if the webhook is inactive (can't test a disabled endpoint).
  */
-export async function testWebhook(id: string): Promise<{ queued: true }> {
+export async function testWebhook(tenantId: string | null, id: string): Promise<{ queued: true }> {
   const webhook = await prisma.webhook.findUnique({
     where:  { id },
-    select: { id: true, isActive: true },
+    select: { id: true, isActive: true, tenantId: true },
   });
 
   if (!webhook) {
     throw new AppError(404, 'WEBHOOK_NOT_FOUND', `Webhook '${id}' not found`);
+  }
+
+  if (webhook.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have access to this webhook');
   }
 
   if (!webhook.isActive) {
@@ -264,21 +277,29 @@ export async function testWebhook(id: string): Promise<{ queued: true }> {
     webhookId: id,
   }, [id]);
 
-  logger.info('Webhook test delivery queued', { id });
+  logger.info('Webhook test delivery queued', { id, tenantId });
 
   return { queued: true };
 }
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
-async function assertWebhookExists(id: string): Promise<void> {
-  const exists = await prisma.webhook.findUnique({
+/**
+ * Asserts that a webhook exists and belongs to the given tenant.
+ * Throws 404 if not found, 403 if cross-tenant.
+ */
+async function assertWebhookOwnership(tenantId: string | null, id: string): Promise<void> {
+  const webhook = await prisma.webhook.findUnique({
     where:  { id },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
 
-  if (!exists) {
+  if (!webhook) {
     throw new AppError(404, 'WEBHOOK_NOT_FOUND', `Webhook '${id}' not found`);
+  }
+
+  if (webhook.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have access to this webhook');
   }
 }
 
