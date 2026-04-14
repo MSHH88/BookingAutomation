@@ -13,6 +13,7 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }  from '../config';
 import { logger }  from '../utils/logger';
 import { prisma }  from '../lib/prisma';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { dispatchNotification } from '../lib/notification-dispatcher';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -51,6 +52,12 @@ export const recurringQueue = new Queue<RecurringBookingJobData>(RECURRING_QUEUE
 // ─── Job processor ────────────────────────────────────────────────────────────
 
 async function processRecurringBookings(job: Job<RecurringBookingJobData>): Promise<void> {
+  // Runtime flag check — toggles take effect immediately without restart
+  if (!(await isFeatureEnabled('RECURRING_BOOKINGS_ENABLED'))) {
+    logger.debug('Recurring booking job skipped — RECURRING_BOOKINGS_ENABLED is off');
+    return;
+  }
+
   const today = new Date(job.data.runDate);
   const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
   const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));

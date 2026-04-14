@@ -13,6 +13,7 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }  from '../config';
 import { logger }  from '../utils/logger';
 import { prisma }  from '../lib/prisma';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { dispatchNotification, ChannelPreference } from '../lib/notification-dispatcher';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -101,6 +102,12 @@ export async function findBirthdayCustomers(month: number, day: number): Promise
 // ─── Job processor ────────────────────────────────────────────────────────────
 
 async function processBirthdayJob(job: Job<BirthdayJobData>): Promise<void> {
+  // Runtime flag check — toggles take effect immediately without restart
+  if (!(await isFeatureEnabled('BIRTHDAY_AUTOMATION_ENABLED'))) {
+    logger.debug('Birthday job skipped — BIRTHDAY_AUTOMATION_ENABLED is off');
+    return;
+  }
+
   const runDate = new Date(job.data.runDate);
   const month = runDate.getUTCMonth() + 1;
   const day = runDate.getUTCDate();

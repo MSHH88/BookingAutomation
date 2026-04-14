@@ -19,6 +19,7 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }  from '../config';
 import { logger }  from '../utils/logger';
 import { prisma }  from '../lib/prisma';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { getStripe } from '../lib/stripe';
 import { dispatchNotification } from '../lib/notification-dispatcher';
 import { enqueueWebhookEvent }  from '../modules/webhooks/webhooks.queue';
@@ -68,6 +69,12 @@ export const noShowQueue = new Queue<NoShowJobData>(NO_SHOW_QUEUE_NAME, {
 
 async function processNoShowCheck(job: Job<NoShowJobData>): Promise<void> {
   const data = job.data;
+
+  // Runtime flag check — toggles take effect immediately without restart
+  if (!(await isFeatureEnabled('NO_SHOW_AUTOMATION_ENABLED', data.tenantId))) {
+    logger.debug('No-show check skipped — NO_SHOW_AUTOMATION_ENABLED is off', { bookingId: data.bookingId });
+    return;
+  }
 
   // 1. Re-fetch booking — may have been completed / cancelled since job was scheduled
   const booking = await prisma.booking.findUnique({

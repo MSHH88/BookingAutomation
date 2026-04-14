@@ -12,6 +12,7 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }  from '../config';
 import { logger }  from '../utils/logger';
 import { prisma }  from '../lib/prisma';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { dispatchNotification, ChannelPreference } from '../lib/notification-dispatcher';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -135,6 +136,12 @@ async function resolveAudience(tenantId: string | null, filter: AudienceFilter):
 // ─── Job processor ────────────────────────────────────────────────────────────
 
 async function processCampaign(job: Job<CampaignJobData>): Promise<void> {
+  // Runtime flag check — toggles take effect immediately without restart
+  if (!(await isFeatureEnabled('CAMPAIGNS_ENABLED'))) {
+    logger.debug('Campaign job skipped — CAMPAIGNS_ENABLED is off');
+    return;
+  }
+
   const { campaignId } = job.data;
 
   const campaign = await prisma.campaign.findUnique({

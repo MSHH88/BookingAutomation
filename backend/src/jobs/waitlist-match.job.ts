@@ -18,6 +18,7 @@ import type { Job } from 'bullmq';
 
 import { logger }    from '../utils/logger';
 import { prisma }    from '../lib/prisma';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { matchAndNotify } from '../modules/waitlist/waitlist.service';
 import { getRedis }       from '../lib/redis';
 
@@ -85,6 +86,12 @@ export function startWaitlistMatchWorker(): void {
       } = job.data;
 
       logger.info('Waitlist match expiry check', { waitlistEntryId });
+
+      // Runtime flag check — toggles take effect immediately without restart
+      if (!(await isFeatureEnabled('WAITING_LIST_ENABLED', tenantId))) {
+        logger.debug('Waitlist match skipped — WAITING_LIST_ENABLED is off', { waitlistEntryId });
+        return;
+      }
 
       // Check if the entry is still NOTIFIED (customer didn't respond)
       const entry = await prisma.waitlistEntry.findUnique({

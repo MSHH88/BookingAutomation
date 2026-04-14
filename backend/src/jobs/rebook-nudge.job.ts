@@ -13,6 +13,7 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }  from '../config';
 import { logger }  from '../utils/logger';
 import { prisma }  from '../lib/prisma';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { dispatchNotification, ChannelPreference } from '../lib/notification-dispatcher';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -62,6 +63,12 @@ export const rebookQueue = new Queue<RebookNudgeJobData>(REBOOK_QUEUE_NAME, {
 
 async function processRebookNudge(job: Job<RebookNudgeJobData>): Promise<void> {
   const data = job.data;
+
+  // Runtime flag check — toggles take effect immediately without restart
+  if (!(await isFeatureEnabled('REBOOKING_NUDGES_ENABLED', data.tenantId))) {
+    logger.debug('Rebook nudge skipped — REBOOKING_NUDGES_ENABLED is off', { bookingId: data.bookingId });
+    return;
+  }
 
   // Check if customer has noRebookNudge set
   const customer = await prisma.user.findUnique({
