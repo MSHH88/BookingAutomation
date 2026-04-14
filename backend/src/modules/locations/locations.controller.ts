@@ -6,6 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as svc from './locations.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   CreateLocationBody,
   UpdateLocationBody,
@@ -28,7 +29,7 @@ export async function listLocationsHandler(
         ? false
         : undefined;
 
-    const result = await svc.listLocations(req.user!.tenantId ?? null, isActive, query.page, query.limit);
+    const result = await svc.listLocations(extractTenantId(req), isActive, query.page, query.limit);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -44,7 +45,7 @@ export async function getLocationHandler(
 ): Promise<void> {
   try {
     const { id } = req.params as unknown as LocationIdParams;
-    const location = await svc.getLocationById(req.user!.tenantId ?? null, id);
+    const location = await svc.getLocationById(extractTenantId(req), id);
     res.json(success(location));
   } catch (err) {
     next(err);
@@ -60,7 +61,7 @@ export async function createLocationHandler(
 ): Promise<void> {
   try {
     const body = req.body as unknown as CreateLocationBody;
-    const location = await svc.createLocation(req.user!.tenantId ?? null, body);
+    const location = await svc.createLocation(extractTenantId(req), body);
     res.status(201).json(success(location));
   } catch (err) {
     next(err);
@@ -77,7 +78,7 @@ export async function updateLocationHandler(
   try {
     const { id } = req.params as unknown as LocationIdParams;
     const body   = req.body  as unknown as UpdateLocationBody;
-    const location = await svc.updateLocation(req.user!.tenantId ?? null, id, body);
+    const location = await svc.updateLocation(extractTenantId(req), id, body);
     res.json(success(location));
   } catch (err) {
     next(err);
@@ -93,7 +94,7 @@ export async function deleteLocationHandler(
 ): Promise<void> {
   try {
     const { id } = req.params as unknown as LocationIdParams;
-    await svc.deleteLocation(req.user!.tenantId ?? null, id);
+    await svc.deleteLocation(extractTenantId(req), id);
     res.status(204).send();
   } catch (err) {
     next(err);

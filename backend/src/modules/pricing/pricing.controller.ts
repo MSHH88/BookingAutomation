@@ -6,6 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as svc from './pricing.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   CreatePricingRuleBody,
   UpdatePricingRuleBody,
@@ -30,7 +31,7 @@ export async function listRules(
         : undefined;
 
     const result = await svc.listPricingRules(
-      req.user!.tenantId ?? null,
+      extractTenantId(req),
       query.serviceId,
       isActive,
       query.page,
@@ -51,7 +52,7 @@ export async function createRule(
 ): Promise<void> {
   try {
     const body = req.body as unknown as CreatePricingRuleBody;
-    const rule = await svc.createPricingRule(req.user!.tenantId ?? null, body);
+    const rule = await svc.createPricingRule(extractTenantId(req), body);
     res.status(201).json(success(rule));
   } catch (err) {
     next(err);
@@ -68,7 +69,7 @@ export async function updateRule(
   try {
     const { id } = req.params as unknown as PricingRuleIdParams;
     const body   = req.body  as unknown as UpdatePricingRuleBody;
-    const rule   = await svc.updatePricingRule(req.user!.tenantId ?? null, id, body);
+    const rule   = await svc.updatePricingRule(extractTenantId(req), id, body);
     res.json(success(rule));
   } catch (err) {
     next(err);
@@ -84,7 +85,7 @@ export async function deleteRule(
 ): Promise<void> {
   try {
     const { id } = req.params as unknown as PricingRuleIdParams;
-    await svc.deletePricingRule(req.user!.tenantId ?? null, id);
+    await svc.deletePricingRule(extractTenantId(req), id);
     res.sendStatus(204);
   } catch (err) {
     next(err);
@@ -107,7 +108,7 @@ export async function calculatePriceHandler(
     }
 
     const result = await svc.calculateSlotPrice(
-      req.user!.tenantId ?? null,
+      extractTenantId(req),
       query.serviceId,
       slotDateTime,
     );

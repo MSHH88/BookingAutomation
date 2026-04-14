@@ -4,6 +4,7 @@
  * HTTP concerns only: parse request, call service, send response.
  */
 import { Request, Response, NextFunction } from 'express';
+import { extractTenantId }             from '../../utils/extractTenantId';
 
 import * as membershipsService from './memberships.service';
 import { success }             from '../../utils/apiResponse';
@@ -24,7 +25,7 @@ export async function createMembership(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const body     = req.body as CreateMembershipBody;
     const result   = await membershipsService.createMembership(tenantId, body);
@@ -40,7 +41,7 @@ export async function listMemberships(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query    = req.query as unknown as ListMembershipsQuery;
     const result   = await membershipsService.listMemberships(tenantId, query);
@@ -56,7 +57,7 @@ export async function getMembershipById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const result   = await membershipsService.getMembershipById(id, tenantId);
@@ -72,7 +73,7 @@ export async function updateMembership(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateMembershipBody;
@@ -89,7 +90,7 @@ export async function deleteMembership(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const result   = await membershipsService.deleteMembership(id, tenantId);
@@ -107,7 +108,7 @@ export async function subscribeMember(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const body     = req.body as SubscribeBody;
@@ -124,7 +125,7 @@ export async function cancelSubscription(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { subId } = req.params as { subId: string };
     const result   = await membershipsService.cancelSubscription(subId, tenantId);
@@ -142,7 +143,7 @@ export async function listCustomerMemberships(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { customerId } = req.params as { customerId: string };
     const query          = req.query as unknown as ListCustomerMembershipsQuery;
@@ -160,7 +161,7 @@ export async function getMyMemberships(
 ): Promise<void> {
   try {
     const customerId = req.user!.id;
-    const tenantId   = req.user?.tenantId ?? null;
+    const tenantId   = extractTenantId(req);
     if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query      = req.query as unknown as ListCustomerMembershipsQuery;
     const result     = await membershipsService.listCustomerMemberships(customerId, tenantId, query);
