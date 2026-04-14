@@ -38,10 +38,10 @@ export async function isFeatureEnabled(flag: FeatureFlagKey): Promise<boolean> {
     // Redis unavailable — fall through to DB
   }
 
-  // DB lookup
+  // DB lookup — use findFirst since key is no longer a standalone unique field
   let enabled: boolean;
   try {
-    const row = await prisma.featureFlag.findUnique({ where: { key: flag } });
+    const row = await prisma.featureFlag.findFirst({ where: { key: flag } });
     if (row !== null) {
       enabled = row.isEnabled;
     } else {
