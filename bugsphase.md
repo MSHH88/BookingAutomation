@@ -282,6 +282,175 @@ Partially. The DB model and admin API correctly support per-tenant override rows
 
 ---
 
+## ULTRA AUDIT — Pass 2 (Coverage Check: Analytics, Leads, RBAC) (2026-04-14)
+
+> **Audit date:** 2026-04-14
+> **Commit ref / branch audited:** `789e6b6` — `copilot/create-detailed-automation-plan`
+> **Analysis only.** No code was modified during this audit. All findings are recommendations only.
+
+---
+
+### AUDIT-019 — `createLead()` Never Persists `tenantId` on the Lead Record
+
+- **Severity:** 🔴 Critical
+- **Files:**
+  - `backend/src/modules/leads/leads.service.ts` — `createLead()` (lines 228–268)
+  - `backend/src/modules/capture/capture.service.ts` — `captureLeadPublic()` (lines 210–256)
+- **What's wrong:** The `Lead` model has a `tenantId String?` field (DB-indexed). `captureLeadPublic()` correctly derives `tenantId` from the related artist (`prisma.artist.findUnique → artist.tenantId`) and passes it to `findDuplicate()` for correct dedup scoping. However, it then calls `createLead(enrichedBody, ipAddress)` without passing the resolved `tenantId`, and `createLead()`'s `prisma.lead.create` data block contains no `tenantId` field at all. Similarly, the direct `POST /api/leads` controller calls `leadsService.createLead(body, ipAddress)` with no tenant context. Result: **every lead created through either public endpoint is saved with `tenantId = null`**, making them invisible to all tenant-scoped queries in `listLeads` (`where.tenantId = tenantId`) and the analytics lead-funnel endpoint.
+- **Impact:** Critical — all leads received since deployment have no tenant association. Tenant ADMIN CRM views show 0 leads. The analytics lead-funnel and conversion rate calculations return zero for non-SUPER_ADMIN users. The dedup fix in AUDIT-005 correctly scopes the check but the actual saved record remains tenant-less.
+- **Regression risk:** High — any existing leads in the DB have `tenantId = null`; after a fix, historical leads would need a data migration to set the correct `tenantId` retroactively.
+- **Recommended fix:** (1) Add a `tenantId?: string | null` parameter to `createLead()` and include it in the `prisma.lead.create` data block. (2) Update `captureLeadPublic()` to pass the resolved `tenantId` into `createLead()`. (3) Update `leads.controller.ts` `createLead` handler: since the route is public (no auth), resolve `tenantId` from `body.artistId` just as `captureLeadPublic()` does, and pass it down. (4) Write a one-off migration script to back-fill `tenantId` from the lead's `artistId` for all existing `tenantId = null` rows.
+
+---
+
+### AUDIT-020 — `listEvents()` Analytics Endpoint Has No Tenant Filter — Cross-Tenant Data Leak
+
+- **Severity:** 🔴 Critical
+- **Files:**
+  - `backend/src/modules/analytics/analytics.service.ts` — `listEvents()` (lines 620–652)
+  - `backend/src/modules/analytics/analytics.controller.ts` — `events` handler
+- **What's wrong:** `listEvents()` builds its Prisma `where` clause from `createdAt`, optional `eventType`, and optional `leadId` — but **never from `tenantId`**. The `AnalyticsEvent` model has a `tenantId String?` field (correctly indexed). The controller calls `analyticsService.listEvents(query)` without passing `tenantId`. Any authenticated ADMIN (for any tenant) can retrieve `GET /api/analytics/events` and receive the raw event log for **all tenants** — including page-visit events, UTM parameters, IP addresses and session IDs belonging to other tenants' customers.
+- **Impact:** Critical — severe multi-tenant PII data leak. Analytics events contain IP addresses, user-agent strings, referrers, and UTM campaign data that should be tenant-isolated.
+- **Regression risk:** High — `listEvents` has never been tenant-scoped.
+- **Recommended fix:** Add a `tenantId?: string | null` parameter to `listEvents()`. When non-null, add `where.tenantId = tenantId` to the query. Update the `events` controller handler to extract `tenantId = extractTenantId(req)` and pass it down. For SUPER_ADMIN (`tenantId = null`), allow un-scoped access as the existing SUPER_ADMIN cross-tenant pattern.
+
+---
+
+### AUDIT-021 — `getLeadById`, `updateLeadStatus`, `updateLeadScore` Missing Tenant Isolation
+
+- **Severity:** 🟠 High
+- **Files:**
+  - `backend/src/modules/leads/leads.service.ts` — `getLeadById()` (line 366), `updateLeadStatus()` (line 468), `updateLeadScore()` (line 520)
+- **What's wrong:** All three functions perform a `prisma.lead.findUnique({ where: { id } })` or `prisma.lead.update({ where: { id } })` with **no `tenantId` filter**. Any user with `canViewLeads = true` can call `GET /api/leads/:id`, `PATCH /api/leads/:id/status`, or `PATCH /api/leads/:id/score` with a UUID belonging to a different tenant's lead — there is no guard to reject the request. The list and export endpoints correctly scope by tenantId, but the single-record endpoints do not.
+- **Impact:** High — an ADMIN from Tenant A with `canViewLeads` can read full PII (name, email, phone, description, reference images, quotes) and modify the status/score of leads belonging to Tenant B, C, etc. by iterating or guessing UUIDs.
+- **Regression risk:** Medium — these functions predate multi-tenant support; single-tenant deployments are unaffected.
+- **Recommended fix:** Accept `tenantId: string | null` in all three functions. After the `findUnique` lookup, check `if (tenantId !== null && lead.tenantId !== tenantId) throw AppError(403, ...)`. Pass `tenantId` from the respective controller handlers via `extractTenantId(req)`. For `updateLeadStatus` and `updateLeadScore`, the existing `prisma.lead.findUnique` fetch already retrieves the lead — add the tenantId comparison immediately after.
+
+---
+
+### AUDIT-022 — `PATCH /api/admin/users/:id` Allows Role Promotion Without `canAssignRoles` Check
+
+- **Severity:** 🟠 High
+- **Files:**
+  - `backend/src/modules/admin/admin.routes.ts` — `PATCH /users/:id` (line 84)
+  - `backend/src/modules/admin/admin.schema.ts` — `updateUserSchema` `role` field (line 175)
+  - `backend/src/modules/admin/admin.service.ts` — `updateUser()` (lines 278–305)
+- **What's wrong:** The `/api/admin/users/:id` route requires only `requireRole('ADMIN')`. The `updateUserSchema` allows a `role` field with values `['ADMIN', 'ARTIST', 'CUSTOMER']`. This means any tenant ADMIN — regardless of whether `canAssignRoles = true` on their account — can call `PATCH /api/admin/users/:id` with `{ "role": "ADMIN" }` to promote any user within their tenant to ADMIN. The `/api/roles/users/:id` path correctly enforces `canAssignRoles`, but the parallel admin path is an unguarded bypass route. Contrast: the `admin.schema.ts` `listUsersSchema` `role` field allows `SUPER_ADMIN` to be filtered but `updateUserSchema` limits promotions to non-SUPER_ADMIN — the schema protection partially exists but the `canAssignRoles` permission gate is entirely absent.
+- **Impact:** High — a tenant ADMIN can self-elevate their own role or promote subordinate users to ADMIN without the `canAssignRoles` permission granted by SUPER_ADMIN. This breaks the intended RBAC model.
+- **Regression risk:** None — this is a missing guard, not a regression.
+- **Recommended fix:** Add a `canAssignRoles` check in the `admin.service.ts` `updateUser()` function (similar to the check in `roles.service.ts` `updateUserRole()`): when `body.role` is present and the caller is not SUPER_ADMIN, require `callerCanAssignRoles = true`. Pass `callerRole` and `callerCanAssignRoles` from the controller into the service function. Alternatively, remove the `role` field from `updateUserSchema` entirely and redirect role changes to the dedicated `/api/roles/users/:id` endpoint.
+
+---
+
+### AUDIT-023 — `markOverdueInvoices()` Implemented but Never Scheduled as a Background Job
+
+- **Severity:** 🟠 High
+- **Files:**
+  - `backend/src/modules/invoices/invoices.service.ts` — `markOverdueInvoices()` (lines 416–440)
+  - `backend/src/jobs/index.ts` — no `markOverdueInvoices` import or call
+- **What's wrong:** `markOverdueInvoices()` transitions all UNPAID invoices past their `dueDate` to OVERDUE status. The function is fully implemented, tested (invoices.service.test.ts), and documented as "Phase 2 BullMQ daily cron". However, it is never imported or called in `jobs/index.ts` and is not registered in `server.ts`. As a result, no invoice ever automatically transitions from UNPAID to OVERDUE. The revenue analytics dashboard (`getRevenueAnalytics`) separately aggregates OVERDUE invoices, but since none exist (all remain UNPAID indefinitely), the `overdue` bucket always shows 0 and outstanding debt is understated.
+- **Impact:** High — invoice lifecycle automation is broken. Overdue tracking, follow-up automation, and financial reporting accuracy are all affected. Businesses cannot identify unpaid invoices that have passed their due date without manually updating status.
+- **Regression risk:** None — the function is currently a dead code path.
+- **Recommended fix:** (1) Create a new `invoice-overdue.job.ts` that sets up a BullMQ repeatable job running daily (e.g., `2:00 AM UTC`). The job processor calls `markOverdueInvoices()` and logs the count. (2) Register it in `jobs/index.ts` under an appropriate feature flag (e.g., `INVOICE_AUTOMATION_ENABLED` — add this key if absent). (3) Optionally gate this under the existing `ANALYTICS_ENABLED` flag if a dedicated flag is undesirable.
+
+---
+
+### AUDIT-024 — Role/Permission Changes Do Not Invalidate Existing User JWTs
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/modules/admin/admin.service.ts` — `updateUser()` (lines 278–305)
+  - `backend/src/modules/roles/roles.service.ts` — `updateUserRole()` (lines 119–177)
+  - `backend/src/modules/auth/auth.service.ts` — `logout()` / JTI revocation (lines 264–271)
+- **What's wrong:** The system correctly implements JTI-based JWT revocation at logout time (FINDING-008 fix): `logout()` stores `revoked:jti:{jti}` in Redis with the remaining token TTL. However, neither `updateUser()` nor `updateUserRole()` triggers any JTI invalidation after a role or permission change. A demoted ADMIN (role changed to CUSTOMER) or an ADMIN whose `canViewLeads` is revoked retains their full elevated access until their current access token expires (15-minute TTL). During this window they can still call ADMIN-only endpoints.
+- **Impact:** Medium — 15-minute window of stale elevated access after role/permission revocation. Not exploitable for persistent access but creates a compliance/operational gap.
+- **Regression risk:** None — the revocation infrastructure exists; this is a missing call site.
+- **Recommended fix:** In both `updateUser()` and `updateUserRole()`, when `role`, `canViewLeads`, or `canAssignRoles` is changed, fetch the target user's most-recently-issued non-revoked JTI from a user-keyed Redis set (or rely on the existing refresh token table) and revoke it. Simpler alternative: store a per-user `rbacVersion` integer in Redis; increment it on any role/permission change; verify it on every `requireAuth` call. The JWT payload would carry the version at issuance; a mismatch triggers a 401.
+
+---
+
+### AUDIT-025 — `POST /api/analytics/events` (Public `trackEvent`) Never Sets `tenantId` on AnalyticsEvent
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/modules/analytics/analytics.service.ts` — `trackEvent()` (lines 177–215)
+  - `backend/src/modules/leads/leads.service.ts` — `createLead()` AnalyticsEvent side-effect (lines 276–290)
+- **What's wrong:** `trackEvent()` creates `AnalyticsEvent` rows with `tenantId` omitted from the `data` block — the model field defaults to `null`. When the frontend instruments a page visit and supplies a valid `leadId`, the lead's `tenantId` could be used to attribute the event to the correct tenant, but the service never looks it up. Similarly, `createLead()`'s fire-and-forget `AnalyticsEvent(LEAD_CREATED)` side-effect also omits `tenantId`. The result: most `AnalyticsEvent` rows have `tenantId = null` even when the context is clearly attributable to a specific tenant, making the `listEvents` cross-tenant gap (AUDIT-020) even harder to fix retroactively.
+- **Impact:** Medium — analytics events can never be correctly filtered by tenant after the fact. The `GET /api/analytics/events` endpoint cannot serve tenant-scoped event logs even once AUDIT-020 is fixed.
+- **Regression risk:** None — the field is nullable; existing rows are unaffected until queries add the filter.
+- **Recommended fix:** In `trackEvent()`, when `resolvedLeadId` is non-null, fetch `lead.tenantId` and include it in the `analyticsEvent.create` data. When `leadId` is absent but a valid authenticated session exists, extract tenantId from the session. In `createLead()`'s side-effect, pass the lead's resolved `tenantId` (see AUDIT-019) into the `AnalyticsEvent.create` data block.
+
+---
+
+### AUDIT-026 — Pro-Grade Analytics Gaps: Staff Utilization, Net Revenue After Commission, Rebook Rate, Location Breakdown
+
+- **Severity:** 🟡 Medium
+- **Files:**
+  - `backend/src/modules/analytics/analytics.service.ts` — `getArtistsAnalytics()`, `getRevenueAnalytics()`, `getBookingsAnalytics()`
+  - `backend/src/modules/analytics/analytics.schema.ts`
+- **What's wrong:** Compared to best-in-class booking analytics systems (Fresha, Vagaro, Booksy), the following standard metrics are absent from the analytics service:
+  1. **Staff utilization rate** — booked hours / total available hours per artist per period. The `getArtistsAnalytics()` function returns `bookingCount` and `revenue` but not utilization. No `Shift` or `Availability` query is made.
+  2. **Commission-adjusted net revenue** — `Artist.commissionRate` exists in the schema and is used in payroll, but `getRevenueAnalytics()` returns only gross invoice revenue with no commission deduction. Net revenue (gross minus artist commissions) is unavailable.
+  3. **Rebook rate** — the percentage of customers from a given period who made a subsequent booking within N days. `getCustomersAnalytics()` identifies returning vs new customers (based on >1 booking in the period) but does not compute the forward-looking rebook rate.
+  4. **Location breakdown** — `Location` model and `MULTI_LOCATION_ENABLED` flag exist (Phase 9), but no analytics endpoint breaks down bookings, revenue, or leads by location.
+  5. **Deposit tracking** — `StudioSettings.depositPercentage` / `depositFixedAmount` are configurable, but analytics never show deposits collected vs deposits forfeited vs total collected, which is a standard salon/tattoo-studio KPI.
+- **Impact:** Medium — the backend is functional and covers the six core metric categories, but advanced operators (multi-staff, multi-location studios) will find the analytics insufficient for real business management.
+- **Regression risk:** None — all missing metrics are additive.
+- **Recommended fix:** Add dedicated sub-functions or extend existing ones: (a) `getArtistsAnalytics` — join with `Availability` / `Shift` to compute `utilizedMinutes / availableMinutes`; (b) `getRevenueAnalytics` — join artist commission rates via `Booking → Artist.commissionRate` to emit `netRevenue = grossRevenue - totalCommissions`; (c) `getCustomersAnalytics` — add a forward-look rebook query: for each customer with a booking in the period, count subsequent bookings within `rebookIntervalDays`; (d) add `GET /api/analytics/locations` endpoint scoping `Booking.locationId` groupBy; (e) expose deposit-collected vs deposit-forfeited using `Booking.depositPaid` boolean (if present) or a separate `deposit` payment type.
+
+---
+
+### B) Analytics "Pro-Grade" — Explicit Assessment (Pass 2)
+
+**Are analytics best-in-business complete?**
+**No — functional but not yet pro-grade.** Core KPIs (revenue, bookings by status, lead funnel, no-show/cancellation rates, top customers, top services, artist performance) are implemented and correct. Critical gaps: (a) `listEvents` cross-tenant leak (AUDIT-020), (b) leads invisible to tenant analytics because `tenantId` is never saved (AUDIT-019), (c) no staff utilization, no commission-net-revenue, no rebook rate, no location breakdown (AUDIT-026).
+
+---
+
+### C) Lead Capture — End-to-End Assessment (Pass 2)
+
+**Does lead capture function correctly end-to-end?**
+**No — critical tenant attribution bug.** The capture pipeline is otherwise well-designed (honeypot bot guard ✅, rate limiting 5/15min ✅, Zod validation ✅, feature-flag gate ✅, dedup scoping AUDIT-005 ✅). However, the resolved `tenantId` is never written to the Lead record (AUDIT-019), so every lead lands in the DB with `tenantId = null` and is invisible to tenant CRMs. Additionally, WhatsApp dispatch in `createLead()` calls `isFeatureEnabled('WHATSAPP_CONTACT_ENABLED')` without `tenantId` (AUDIT-014). Email notifications on lead capture are still stubs (log lines, not real BullMQ jobs). CAPTCHA is correctly applied to public booking (`/api/public/*/bookings`) but **not** to `/api/capture` (rate limit only).
+
+---
+
+### D) RBAC — Super Admin Access + Role Management Assessment (Pass 2)
+
+**Is Super Admin-only access enforced and can roles be granted/revoked safely?**
+**Partially.** Feature flag Control Centre is correctly SUPER_ADMIN-only ✅. `requireLeadAccess` correctly gates lead CRM access ✅. `roles.service.ts` `updateUserRole()` correctly enforces `canAssignRoles` ✅. Key blockers: (a) the parallel `/api/admin/users/:id` path allows role changes without `canAssignRoles` (AUDIT-022 — bypass route); (b) role/permission changes don't invalidate active JWTs — demoted users retain elevated access for up to 15 minutes (AUDIT-024); (c) `getLeadById`, `updateLeadStatus`, `updateLeadScore` have no tenant isolation, enabling cross-tenant lead access by any user with `canViewLeads` (AUDIT-021).
+
+---
+
+### D) Coverage Sweep — High-Risk Pattern Scan (Pass 2)
+
+| Pattern | Result |
+|---|---|
+| `getDefaultFlags()` call sites outside `requireFeature.ts` | ✅ None found in production paths (only in tests and businessType.ts itself) |
+| `req.user!.tenantId!` unsafe casts | ✅ None found (all migrated to `extractTenantId(req)`) |
+| `as string` on auth fields | ✅ Only on `req.params['id']` (webhooks controller) — safe, params are always string in Express |
+| Service queries missing tenant scoping | ❌ `getLeadById`, `updateLeadStatus`, `updateLeadScore` (AUDIT-021); `listEvents` (AUDIT-020) |
+| Background jobs without per-record tenant context | ⚠️ Previously flagged in AUDIT-018 — unchanged |
+| Cache keys missing tenant scoping | ✅ All analytics cache keys include `tenantId` in the key string |
+| SUPER_ADMIN crash paths (null tenantId) | ✅ No new crashes found; analytics/customers/services/artists handlers guard with `if (tenantId === null) throw AppError(400, ...)` |
+| Dead code / never-scheduled jobs | ❌ `markOverdueInvoices()` (AUDIT-023); invoice-sent email stub in `invoices.service.ts` line 264 |
+
+---
+
+> **Pass 2 Ultra Audit Summary:**
+> - **New findings: AUDIT-019 through AUDIT-026** (8 total)
+> - **Highest severity: 🔴 Critical** — AUDIT-019 (leads saved without tenantId), AUDIT-020 (listEvents no tenant filter)
+> - **🔴 Critical: 2** (AUDIT-019, AUDIT-020)
+> - **🟠 High: 3** (AUDIT-021, AUDIT-022, AUDIT-023)
+> - **🟡 Medium: 3** (AUDIT-024, AUDIT-025, AUDIT-026)
+>
+> **Are analytics best-in-business complete?** **No** — core KPIs present but leads are invisible to tenant analytics (AUDIT-019), `listEvents` leaks cross-tenant (AUDIT-020), and pro-grade metrics (utilization, net revenue, rebook rate, location breakdown) are absent (AUDIT-026).
+>
+> **Does lead capture function correctly end-to-end?** **No** — tenantId is never saved on Lead records (AUDIT-019), rendering all public-captured leads invisible to tenant CRMs.
+>
+> **Is Super Admin-only access enforced and can roles be granted/revoked safely?** **Partially** — key blockers: admin path role-change bypass without `canAssignRoles` (AUDIT-022), no JWT invalidation on role change (AUDIT-024), cross-tenant lead access via getLeadById (AUDIT-021).
+
+---
+
 # Phase 1–3 Implementation File Register (AUTO-GENERATED)
 
 > Generated: 2026-04-14 by post-phase-3 verification agent.
