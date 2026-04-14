@@ -8,7 +8,7 @@
  *   • Honeypot field (`website`) — invisible to humans, filled by bots
  *   • Optional `sessionId` — passed through multi-step form flows
  *   • Same business-type-aware `placement` rule as the leads schema
- *     (required for tattoo studios when MANNEQUIN_ENABLED=true)
+ *     (required for tattoo studios)
  *
  * All fields shared with CreateLeadBody are kept byte-for-byte compatible
  * so the capture service can forward the validated body straight into the
@@ -44,13 +44,12 @@ const phone = z
  *   - `website`   — honeypot field (bots fill it; humans never see it)
  *   - `sessionId` — optional UUID-v4 for multi-step forms
  *
- * `placement` is required only when `MANNEQUIN_ENABLED` is true (tattoo studios).
+ * `placement` is required only when business type is `tattoo_studio`.
  * For all other types it is accepted but optional, keeping the endpoint universal.
  */
 function buildCaptureLeadSchema() {
-  // MANNEQUIN_ENABLED is determined entirely by business type (tattoo studios only).
-  // This is a startup-time configuration, not a runtime-toggled flag, so we use the
-  // active business type directly rather than an async DB lookup.
+  // Tattoo placement is determined entirely by business type (tattoo studios only).
+  // This is a startup-time configuration so we use the active business type directly.
   const placementRequired = activeBusinessType === 'tattoo_studio';
 
   const placementField = placementRequired

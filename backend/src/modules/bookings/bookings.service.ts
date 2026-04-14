@@ -667,13 +667,14 @@ export async function cancelBooking(
   // waitlist entry and notify them of the slot opening.
   // Fire-and-forget: errors logged inside matchAndNotify, never surfaced to caller.
   if (booking.tenantId) {
-    void isFeatureEnabled('WAITING_LIST_ENABLED').then((enabled) => {
+    const tid = booking.tenantId; // capture after narrowing for closure safety
+    void isFeatureEnabled('WAITING_LIST_ENABLED', tid).then((enabled) => {
       if (enabled) {
         void matchAndNotify({
           bookingArtistId:  booking.artistId,
           bookingServiceId: booking.serviceId ?? null,
           bookingStartAt:   booking.startAt,
-          tenantId:         booking.tenantId,
+          tenantId:         tid,
         });
       }
     });

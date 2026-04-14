@@ -156,23 +156,14 @@ describe('defaultFeatureFlags', () => {
 // ─── defaultFeatureFlags — business-logic checks ─────────────────────────────
 
 describe('defaultFeatureFlags business logic', () => {
-  it('tattoo_studio has QUOTE_SYSTEM_ENABLED and MANNEQUIN_ENABLED = true', () => {
+  it('tattoo_studio has QUOTE_SYSTEM_ENABLED = true', () => {
     const flags = getDefaultFlags('tattoo_studio');
     expect(flags.QUOTE_SYSTEM_ENABLED).toBe(true);
-    expect(flags.MANNEQUIN_ENABLED).toBe(true);
   });
 
-  it('non-tattoo types have MANNEQUIN_ENABLED = false', () => {
-    for (const type of BUSINESS_TYPES) {
-      if (type === 'tattoo_studio') continue;
-      expect(getDefaultFlags(type).MANNEQUIN_ENABLED).toBe(false);
-    }
-  });
-
-  it('restaurant has TABLE_SELECTION_ENABLED and PARTY_SIZE_ENABLED = true', () => {
+  it('restaurant has TABLE_SELECTION_ENABLED = true', () => {
     const flags = getDefaultFlags('restaurant');
     expect(flags.TABLE_SELECTION_ENABLED).toBe(true);
-    expect(flags.PARTY_SIZE_ENABLED).toBe(true);
   });
 
   it('non-restaurant types have TABLE_SELECTION_ENABLED = false', () => {
@@ -289,7 +280,7 @@ describe('getLabels / getDefaultFlags / getServiceTemplate', () => {
 
   it('getDefaultFlags() with no args returns active type flags (tattoo_studio)', () => {
     const flags = getDefaultFlags();
-    expect(flags.MANNEQUIN_ENABLED).toBe(true);
+    expect(flags.QUOTE_SYSTEM_ENABLED).toBe(true);
     expect(flags.TABLE_SELECTION_ENABLED).toBe(false);
   });
 

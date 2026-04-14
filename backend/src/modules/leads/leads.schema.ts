@@ -4,7 +4,7 @@
  * The Lead Capture API is universal across all 6 business types. The key
  * business-type-aware rule is:
  *   - `placement` (tattoo body location) is only **required** when the
- *     deployment has `MANNEQUIN_ENABLED = true` (i.e. tattoo studios).
+ *     deployment business type is `tattoo_studio`.
  *   - For all other business types `placement` is entirely optional.
  *
  * Status transitions that ADMIN can apply via PATCH /api/leads/:id/status:
@@ -37,14 +37,13 @@ const phone = z
 /**
  * Business-type-aware create schema.
  *
- * `placement` is required only when `MANNEQUIN_ENABLED` is true (tattoo studios).
+ * `placement` is required only when business type is `tattoo_studio`.
  * For all other types it is accepted but optional, so the single endpoint serves
  * all 6 business types without separate routes.
  */
 function buildCreateLeadSchema() {
-  // MANNEQUIN_ENABLED is determined entirely by business type (tattoo studios only).
-  // This is a startup-time configuration, not a runtime-toggled flag, so we use the
-  // active business type directly rather than an async DB lookup.
+  // Tattoo placement is determined entirely by business type (tattoo studios only).
+  // This is a startup-time configuration so we use the active business type directly.
   const placementRequired = activeBusinessType === 'tattoo_studio';
 
   /**
@@ -57,7 +56,7 @@ function buildCreateLeadSchema() {
    * the widget emits. Phase 2 can tighten this to a discriminated union once
    * the widget API is stable.
    *
-   * This field is only required when `MANNEQUIN_ENABLED = true`.
+   * This field is only required when the business type is `tattoo_studio`.
    * For all other business types it is optional / null.
    */
   const placementField = placementRequired

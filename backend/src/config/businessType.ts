@@ -212,31 +212,17 @@ export const FEATURE_FLAG_KEYS = [
   // ── Core booking & calendar ─────────────────────────────────────────────
   'BOOKING_ENABLED',            // master switch — disables all bookings when OFF
   'CALENDAR_ENABLED',           // Google Calendar sync for confirmed bookings
-  'ICS_DOWNLOAD_ENABLED',       // allow customer to download .ics file
   'DEPOSIT_REQUIRED',           // force deposit collection before confirming
-  'DEPOSIT_PARTIAL_ENABLED',    // allow configurable % deposit (vs fixed amount)
 
   // ── Lead & quote flow ───────────────────────────────────────────────────
   'LEAD_CAPTURE_ENABLED',       // public inquiry form (tattoo / salons / barber)
   'QUOTE_SYSTEM_ENABLED',       // artist sends price quote before booking
-  'INSTANT_BOOKING_ENABLED',    // skip lead form — customer books directly
-
-  // ── Body placement (tattoo only) ─────────────────────────────────────────
-  'MANNEQUIN_ENABLED',          // 3D body placement map on inquiry form
-  'REFERENCE_IMAGES_ENABLED',   // customer can upload reference photos
 
   // ── Service catalogue ────────────────────────────────────────────────────
   'SERVICE_MENU_ENABLED',       // show typed service categories & prices
-  'PRICE_LIST_VISIBLE',         // display prices publicly vs "from" only
 
   // ── Table & restaurant specifics ─────────────────────────────────────────
   'TABLE_SELECTION_ENABLED',    // visual table map for restaurant
-  'PARTY_SIZE_ENABLED',         // ask for party size during reservation
-  'SPECIAL_REQUESTS_ENABLED',   // free-text special requests on reservation
-
-  // ── Portfolio & gallery ──────────────────────────────────────────────────
-  'PORTFOLIO_ENABLED',          // artist / stylist portfolio visible on site
-  'GALLERY_UPLOAD_ENABLED',     // staff can upload gallery images via CRM
 
   // ── Communication & automation ───────────────────────────────────────────
   'EMAIL_REMINDERS_ENABLED',    // automated email reminder before appointment
@@ -246,7 +232,6 @@ export const FEATURE_FLAG_KEYS = [
 
   // ── Analytics & leads ────────────────────────────────────────────────────
   'ANALYTICS_ENABLED',          // first-party AnalyticsEvent tracking
-  'LEAD_SCORING_ENABLED',       // AI/rule-based lead score visible in CRM
 
   // ── Payments ─────────────────────────────────────────────────────────────
   'ONLINE_PAYMENT_ENABLED',     // Stripe payment collection (deposit or full)
@@ -255,15 +240,6 @@ export const FEATURE_FLAG_KEYS = [
   // ── Retention & automation ────────────────────────────────────────────────
   'WAITING_LIST_ENABLED',       // waitlist when artist / slot fully booked
   'LOYALTY_ENABLED',            // loyalty points accumulation and redemption
-
-  // ── Compliance & forms ────────────────────────────────────────────────────
-  'GDPR_ENABLED',               // GDPR consent capture on booking / registration
-
-  // ── Tips & restaurant-specific ────────────────────────────────────────────
-  'COVERS_MANAGEMENT_ENABLED',  // max covers per time-slot pacing (restaurant)
-
-  // ── Reporting ────────────────────────────────────────────────────────────
-  'DAILY_REPORT_ENABLED',       // automated daily/weekly summary email to owner
 
   // ── Phase 1: Messaging foundation ──────────────────────────────────────
   'SMS_ENABLED',                    // SMS messaging channel (Twilio SMS)
@@ -329,34 +305,20 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
   tattoo_studio: {
     BOOKING_ENABLED:            true,
     CALENDAR_ENABLED:           true,
-    ICS_DOWNLOAD_ENABLED:       true,
     DEPOSIT_REQUIRED:           false,
-    DEPOSIT_PARTIAL_ENABLED:    true,
     LEAD_CAPTURE_ENABLED:       true,
     QUOTE_SYSTEM_ENABLED:       true,
-    INSTANT_BOOKING_ENABLED:    false,
-    MANNEQUIN_ENABLED:          true,
-    REFERENCE_IMAGES_ENABLED:   true,
     SERVICE_MENU_ENABLED:       false,
-    PRICE_LIST_VISIBLE:         false,
     TABLE_SELECTION_ENABLED:    false,
-    PARTY_SIZE_ENABLED:         false,
-    SPECIAL_REQUESTS_ENABLED:   true,
-    PORTFOLIO_ENABLED:          true,
-    GALLERY_UPLOAD_ENABLED:     true,
     EMAIL_REMINDERS_ENABLED:    true,
     SMS_REMINDERS_ENABLED:      true,
     WHATSAPP_CONTACT_ENABLED:   true,
     REVIEW_REQUEST_ENABLED:     true,
     ANALYTICS_ENABLED:          true,
-    LEAD_SCORING_ENABLED:       true,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       false,
     LOYALTY_ENABLED:            true,
-    GDPR_ENABLED:               true,
-    COVERS_MANAGEMENT_ENABLED:  false,
-    DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
@@ -390,34 +352,20 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
   hair_salon: {
     BOOKING_ENABLED:            true,
     CALENDAR_ENABLED:           true,
-    ICS_DOWNLOAD_ENABLED:       true,
     DEPOSIT_REQUIRED:           false,
-    DEPOSIT_PARTIAL_ENABLED:    true,
     LEAD_CAPTURE_ENABLED:       true,
     QUOTE_SYSTEM_ENABLED:       false,
-    INSTANT_BOOKING_ENABLED:    true,
-    MANNEQUIN_ENABLED:          false,
-    REFERENCE_IMAGES_ENABLED:   true,
     SERVICE_MENU_ENABLED:       true,
-    PRICE_LIST_VISIBLE:         true,
     TABLE_SELECTION_ENABLED:    false,
-    PARTY_SIZE_ENABLED:         false,
-    SPECIAL_REQUESTS_ENABLED:   true,
-    PORTFOLIO_ENABLED:          true,
-    GALLERY_UPLOAD_ENABLED:     true,
     EMAIL_REMINDERS_ENABLED:    true,
     SMS_REMINDERS_ENABLED:      true,
     WHATSAPP_CONTACT_ENABLED:   true,
     REVIEW_REQUEST_ENABLED:     true,
     ANALYTICS_ENABLED:          true,
-    LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            true,
-    GDPR_ENABLED:               true,
-    COVERS_MANAGEMENT_ENABLED:  false,
-    DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
@@ -451,34 +399,20 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
   barber: {
     BOOKING_ENABLED:            true,
     CALENDAR_ENABLED:           true,
-    ICS_DOWNLOAD_ENABLED:       true,
     DEPOSIT_REQUIRED:           false,
-    DEPOSIT_PARTIAL_ENABLED:    false,
     LEAD_CAPTURE_ENABLED:       true,
     QUOTE_SYSTEM_ENABLED:       false,
-    INSTANT_BOOKING_ENABLED:    true,
-    MANNEQUIN_ENABLED:          false,
-    REFERENCE_IMAGES_ENABLED:   false,
     SERVICE_MENU_ENABLED:       true,
-    PRICE_LIST_VISIBLE:         true,
     TABLE_SELECTION_ENABLED:    false,
-    PARTY_SIZE_ENABLED:         false,
-    SPECIAL_REQUESTS_ENABLED:   true,
-    PORTFOLIO_ENABLED:          true,
-    GALLERY_UPLOAD_ENABLED:     true,
     EMAIL_REMINDERS_ENABLED:    true,
     SMS_REMINDERS_ENABLED:      true,
     WHATSAPP_CONTACT_ENABLED:   true,
     REVIEW_REQUEST_ENABLED:     true,
     ANALYTICS_ENABLED:          true,
-    LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            true,
-    GDPR_ENABLED:               true,
-    COVERS_MANAGEMENT_ENABLED:  false,
-    DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
@@ -512,34 +446,20 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
   nail_salon: {
     BOOKING_ENABLED:            true,
     CALENDAR_ENABLED:           true,
-    ICS_DOWNLOAD_ENABLED:       true,
     DEPOSIT_REQUIRED:           false,
-    DEPOSIT_PARTIAL_ENABLED:    true,
     LEAD_CAPTURE_ENABLED:       true,
     QUOTE_SYSTEM_ENABLED:       false,
-    INSTANT_BOOKING_ENABLED:    true,
-    MANNEQUIN_ENABLED:          false,
-    REFERENCE_IMAGES_ENABLED:   true,
     SERVICE_MENU_ENABLED:       true,
-    PRICE_LIST_VISIBLE:         true,
     TABLE_SELECTION_ENABLED:    false,
-    PARTY_SIZE_ENABLED:         false,
-    SPECIAL_REQUESTS_ENABLED:   true,
-    PORTFOLIO_ENABLED:          true,
-    GALLERY_UPLOAD_ENABLED:     true,
     EMAIL_REMINDERS_ENABLED:    true,
     SMS_REMINDERS_ENABLED:      true,
     WHATSAPP_CONTACT_ENABLED:   true,
     REVIEW_REQUEST_ENABLED:     true,
     ANALYTICS_ENABLED:          true,
-    LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            true,
-    GDPR_ENABLED:               true,
-    COVERS_MANAGEMENT_ENABLED:  false,
-    DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
@@ -573,34 +493,20 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
   masseuse: {
     BOOKING_ENABLED:            true,
     CALENDAR_ENABLED:           true,
-    ICS_DOWNLOAD_ENABLED:       true,
     DEPOSIT_REQUIRED:           false,
-    DEPOSIT_PARTIAL_ENABLED:    true,
     LEAD_CAPTURE_ENABLED:       true,
     QUOTE_SYSTEM_ENABLED:       false,
-    INSTANT_BOOKING_ENABLED:    true,
-    MANNEQUIN_ENABLED:          false,
-    REFERENCE_IMAGES_ENABLED:   false,
     SERVICE_MENU_ENABLED:       true,
-    PRICE_LIST_VISIBLE:         true,
     TABLE_SELECTION_ENABLED:    false,
-    PARTY_SIZE_ENABLED:         false,
-    SPECIAL_REQUESTS_ENABLED:   true,
-    PORTFOLIO_ENABLED:          true,
-    GALLERY_UPLOAD_ENABLED:     false,
     EMAIL_REMINDERS_ENABLED:    true,
     SMS_REMINDERS_ENABLED:      true,
     WHATSAPP_CONTACT_ENABLED:   true,
     REVIEW_REQUEST_ENABLED:     true,
     ANALYTICS_ENABLED:          true,
-    LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       false,
     LOYALTY_ENABLED:            true,
-    GDPR_ENABLED:               true,
-    COVERS_MANAGEMENT_ENABLED:  false,
-    DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
@@ -634,34 +540,20 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
   restaurant: {
     BOOKING_ENABLED:            true,
     CALENDAR_ENABLED:           false,
-    ICS_DOWNLOAD_ENABLED:       true,
     DEPOSIT_REQUIRED:           false,
-    DEPOSIT_PARTIAL_ENABLED:    true,
     LEAD_CAPTURE_ENABLED:       false,
     QUOTE_SYSTEM_ENABLED:       false,
-    INSTANT_BOOKING_ENABLED:    true,
-    MANNEQUIN_ENABLED:          false,
-    REFERENCE_IMAGES_ENABLED:   false,
     SERVICE_MENU_ENABLED:       true,
-    PRICE_LIST_VISIBLE:         true,
     TABLE_SELECTION_ENABLED:    true,
-    PARTY_SIZE_ENABLED:         true,
-    SPECIAL_REQUESTS_ENABLED:   true,
-    PORTFOLIO_ENABLED:          true,
-    GALLERY_UPLOAD_ENABLED:     true,
     EMAIL_REMINDERS_ENABLED:    true,
     SMS_REMINDERS_ENABLED:      false,
     WHATSAPP_CONTACT_ENABLED:   true,
     REVIEW_REQUEST_ENABLED:     true,
     ANALYTICS_ENABLED:          true,
-    LEAD_SCORING_ENABLED:       false,
     ONLINE_PAYMENT_ENABLED:     false,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            false,
-    GDPR_ENABLED:               true,
-    COVERS_MANAGEMENT_ENABLED:  true,
-    DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                false,
     BIRTHDAY_AUTOMATION_ENABLED: false,
     REBOOKING_NUDGES_ENABLED:   false,
