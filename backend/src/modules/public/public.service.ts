@@ -21,10 +21,10 @@
 import { randomUUID } from 'crypto';
 import { Prisma }     from '@prisma/client';
 
-import { prisma }       from '../../lib/prisma';
-import { AppError }     from '../../errors/AppError';
-import { logger }       from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { prisma }          from '../../lib/prisma';
+import { AppError }        from '../../errors/AppError';
+import { logger }          from '../../utils/logger';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
 import { calculatePrice } from '../../lib/pricing-engine';
 import type {
@@ -247,8 +247,8 @@ export async function getBusinessSlots(slug: string, query: GetBusinessSlotsQuer
   });
 
   // ── Dynamic pricing: if DYNAMIC_PRICING_ENABLED, annotate each slot with price ──
-  const flags = getDefaultFlags();
-  if (flags.DYNAMIC_PRICING_ENABLED) {
+  const dynamicPricingEnabled = await isFeatureEnabled('DYNAMIC_PRICING_ENABLED');
+  if (dynamicPricingEnabled) {
     const pricedSlots = await Promise.all(
       available.map(async (slot) => {
         const priceResult = await calculatePrice(tenant.id, query.serviceId, new Date(slot.startAt));
@@ -336,8 +336,7 @@ export async function createPublicBooking(slug: string, body: CreatePublicBookin
   }
 
   // Check deposit enforcement
-  const flags = getDefaultFlags();
-  const depositRequired = flags['DEPOSIT_REQUIRED'];
+  const depositRequired = await isFeatureEnabled('DEPOSIT_REQUIRED');
   const initialStatus = depositRequired ? 'AWAITING_DEPOSIT' : 'PENDING';
 
   // Generate public token for self-service lookup

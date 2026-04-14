@@ -23,10 +23,10 @@ import { Prisma } from '@prisma/client';
 
 import { prisma }          from '../../lib/prisma';
 import { AppError }        from '../../errors/AppError';
-import { paginate }        from '../../utils/paginate';
-import { logger }          from '../../utils/logger';
-import { config }          from '../../config/index';
-import { getDefaultFlags } from '../../config/businessType';
+import { paginate }          from '../../utils/paginate';
+import { logger }            from '../../utils/logger';
+import { config }            from '../../config/index';
+import { isFeatureEnabled }  from '../../middleware/requireFeature';
 import { enqueueLeadInquiry } from '../whatsapp/whatsapp.service';
 import { enqueueWebhookEvent } from '../webhooks/webhooks.queue';
 import type {
@@ -224,7 +224,6 @@ export async function createLead(
   ipAddress?: string,
 ): Promise<LeadDetail> {
   const businessType = config.BUSINESS_TYPE;
-  const flags = getDefaultFlags();
 
   const created = await prisma.lead.create({
     data: {
@@ -297,14 +296,18 @@ export async function createLead(
       queueInquiryNotificationEmail(created.id, created.artistId);
 
       // 4. WhatsApp (opt-in + feature flag) — real BullMQ enqueue (Step 1.17)
-      if (created.preferWhatsApp && flags['WHATSAPP_CONTACT_ENABLED']) {
-        void enqueueLeadInquiry({
-          phone:          created.phone,
-          customerName:   created.name,
-          preferWhatsApp: created.preferWhatsApp,
-          studioName:     config.STUDIO_NAME,
-          leadId:         created.id,
-          artistId:       created.artistId ?? undefined,
+      if (created.preferWhatsApp) {
+        void isFeatureEnabled('WHATSAPP_CONTACT_ENABLED').then((enabled) => {
+          if (enabled) {
+            void enqueueLeadInquiry({
+              phone:          created.phone,
+              customerName:   created.name,
+              preferWhatsApp: created.preferWhatsApp,
+              studioName:     config.STUDIO_NAME,
+              leadId:         created.id,
+              artistId:       created.artistId ?? undefined,
+            });
+          }
         });
       }
 

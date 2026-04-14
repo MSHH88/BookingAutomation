@@ -49,7 +49,7 @@ import { matchAndNotify } from '../waitlist/waitlist.service';
 import { deductPackageUse } from '../packages/packages.service';
 import { awardPoints, calculatePointsForBooking } from '../loyalty/loyalty.service';
 import { enqueueAISuggestion } from '../../jobs/ai-suggestion.job';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -368,13 +368,17 @@ export async function confirmBooking(
 
   // ── Phase 5.1 — Deduct package use if customer has an applicable package ──
   // Fire-and-forget: errors logged inside deductPackageUse, never surfaced.
-  if (booking.tenantId && updated.customer?.id && getDefaultFlags()['PACKAGES_ENABLED']) {
-    const serviceId = booking.serviceId ?? updated.services[0]?.service?.id ?? null;
-    if (serviceId) {
-      void deductPackageUse(updated.customer.id, booking.tenantId, serviceId).catch(
-        (err) => logger.warn('deductPackageUse failed (non-fatal)', { err, bookingId: id }),
-      );
-    }
+  if (booking.tenantId && updated.customer?.id) {
+    void isFeatureEnabled('PACKAGES_ENABLED').then((enabled) => {
+      if (enabled) {
+        const serviceId = booking.serviceId ?? updated.services[0]?.service?.id ?? null;
+        if (serviceId) {
+          void deductPackageUse(updated.customer!.id, booking.tenantId!, serviceId).catch(
+            (err) => logger.warn('deductPackageUse failed (non-fatal)', { err, bookingId: id }),
+          );
+        }
+      }
+    });
   }
 
   return updated;
@@ -552,15 +556,19 @@ export async function completeBooking(
 
   // ── Phase 5.3 — Award loyalty points on booking completion ───────────────
   // Fire-and-forget: errors logged inside awardPoints, never surfaced.
-  if (booking.tenantId && updated.customer?.id && getDefaultFlags()['LOYALTY_ENABLED']) {
-    const points = calculatePointsForBooking(invoiceAmount);
-    void awardPoints({
-      customerId: updated.customer.id,
-      tenantId:   booking.tenantId,
-      points,
-      reason:     'booking_completed',
-      bookingId:  id,
-    }).catch((err) => logger.warn('awardPoints failed (non-fatal)', { err, bookingId: id }));
+  if (booking.tenantId && updated.customer?.id) {
+    void isFeatureEnabled('LOYALTY_ENABLED').then((enabled) => {
+      if (enabled) {
+        const points = calculatePointsForBooking(invoiceAmount);
+        void awardPoints({
+          customerId: updated.customer!.id,
+          tenantId:   booking.tenantId!,
+          points,
+          reason:     'booking_completed',
+          bookingId:  id,
+        }).catch((err) => logger.warn('awardPoints failed (non-fatal)', { err, bookingId: id }));
+      }
+    });
   }
 
   // ── Phase 8.2 — Enqueue AI suggestion (fire-and-forget) ──────────────────
@@ -656,12 +664,16 @@ export async function cancelBooking(
   // When a booking is cancelled, try to find the best-matching WAITING
   // waitlist entry and notify them of the slot opening.
   // Fire-and-forget: errors logged inside matchAndNotify, never surfaced to caller.
-  if (booking.tenantId && getDefaultFlags()['WAITING_LIST_ENABLED']) {
-    void matchAndNotify({
-      bookingArtistId:  booking.artistId,
-      bookingServiceId: booking.serviceId ?? null,
-      bookingStartAt:   booking.startAt,
-      tenantId:         booking.tenantId,
+  if (booking.tenantId) {
+    void isFeatureEnabled('WAITING_LIST_ENABLED').then((enabled) => {
+      if (enabled) {
+        void matchAndNotify({
+          bookingArtistId:  booking.artistId,
+          bookingServiceId: booking.serviceId ?? null,
+          bookingStartAt:   booking.startAt,
+          tenantId:         booking.tenantId!,
+        });
+      }
     });
   }
 

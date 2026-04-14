@@ -62,7 +62,7 @@ import { Queue } from 'bullmq';
 
 import { config }          from '../../config';
 import { logger }          from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -207,8 +207,7 @@ export function getReminderJobId(bookingId: string): string {
  * Called from: bookings.service.ts → confirmBooking
  */
 export async function enqueueBookingReminder(params: EnqueueReminderParams): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags['EMAIL_REMINDERS_ENABLED']) return;
+  if (!await isFeatureEnabled('EMAIL_REMINDERS_ENABLED')) return;
 
   if (!params.customerEmail) return; // nothing to send
 
@@ -277,8 +276,7 @@ export async function enqueueBookingReminder(params: EnqueueReminderParams): Pro
  * Called from: bookings.service.ts → cancelBooking, rescheduleBooking
  */
 export async function cancelBookingReminder(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags['EMAIL_REMINDERS_ENABLED']) return;
+  if (!await isFeatureEnabled('EMAIL_REMINDERS_ENABLED')) return;
 
   const jobId = getReminderJobId(bookingId);
   try {

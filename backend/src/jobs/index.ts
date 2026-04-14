@@ -6,7 +6,7 @@
  * repeatable or delayed job as needed.
  */
 import { logger } from '../utils/logger';
-import { getDefaultFlags } from '../config/businessType';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { setupBirthdayJob } from './birthday.job';
 import { startRebookWorker } from './rebook-nudge.job';
 import { setupRecurringBookingJob } from './recurring-booking.job';
@@ -16,39 +16,37 @@ import { startWaitlistMatchWorker } from './waitlist-match.job';
 import { startAISuggestionWorker }  from './ai-suggestion.job';
 
 export async function registerAllJobs(): Promise<void> {
-  const flags = getDefaultFlags();
-
-  if (flags['BIRTHDAY_AUTOMATION_ENABLED']) {
+  if (await isFeatureEnabled('BIRTHDAY_AUTOMATION_ENABLED')) {
     await setupBirthdayJob();
     logger.info('Birthday automation job registered');
   }
 
-  if (flags['REBOOKING_NUDGES_ENABLED']) {
+  if (await isFeatureEnabled('REBOOKING_NUDGES_ENABLED')) {
     startRebookWorker();
     logger.info('Rebooking nudges worker started');
   }
 
-  if (flags['RECURRING_BOOKINGS_ENABLED']) {
+  if (await isFeatureEnabled('RECURRING_BOOKINGS_ENABLED')) {
     await setupRecurringBookingJob();
     logger.info('Recurring booking job registered');
   }
 
-  if (flags['CAMPAIGNS_ENABLED']) {
+  if (await isFeatureEnabled('CAMPAIGNS_ENABLED')) {
     await setupCampaignJob();
     logger.info('Campaign processing job registered');
   }
 
-  if (flags['NO_SHOW_AUTOMATION_ENABLED']) {
+  if (await isFeatureEnabled('NO_SHOW_AUTOMATION_ENABLED')) {
     startNoShowWorker();
     logger.info('No-show automation worker started');
   }
 
-  if (flags['WAITING_LIST_ENABLED']) {
+  if (await isFeatureEnabled('WAITING_LIST_ENABLED')) {
     startWaitlistMatchWorker();
     logger.info('Waitlist match worker started');
   }
 
-  if (flags['AI_SUGGESTIONS_ENABLED']) {
+  if (await isFeatureEnabled('AI_SUGGESTIONS_ENABLED')) {
     startAISuggestionWorker();
     logger.info('AI suggestion worker started');
   }

@@ -23,7 +23,7 @@ import { prisma }          from '../../lib/prisma';
 import { config }          from '../../config';
 import { AppError }        from '../../errors/AppError';
 import { logger }          from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import {
   getOutlookAuthUrl,
   exchangeCodeForTokens,
@@ -200,8 +200,7 @@ async function getValidTokens(
 // ─── syncOutlookCreateEvent ───────────────────────────────────────────────────
 
 export async function syncOutlookCreateEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.OUTLOOK_CALENDAR_ENABLED) return;
+  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')) return;
 
   try {
     const booking = await prisma.booking.findUnique({
@@ -270,8 +269,7 @@ export async function syncOutlookCreateEvent(bookingId: string): Promise<void> {
 // ─── syncOutlookUpdateEvent ───────────────────────────────────────────────────
 
 export async function syncOutlookUpdateEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.OUTLOOK_CALENDAR_ENABLED) return;
+  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')) return;
 
   try {
     const booking = await prisma.booking.findUnique({
@@ -337,8 +335,7 @@ export async function syncOutlookUpdateEvent(bookingId: string): Promise<void> {
 // ─── syncOutlookDeleteEvent ───────────────────────────────────────────────────
 
 export async function syncOutlookDeleteEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.OUTLOOK_CALENDAR_ENABLED) return;
+  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')) return;
 
   try {
     const booking = await prisma.booking.findUnique({

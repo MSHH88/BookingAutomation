@@ -21,7 +21,7 @@ import { Queue, Worker, Job } from 'bullmq';
 import { config }           from '../config';
 import { logger }           from '../utils/logger';
 import { prisma }           from '../lib/prisma';
-import { getDefaultFlags }  from '../config/businessType';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 import { generateSuggestion } from '../lib/openai';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -68,14 +68,14 @@ export function getAISuggestionQueue(): Queue<AISuggestionJobData> {
 
 /** Enqueues an AI suggestion job for a completed booking (fire-and-forget). */
 export function enqueueAISuggestion(bookingId: string): void {
-  const flags = getDefaultFlags();
-  if (!flags.AI_SUGGESTIONS_ENABLED) return;
-
-  void getAISuggestionQueue()
-    .add('generate', { bookingId }, { delay: 5 * 60 * 1000 }) // 5 min delay
-    .catch((err) => {
-      logger.error('Failed to enqueue AI suggestion job', { bookingId, err });
-    });
+  void isFeatureEnabled('AI_SUGGESTIONS_ENABLED').then((enabled) => {
+    if (!enabled) return;
+    void getAISuggestionQueue()
+      .add('generate', { bookingId }, { delay: 5 * 60 * 1000 }) // 5 min delay
+      .catch((err) => {
+        logger.error('Failed to enqueue AI suggestion job', { bookingId, err });
+      });
+  });
 }
 
 // ─── Worker ───────────────────────────────────────────────────────────────────
@@ -83,8 +83,8 @@ export function enqueueAISuggestion(bookingId: string): void {
 async function processAISuggestionJob(job: Job<AISuggestionJobData>): Promise<void> {
   const { bookingId } = job.data;
 
-  const flags = getDefaultFlags();
-  if (!flags.AI_SUGGESTIONS_ENABLED) {
+  const enabled = await isFeatureEnabled('AI_SUGGESTIONS_ENABLED');
+  if (!enabled) {
     logger.debug('AI suggestion job skipped — AI_SUGGESTIONS_ENABLED is off', { bookingId });
     return;
   }

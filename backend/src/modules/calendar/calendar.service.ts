@@ -37,10 +37,10 @@
  */
 import { Credentials }   from 'google-auth-library';
 import { prisma }        from '../../lib/prisma';
-import { config }        from '../../config';
-import { AppError }      from '../../errors/AppError';
-import { logger }        from '../../utils/logger';
-import { getDefaultFlags } from '../../config/businessType';
+import { config }          from '../../config';
+import { AppError }        from '../../errors/AppError';
+import { logger }          from '../../utils/logger';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import {
   getOAuth2BaseClient,
   buildOAuth2ClientForTokens,
@@ -271,8 +271,8 @@ export async function disconnectCalendar(
  * @param bookingId  Booking ID
  */
 export async function syncCreateEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.CALENDAR_ENABLED) {
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  if (!calendarEnabled) {
     logger.debug('Calendar sync skipped — CALENDAR_ENABLED is off');
     return;
   }
@@ -373,8 +373,8 @@ export async function syncCreateEvent(bookingId: string): Promise<void> {
  * @param bookingId  Booking ID
  */
 export async function syncUpdateEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.CALENDAR_ENABLED) {
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  if (!calendarEnabled) {
     logger.debug('Calendar sync skipped — CALENDAR_ENABLED is off');
     return;
   }
@@ -483,8 +483,8 @@ export async function syncUpdateEvent(bookingId: string): Promise<void> {
  * @param bookingId  Booking ID
  */
 export async function syncDeleteEvent(bookingId: string): Promise<void> {
-  const flags = getDefaultFlags();
-  if (!flags.CALENDAR_ENABLED) {
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  if (!calendarEnabled) {
     logger.debug('Calendar sync skipped — CALENDAR_ENABLED is off');
     return;
   }

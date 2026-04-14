@@ -18,11 +18,11 @@
  *   - SMS_ENABLED must be ON for SMS
  *   - EMAIL_REMINDERS_ENABLED must be ON for email
  */
-import { logger }         from '../utils/logger';
-import { getDefaultFlags } from '../config/businessType';
-import { whatsappQueue }  from '../modules/whatsapp/whatsapp.queue';
-import { smsQueue }       from '../modules/sms/sms.queue';
-import { sendEmail }      from '../modules/notifications/notifications.service';
+import { logger }           from '../utils/logger';
+import { isFeatureEnabled } from '../middleware/requireFeature';
+import { whatsappQueue }    from '../modules/whatsapp/whatsapp.queue';
+import { smsQueue }         from '../modules/sms/sms.queue';
+import { sendEmail }        from '../modules/notifications/notifications.service';
 
 export type ChannelPreference = 'WHATSAPP' | 'SMS' | 'EMAIL' | 'ALL';
 
@@ -49,16 +49,16 @@ export interface NotificationPayload {
  * Resolves which channels should receive the notification based on
  * user preference and active feature flags.
  */
-export function resolveChannels(channel: ChannelPreference): {
+export async function resolveChannels(channel: ChannelPreference): Promise<{
   whatsapp: boolean;
   sms: boolean;
   email: boolean;
-} {
-  const flags = getDefaultFlags();
-
-  const whatsappEnabled = Boolean(flags['WHATSAPP_CONTACT_ENABLED']);
-  const smsEnabled      = Boolean(flags['SMS_REMINDERS_ENABLED']);
-  const emailEnabled    = Boolean(flags['EMAIL_REMINDERS_ENABLED']);
+}> {
+  const [whatsappEnabled, smsEnabled, emailEnabled] = await Promise.all([
+    isFeatureEnabled('WHATSAPP_CONTACT_ENABLED'),
+    isFeatureEnabled('SMS_REMINDERS_ENABLED'),
+    isFeatureEnabled('EMAIL_REMINDERS_ENABLED'),
+  ]);
 
   switch (channel) {
     case 'WHATSAPP':
@@ -81,7 +81,7 @@ export function resolveChannels(channel: ChannelPreference): {
  * so the calling service is never blocked by a notification failure.
  */
 export async function dispatchNotification(payload: NotificationPayload): Promise<void> {
-  const channels = resolveChannels(payload.channel);
+  const channels = await resolveChannels(payload.channel);
 
   logger.info('Dispatching notification', {
     templateKey: payload.templateKey,
