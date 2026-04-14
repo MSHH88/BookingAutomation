@@ -1,7 +1,7 @@
 /**
  * Zod schemas for Recurring Bookings — Phase 1, Step 1.8
  *
- * Feature flag: RECURRING_BOOKING_ENABLED
+ * Feature flag: RECURRING_BOOKINGS_ENABLED
  * Endpoints:
  *   GET    /api/recurring-bookings          — list for tenant
  *   GET    /api/recurring-bookings/:id      — get single

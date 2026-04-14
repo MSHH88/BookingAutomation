@@ -254,16 +254,12 @@ export const FEATURE_FLAG_KEYS = [
 
   // ── Retention & automation ────────────────────────────────────────────────
   'WAITING_LIST_ENABLED',       // waitlist when artist / slot fully booked
-  'RECURRING_BOOKING_ENABLED',  // allow recurring / subscription bookings
-  'REBOOK_REMINDER_ENABLED',    // automated rebook reminder after service
   'LOYALTY_ENABLED',            // loyalty points accumulation and redemption
 
   // ── Compliance & forms ────────────────────────────────────────────────────
-  'FORMS_ENABLED',              // intake / consent forms (hair, tattoo, massage)
   'GDPR_ENABLED',               // GDPR consent capture on booking / registration
 
   // ── Tips & restaurant-specific ────────────────────────────────────────────
-  'TIP_COLLECTION_ENABLED',     // optional tip/gratuity on checkout
   'COVERS_MANAGEMENT_ENABLED',  // max covers per time-slot pacing (restaurant)
 
   // ── Reporting ────────────────────────────────────────────────────────────
@@ -357,12 +353,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       false,
-    RECURRING_BOOKING_ENABLED:  true,
-    REBOOK_REMINDER_ENABLED:    true,
     LOYALTY_ENABLED:            true,
-    FORMS_ENABLED:              true,
     GDPR_ENABLED:               true,
-    TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
@@ -422,12 +414,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
-    RECURRING_BOOKING_ENABLED:  true,
-    REBOOK_REMINDER_ENABLED:    true,
     LOYALTY_ENABLED:            true,
-    FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
-    TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
@@ -487,12 +475,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
-    RECURRING_BOOKING_ENABLED:  true,
-    REBOOK_REMINDER_ENABLED:    true,
     LOYALTY_ENABLED:            true,
-    FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
-    TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
@@ -552,12 +536,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
-    RECURRING_BOOKING_ENABLED:  true,
-    REBOOK_REMINDER_ENABLED:    true,
     LOYALTY_ENABLED:            true,
-    FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
-    TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
@@ -617,12 +597,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     ONLINE_PAYMENT_ENABLED:     true,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       false,
-    RECURRING_BOOKING_ENABLED:  true,
-    REBOOK_REMINDER_ENABLED:    true,
     LOYALTY_ENABLED:            true,
-    FORMS_ENABLED:              true,
     GDPR_ENABLED:               true,
-    TIP_COLLECTION_ENABLED:     false,
     COVERS_MANAGEMENT_ENABLED:  false,
     DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                true,
@@ -682,12 +658,8 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     ONLINE_PAYMENT_ENABLED:     false,
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
-    RECURRING_BOOKING_ENABLED:  false,
-    REBOOK_REMINDER_ENABLED:    false,
     LOYALTY_ENABLED:            false,
-    FORMS_ENABLED:              false,
     GDPR_ENABLED:               true,
-    TIP_COLLECTION_ENABLED:     true,
     COVERS_MANAGEMENT_ENABLED:  true,
     DAILY_REPORT_ENABLED:       false,
     SMS_ENABLED:                false,

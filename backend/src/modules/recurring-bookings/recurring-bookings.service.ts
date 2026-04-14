@@ -14,7 +14,7 @@
  *   updateRecurringBooking — update intervalDays / nextBookingDate / isActive; 404 if not found
  *   deactivateRecurringBooking — set isActive = false (soft delete); 404 if not found
  *
- * Feature flag: RECURRING_BOOKING_ENABLED
+ * Feature flag: RECURRING_BOOKINGS_ENABLED
  */
 import { Prisma } from '@prisma/client';
 

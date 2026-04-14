@@ -8,7 +8,7 @@
  *  ✓ PATCH  /api/recurring-bookings/:id   — 200 updated, 400 empty body
  *  ✓ DELETE /api/recurring-bookings/:id   — 200 deactivated
  *  ✓ 403 when non-ADMIN
- *  ✓ 503 when RECURRING_BOOKING_ENABLED=false
+ *  ✓ 503 when RECURRING_BOOKINGS_ENABLED=false
  *
  * 12 tests total
  */
@@ -220,7 +220,7 @@ describe('DELETE /api/recurring-bookings/:id', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('Feature flag gating', () => {
-  it('503 — when RECURRING_BOOKING_ENABLED is false', async () => {
+  it('503 — when RECURRING_BOOKINGS_ENABLED is false', async () => {
     const orig = process.env['BUSINESS_TYPE'];
     process.env['BUSINESS_TYPE'] = 'restaurant';
 
