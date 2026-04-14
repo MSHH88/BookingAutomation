@@ -25,7 +25,7 @@ import {
 
 const router = Router();
 
-router.use(requireFeature('PAYROLL_ENABLED'), requireAuth);
+router.use(requireAuth, requireFeature('PAYROLL_ENABLED'));
 
 // ── Admin-only routes ─────────────────────────────────────────────────────────
 router.post(
