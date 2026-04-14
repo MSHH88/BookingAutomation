@@ -532,7 +532,7 @@ async function onPaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent): Pr
     paymentIntentId: paymentIntent.id,
     amount:          paymentIntent.amount,
     currency:        paymentIntent.currency,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent payment.succeeded failed', { err, bookingId }));
 }
 
 /**
@@ -586,5 +586,5 @@ async function onChargeRefunded(charge: Stripe.Charge): Promise<void> {
     paymentIntentId,
     amount:          charge.amount_refunded,
     currency:        charge.currency,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent payment.refunded failed', { err, paymentIntentId }));
 }

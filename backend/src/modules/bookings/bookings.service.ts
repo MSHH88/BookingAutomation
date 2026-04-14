@@ -310,16 +310,14 @@ export async function confirmBooking(
   logger.info('Email job queued (stub)', { job: 'booking-confirmed', bookingId: id });
 
   // ── Google Calendar — create event on confirm ─────────────────────────────
-  // Fire-and-forget: syncCreateEvent swallows all errors internally.
-  void syncCreateEvent(id);
+  // Fire-and-forget: calendar sync failures are logged but never surfaced to caller.
+  void syncCreateEvent(id).catch((err) => logger.warn('Google Calendar create failed', { err, bookingId: id }));
   // ── Outlook / Apple Calendar — Phase 7 ────────────────────────────────────
-  void syncOutlookCreateEvent(id);
-  void syncAppleCreateEvent(id);
+  void syncOutlookCreateEvent(id).catch((err) => logger.warn('Outlook Calendar create failed', { err, bookingId: id }));
+  void syncAppleCreateEvent(id).catch((err) => logger.warn('Apple Calendar create failed', { err, bookingId: id }));
 
   // ── Email Reminder — 24 h before the appointment ─────────────────────────
-  // Fire-and-forget: queue errors are caught inside enqueueBookingReminder.
-  // Skipped automatically when EMAIL_REMINDERS_ENABLED is OFF or when the
-  // appointment is less than 24 h away (computed delay ≤ 0).
+  // Fire-and-forget: failures are logged but never surfaced to caller.
   void enqueueBookingReminder({
     bookingId:      id,
     bookingStartAt: updated.startAt,
@@ -328,11 +326,10 @@ export async function confirmBooking(
     studioName:     config.STUDIO_NAME,
     artistName:     updated.artist.user.name,
     serviceName:    updated.services[0]?.service?.name ?? 'appointment',
-  });
+  }).catch((err) => logger.warn('enqueueBookingReminder failed', { err, bookingId: id }));
 
   // ── WhatsApp — Message 2 (confirmed) + Message 3 (reminder) ─────────────
-  // Fire-and-forget: queue errors are caught inside the enqueue helpers.
-  // WhatsApp opt-in is stored on the Lead record; skip when no lead is linked.
+  // Fire-and-forget: failures are logged but never surfaced to caller.
   void enqueueBookingConfirmed({
     phone:          updated.lead?.phone ?? updated.customer?.phone ?? null,
     customerName:   updated.customer?.name ?? updated.lead?.name ?? 'Customer',
@@ -341,7 +338,7 @@ export async function confirmBooking(
     artistName:     updated.artist.user.name,
     startAt:        updated.startAt.toISOString(),
     bookingId:      id,
-  });
+  }).catch((err) => logger.warn('enqueueBookingConfirmed failed', { err, bookingId: id }));
 
   // ── WhatsApp — Message 5 (restaurant reminder 2 h before) ───────────────
   if (config.BUSINESS_TYPE === 'restaurant') {
@@ -353,7 +350,7 @@ export async function confirmBooking(
       startAt:        updated.startAt.toISOString(),
       partySize:      updated.partySize ?? undefined,
       bookingId:      id,
-    });
+    }).catch((err) => logger.warn('enqueueRestaurantReminder failed', { err, bookingId: id }));
   }
 
   // ── Outgoing Webhook — booking.confirmed ──────────────────────────────────
@@ -365,7 +362,7 @@ export async function confirmBooking(
     endAt:      updated.endAt.toISOString(),
     customerId: updated.customer?.id   ?? null,
     leadId:     updated.lead?.id       ?? null,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent booking.confirmed failed', { err, bookingId: id }));
 
   // ── Phase 5.1 — Deduct package use if customer has an applicable package ──
   // Fire-and-forget: errors logged inside deductPackageUse, never surfaced.
@@ -509,9 +506,9 @@ export async function completeBooking(
     },
   );
 
-  // ── Side-effects — log stubs (Phase 2 wires BullMQ) ──────────────────────
+  // ── Side-effects ──────────────────────────────────────────────────────────
   // ── Review-request email (36 h delay) ────────────────────────────────────
-  // Fire-and-forget: queue errors are caught inside enqueueReviewRequest.
+  // Fire-and-forget: failures are logged but never surfaced to caller.
   void enqueueReviewRequest({
     bookingId:       id,
     customerEmail:   booking.customer?.email ?? booking.lead?.email ?? '',
@@ -520,11 +517,10 @@ export async function completeBooking(
     googleReviewUrl: config.GOOGLE_REVIEW_URL || '',
     artistName:      booking.artist.user.name,
     serviceName:     booking.services[0]?.service?.name,
-  });
+  }).catch((err) => logger.warn('enqueueReviewRequest failed', { err, bookingId: id }));
 
   // ── WhatsApp — Message 4 (post-visit review, +2 h) ───────────────────────
-  // Fire-and-forget: queue errors are caught inside the enqueue helper.
-  // WhatsApp opt-in is stored on the Lead record; skip when no lead is linked.
+  // Fire-and-forget: failures are logged but never surfaced to caller.
   void enqueuePostVisitReview({
     phone:           booking.lead?.phone ?? booking.customer?.phone ?? null,
     customerName:    booking.customer?.name ?? booking.lead?.name ?? 'Customer',
@@ -532,7 +528,7 @@ export async function completeBooking(
     studioName:      config.STUDIO_NAME,
     googleReviewUrl: config.GOOGLE_REVIEW_URL || '',
     bookingId:       id,
-  });
+  }).catch((err) => logger.warn('enqueuePostVisitReview failed', { err, bookingId: id }));
 
   const updated = await prisma.booking.findUnique({
     where:  { id },
@@ -553,7 +549,7 @@ export async function completeBooking(
     totalAmount: updated.totalAmount?.toString() ?? null,
     customerId:  updated.customer?.id ?? null,
     leadId:      updated.lead?.id     ?? null,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent booking.completed failed', { err, bookingId: id }));
 
   // ── Phase 5.3 — Award loyalty points on booking completion ───────────────
   // Fire-and-forget: errors logged inside awardPoints, never surfaced.
@@ -640,15 +636,15 @@ export async function cancelBooking(
   logger.info('Email job queued (stub)', { job: 'booking-cancelled', bookingId: id, reason: body.cancelReason });
 
   // ── Google Calendar — delete event on cancel ──────────────────────────────
-  // Fire-and-forget: syncDeleteEvent swallows all errors internally.
-  void syncDeleteEvent(id);
+  // Fire-and-forget: failures are logged but never surfaced to caller.
+  void syncDeleteEvent(id).catch((err) => logger.warn('Google Calendar delete failed', { err, bookingId: id }));
   // ── Outlook / Apple Calendar — Phase 7 ────────────────────────────────────
-  void syncOutlookDeleteEvent(id);
-  void syncAppleDeleteEvent(id);
+  void syncOutlookDeleteEvent(id).catch((err) => logger.warn('Outlook Calendar delete failed', { err, bookingId: id }));
+  void syncAppleDeleteEvent(id).catch((err) => logger.warn('Apple Calendar delete failed', { err, bookingId: id }));
 
   // ── Cancel pending reminder — appointment no longer exists ───────────────
-  // Fire-and-forget: queue errors are caught inside cancelBookingReminder.
-  void cancelBookingReminder(id);
+  // Fire-and-forget: failures are logged but never surfaced to caller.
+  void cancelBookingReminder(id).catch((err) => logger.warn('cancelBookingReminder failed', { err, bookingId: id }));
 
   // ── Outgoing Webhook — booking.cancelled ─────────────────────────────────
   void enqueueWebhookEvent('booking.cancelled', {
@@ -659,7 +655,7 @@ export async function cancelBooking(
     cancelReason: updated.cancelReason ?? null,
     customerId:   updated.customer?.id ?? null,
     leadId:       updated.lead?.id     ?? null,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent booking.cancelled failed', { err, bookingId: id }));
 
   // ── Phase 5.4 — Smart Waitlist Matching ──────────────────────────────────
   // When a booking is cancelled, try to find the best-matching WAITING
@@ -770,18 +766,15 @@ export async function rescheduleBooking(
   logger.info('Email job queued (stub)', { job: 'booking-rescheduled', bookingId: id, newStart, newEnd });
 
   // ── Google Calendar — update event on reschedule ──────────────────────────
-  // Fire-and-forget: syncUpdateEvent swallows all errors internally.
-  void syncUpdateEvent(id);
+  // Fire-and-forget: failures are logged but never surfaced to caller.
+  void syncUpdateEvent(id).catch((err) => logger.warn('Google Calendar update failed', { err, bookingId: id }));
   // ── Outlook / Apple Calendar — Phase 7 ────────────────────────────────────
-  void syncOutlookUpdateEvent(id);
-  void syncAppleUpdateEvent(id);
+  void syncOutlookUpdateEvent(id).catch((err) => logger.warn('Outlook Calendar update failed', { err, bookingId: id }));
+  void syncAppleUpdateEvent(id).catch((err) => logger.warn('Apple Calendar update failed', { err, bookingId: id }));
 
   // ── Reminder: cancel old (stale time) + enqueue new (updated time) ───────
-  // Fire-and-forget: queue errors are caught inside each helper.
-  // cancelBookingReminder uses the same deterministic jobId so it reliably
-  // removes the previously scheduled reminder regardless of whether the
-  // original booking was PENDING or CONFIRMED when first scheduled.
-  void cancelBookingReminder(id);
+  // Fire-and-forget: failures are logged but never surfaced to caller.
+  void cancelBookingReminder(id).catch((err) => logger.warn('cancelBookingReminder failed', { err, bookingId: id }));
   void enqueueBookingReminder({
     bookingId:      id,
     bookingStartAt: updated.startAt,
@@ -790,7 +783,7 @@ export async function rescheduleBooking(
     studioName:     config.STUDIO_NAME,
     artistName:     updated.artist.user.name,
     serviceName:    updated.services[0]?.service?.name ?? 'appointment',
-  });
+  }).catch((err) => logger.warn('enqueueBookingReminder failed', { err, bookingId: id }));
 
   // ── Outgoing Webhook — booking.rescheduled ────────────────────────────────
   void enqueueWebhookEvent('booking.rescheduled', {
@@ -801,7 +794,7 @@ export async function rescheduleBooking(
     endAt:      updated.endAt.toISOString(),
     customerId: updated.customer?.id ?? null,
     leadId:     updated.lead?.id     ?? null,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent booking.rescheduled failed', { err, bookingId: id }));
 
   return updated;
 }

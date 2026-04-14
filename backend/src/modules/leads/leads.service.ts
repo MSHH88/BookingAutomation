@@ -306,9 +306,9 @@ export async function createLead(
               studioName:     config.STUDIO_NAME,
               leadId:         created.id,
               artistId:       created.artistId ?? undefined,
-            });
+            }).catch((err) => logger.warn('enqueueLeadInquiry failed', { err, leadId: created.id }));
           }
-        });
+        }).catch((err) => logger.warn('isFeatureEnabled check failed', { err }));
       }
 
       // 5. Outgoing Webhook — lead.created
@@ -319,7 +319,7 @@ export async function createLead(
         status:      'NEW',
         artistId:    created.artistId ?? null,
         businessType,
-      });
+      }).catch((err) => logger.warn('enqueueWebhookEvent lead.created failed', { err, leadId: created.id }));
     } catch (err) {
       logger.error('Lead side-effect error', { err, leadId: created.id });
     }
@@ -508,7 +508,7 @@ export async function updateLeadStatus(
     leadId:     id,
     fromStatus: currentStatus,
     toStatus:   nextStatus,
-  });
+  }).catch((err) => logger.warn('enqueueWebhookEvent lead.status_changed failed', { err, leadId: id }));
 
   return getLeadById(id);
 }
