@@ -62,42 +62,30 @@ const mockArtist = {
   bufferMinutes:   30,
 };
 
-jest.mock('../../lib/prisma', () => ({
-  prisma: {
-    tenant: {
-      findUnique: jest.fn(),
+jest.mock('../../lib/prisma', () => {
+  const bookingMock = {
+    findMany:   jest.fn(),
+    findFirst:  jest.fn(),
+    create:     jest.fn(),
+    findUnique: jest.fn(),
+  };
+  return {
+    prisma: {
+      tenant:              { findUnique: jest.fn() },
+      studioSettings:      { findUnique: jest.fn() },
+      service:             { findMany: jest.fn(), findFirst: jest.fn() },
+      artist:              { findMany: jest.fn(), findFirst: jest.fn() },
+      artistService:       { findFirst: jest.fn() },
+      artistAvailability:  { findUnique: jest.fn() },
+      booking:             bookingMock,
+      availabilityBlock:   { findMany: jest.fn() },
+      user:                { findFirst: jest.fn(), create: jest.fn() },
+      $transaction: jest.fn().mockImplementation((fn: (tx: typeof bookingMock) => Promise<unknown>) =>
+        fn({ booking: bookingMock } as any),
+      ),
     },
-    studioSettings: {
-      findUnique: jest.fn(),
-    },
-    service: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    artist: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    artistService: {
-      findFirst: jest.fn(),
-    },
-    artistAvailability: {
-      findUnique: jest.fn(),
-    },
-    booking: {
-      findMany: jest.fn(),
-      create: jest.fn(),
-      findUnique: jest.fn(),
-    },
-    availabilityBlock: {
-      findMany: jest.fn(),
-    },
-    user: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-    },
-  },
-}));
+  };
+});
 
 jest.mock('../../config/businessType', () => ({
   getDefaultFlags: jest.fn().mockReturnValue({
@@ -112,8 +100,13 @@ jest.mock('../webhooks/webhooks.queue', () => ({
   enqueueWebhookEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: jest.fn().mockResolvedValue(false),
+  requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
+}));
+
 import { prisma } from '../../lib/prisma';
-import { getDefaultFlags } from '../../config/businessType';
+import { isFeatureEnabled } from '../../middleware/requireFeature';
 import {
   getBusinessInfo,
   getBusinessServices,
@@ -256,7 +249,8 @@ describe('public.service', () => {
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
       (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
-      (getDefaultFlags as jest.Mock).mockReturnValue({ DEPOSIT_REQUIRED: false });
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(false); // DEPOSIT_REQUIRED = false
+      (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null); // no conflict
       (prisma.booking.create as jest.Mock).mockResolvedValue({
         id: 'booking-1', status: 'PENDING', publicToken: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),
@@ -276,7 +270,8 @@ describe('public.service', () => {
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
       (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
-      (getDefaultFlags as jest.Mock).mockReturnValue({ DEPOSIT_REQUIRED: true });
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(true); // DEPOSIT_REQUIRED = true
+      (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null); // no conflict
       (prisma.booking.create as jest.Mock).mockResolvedValue({
         id: 'booking-1', status: 'AWAITING_DEPOSIT', publicToken: 'b2c3d4e5-f6a7-8901-bcde-f12345678901', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),
@@ -297,7 +292,8 @@ describe('public.service', () => {
       (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue(null); // no existing customer
       (prisma.user.create as jest.Mock).mockResolvedValue({ id: 'new-customer' });
-      (getDefaultFlags as jest.Mock).mockReturnValue({ DEPOSIT_REQUIRED: false });
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(false); // DEPOSIT_REQUIRED = false
+      (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null); // no conflict
       (prisma.booking.create as jest.Mock).mockResolvedValue({
         id: 'booking-2', status: 'PENDING', publicToken: 'c3d4e5f6-a7b8-9012-cdef-123456789012', startAt: new Date(), endAt: new Date(),
         source: 'WIDGET', createdAt: new Date(),

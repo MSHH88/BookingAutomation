@@ -345,35 +345,51 @@ export async function createPublicBooking(slug: string, body: CreatePublicBookin
   // Calculate total amount from service price
   const totalAmount = service.priceFrom ? Number(service.priceFrom) : null;
 
-  // Create booking
-  const booking = await prisma.booking.create({
-    data: {
-      tenantId:             tenant.id,
-      artistId:             body.artistId,
-      serviceId:            body.serviceId,
-      customerId:           customer.id,
-      startAt:              new Date(body.startAt),
-      endAt:                new Date(body.endAt),
-      status:               initialStatus,
-      publicToken,
-      source:               body.source ?? 'WIDGET',
-      notes:                body.notes ?? null,
-      partySize:            body.partySize ?? null,
-      tableId:              body.tableId ?? null,
-      totalAmount:          totalAmount,
-      totalDurationMinutes: service.durationMinutes,
-    },
-    select: {
-      id:           true,
-      status:       true,
-      publicToken:  true,
-      startAt:      true,
-      endAt:        true,
-      source:       true,
-      createdAt:    true,
-      artist:       { select: { id: true, slug: true, user: { select: { name: true } } } },
-      service:      { select: { id: true, name: true, durationMinutes: true, priceFrom: true } },
-    },
+  // Atomically check slot availability and create booking to prevent double-booking
+  const booking = await prisma.$transaction(async (tx) => {
+    const conflict = await tx.booking.findFirst({
+      where: {
+        artistId: body.artistId,
+        status:   { in: ['CONFIRMED', 'RESCHEDULED', 'AWAITING_DEPOSIT'] },
+        startAt:  { lt: new Date(body.endAt) },
+        endAt:    { gt: new Date(body.startAt) },
+      },
+      select: { id: true },
+    });
+
+    if (conflict) {
+      throw new AppError(409, 'SLOT_TAKEN', 'This time slot is no longer available');
+    }
+
+    return tx.booking.create({
+      data: {
+        tenantId:             tenant.id,
+        artistId:             body.artistId,
+        serviceId:            body.serviceId,
+        customerId:           customer.id,
+        startAt:              new Date(body.startAt),
+        endAt:                new Date(body.endAt),
+        status:               initialStatus,
+        publicToken,
+        source:               body.source ?? 'WIDGET',
+        notes:                body.notes ?? null,
+        partySize:            body.partySize ?? null,
+        tableId:              body.tableId ?? null,
+        totalAmount:          totalAmount,
+        totalDurationMinutes: service.durationMinutes,
+      },
+      select: {
+        id:           true,
+        status:       true,
+        publicToken:  true,
+        startAt:      true,
+        endAt:        true,
+        source:       true,
+        createdAt:    true,
+        artist:       { select: { id: true, slug: true, user: { select: { name: true } } } },
+        service:      { select: { id: true, name: true, durationMinutes: true, priceFrom: true } },
+      },
+    });
   });
 
   // Fire webhook
