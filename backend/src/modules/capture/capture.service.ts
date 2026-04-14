@@ -103,11 +103,14 @@ export function computeLeadScore(body: CaptureLeadBody): number {
  * Only leads with status NEW or CONTACTED are considered active duplicates.
  * A BOOKED / COMPLETED / CANCELLED / LOST lead from the same submitter is
  * treated as a distinct, new inquiry.
+ *
+ * tenantId is included in the query so dedup never crosses tenant boundaries.
  */
 export async function findDuplicate(
   email:    string,
   artistId: string | null | undefined,
   windowMs: number = DEDUP_WINDOW_MS,
+  tenantId?: string | null,
 ): Promise<{ id: string; score: number; createdAt: Date } | null> {
   const since = new Date(Date.now() - windowMs);
 
@@ -115,6 +118,7 @@ export async function findDuplicate(
     email:     { equals: email.toLowerCase(), mode: 'insensitive' },
     status:    { in: ['NEW', 'CONTACTED'] },
     createdAt: { gte: since },
+    tenantId:  tenantId ?? null,
   };
 
   if (artistId) {
@@ -201,8 +205,20 @@ export async function captureLeadPublic(
 
   const sessionId = body.sessionId ?? null;
 
+  // ── Resolve tenant context ──────────────────────────────────────────────────
+  // This is a public endpoint (no auth). Derive tenantId from the artist when
+  // provided so dedup is scoped to the correct tenant and never crosses tenants.
+  let tenantId: string | null = null;
+  if (body.artistId) {
+    const artist = await prisma.artist.findUnique({
+      where:  { id: body.artistId },
+      select: { tenantId: true },
+    });
+    tenantId = artist?.tenantId ?? null;
+  }
+
   // ── 2. Duplicate check ──────────────────────────────────────────────────────
-  const existing = await findDuplicate(body.email, body.artistId);
+  const existing = await findDuplicate(body.email, body.artistId, DEDUP_WINDOW_MS, tenantId);
   if (existing) {
     logger.info('Duplicate lead submission — returning existing record', {
       existingId: existing.id,

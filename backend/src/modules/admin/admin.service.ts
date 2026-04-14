@@ -167,10 +167,19 @@ export async function updateStudioSettings(
 // ─── Feature Flags ────────────────────────────────────────────────────────────
 
 /**
- * Returns every feature flag ordered alphabetically by key.
+ * Returns feature flags ordered alphabetically by key.
+ *
+ * Scoping rules:
+ *   - tenantId provided → return global rows + that tenant's override rows
+ *   - tenantId null/undefined → return only global rows (SUPER_ADMIN view)
  */
-export async function listFeatureFlags(_tenantId?: string | null): Promise<FeatureFlagResult[]> {
+export async function listFeatureFlags(tenantId?: string | null): Promise<FeatureFlagResult[]> {
+  const where = tenantId
+    ? { OR: [{ tenantId: null as string | null }, { tenantId }] }
+    : { tenantId: null as string | null };
+
   return prisma.featureFlag.findMany({
+    where,
     select:  featureFlagSelect,
     orderBy: { key: 'asc' },
   });

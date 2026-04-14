@@ -673,7 +673,7 @@ export async function cancelBooking(
           bookingArtistId:  booking.artistId,
           bookingServiceId: booking.serviceId ?? null,
           bookingStartAt:   booking.startAt,
-          tenantId:         booking.tenantId!,
+          tenantId:         booking.tenantId,
         });
       }
     });

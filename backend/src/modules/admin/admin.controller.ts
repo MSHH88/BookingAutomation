@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as adminService from './admin.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   UpdateSettingsBody,
   UpdateFeatureFlagParams,
@@ -75,7 +76,7 @@ export async function getFeatureFlags(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const flags = await adminService.listFeatureFlags(tenantId);
     res.json(success(flags));
   } catch (err) {
@@ -121,7 +122,7 @@ export async function getUsers(
 ): Promise<void> {
   try {
     const query    = req.query as ListUsersQuery;
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const result   = await adminService.listUsers(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
@@ -141,7 +142,7 @@ export async function patchUser(
   try {
     const { id }   = req.params as UpdateUserParams;
     const body     = req.body as UpdateUserBody;
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const user     = await adminService.updateUser(id, body, tenantId);
     res.json(success(user));
   } catch (err) {
@@ -163,7 +164,7 @@ export async function getArtists(
 ): Promise<void> {
   try {
     const query    = req.query as ListArtistsAdminQuery;
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const result   = await adminService.listArtistsAdmin(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
@@ -183,7 +184,7 @@ export async function patchArtist(
   try {
     const { id }   = req.params as UpdateArtistAdminParams;
     const body     = req.body as UpdateArtistAdminBody;
-    const tenantId = req.user?.tenantId ?? null;
+    const tenantId = extractTenantId(req);
     const artist   = await adminService.updateArtistAdmin(id, body, tenantId);
     res.json(success(artist));
   } catch (err) {
