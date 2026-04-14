@@ -23,6 +23,7 @@
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
 import { logger }   from '../../utils/logger';
+import { Prisma }   from '@prisma/client';
 import {
   createTerminalConnectionToken as stripeCreateConnectionToken,
   createTerminalPaymentIntent as stripeCreatePaymentIntent,
@@ -211,8 +212,7 @@ export async function listTransactions(tenantId: string | null, query: PosListTr
   const { page = 1, limit = 20, date } = query;
   const skip = (page - 1) * limit;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = {
+  const where: Prisma.PaymentWhereInput = {
     tenantId,
     booking: { source: 'POS' },
   };

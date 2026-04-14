@@ -28,6 +28,7 @@
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
 import { logger }   from '../../utils/logger';
+import { Prisma }   from '@prisma/client';
 import type { ListProductsQuery, CreateProductBody, UpdateProductBody, AdjustStockBody } from './products.schema';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -42,8 +43,7 @@ export async function listProducts(tenantId: string | null, query: ListProductsQ
   const skip = (page - 1) * limit;
 
   // Build the where clause
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { tenantId, isActive: true };
+  const where: Prisma.ProductWhereInput = { tenantId, isActive: true };
   if (category) {
     where.category = category;
   }
