@@ -179,20 +179,36 @@ export async function listFeatureFlags(_tenantId?: string | null): Promise<Featu
 /**
  * Enables or disables a feature flag identified by its unique key.
  *
- * @throws AppError 404 — flag with the given key does not exist.
+ * When `tenantId` is provided, a per-tenant override row is upserted —
+ * creating it if it does not exist, or updating it if it does.
+ * When `tenantId` is omitted (null/undefined), the global flag row is updated.
+ *
+ * @throws AppError 404 — global flag with the given key does not exist.
  */
 export async function updateFeatureFlag(
-  key:  string,
-  body: UpdateFeatureFlagBody,
+  key:      string,
+  body:     UpdateFeatureFlagBody,
+  tenantId?: string | null,
 ): Promise<FeatureFlagResult> {
-  const flag = await prisma.featureFlag.findUnique({ where: { key } });
+  if (tenantId) {
+    // Per-tenant override: upsert so the row is created on first use
+    return prisma.featureFlag.upsert({
+      where:  { key_tenantId: { key, tenantId } },
+      update: { isEnabled: body.isEnabled },
+      create: { key, tenantId, label: key, isEnabled: body.isEnabled },
+      select: featureFlagSelect,
+    });
+  }
+
+  // Global flag: must already exist (seeded at startup)
+  const flag = await prisma.featureFlag.findFirst({ where: { key, tenantId: null } });
 
   if (!flag) {
     throw new AppError(404, 'NOT_FOUND', `Feature flag "${key}" not found`);
   }
 
   return prisma.featureFlag.update({
-    where:  { key },
+    where:  { id: flag.id },
     data:   { isEnabled: body.isEnabled },
     select: featureFlagSelect,
   });

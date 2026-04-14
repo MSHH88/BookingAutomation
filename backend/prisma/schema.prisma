@@ -539,7 +539,7 @@ model EmailTemplate {
 model FeatureFlag {
   id          String   @id @default(cuid())
   tenantId    String?  // null = global default; non-null = per-tenant override
-  key         String   @unique
+  key         String
   label       String
   description String?
   isEnabled   Boolean  @default(true)
@@ -547,6 +547,7 @@ model FeatureFlag {
 
   tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([key, tenantId])
   @@index([tenantId])
   @@map("feature_flags")
 }

@@ -86,6 +86,10 @@ export async function getFeatureFlags(
 /**
  * PATCH /api/admin/feature-flags/:key
  * Enables or disables a feature flag by its unique key.
+ *
+ * Optional query param:
+ *   ?tenantId=<id>  — create/update a per-tenant override instead of the
+ *                     global flag.  SUPER_ADMIN only.
  */
 export async function patchFeatureFlag(
   req:  Request,
@@ -93,9 +97,10 @@ export async function patchFeatureFlag(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { key } = req.params as UpdateFeatureFlagParams;
-    const body    = req.body as UpdateFeatureFlagBody;
-    const flag    = await adminService.updateFeatureFlag(key, body);
+    const { key }    = req.params as UpdateFeatureFlagParams;
+    const body       = req.body as UpdateFeatureFlagBody;
+    const tenantId   = typeof req.query['tenantId'] === 'string' ? req.query['tenantId'] : null;
+    const flag       = await adminService.updateFeatureFlag(key, body, tenantId);
     res.json(success(flag));
   } catch (err) {
     next(err);

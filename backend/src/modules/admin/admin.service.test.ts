@@ -67,9 +67,10 @@ const mockSettingsFindFirst = jest.fn();
 const mockSettingsUpdate    = jest.fn();
 const mockSettingsCreate    = jest.fn();
 
-const mockFlagFindUnique = jest.fn();
+const mockFlagFindFirst  = jest.fn();
 const mockFlagFindMany   = jest.fn();
 const mockFlagUpdate     = jest.fn();
+const mockFlagUpsert     = jest.fn();
 
 const mockUserFindUnique = jest.fn();
 const mockUserFindMany   = jest.fn();
@@ -89,9 +90,10 @@ jest.mock('../../lib/prisma', () => ({
       create:    (...a: unknown[]) => mockSettingsCreate(...a),
     },
     featureFlag: {
-      findUnique: (...a: unknown[]) => mockFlagFindUnique(...a),
+      findFirst:  (...a: unknown[]) => mockFlagFindFirst(...a),
       findMany:   (...a: unknown[]) => mockFlagFindMany(...a),
       update:     (...a: unknown[]) => mockFlagUpdate(...a),
+      upsert:     (...a: unknown[]) => mockFlagUpsert(...a),
     },
     user: {
       findUnique: (...a: unknown[]) => mockUserFindUnique(...a),
@@ -288,10 +290,10 @@ describe('listFeatureFlags', () => {
 // ─── updateFeatureFlag ────────────────────────────────────────────────────────
 
 describe('updateFeatureFlag', () => {
-  it('enables a flag (isEnabled → true)', async () => {
+  it('enables a global flag (isEnabled → true)', async () => {
     const flag    = stubFlag('ONLINE_PAYMENT_ENABLED', false);
     const updated = { ...flag, isEnabled: true };
-    mockFlagFindUnique.mockResolvedValue(flag);
+    mockFlagFindFirst.mockResolvedValue(flag);
     mockFlagUpdate.mockResolvedValue(updated);
 
     const result = await service.updateFeatureFlag('ONLINE_PAYMENT_ENABLED', {
@@ -301,16 +303,16 @@ describe('updateFeatureFlag', () => {
     expect(result.isEnabled).toBe(true);
     expect(mockFlagUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { key: 'ONLINE_PAYMENT_ENABLED' },
+        where: { id: flag.id },
         data:  { isEnabled: true },
       }),
     );
   });
 
-  it('disables a flag (isEnabled → false)', async () => {
+  it('disables a global flag (isEnabled → false)', async () => {
     const flag    = stubFlag('ANALYTICS_ENABLED', true);
     const updated = { ...flag, isEnabled: false };
-    mockFlagFindUnique.mockResolvedValue(flag);
+    mockFlagFindFirst.mockResolvedValue(flag);
     mockFlagUpdate.mockResolvedValue(updated);
 
     const result = await service.updateFeatureFlag('ANALYTICS_ENABLED', {
@@ -320,8 +322,8 @@ describe('updateFeatureFlag', () => {
     expect(result.isEnabled).toBe(false);
   });
 
-  it('throws 404 when key not found', async () => {
-    mockFlagFindUnique.mockResolvedValue(null);
+  it('throws 404 when global key not found', async () => {
+    mockFlagFindFirst.mockResolvedValue(null);
 
     await expect(
       service.updateFeatureFlag('NONEXISTENT_FLAG', { isEnabled: true }),
@@ -332,6 +334,22 @@ describe('updateFeatureFlag', () => {
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
 
     expect(mockFlagUpdate).not.toHaveBeenCalled();
+  });
+
+  it('upserts a per-tenant override when tenantId is provided', async () => {
+    const overrideFlag = { ...stubFlag('TIPS_ENABLED', false), tenantId: 'tenant-1' };
+    mockFlagUpsert.mockResolvedValue(overrideFlag);
+
+    const result = await service.updateFeatureFlag('TIPS_ENABLED', { isEnabled: false }, 'tenant-1');
+
+    expect(result.tenantId).toBe('tenant-1');
+    expect(mockFlagUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { key_tenantId: { key: 'TIPS_ENABLED', tenantId: 'tenant-1' } },
+        update: { isEnabled: false },
+      }),
+    );
+    expect(mockFlagFindFirst).not.toHaveBeenCalled();
   });
 });
 
