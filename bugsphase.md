@@ -5,7 +5,22 @@
 > Working tree: **CLEAN** — nothing uncommitted.
 
 ---
+AUDIT-001:
 
+backend/src/middleware/requireFeature.ts — isFeatureEnabled(flag, tenantId?) with tenant-scoped cache keys feature:{flag}:{tenantId||'global'}, two-step DB lookup (tenant row → global row), requireFeature extracts tenantId from req
+AUDIT-002 (13 controllers/routes):
+
+campaigns.controller.ts, recurring-bookings.controller.ts — extractTenantId(req) + 403 guard
+email-templates.controller.ts, whatsapp-templates.controller.ts, sms-templates.controller.ts — removed as string casts + 403 guard
+push.routes.ts, roles.controller.ts, sessions.controller.ts, ai.controller.ts, invoices.controller.ts, webhooks.controller.ts, notifications.controller.ts, settings.controller.ts, quotes.controller.ts
+AUDIT-003 (6 files):
+
+customers.service.ts — await isFeatureEnabled('CANCELLATION_FEE_ENABLED', booking.tenantId) (added tenantId: true to select)
+reviews.queue.ts — added tenantId? to EnqueueReviewParams, await isFeatureEnabled('REVIEW_REQUEST_ENABLED', params.tenantId)
+bookings.service.ts — passes tenantId: booking.tenantId to enqueueReviewRequest
+whatsapp.service.ts — canSend made async, uses await isFeatureEnabled('WHATSAPP_CONTACT_ENABLED')
+apple-calendar.service.ts — 3 functions use await isFeatureEnabled('APPLE_CALENDAR_ENABLED')
+capture.schema.ts, leads.schema.ts — replaced getDefaultFlags() with activeBusinessType === 'tattoo_studio' (startup-time config, not async DB)
 ## Created Files (Phase 1 / Phase 2 / Phase 3)
 
 ### Phase 1 — Security & Critical Fixes
