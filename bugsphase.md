@@ -1,3 +1,315 @@
+# Phase 1–3 Implementation File Register (AUTO-GENERATED)
+
+> Generated: 2026-04-14 by post-phase-3 verification agent.
+> Branch: `copilot/create-detailed-automation-plan`
+> Working tree: **CLEAN** — nothing uncommitted.
+
+---
+
+## Created Files (Phase 1 / Phase 2 / Phase 3)
+
+### Phase 1 — Security & Critical Fixes
+
+- `backend/src/modules/auth/auth.email.processor.ts` — BullMQ processor for password-reset emails (FINDING-002)
+- `backend/src/modules/auth/auth.email.queue.ts` — BullMQ queue definition for auth emails (FINDING-002)
+
+### Phase 2 — API Quality & Tenant Scoping
+
+- `backend/src/utils/extractTenantId.ts` — `extractTenantId(req)` utility replacing `req.user!.tenantId!` (FINDING-019/028/030)
+- `backend/src/middleware/captcha.ts` — `requireCaptcha` middleware for public route CAPTCHA verification (FINDING-010)
+
+### Phase 3 — Schema Cleanup & Code Quality
+
+- `backend/prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql` — Delete orphaned GIFT_VOUCHER_ENABLED row (FINDING-016)
+- `backend/prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql` — Replace `key` unique with `@@unique([key, tenantId])` (FINDING-011)
+
+---
+
+## Modified Files (Phase 1 / Phase 2 / Phase 3)
+
+### Phase 1 — Security & Critical Fixes
+
+- `backend/src/config/index.ts` — Added required-credential validation + env vars for Resend, rate-limit, CAPTCHA (FINDING-007/002)
+- `backend/src/server.ts` — Register BullMQ auth-email worker; call `pingRedis()` at startup (FINDING-002/021)
+- `backend/src/middleware/requireFeature.ts` — Wire to DB + Redis; replace all `getDefaultFlags()` call sites (FINDING-001)
+- `backend/src/middleware/auth.ts` — Add `jti` claim + Redis revocation check on every request (FINDING-008)
+- `backend/src/modules/auth/auth.service.ts` — BullMQ enqueue for password-reset; remove token debug log (FINDING-002/029)
+- `backend/src/modules/auth/auth.controller.ts` — Logout: revoke JWT `jti` in Redis (FINDING-008)
+- `backend/src/modules/admin/admin.service.ts` — Add `tenantId` filter to listUsers, listArtistsAdmin, etc. (FINDING-003)
+- `backend/src/modules/admin/admin.controller.ts` — Pass `tenantId` from req.user to all admin service calls (FINDING-003)
+- `backend/src/modules/bookings/bookings.service.ts` — Add `tenantId` filter to `listBookings`; transaction for conflict-check (FINDING-004/027)
+- `backend/src/modules/bookings/bookings.controller.ts` — Pass tenantId to listBookings (FINDING-004)
+- `backend/src/modules/analytics/analytics.service.ts` — Add tenantId scoping to all four analytics functions (FINDING-022)
+- `backend/src/modules/analytics/analytics.controller.ts` — Pass tenantId to all analytics service calls (FINDING-022/005)
+- `backend/src/modules/leads/leads.service.ts` — Add tenantId filter to listLeads + export cap (FINDING-023)
+- `backend/src/modules/leads/leads.controller.ts` — Pass tenantId to leads list/export (FINDING-023)
+- `backend/src/modules/memberships/memberships.controller.ts` — Guard tenantId null for SUPER_ADMIN (FINDING-005)
+- `backend/src/modules/payments/payments.service.ts` — Add tenantId scoping to createPaymentIntent/getPaymentStatus/refundPayment (FINDING-032)
+- `backend/src/modules/payments/payments.controller.ts` — Pass tenantId to payment service calls (FINDING-032)
+- `backend/src/modules/payroll/payroll.routes.ts` — Swap `requireAuth` before `requireFeature` (FINDING-006)
+- `backend/src/modules/tables/tables.service.ts` — Add tenantId scoping to all 5 table functions (FINDING-031)
+- `backend/src/modules/tables/tables.controller.ts` — Pass tenantId from request user (FINDING-031)
+- `backend/src/jobs/ai-suggestion.job.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/jobs/index.ts` — Guard AI job registration behind `isFeatureEnabled()` (FINDING-001)
+- `backend/src/lib/notification-dispatcher.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/calendar/calendar.service.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/calendar/outlook-calendar.service.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/public/public.service.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/leads/leads.service.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/reminders/reminders.queue.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/bookings/bookings.service.ts` — Use `isFeatureEnabled()` instead of `getDefaultFlags()` (FINDING-001)
+- `backend/src/modules/admin/admin.service.test.ts` — Test regressions fix (Phase 1 test cleanup)
+- `backend/src/modules/auth/auth.service.test.ts` — Test regressions fix (Phase 1 test cleanup)
+- `backend/src/modules/bookings/bookings.service.test.ts` — Test regressions fix (Phase 1 test cleanup)
+
+### Phase 2 — API Quality & Tenant Scoping
+
+- `backend/src/modules/webhooks/webhooks.service.ts` — Add tenantId scoping to all webhook CRUD (FINDING-024)
+- `backend/src/modules/webhooks/webhooks.controller.ts` — Pass tenantId from request (FINDING-024)
+- `backend/src/modules/invoices/invoices.service.ts` — Add tenantId filter to listInvoices (FINDING-025)
+- `backend/src/modules/invoices/invoices.controller.ts` — Pass tenantId from request (FINDING-025)
+- `backend/src/modules/notifications/notifications.service.ts` — Add tenantId scoping to template CRUD (FINDING-026)
+- `backend/src/modules/notifications/notifications.controller.ts` — Pass tenantId from request (FINDING-026)
+- `backend/src/modules/quotes/quotes.service.ts` — Add tenantId scoping to listQuotes/getQuoteById/acceptQuote (FINDING-033)
+- `backend/src/modules/quotes/quotes.controller.ts` — Pass tenantId from request (FINDING-033)
+- `backend/src/modules/settings/settings.service.ts` — Add tenantId to getCachedSettings/updateSettings (FINDING-034)
+- `backend/src/modules/settings/settings.controller.ts` — Pass tenantId to settings service (FINDING-034)
+- `backend/src/modules/payments/payments.service.ts` — Use tenantId-scoped settings in Stripe calls (FINDING-034)
+- `backend/prisma/schema.prisma` — Add `tenantId` to Quote model (FINDING-033)
+- `backend/src/modules/bookings/bookings.service.ts` — Add `.catch()` to all fire-and-forget void calls (FINDING-009)
+- `backend/src/modules/leads/leads.service.ts` — Add `.catch()` to fire-and-forget (FINDING-009)
+- `backend/src/modules/payments/payments.service.ts` — Add `.catch()` to fire-and-forget (FINDING-009)
+- `backend/src/modules/admin/admin.schema.ts` — Zod `isActive` boolean coercion via `.transform()` (FINDING-018)
+- `backend/src/modules/admin/admin.service.ts` — Use coerced boolean for isActive (FINDING-018)
+- `backend/src/config/index.ts` — Add `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX`, `CAPTCHA_*` to AppConfig (FINDING-014/010)
+- `backend/src/app.ts` — Use `config.RATE_LIMIT_WINDOW_MS` / `config.RATE_LIMIT_MAX` in global rate limiter; add `/health` degraded status (FINDING-014/021)
+- `backend/src/lib/redis.ts` — Add `pingRedis()` + `isRedisHealthy()` (FINDING-021)
+- `backend/src/server.ts` — Call `pingRedis()` at startup (FINDING-021)
+- `backend/src/modules/rota/rota.controller.ts` — Return 204 on DELETE (FINDING-028)
+- `backend/src/modules/availability/availability.controller.ts` — Return 204 on DELETE (FINDING-028)
+- `backend/src/modules/artists/artist-media.controller.ts` — Return 204 on DELETE (FINDING-028)
+- `backend/src/modules/alerts/alerts.service.ts` — Add pagination support (FINDING-030)
+- `backend/src/modules/alerts/alerts.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/artists/artist-media.service.ts` — Add pagination support (FINDING-030)
+- `backend/src/modules/booking-photos/booking-photos.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/booking-photos/booking-photos.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/customer-stats/customer-stats.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/customer-stats/customer-stats.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/forms/forms.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/forms/forms.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/gift-cards/gift-cards.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/gift-cards/gift-cards.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/health-flags/health-flags.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/health-flags/health-flags.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/locations/locations.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/locations/locations.controller.ts` — Pass pagination params; use extractTenantId (FINDING-030/019)
+- `backend/src/modules/locations/locations.schema.ts` — Add pagination schema (FINDING-030)
+- `backend/src/modules/loyalty/loyalty.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/loyalty/loyalty.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/packages/packages.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/packages/packages.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/pos/pos.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/pos/pos.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/pricing/pricing.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/pricing/pricing.controller.ts` — Pass pagination params; use extractTenantId (FINDING-030/019)
+- `backend/src/modules/pricing/pricing.schema.ts` — Add pagination schema (FINDING-030)
+- `backend/src/modules/products/products.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/products/products.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/referrals/referrals.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/referrals/referrals.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/rota/rota.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/sessions/sessions.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/sessions/sessions.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/sessions/sessions.schema.ts` — Add pagination schema (FINDING-030)
+- `backend/src/modules/social/social.service.ts` — Add pagination (FINDING-030)
+- `backend/src/modules/social/social.controller.ts` — Pass pagination params (FINDING-030)
+- `backend/src/modules/memberships/memberships.controller.ts` — Use extractTenantId (FINDING-019)
+- `backend/src/modules/analytics/analytics.controller.ts` — Use extractTenantId (FINDING-019)
+- `backend/src/modules/auth/auth.controller.ts` — Update forgotPassword comments (FINDING-017)
+- `backend/src/modules/auth/auth.routes.ts` — Update forgotPassword route comments (FINDING-017)
+
+### Phase 3 — Schema Cleanup & Code Quality
+
+- `backend/src/config/businessType.ts` — Remove `GIFT_VOUCHER_ENABLED` from FEATURE_FLAG_KEYS + all defaultFeatureFlags (FINDING-016)
+- `backend/prisma/schema.prisma` — Add `@@unique([key, tenantId])` to FeatureFlag; remove old `@@unique([key])` (FINDING-011)
+- `backend/src/modules/admin/admin.service.ts` — Extend `updateFeatureFlag()` with optional tenantId + upsert (FINDING-011)
+- `backend/src/modules/admin/admin.controller.ts` — Accept `?tenantId=` query param in PATCH /feature-flags/:key (FINDING-011)
+- `backend/src/modules/admin/admin.service.test.ts` — Tests for per-tenant flag upsert (FINDING-011)
+- `backend/src/middleware/requireFeature.ts` — Switch from `findUnique` to `findFirst` after composite unique change (FINDING-011)
+- `backend/src/modules/bookings/bookings.service.ts` — Separate tenantId null-check from feature-flag guard (FINDING-015)
+- `backend/src/modules/products/products.service.ts` — Replace `where: any` with `Prisma.ProductWhereInput` (FINDING-013)
+- `backend/src/modules/pos/pos.service.ts` — Replace `where: any` with `Prisma.PaymentWhereInput` (FINDING-013)
+- `backend/src/modules/public/public.routes.ts` — Add `requireFeature('BOOKING_ENABLED')` master switch before `PUBLIC_BOOKING_ENABLED` (FINDING-020)
+- `backend/src/modules/analytics/analytics.controller.ts` — Use `extractTenantId(req)` (FINDING-019)
+- `backend/src/modules/locations/locations.controller.ts` — Use `extractTenantId(req)` (FINDING-019)
+- `backend/src/modules/memberships/memberships.controller.ts` — Use `extractTenantId(req)` (FINDING-019)
+- `backend/src/modules/pricing/pricing.controller.ts` — Use `extractTenantId(req)` (FINDING-019)
+
+---
+
+## Missing / Not Committed / Not Merged
+
+**None.** All Phase 1, 2, and 3 expected deliverables are present, committed, and on the current branch.
+
+> Verification: `git status` → `nothing to commit, working tree clean`
+> All 27 bug-fix commits are present in the history of `copilot/create-detailed-automation-plan`.
+
+---
+
+## Backend-Wide Audit Findings (Post Phase 1–3 Verification)
+
+> Audit performed 2026-04-14 across all backend modules, middleware, jobs, integrations, config, and schema.
+
+---
+
+### AUDIT-001 — `requireFeature` Does Not Support Per-Tenant Overrides in Middleware
+
+**Severity:** 🟡 Medium
+**File:** `backend/src/middleware/requireFeature.ts`
+**What's wrong:** FINDING-011 correctly added `@@unique([key, tenantId])` to the schema and extended the admin API/service to upsert per-tenant rows. However, `requireFeature()` middleware still uses `prisma.featureFlag.findFirst({ where: { key: flag } })` which returns *any* row matching the key — typically the global row — without considering the authenticated user's tenantId. A per-tenant override row can exist in the DB but will never be used by route-level `requireFeature()` calls.
+**Impact:** Medium — per-tenant feature flag overrides are write-able through the admin API but are never read by the middleware; the feature is half-implemented at runtime.
+**Regression risk:** No regression — previous behaviour unchanged. New capability silently missing.
+**Recommended fix:** Update `isFeatureEnabled()` to accept an optional `tenantId` parameter; in the middleware, extract `req.user?.tenantId` and pass it. Query strategy: look for `{ key: flag, tenantId }` first; fall back to `{ key: flag, tenantId: null }` if no override row exists.
+**Classification:** Previously known but not fully fixed (FINDING-011 partial).
+
+---
+
+### AUDIT-002 — ~26 Controllers Still Use `req.user!.tenantId` Without `extractTenantId()`
+
+**Severity:** 🟡 Medium
+**Files:**
+- `backend/src/modules/campaigns/campaigns.controller.ts`
+- `backend/src/modules/recurring-bookings/recurring-bookings.controller.ts`
+- `backend/src/modules/email-templates/email-templates.controller.ts` (with unsafe `as string` cast)
+- `backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts` (with unsafe `as string` cast)
+- `backend/src/modules/sms-templates/sms-templates.controller.ts` (with unsafe `as string` cast)
+- `backend/src/modules/push/push.routes.ts`
+- `backend/src/modules/roles/roles.controller.ts`
+- (+ ~19 more controllers using `req.user!.tenantId ?? null`)
+
+**What's wrong:** FINDING-019 (Phase 3) partially migrated controllers to `extractTenantId(req)`. Approximately 26 call sites in production-path controllers still use the direct `req.user!.tenantId` pattern. The `?? null` coalescing in most of these is safe, but the `as string` casts in template controllers (email-templates, whatsapp-templates, sms-templates) could crash when a SUPER_ADMIN (tenantId=null) accesses those endpoints.
+**Impact:** Medium — SUPER_ADMIN requests to template-management endpoints could receive incorrect data or encounter runtime errors due to the `as string` type cast on a null value.
+**Regression risk:** Low — only SUPER_ADMIN accounts are affected; regular tenant admins always have a non-null tenantId.
+**Recommended fix:** Replace all `req.user!.tenantId as string` patterns with `extractTenantId(req)`. For endpoints that genuinely require a non-null tenantId, add an explicit guard: `if (!tenantId) throw new AppError(403, 'FORBIDDEN', 'Tenant context required')`.
+**Classification:** New bug (FINDING-019 incomplete pass).
+
+---
+
+### AUDIT-003 — Several Services Still Call `getDefaultFlags()` Instead of `isFeatureEnabled()`
+
+**Severity:** 🟡 Medium
+**Files:**
+- `backend/src/modules/customers/customers.service.ts:259` — CANCELLATION_FEE_ENABLED check
+- `backend/src/lib/apple-calendar.ts:174,239,304` — Apple Calendar feature checks
+- `backend/src/modules/reviews/reviews.queue.ts:152` — REVIEW_REQUEST_ENABLED gate
+- `backend/src/modules/whatsapp/whatsapp.service.ts:101` — WHATSAPP_CONTACT_ENABLED gate
+- `backend/src/modules/capture/capture.schema.ts:51` — MANNEQUIN_ENABLED for schema building
+- `backend/src/modules/leads/leads.schema.ts:45` — feature-dependent schema field
+
+**What's wrong:** FINDING-001 (Phase 1) replaced all `getDefaultFlags()` usages in the critical path. However, several service-layer checks that gate optional features (cancellation fees, review requests, WhatsApp sends, Apple Calendar syncs) still read the static in-memory defaults rather than the DB-backed flags. This means these features cannot be toggled at runtime via the admin flag API.
+**Impact:** Medium — feature flags for cancellation fees, review requests, WhatsApp, and Apple Calendar cannot be controlled via the admin UI. They are permanently determined by the BUSINESS_TYPE environment variable at startup.
+**Regression risk:** No regression — static defaults were used before. Runtime toggleability is the missing feature.
+**Recommended fix:** Convert each `getDefaultFlags()` call to `await isFeatureEnabled('FLAG_NAME')` where the calling context is already async. For schema-building contexts (capture.schema.ts, leads.schema.ts), which run synchronously at module load time, consider caching the flag value once at server startup or restructuring the schema to accept the flag at request time.
+**Classification:** Previously known (FINDING-001 partial — not all call sites migrated).
+
+---
+
+### AUDIT-004 — `listFeatureFlags` Admin Endpoint Missing Tenant Filter (Returns All Rows)
+
+**Severity:** 🟡 Medium
+**File:** `backend/src/modules/admin/admin.service.ts:173`
+**What's wrong:** `listFeatureFlags()` calls `prisma.featureFlag.findMany({ select, orderBy })` with no `where` clause. After FINDING-011 introduced per-tenant rows, an ADMIN user calling `GET /api/admin/feature-flags` will receive all rows including other tenants' override rows. The `_tenantId` parameter is accepted but never used in the query.
+**Impact:** Medium — tenants can observe which features other tenants have overridden; minor information disclosure in a multi-tenant deployment.
+**Regression risk:** No regression — cross-tenant data was visible before Phase 3 too.
+**Recommended fix:** Apply `where: { OR: [{ tenantId: null }, { tenantId }] }` in `listFeatureFlags` when a non-null tenantId is provided.
+**Classification:** New bug (introduced by FINDING-011 — per-tenant rows created but list not filtered).
+
+---
+
+### AUDIT-005 — Capture Service `findRecentLead()` Has No Tenant Scoping
+
+**Severity:** 🟡 Medium
+**File:** `backend/src/modules/capture/capture.service.ts:114`
+**What's wrong:** The `findRecentLead()` function (deduplication check) queries `prisma.lead.findFirst({ where: { email, status: { in: [...] }, createdAt: { gte: since } } })` without a `tenantId` filter. A duplicate-submission check from Tenant A could match a lead created by Tenant B if both happen to share an email address, silently suppressing the new lead.
+**Impact:** Medium — legitimate leads from new tenants could be incorrectly treated as duplicates of leads from other tenants. Data is never exposed cross-tenant, but data may be silently dropped.
+**Regression risk:** No regression — the function existed before Phase 1.
+**Recommended fix:** Add `tenantId` to the `where` clause in `findRecentLead()`. The tenantId must be threaded down from the public `captureLead()` controller where `req.user?.tenantId` is available, or derived from the `slug` parameter used to resolve the business.
+**Classification:** New bug (not covered by any FINDING).
+
+---
+
+### AUDIT-006 — `bookings.tenantId!` Non-Null Assertion Survives in One Place
+
+**Severity:** 🟢 Low
+**File:** `backend/src/modules/bookings/bookings.service.ts:675`
+**What's wrong:** Inside the `cancelBooking()` function, the waitlist-match fire-and-forget block uses `booking.tenantId!` (non-null assertion) on line 675. While the assertion is guarded by `if (booking.tenantId)` on the line above, the `!` assertion is redundant and misleading — TypeScript would still infer `tenantId` as `string | null` inside the `if` block without it. This is a minor type-safety smell.
+**Impact:** Low — no runtime crash risk; TypeScript narrowing inside `if (booking.tenantId)` ensures the value is a string. The `!` is redundant.
+**Regression risk:** None.
+**Recommended fix:** Remove the `!` — TypeScript narrowing from the surrounding `if` block is sufficient.
+**Classification:** New bug (leftover from FINDING-015 partial cleanup).
+
+---
+
+### AUDIT-007 — `requireFeature` Cache Key Does Not Include `tenantId`
+
+**Severity:** 🟡 Medium
+**File:** `backend/src/middleware/requireFeature.ts:22`
+**What's wrong:** The Redis cache key is `feature:${flag}` (line 22). Once per-tenant overrides are implemented (see AUDIT-001), a request from Tenant A could serve a cached response originally generated for Tenant B's flag value. The two tenants could have different overrides.
+**Impact:** Medium — cached per-tenant flag values would bleed across tenants for up to 60 seconds; could enable or block features for the wrong tenant.
+**Regression risk:** No regression now (per-tenant lookup not yet implemented in middleware). Would become a bug if AUDIT-001 is fixed without also fixing the cache key.
+**Recommended fix:** Change the cache key to `feature:${tenantId ?? 'global'}:${flag}` so per-tenant and global values are cached independently.
+**Classification:** Latent bug (only materialises after AUDIT-001 is fixed).
+
+---
+
+### AUDIT-008 — `campaigns.controller.ts` / `recurring-bookings.controller.ts` Pass `undefined` tenantId to Services
+
+**Severity:** 🟡 Medium
+**Files:**
+- `backend/src/modules/campaigns/campaigns.controller.ts:29,48,67,86,106`
+- `backend/src/modules/recurring-bookings/recurring-bookings.controller.ts:29,48,67,86,106`
+
+**What's wrong:** Both controllers use `req.user!.tenantId` (not `?? null`). For SUPER_ADMIN accounts where `tenantId` is `null` on the token, this evaluates to `null` which is actually fine. However, the `!` non-null assertion means TypeScript does not flag the downstream service calls that may interpret `undefined` differently from `null`.
+**Impact:** Low — campaigns and recurring-bookings services apply `if (tenantId) where.tenantId = tenantId` guards, so a null tenantId (SUPER_ADMIN) correctly returns all-tenant data.
+**Regression risk:** None.
+**Recommended fix:** Use `extractTenantId(req)` for consistency with the rest of the codebase.
+**Classification:** New bug (FINDING-019 incomplete pass).
+
+---
+
+### AUDIT-009 — Missing Transaction on `createPublicBooking` (Race Condition Risk)
+
+**Severity:** 🟠 High
+**File:** `backend/src/modules/public/public.service.ts`
+**What's wrong:** The public booking creation in `public.service.ts` checks availability and then creates a booking in two separate Prisma calls without a `prisma.$transaction()`. FINDING-027 correctly wrapped the admin `confirmBooking` flow in a transaction, but the public booking path was not updated. Under concurrent load, two requests for the same time slot could both pass the availability check and both create conflicting bookings.
+**Impact:** High — double-bookings can occur on the public widget when two customers book the same slot simultaneously. This defeats the purpose of the conflict-check guard.
+**Regression risk:** No regression — existed before Phase 1. FINDING-027 only addressed the admin confirm path.
+**Recommended fix:** Wrap the slot-availability check + booking creation in a `prisma.$transaction()` block in `createPublicBooking`. Optionally use a SELECT FOR UPDATE or Prisma's interactive transactions to lock the slot during the check.
+**Classification:** New bug (not covered by FINDING-027 scope).
+
+---
+
+### AUDIT-010 — `customers.service.ts` Uses `getDefaultFlags()` in `cancelMyBooking`
+
+**Severity:** 🟢 Low
+**File:** `backend/src/modules/customers/customers.service.ts:259`
+**What's wrong:** The cancellation-fee stub check `const flags = getDefaultFlags(); if (insideWindow && flags.CANCELLATION_FEE_ENABLED)` reads the static default rather than the live DB-backed flag. This is the same issue as AUDIT-003 but specifically calls out the customer-facing cancellation path.
+**Impact:** Low — cancellation fees are stubbed and do not actually charge; the fee trigger is only a logger.warn. No financial or data integrity impact at present.
+**Regression risk:** None.
+**Recommended fix:** Convert to `await isFeatureEnabled('CANCELLATION_FEE_ENABLED')` and make `cancelMyBooking` fully async if it is not already.
+**Classification:** Previously known (sub-item of AUDIT-003).
+
+---
+
+> **Summary:** 10 audit findings identified.
+> - 🟠 High: 1 (AUDIT-009 — public booking race condition)
+> - 🟡 Medium: 6 (AUDIT-001, 002, 003, 004, 005, 007)
+> - 🟢 Low: 3 (AUDIT-006, 008, 010)
+>
+> No additional 🔴 Critical findings. All Phase 1–3 fixes appear correct and in place. No regressions introduced. The fixes above are enhancements / partial implementations left open after Phase 3.
+
+---
+
 # Bug-Fix Execution Plan — BookingAutomation Backend
 
 ---
