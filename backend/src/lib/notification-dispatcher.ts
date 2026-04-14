@@ -49,15 +49,18 @@ export interface NotificationPayload {
  * Resolves which channels should receive the notification based on
  * user preference and active feature flags.
  */
-export async function resolveChannels(channel: ChannelPreference): Promise<{
+export async function resolveChannels(
+  channel: ChannelPreference,
+  tenantId?: string | null,
+): Promise<{
   whatsapp: boolean;
   sms: boolean;
   email: boolean;
 }> {
   const [whatsappEnabled, smsEnabled, emailEnabled] = await Promise.all([
-    isFeatureEnabled('WHATSAPP_CONTACT_ENABLED'),
-    isFeatureEnabled('SMS_REMINDERS_ENABLED'),
-    isFeatureEnabled('EMAIL_REMINDERS_ENABLED'),
+    isFeatureEnabled('WHATSAPP_CONTACT_ENABLED', tenantId),
+    isFeatureEnabled('SMS_REMINDERS_ENABLED', tenantId),
+    isFeatureEnabled('EMAIL_REMINDERS_ENABLED', tenantId),
   ]);
 
   switch (channel) {
@@ -81,7 +84,7 @@ export async function resolveChannels(channel: ChannelPreference): Promise<{
  * so the calling service is never blocked by a notification failure.
  */
 export async function dispatchNotification(payload: NotificationPayload): Promise<void> {
-  const channels = await resolveChannels(payload.channel);
+  const channels = await resolveChannels(payload.channel, payload.tenantId);
 
   logger.info('Dispatching notification', {
     templateKey: payload.templateKey,

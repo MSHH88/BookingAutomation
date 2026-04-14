@@ -130,6 +130,8 @@ export interface EnqueueReminderParams {
   artistName:     string;
   serviceName:    string;
   studioAddress?: string;
+  /** Tenant ID — used for per-tenant feature flag lookup. */
+  tenantId?:      string | null;
   /**
    * Override the computed delay in milliseconds.
    * Intended for automated tests only — bypasses the "too soon" guard.
@@ -207,7 +209,7 @@ export function getReminderJobId(bookingId: string): string {
  * Called from: bookings.service.ts → confirmBooking
  */
 export async function enqueueBookingReminder(params: EnqueueReminderParams): Promise<void> {
-  if (!await isFeatureEnabled('EMAIL_REMINDERS_ENABLED')) return;
+  if (!await isFeatureEnabled('EMAIL_REMINDERS_ENABLED', params.tenantId)) return;
 
   if (!params.customerEmail) return; // nothing to send
 
@@ -275,8 +277,8 @@ export async function enqueueBookingReminder(params: EnqueueReminderParams): Pro
  *
  * Called from: bookings.service.ts → cancelBooking, rescheduleBooking
  */
-export async function cancelBookingReminder(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('EMAIL_REMINDERS_ENABLED')) return;
+export async function cancelBookingReminder(bookingId: string, tenantId?: string | null): Promise<void> {
+  if (!await isFeatureEnabled('EMAIL_REMINDERS_ENABLED', tenantId)) return;
 
   const jobId = getReminderJobId(bookingId);
   try {

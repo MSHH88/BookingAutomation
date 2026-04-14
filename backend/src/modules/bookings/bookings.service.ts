@@ -326,6 +326,7 @@ export async function confirmBooking(
     studioName:     config.STUDIO_NAME,
     artistName:     updated.artist.user.name,
     serviceName:    updated.services[0]?.service?.name ?? 'appointment',
+    tenantId:       booking.tenantId,
   }).catch((err) => logger.warn('enqueueBookingReminder failed', { err, bookingId: id }));
 
   // ── WhatsApp — Message 2 (confirmed) + Message 3 (reminder) ─────────────
@@ -649,7 +650,7 @@ export async function cancelBooking(
 
   // ── Cancel pending reminder — appointment no longer exists ───────────────
   // Fire-and-forget: failures are logged but never surfaced to caller.
-  void cancelBookingReminder(id).catch((err) => logger.warn('cancelBookingReminder failed', { err, bookingId: id }));
+  void cancelBookingReminder(id, booking.tenantId).catch((err) => logger.warn('cancelBookingReminder failed', { err, bookingId: id }));
 
   // ── Outgoing Webhook — booking.cancelled ─────────────────────────────────
   void enqueueWebhookEvent('booking.cancelled', {
@@ -706,7 +707,7 @@ export async function rescheduleBooking(
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
-    select: { ...bookingDetailSelect, artistId: true },
+    select: { ...bookingDetailSelect, artistId: true, tenantId: true },
   });
 
   if (!booking) {
@@ -780,7 +781,7 @@ export async function rescheduleBooking(
 
   // ── Reminder: cancel old (stale time) + enqueue new (updated time) ───────
   // Fire-and-forget: failures are logged but never surfaced to caller.
-  void cancelBookingReminder(id).catch((err) => logger.warn('cancelBookingReminder failed', { err, bookingId: id }));
+  void cancelBookingReminder(id, booking.tenantId).catch((err) => logger.warn('cancelBookingReminder failed', { err, bookingId: id }));
   void enqueueBookingReminder({
     bookingId:      id,
     bookingStartAt: updated.startAt,
@@ -789,6 +790,7 @@ export async function rescheduleBooking(
     studioName:     config.STUDIO_NAME,
     artistName:     updated.artist.user.name,
     serviceName:    updated.services[0]?.service?.name ?? 'appointment',
+    tenantId:       booking.tenantId,
   }).catch((err) => logger.warn('enqueueBookingReminder failed', { err, bookingId: id }));
 
   // ── Outgoing Webhook — booking.rescheduled ────────────────────────────────
