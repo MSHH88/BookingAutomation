@@ -366,12 +366,14 @@ export async function confirmBooking(
 
   // ── Phase 5.1 — Deduct package use if customer has an applicable package ──
   // Fire-and-forget: errors logged inside deductPackageUse, never surfaced.
-  if (booking.tenantId && updated.customer?.id) {
+  // tenantId null-check is separated from the customer check so that bookings
+  // without a tenantId do not silently skip package deduction (FINDING-015).
+  if (updated.customer?.id) {
     void isFeatureEnabled('PACKAGES_ENABLED').then((enabled) => {
-      if (enabled) {
+      if (enabled && booking.tenantId) {
         const serviceId = booking.serviceId ?? updated.services[0]?.service?.id ?? null;
         if (serviceId) {
-          void deductPackageUse(updated.customer!.id, booking.tenantId!, serviceId).catch(
+          void deductPackageUse(updated.customer!.id, booking.tenantId, serviceId).catch(
             (err) => logger.warn('deductPackageUse failed (non-fatal)', { err, bookingId: id }),
           );
         }
@@ -553,13 +555,15 @@ export async function completeBooking(
 
   // ── Phase 5.3 — Award loyalty points on booking completion ───────────────
   // Fire-and-forget: errors logged inside awardPoints, never surfaced.
-  if (booking.tenantId && updated.customer?.id) {
+  // tenantId null-check is separated from the customer check so that bookings
+  // without a tenantId do not silently skip loyalty awards (FINDING-015).
+  if (updated.customer?.id) {
     void isFeatureEnabled('LOYALTY_ENABLED').then((enabled) => {
-      if (enabled) {
+      if (enabled && booking.tenantId) {
         const points = calculatePointsForBooking(invoiceAmount);
         void awardPoints({
           customerId: updated.customer!.id,
-          tenantId:   booking.tenantId!,
+          tenantId:   booking.tenantId,
           points,
           reason:     'booking_completed',
           bookingId:  id,
