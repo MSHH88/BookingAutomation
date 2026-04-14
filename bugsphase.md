@@ -1,3 +1,55 @@
+## AUDIT‑001..AUDIT‑010 Completion Status (Verification)
+
+> Verified: 2026-04-14 against commit `a94cddd` (HEAD of `copilot/create-detailed-automation-plan`).
+
+AUDIT-001: ✅ Completed — `requireFeature.ts` updated: `isFeatureEnabled(flag, tenantId?)` with tenant-scoped cache key `feature:{flag}:{tenantId||'global'}`, two-step DB lookup (tenant row → global row fallback), middleware extracts `tenantId` via `extractTenantId(req)`.
+AUDIT-002: ✅ Completed — `campaigns.controller.ts`, `recurring-bookings.controller.ts`, `email-templates.controller.ts`, `whatsapp-templates.controller.ts`, `sms-templates.controller.ts`, `push.routes.ts`, `roles.controller.ts`, `sessions.controller.ts`, `ai.controller.ts`, `invoices.controller.ts`, `webhooks.controller.ts`, `notifications.controller.ts`, `settings.controller.ts`, `quotes.controller.ts` — all migrated to `extractTenantId(req)` + 403 guard (removed unsafe `as string` casts).
+AUDIT-003: ✅ Completed — `customers.service.ts` (CANCELLATION_FEE_ENABLED), `reviews.queue.ts` (REVIEW_REQUEST_ENABLED), `bookings.service.ts` (enqueueReviewRequest), `whatsapp.service.ts` (WHATSAPP_CONTACT_ENABLED), `apple-calendar.service.ts` (APPLE_CALENDAR_ENABLED) — all converted from `getDefaultFlags()` to `await isFeatureEnabled(...)` with tenant context.
+AUDIT-004: ✅ Completed — `admin.service.ts` `listFeatureFlags()` now applies `where: { OR: [{ tenantId: null }, { tenantId }] }` when a non-null tenantId is provided; SUPER_ADMIN (null tenantId) sees only global rows.
+AUDIT-005: ✅ Completed — `findDuplicate()` in `capture.service.ts` now accepts `tenantId` param; `captureLeadPublic()` derives `tenantId` from the artist record and threads it into `findDuplicate()` so dedup is never cross-tenant.
+AUDIT-006: ✅ Completed — Redundant `booking.tenantId!` non-null assertion removed from the `cancelBooking()` waitlist-match block in `bookings.service.ts`; TypeScript narrowing from the surrounding `if (booking.tenantId)` guard is sufficient.
+AUDIT-007: ✅ Completed — Redis cache key changed from `feature:${flag}` to `feature:${flag}:${scopeKey}` where `scopeKey = tenantId ?? 'global'`; per-tenant and global flag values are now cached independently.
+AUDIT-008: ✅ Completed — `campaigns.controller.ts` and `recurring-bookings.controller.ts` both use `extractTenantId(req)` for all handler functions; `req.user!.tenantId` patterns removed; `string | null` type maintained throughout.
+AUDIT-009: ✅ Completed — `createPublicBooking()` in `public.service.ts` wraps the availability conflict-check + `booking.create` inside a single `prisma.$transaction()` (interactive transaction); double-booking race condition eliminated.
+AUDIT-010: ✅ Completed — `cancelMyBooking()` in `customers.service.ts` now uses `await isFeatureEnabled('CANCELLATION_FEE_ENABLED', booking.tenantId)` instead of `getDefaultFlags()`; function is already async; tenant context passed from the fetched booking record.
+
+### Created Files (AUDIT-001..AUDIT-010)
+
+None. All AUDIT fixes are changes to existing files only.
+
+### Modified Files (AUDIT-001..AUDIT-010)
+
+- `backend/src/middleware/requireFeature.ts` — AUDIT-001, AUDIT-007
+- `backend/src/modules/campaigns/campaigns.controller.ts` — AUDIT-002, AUDIT-008
+- `backend/src/modules/recurring-bookings/recurring-bookings.controller.ts` — AUDIT-002, AUDIT-008
+- `backend/src/modules/email-templates/email-templates.controller.ts` — AUDIT-002
+- `backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts` — AUDIT-002
+- `backend/src/modules/sms-templates/sms-templates.controller.ts` — AUDIT-002
+- `backend/src/modules/push/push.routes.ts` — AUDIT-002
+- `backend/src/modules/roles/roles.controller.ts` — AUDIT-002
+- `backend/src/modules/sessions/sessions.controller.ts` — AUDIT-002
+- `backend/src/modules/ai/ai.controller.ts` — AUDIT-002
+- `backend/src/modules/invoices/invoices.controller.ts` — AUDIT-002
+- `backend/src/modules/webhooks/webhooks.controller.ts` — AUDIT-002
+- `backend/src/modules/notifications/notifications.controller.ts` — AUDIT-002
+- `backend/src/modules/settings/settings.controller.ts` — AUDIT-002
+- `backend/src/modules/quotes/quotes.controller.ts` — AUDIT-002
+- `backend/src/modules/customers/customers.service.ts` — AUDIT-003, AUDIT-010
+- `backend/src/modules/reviews/reviews.queue.ts` — AUDIT-003
+- `backend/src/modules/bookings/bookings.service.ts` — AUDIT-003, AUDIT-006
+- `backend/src/lib/apple-calendar.ts` — AUDIT-003
+- `backend/src/modules/whatsapp/whatsapp.service.ts` — AUDIT-003
+- `backend/src/modules/admin/admin.service.ts` — AUDIT-004
+- `backend/src/modules/capture/capture.service.ts` — AUDIT-005
+- `backend/src/modules/public/public.service.ts` — AUDIT-009
+- `backend/src/modules/public/public.service.test.ts` — AUDIT-009
+
+### Missing Items
+
+None. All AUDIT-001..AUDIT-010 items are implemented and committed on `copilot/create-detailed-automation-plan`.
+
+---
+
 # Phase 1–3 Implementation File Register (AUTO-GENERATED)
 
 > Generated: 2026-04-14 by post-phase-3 verification agent.
