@@ -72,6 +72,9 @@ export interface AppConfig {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   STRIPE_PUBLISHABLE_KEY: string;
+
+  // Frontend URL
+  FRONTEND_URL: string;
 }
 
 // ─── Loader ───────────────────────────────────────────────────────────────────
@@ -175,6 +178,8 @@ function loadConfig(): AppConfig {
     STRIPE_SECRET_KEY: optional('STRIPE_SECRET_KEY', ''),
     STRIPE_WEBHOOK_SECRET: optional('STRIPE_WEBHOOK_SECRET', ''),
     STRIPE_PUBLISHABLE_KEY: optional('STRIPE_PUBLISHABLE_KEY', ''),
+
+    FRONTEND_URL: optional('FRONTEND_URL', 'http://localhost:5173'),
   };
 
   // ── Fail fast if any required vars are missing ────────────────────────────

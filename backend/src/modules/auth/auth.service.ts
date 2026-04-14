@@ -21,6 +21,7 @@ import { getRedis } from '../../lib/redis';
 import { config } from '../../config/index';
 import { AppError } from '../../errors/AppError';
 import { logger } from '../../utils/logger';
+import { enqueuePasswordResetEmail } from './auth.email.queue';
 import type { RegisterBody, LoginBody, ResetPasswordBody, UpdateMeBody } from './auth.schema';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -294,6 +295,13 @@ export async function forgotPassword(email: string): Promise<void> {
 
   await prisma.passwordResetToken.create({
     data: { userId: user.id, token, expiresAt },
+  });
+
+  await enqueuePasswordResetEmail({
+    email,
+    name: user.name,
+    resetToken: token,
+    expiresAt: expiresAt.toISOString(),
   });
 }
 

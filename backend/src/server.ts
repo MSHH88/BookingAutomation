@@ -20,6 +20,7 @@ import { reviewQueue }                        from './modules/reviews/reviews.qu
 import { startReminderWorker }                from './modules/reminders/reminders.processor';
 import { reminderQueue }                      from './modules/reminders/reminders.queue';
 import { startWebhookWorker, webhookQueue }   from './modules/webhooks/webhooks.queue';
+import { startAuthEmailWorker, authEmailQueue } from './modules/auth/auth.email.processor';
 
 // ─── Create server ────────────────────────────────────────────────────────────
 
@@ -29,10 +30,11 @@ const server = http.createServer(app);
 // Workers must be started before requests are served so that any delayed jobs
 // recovered from Redis (e.g. review requests, WhatsApp reminders) are picked
 // up immediately.  The returned Worker instances are stored for graceful shutdown.
-const whatsappWorker = startWhatsAppWorker();
-const reviewWorker   = startReviewWorker();
-const reminderWorker = startReminderWorker();
-const webhookWorker  = startWebhookWorker();
+const whatsappWorker   = startWhatsAppWorker();
+const reviewWorker     = startReviewWorker();
+const reminderWorker   = startReminderWorker();
+const webhookWorker    = startWebhookWorker();
+const authEmailWorker  = startAuthEmailWorker();
 
 // ─── Start listening ──────────────────────────────────────────────────────────
 
@@ -131,7 +133,12 @@ async function gracefulShutdown(signal: string): Promise<void> {
     await webhookQueue.close();
     logger.info('Webhook queue closed');
 
-    // 10. Disconnect from Prisma (PostgreSQL connection pool)
+    // 10. Stop the Auth Email BullMQ Worker
+    await authEmailWorker.close();
+    await authEmailQueue.close();
+    logger.info('Auth email worker closed');
+
+    // 11. Disconnect from Prisma (PostgreSQL connection pool)
     await prisma.$disconnect();
     logger.info('Prisma disconnected');
 
