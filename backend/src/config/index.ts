@@ -215,6 +215,30 @@ function loadConfig(): AppConfig {
     process.exit(1);
   }
 
+  // ── Production credential validation ────────────────────────────────────────
+  // In production, if a feature relies on a third-party service, the corresponding
+  // credential must be present or the server exits immediately.
+  if (nodeEnv === 'production') {
+    const credErrors: string[] = [];
+
+    // Stripe — required if any payment feature is used (always needed in production)
+    if (!cfg.STRIPE_SECRET_KEY)     credErrors.push('STRIPE_SECRET_KEY is required in production');
+    if (!cfg.STRIPE_WEBHOOK_SECRET) credErrors.push('STRIPE_WEBHOOK_SECRET is required in production');
+    if (!cfg.STRIPE_PUBLISHABLE_KEY) credErrors.push('STRIPE_PUBLISHABLE_KEY is required in production');
+
+    // Resend — required for email (password reset, bookings, etc.)
+    if (!cfg.RESEND_API_KEY)     credErrors.push('RESEND_API_KEY is required in production');
+    if (!cfg.RESEND_FROM_EMAIL)  credErrors.push('RESEND_FROM_EMAIL is required in production');
+
+    if (credErrors.length > 0) {
+      console.error(
+        '[Config] Server cannot start. Missing required production credentials:\n' +
+          credErrors.map((e) => `  - ${e}`).join('\n'),
+      );
+      process.exit(1);
+    }
+  }
+
   return cfg;
 }
 
