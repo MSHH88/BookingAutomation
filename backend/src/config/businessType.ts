@@ -286,6 +286,9 @@ export const FEATURE_FLAG_KEYS = [
   // ── Phase 9: Scale & Growth ────────────────────────────────────────────
   'MULTI_LOCATION_ENABLED',         // multi-location support — each artist/service/booking scoped to a location
   'GROUP_BOOKING_ENABLED',          // group / class bookings — session model with capacity management
+
+  // ── Security & infrastructure ──────────────────────────────────────────
+  'PUBLIC_CAPTCHA_ENABLED',         // CAPTCHA verification on public booking routes (runtime-toggleable)
 ] as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
@@ -347,6 +350,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
   hair_salon: {
@@ -394,6 +398,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
   barber: {
@@ -441,6 +446,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
   nail_salon: {
@@ -488,6 +494,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
   masseuse: {
@@ -535,6 +542,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
   restaurant: {
@@ -582,6 +590,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    PUBLIC_CAPTCHA_ENABLED:     false,
   },
 };
 

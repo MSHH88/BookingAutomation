@@ -2,7 +2,8 @@
  * CAPTCHA verification middleware — Phase 2.3
  *
  * Validates hCaptcha or Cloudflare Turnstile tokens on public endpoints.
- * When `CAPTCHA_ENABLED` is false (default in dev), the middleware is a no-op.
+ * When `PUBLIC_CAPTCHA_ENABLED` feature flag is OFF **and** `CAPTCHA_ENABLED`
+ * env var is false, the middleware is a no-op.
  *
  * Supports two providers:
  *   - hCaptcha (default):     CAPTCHA_PROVIDER=hcaptcha
@@ -12,9 +13,16 @@
  * If the token is missing or verification fails, the request is rejected with 400.
  *
  * Environment variables:
- *   CAPTCHA_ENABLED   — "true" to enforce CAPTCHA on public routes (default: "false")
+ *   CAPTCHA_ENABLED   — legacy env-var flag (default: "false")
  *   CAPTCHA_PROVIDER  — "hcaptcha" | "turnstile" (default: "hcaptcha")
  *   CAPTCHA_SECRET    — server-side secret key from the CAPTCHA provider
+ *
+ * Feature flag:
+ *   PUBLIC_CAPTCHA_ENABLED — runtime-toggleable via Control Centre (checked first)
+ *
+ * Note: RATE_LIMIT_WINDOW_MS / RATE_LIMIT_MAX are infrastructure-level env-var
+ * settings that require a process restart to take effect. They are intentionally
+ * NOT managed as runtime feature flags.
  */
 import { Request, Response, NextFunction } from 'express';
 import https from 'https';
@@ -22,6 +30,7 @@ import https from 'https';
 import { config }   from '../config';
 import { AppError } from '../errors/AppError';
 import { logger }   from '../utils/logger';
+import { isFeatureEnabled } from '../middleware/requireFeature';
 
 // ─── Provider config ──────────────────────────────────────────────────────────
 
@@ -106,35 +115,49 @@ async function verifyCaptchaToken(token: string, remoteIp?: string): Promise<boo
 
 /**
  * Express middleware that verifies the CAPTCHA token in `req.body.captchaToken`.
- * When `CAPTCHA_ENABLED` is not "true", the middleware passes through immediately.
+ * Checks `PUBLIC_CAPTCHA_ENABLED` feature flag first, falls back to env-var
+ * `CAPTCHA_ENABLED`. When both are false, the middleware passes through.
  */
 export function requireCaptcha(req: Request, _res: Response, next: NextFunction): void {
-  const enabled = config.CAPTCHA_ENABLED;
+  // Check the runtime feature flag first (async), fall back to env-var
+  isFeatureEnabled('PUBLIC_CAPTCHA_ENABLED')
+    .then((flagEnabled) => {
+      const enabled = flagEnabled || config.CAPTCHA_ENABLED;
 
-  if (!enabled) {
-    next();
-    return;
-  }
-
-  const token = (req.body as Record<string, unknown>)?.captchaToken;
-
-  if (!token || typeof token !== 'string') {
-    next(new AppError(400, 'CAPTCHA_REQUIRED', 'Missing captchaToken in request body'));
-    return;
-  }
-
-  const remoteIp = req.ip ?? undefined;
-
-  verifyCaptchaToken(token, remoteIp)
-    .then((valid) => {
-      if (!valid) {
-        next(new AppError(400, 'CAPTCHA_FAILED', 'CAPTCHA verification failed'));
+      if (!enabled) {
+        next();
         return;
       }
-      next();
+
+      const token = (req.body as Record<string, unknown>)?.captchaToken;
+
+      if (!token || typeof token !== 'string') {
+        next(new AppError(400, 'CAPTCHA_REQUIRED', 'Missing captchaToken in request body'));
+        return;
+      }
+
+      const remoteIp = req.ip ?? undefined;
+
+      verifyCaptchaToken(token, remoteIp)
+        .then((valid) => {
+          if (!valid) {
+            next(new AppError(400, 'CAPTCHA_FAILED', 'CAPTCHA verification failed'));
+            return;
+          }
+          next();
+        })
+        .catch((err: Error) => {
+          logger.error('CAPTCHA verification error', { error: err.message });
+          next(new AppError(500, 'CAPTCHA_ERROR', 'CAPTCHA verification service unavailable'));
+        });
     })
     .catch((err: Error) => {
-      logger.error('CAPTCHA verification error', { error: err.message });
-      next(new AppError(500, 'CAPTCHA_ERROR', 'CAPTCHA verification service unavailable'));
+      logger.error('CAPTCHA feature flag check failed', { error: err.message });
+      // Fall back to env-var check on flag lookup failure
+      if (!config.CAPTCHA_ENABLED) {
+        next();
+        return;
+      }
+      next(new AppError(500, 'CAPTCHA_ERROR', 'CAPTCHA configuration unavailable'));
     });
 }
