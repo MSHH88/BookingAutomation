@@ -277,19 +277,6 @@ export async function forgotPassword(email: string): Promise<void> {
   await prisma.passwordResetToken.create({
     data: { userId: user.id, token, expiresAt },
   });
-
-  // TODO (Step 1.9): queue a "password-reset" email job via BullMQ
-  // The email will contain a link like:
-  //   https://<FRONTEND_URL>/reset-password?token=<token>
-  //
-  // In development, log the token so it can be used for manual testing.
-  if (config.NODE_ENV !== 'production') {
-    logger.debug('[Auth] Password reset token (dev only — never logged in production)', {
-      email,
-      resetToken: token,
-      expiresAt,
-    });
-  }
 }
 
 /**
