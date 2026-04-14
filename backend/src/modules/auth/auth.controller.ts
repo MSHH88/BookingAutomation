@@ -141,9 +141,11 @@ export async function logout(
 ): Promise<void> {
   try {
     const rawToken = extractRefreshToken(req);
+    const authHeader = req.headers.authorization;
+    const accessToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
 
     if (rawToken) {
-      await authService.logout(rawToken);
+      await authService.logout(rawToken, accessToken);
     }
 
     // Clear the cookie regardless of token validity

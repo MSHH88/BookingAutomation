@@ -17,6 +17,7 @@ import crypto from 'crypto';
 import { Role } from '@prisma/client';
 
 import { prisma } from '../../lib/prisma';
+import { getRedis } from '../../lib/redis';
 import { config } from '../../config/index';
 import { AppError } from '../../errors/AppError';
 import { logger } from '../../utils/logger';
@@ -39,6 +40,8 @@ const TIMING_DUMMY_HASH = bcrypt.hashSync('timing-safe-placeholder-__never-used'
 export interface JwtPayload {
   /** User ID (Prisma cuid) */
   sub: string;
+  /** JWT ID — unique per token, used for Redis revocation. */
+  jti?: string;
   role: Role;
   email: string;
   /** Tenant ID — null for SUPER_ADMIN (cross-tenant access). */
@@ -125,6 +128,7 @@ function toSafeUser(user: {
 function signAccessToken(user: SafeUser): string {
   const payload: JwtPayload = {
     sub:            user.id,
+    jti:            crypto.randomUUID(),
     role:           user.role,
     email:          user.email,
     tenantId:       user.tenantId,
@@ -247,11 +251,25 @@ export async function refresh(rawToken: string): Promise<AuthTokens> {
 /**
  * Revokes a refresh token (idempotent — safe to call with any token string).
  */
-export async function logout(rawToken: string): Promise<void> {
+export async function logout(rawToken: string, accessToken?: string): Promise<void> {
   await prisma.refreshToken.updateMany({
     where: { token: rawToken, revokedAt: null },
     data: { revokedAt: new Date() },
   });
+  // Revoke access token if provided
+  if (accessToken) {
+    try {
+      const payload = jwt.verify(accessToken, config.JWT_ACCESS_SECRET) as JwtPayload;
+      if (payload.jti && payload.exp) {
+        const ttlSeconds = Math.max(0, payload.exp - Math.floor(Date.now() / 1000));
+        if (ttlSeconds > 0) {
+          await getRedis().setex(`revoked:jti:${payload.jti}`, ttlSeconds, '1');
+        }
+      }
+    } catch {
+      // Invalid access token — still revoke refresh token (already done above)
+    }
+  }
 }
 
 /**
@@ -369,12 +387,30 @@ export async function updateMe(userId: string, input: UpdateMeBody): Promise<Saf
 
 /**
  * Verifies a JWT access token and returns its payload.
- * Throws 401 AppError for any failure (expired, malformed, wrong secret).
+ * Checks the Redis revocation list for jti-based logout.
+ * Throws 401 AppError for any failure (expired, malformed, wrong secret, revoked).
  */
-export function verifyAccessToken(token: string): JwtPayload {
+export async function verifyAccessToken(token: string): Promise<JwtPayload> {
+  let payload: JwtPayload;
   try {
-    return jwt.verify(token, config.JWT_ACCESS_SECRET) as JwtPayload;
+    payload = jwt.verify(token, config.JWT_ACCESS_SECRET) as JwtPayload;
   } catch {
     throw new AppError(401, 'INVALID_TOKEN', 'Access token is invalid or has expired');
   }
+
+  // Check Redis revocation list
+  if (payload.jti) {
+    try {
+      const revoked = await getRedis().get(`revoked:jti:${payload.jti}`);
+      if (revoked !== null) {
+        throw new AppError(401, 'INVALID_TOKEN', 'Access token has been revoked');
+      }
+    } catch (err) {
+      // Re-throw AppErrors (revoked token), swallow Redis connectivity errors
+      if (err instanceof AppError) throw err;
+      logger.warn('Redis unavailable for jti check — allowing token', { jti: payload.jti });
+    }
+  }
+
+  return payload;
 }

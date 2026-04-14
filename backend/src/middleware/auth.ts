@@ -12,7 +12,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../modules/auth/auth.service';
 import { AppError } from '../errors/AppError';
 
-export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
+export async function requireAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -23,7 +23,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   const token = authHeader.slice(7); // strip "Bearer "
 
   try {
-    const payload = verifyAccessToken(token);
+    const payload = await verifyAccessToken(token);
     req.user = {
       id:            payload.sub,
       email:         payload.email,
