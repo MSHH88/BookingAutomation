@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
 import { config } from './config/index';
+import { isRedisHealthy } from './lib/redis';
 import { requestLogger } from './middleware/requestLogger';
 import { errorHandler } from './middleware/errorHandler';
 import { success, error as apiError } from './utils/apiResponse';
@@ -99,8 +100,8 @@ app.use(
 // ─── 3. Rate limiting ─────────────────────────────────────────────────────────
 // /health is skipped so load-balancer probes never consume quota or trigger 429.
 const globalRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,                  // max requests per window per IP
+  windowMs: config.RATE_LIMIT_WINDOW_MS,
+  max:      config.RATE_LIMIT_MAX,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   skip: (req: Request) => req.path === '/health',
@@ -142,11 +143,15 @@ app.use(requestLogger);
 // Placed after security/CORS/body-parser middleware but exempt from rate limiting
 // (via the skip function above) so load-balancer health probes are always served.
 app.get('/health', (_req: Request, res: Response) => {
-  res.json(
+  const redisHealthy = isRedisHealthy();
+  const degraded = redisHealthy === false;
+
+  res.status(degraded ? 503 : 200).json(
     success({
-      status: 'ok',
+      status:    degraded ? 'degraded' : 'ok',
       timestamp: new Date().toISOString(),
-      env: config.NODE_ENV,
+      env:       config.NODE_ENV,
+      redis:     redisHealthy === null ? 'unknown' : redisHealthy ? 'ok' : 'unavailable',
     }),
   );
 });

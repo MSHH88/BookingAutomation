@@ -3,6 +3,9 @@ import { logger } from '../utils/logger';
 
 let client: Redis | null = null;
 
+/** Tracks whether the last startup ping succeeded. */
+let _redisHealthy: boolean | null = null;
+
 function createClient(): Redis {
   const url = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
 
@@ -40,6 +43,33 @@ export function getRedis(): Redis {
     client = createClient();
   }
   return client;
+}
+
+/**
+ * Performs a PING health check against Redis.
+ * Sets the internal health flag and logs a warning when Redis is unreachable.
+ * Called once at application startup (server.ts).
+ */
+export async function pingRedis(): Promise<void> {
+  try {
+    const redis = getRedis();
+    await redis.ping();
+    _redisHealthy = true;
+    logger.info('[Redis] Connection OK');
+  } catch (err) {
+    _redisHealthy = false;
+    logger.warn('[Redis] Startup ping failed — Redis is unavailable. Queue and caching features are degraded.', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+/**
+ * Returns `true` if the last startup ping succeeded, `false` if it failed,
+ * or `null` if `pingRedis()` has not been called yet.
+ */
+export function isRedisHealthy(): boolean | null {
+  return _redisHealthy;
 }
 
 /** Gracefully closes the Redis connection and clears the singleton. */

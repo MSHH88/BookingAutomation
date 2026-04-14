@@ -19,6 +19,7 @@
 import { Request, Response, NextFunction } from 'express';
 import https from 'https';
 
+import { config }   from '../config';
 import { AppError } from '../errors/AppError';
 import { logger }   from '../utils/logger';
 
@@ -46,8 +47,8 @@ const PROVIDERS: Record<string, ProviderConfig> = {
 // ─── Internal: verify token with provider ─────────────────────────────────────
 
 async function verifyCaptchaToken(token: string, remoteIp?: string): Promise<boolean> {
-  const provider = process.env['CAPTCHA_PROVIDER'] ?? 'hcaptcha';
-  const secret   = process.env['CAPTCHA_SECRET']   ?? '';
+  const provider = config.CAPTCHA_PROVIDER;
+  const secret   = config.CAPTCHA_SECRET;
   const cfg      = PROVIDERS[provider] ?? PROVIDERS['hcaptcha'];
 
   const params = new URLSearchParams();
@@ -108,7 +109,7 @@ async function verifyCaptchaToken(token: string, remoteIp?: string): Promise<boo
  * When `CAPTCHA_ENABLED` is not "true", the middleware passes through immediately.
  */
 export function requireCaptcha(req: Request, _res: Response, next: NextFunction): void {
-  const enabled = process.env['CAPTCHA_ENABLED'] === 'true';
+  const enabled = config.CAPTCHA_ENABLED;
 
   if (!enabled) {
     next();

@@ -13,7 +13,7 @@ import http from 'http';
 import { app } from './app';
 import { logger } from './utils/logger';
 import { prisma } from './lib/prisma';
-import { disconnectRedis } from './lib/redis';
+import { disconnectRedis, pingRedis } from './lib/redis';
 import { startWhatsAppWorker, whatsappQueue } from './modules/whatsapp/whatsapp.queue';
 import { startReviewWorker }                  from './modules/reviews/reviews.processor';
 import { reviewQueue }                        from './modules/reviews/reviews.queue';
@@ -45,6 +45,9 @@ server.listen(config.PORT, () => {
     env: config.NODE_ENV,
     pid: process.pid,
   });
+
+  // Ping Redis after server starts to surface connectivity issues early.
+  void pingRedis();
 });
 
 // Handle server-level errors (e.g. EADDRINUSE) so the failure is diagnosed

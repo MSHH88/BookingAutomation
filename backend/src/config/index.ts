@@ -73,6 +73,15 @@ export interface AppConfig {
   STRIPE_WEBHOOK_SECRET: string;
   STRIPE_PUBLISHABLE_KEY: string;
 
+  // Rate limiting
+  RATE_LIMIT_WINDOW_MS: number;
+  RATE_LIMIT_MAX: number;
+
+  // CAPTCHA (Phase 2 — public route protection)
+  CAPTCHA_ENABLED: boolean;
+  CAPTCHA_PROVIDER: 'hcaptcha' | 'turnstile';
+  CAPTCHA_SECRET: string;
+
   // Frontend URL
   FRONTEND_URL: string;
 }
@@ -180,6 +189,13 @@ function loadConfig(): AppConfig {
     STRIPE_PUBLISHABLE_KEY: optional('STRIPE_PUBLISHABLE_KEY', ''),
 
     FRONTEND_URL: optional('FRONTEND_URL', 'http://localhost:5173'),
+
+    RATE_LIMIT_WINDOW_MS: parseInt(optional('RATE_LIMIT_WINDOW_MS', String(15 * 60 * 1000)), 10),
+    RATE_LIMIT_MAX:       parseInt(optional('RATE_LIMIT_MAX',       '100'), 10),
+
+    CAPTCHA_ENABLED:  optional('CAPTCHA_ENABLED', 'false') === 'true',
+    CAPTCHA_PROVIDER: (optional('CAPTCHA_PROVIDER', 'hcaptcha') as 'hcaptcha' | 'turnstile'),
+    CAPTCHA_SECRET:   optional('CAPTCHA_SECRET', ''),
   };
 
   // ── Fail fast if any required vars are missing ────────────────────────────
@@ -229,6 +245,11 @@ function loadConfig(): AppConfig {
     // Resend — required for email (password reset, bookings, etc.)
     if (!cfg.RESEND_API_KEY)     credErrors.push('RESEND_API_KEY is required in production');
     if (!cfg.RESEND_FROM_EMAIL)  credErrors.push('RESEND_FROM_EMAIL is required in production');
+
+    // CAPTCHA — required in production if enabled
+    if (cfg.CAPTCHA_ENABLED && !cfg.CAPTCHA_SECRET) {
+      credErrors.push('CAPTCHA_SECRET is required when CAPTCHA_ENABLED=true');
+    }
 
     if (credErrors.length > 0) {
       console.error(
