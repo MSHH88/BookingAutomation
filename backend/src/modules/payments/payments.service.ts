@@ -70,7 +70,7 @@ const DEFAULT_DEPOSIT_PCT = 20;
  * Creates a Stripe PaymentIntent for a booking's deposit.
  * Returns a `clientSecret` that the frontend passes to `stripe.confirmCardPayment()`.
  */
-export async function createPaymentIntent(data: CreatePaymentIntentBody) {
+export async function createPaymentIntent(data: CreatePaymentIntentBody, tenantId: string | null = null) {
   const stripe = getStripe();
 
   // 1. Fetch booking with customer + lead for email / name resolution
@@ -84,6 +84,10 @@ export async function createPaymentIntent(data: CreatePaymentIntentBody) {
 
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking not found');
+  }
+
+  if (tenantId !== null && booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Booking not in your tenant');
   }
 
   if (booking.depositPaidAt) {
@@ -259,12 +263,13 @@ export async function handleWebhookEvent(
  * Returns the payment status for a booking, enriched with the live Stripe
  * PaymentIntent status when available.
  */
-export async function getPaymentStatus(bookingId: string) {
+export async function getPaymentStatus(bookingId: string, tenantId: string | null = null) {
   const booking = await prisma.booking.findUnique({
     where:  { id: bookingId },
     select: {
       id:                    true,
       status:                true,
+      tenantId:              true,
       depositAmount:         true,
       depositPaidAt:         true,
       depositRefunded:       true,
@@ -275,6 +280,10 @@ export async function getPaymentStatus(bookingId: string) {
 
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking not found');
+  }
+
+  if (tenantId !== null && booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Booking not in your tenant');
   }
 
   let stripeStatus: string | null = null;
@@ -309,13 +318,14 @@ export async function getPaymentStatus(bookingId: string) {
  * Refunds the deposit payment for a booking.
  * Supports partial refunds when `data.amount` is provided (major currency units).
  */
-export async function refundPayment(data: RefundBody) {
+export async function refundPayment(data: RefundBody, tenantId: string | null = null) {
   const stripe = getStripe();
 
   const booking = await prisma.booking.findUnique({
     where:  { id: data.bookingId },
     select: {
       id:                    true,
+      tenantId:              true,
       stripePaymentIntentId: true,
       depositPaidAt:         true,
       depositRefunded:       true,
@@ -325,6 +335,10 @@ export async function refundPayment(data: RefundBody) {
 
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', 'Booking not found');
+  }
+
+  if (tenantId !== null && booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Booking not in your tenant');
   }
 
   if (!booking.stripePaymentIntentId) {

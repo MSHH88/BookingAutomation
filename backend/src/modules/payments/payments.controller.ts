@@ -34,7 +34,8 @@ export async function createPaymentIntent(
       return;
     }
 
-    const result = await paymentsService.createPaymentIntent(parsed.data);
+    const tenantId = req.user?.tenantId ?? null;
+    const result = await paymentsService.createPaymentIntent(parsed.data, tenantId);
     res.status(201).json(success(result));
   } catch (err) {
     next(err);
@@ -77,7 +78,8 @@ export async function getPaymentStatus(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const result = await paymentsService.getPaymentStatus(req.params['bookingId']!);
+    const tenantId = req.user?.tenantId ?? null;
+    const result = await paymentsService.getPaymentStatus(req.params['bookingId']!, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -103,7 +105,8 @@ export async function refundPayment(
       return;
     }
 
-    const result = await paymentsService.refundPayment(parsed.data);
+    const tenantId = req.user?.tenantId ?? null;
+    const result = await paymentsService.refundPayment(parsed.data, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);
