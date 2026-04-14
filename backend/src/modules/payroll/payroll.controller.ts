@@ -24,7 +24,8 @@ export async function generatePayroll(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const body     = req.body as GeneratePayrollBody;
     const result   = await payrollService.generatePayroll(tenantId, body);
     res.status(201).json(success(result));
@@ -42,7 +43,8 @@ export async function listReports(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query    = req.query as unknown as ListPayrollReportsQuery;
     const result   = await payrollService.listReports(tenantId, query);
     res.json(success(result));
@@ -60,7 +62,8 @@ export async function getReport(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params;
     const result   = await payrollService.getReport(tenantId, id);
     res.json(success(result));

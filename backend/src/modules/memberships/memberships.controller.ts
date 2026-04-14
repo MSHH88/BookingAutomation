@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as membershipsService from './memberships.service';
 import { success }             from '../../utils/apiResponse';
+import { AppError }            from '../../errors/AppError';
 import type {
   CreateMembershipBody,
   UpdateMembershipBody,
@@ -23,7 +24,8 @@ export async function createMembership(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const body     = req.body as CreateMembershipBody;
     const result   = await membershipsService.createMembership(tenantId, body);
     res.status(201).json(success(result));
@@ -38,7 +40,8 @@ export async function listMemberships(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query    = req.query as unknown as ListMembershipsQuery;
     const result   = await membershipsService.listMemberships(tenantId, query);
     res.json(success(result));
@@ -53,7 +56,8 @@ export async function getMembershipById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const result   = await membershipsService.getMembershipById(id, tenantId);
     res.json(success(result));
@@ -68,7 +72,8 @@ export async function updateMembership(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const body     = req.body as UpdateMembershipBody;
     const result   = await membershipsService.updateMembership(id, tenantId, body);
@@ -84,7 +89,8 @@ export async function deleteMembership(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const result   = await membershipsService.deleteMembership(id, tenantId);
     res.json(success(result));
@@ -101,7 +107,8 @@ export async function subscribeMember(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { id }   = req.params as { id: string };
     const body     = req.body as SubscribeBody;
     const result   = await membershipsService.subscribeMember(id, body, tenantId);
@@ -117,7 +124,8 @@ export async function cancelSubscription(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const { subId } = req.params as { subId: string };
     const result   = await membershipsService.cancelSubscription(subId, tenantId);
     res.json(success(result));

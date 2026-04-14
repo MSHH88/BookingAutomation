@@ -168,7 +168,8 @@ export async function artists(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query    = req.query as unknown as ArtistsAnalyticsQuery;
     const result   = await analyticsService.getArtistsAnalytics(tenantId, query);
     res.json(success(result));
@@ -187,7 +188,8 @@ export async function services(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query    = req.query as unknown as ServicesAnalyticsQuery;
     const result   = await analyticsService.getServicesAnalytics(tenantId, query);
     res.json(success(result));
@@ -206,7 +208,8 @@ export async function customers(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const tenantId = req.user!.tenantId!;
+    const tenantId = req.user?.tenantId ?? null;
+    if (tenantId === null) throw new AppError(400, 'TENANT_REQUIRED', 'A tenant context is required for this operation');
     const query    = req.query as unknown as CustomersAnalyticsQuery;
     const result   = await analyticsService.getCustomersAnalytics(tenantId, query);
     res.json(success(result));
