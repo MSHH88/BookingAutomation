@@ -35,6 +35,9 @@ import {
 const router = Router();
 
 // ── Feature gate ──────────────────────────────────────────────────────────────
+// BOOKING_ENABLED is the master switch: if bookings are disabled globally,
+// the public widget must also be disabled regardless of its own flag.
+router.use(requireFeature('BOOKING_ENABLED'));
 router.use(requireFeature('PUBLIC_BOOKING_ENABLED'));
 
 // ── Stricter rate limiter for booking creation ────────────────────────────────
