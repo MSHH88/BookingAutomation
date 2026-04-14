@@ -153,6 +153,7 @@ export async function listBookings(
   query:     ListBookingsQuery,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null = null,
 ): Promise<PaginatedResult<unknown>> {
   // ── Resolve ARTIST's artistId from their profile ──────────────────────────
   let scopedArtistId: string | undefined;
@@ -185,6 +186,10 @@ export async function listBookings(
         }
       : {}),
   };
+
+  if (actorRole === 'ADMIN' && tenantId !== null) {
+    where.tenantId = tenantId;
+  }
 
   return paginate(
     prisma.booking,

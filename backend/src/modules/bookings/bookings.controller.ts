@@ -36,7 +36,8 @@ export async function listBookings(
     const query     = req.query as ListBookingsQuery;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const result    = await bookingsService.listBookings(query, actorId, actorRole);
+    const tenantId  = req.user?.tenantId ?? null;
+    const result    = await bookingsService.listBookings(query, actorId, actorRole, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
