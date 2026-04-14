@@ -150,7 +150,7 @@ export const listUsersSchema = z.object({
     role:     z.enum(['SUPER_ADMIN', 'ADMIN', 'ARTIST', 'CUSTOMER']).optional(),
 
     /** Filter by account active state. */
-    isActive: z.enum(['true', 'false']).optional(),
+    isActive: z.enum(['true', 'false']).transform((v) => v === 'true').optional(),
 
     /** Case-insensitive search across name and email. */
     search:   z.string().trim().max(100).optional(),
@@ -202,7 +202,7 @@ export const listArtistsAdminSchema = z.object({
     limit:    z.string().optional(),
 
     /** Filter by artist active state. */
-    isActive: z.enum(['true', 'false']).optional(),
+    isActive: z.enum(['true', 'false']).transform((v) => v === 'true').optional(),
   }),
 });
 

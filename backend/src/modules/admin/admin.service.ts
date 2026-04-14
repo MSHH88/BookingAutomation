@@ -205,7 +205,7 @@ export async function updateFeatureFlag(
  *
  * Supports optional filters:
  *  - role     — exact role match
- *  - isActive — "true" / "false" string converted to boolean
+ *  - isActive — boolean after Zod coercion
  *  - search   — case-insensitive substring match on name OR email
  */
 export async function listUsers(
@@ -221,7 +221,7 @@ export async function listUsers(
   }
 
   if (query.isActive !== undefined) {
-    where.isActive = query.isActive === 'true';
+    where.isActive = query.isActive;
   }
 
   if (query.search) {
@@ -280,7 +280,7 @@ export async function updateUser(
  * Returns a paginated list of artists with their user profile and commission.
  *
  * Supports optional filter:
- *  - isActive — "true" / "false" string converted to boolean
+ *  - isActive — boolean after Zod coercion
  */
 export async function listArtistsAdmin(
   query:    ListArtistsAdminQuery,
@@ -289,7 +289,7 @@ export async function listArtistsAdmin(
   const where: Prisma.ArtistWhereInput = {};
 
   if (query.isActive !== undefined) {
-    where.isActive = query.isActive === 'true';
+    where.isActive = query.isActive;
   }
 
   if (tenantId !== null) {
