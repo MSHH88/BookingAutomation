@@ -2,26 +2,27 @@
 
 > **Scope:** All bug-fix and audit changes from Phase 1–3 and AUDIT-001 through AUDIT-026.
 > **Branch:** `copilot/create-detailed-automation-plan`
-> **Total files:** 8 created + 121 modified = 129 backend files.
+> **Total files:** 9 created + 119 modified = 128 backend files.
 
 ---
 
 ## Definitive File Lists
 
-### Created Files (8)
+### Created Files (9)
 
 | # | Path | Origin |
 |---|------|--------|
 | 1 | `backend/prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql` | Phase 3 (FINDING-016) |
 | 2 | `backend/prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql` | Phase 3 (FINDING-011) |
 | 3 | `backend/src/jobs/invoice-overdue.job.ts` | AUDIT-023 |
-| 4 | `backend/src/modules/auth/auth.email.processor.ts` | Phase 1 (FINDING-002) |
-| 5 | `backend/src/modules/auth/auth.email.queue.ts` | Phase 1 (FINDING-002) |
-| 6 | `backend/src/scripts/backfill-analyticsEvent-tenantId.ts` | AUDIT-025 |
-| 7 | `backend/src/scripts/backfill-lead-tenantId.ts` | AUDIT-019 |
-| 8 | `backend/src/utils/extractTenantId.ts` | Phase 2 (FINDING-019/028/030) |
+| 4 | `backend/src/middleware/captcha.ts` | Phase 2 (FINDING-010), AUDIT-017 |
+| 5 | `backend/src/modules/auth/auth.email.processor.ts` | Phase 1 (FINDING-002) |
+| 6 | `backend/src/modules/auth/auth.email.queue.ts` | Phase 1 (FINDING-002) |
+| 7 | `backend/src/scripts/backfill-analyticsEvent-tenantId.ts` | AUDIT-025 |
+| 8 | `backend/src/scripts/backfill-lead-tenantId.ts` | AUDIT-019 |
+| 9 | `backend/src/utils/extractTenantId.ts` | Phase 2 (FINDING-019/028/030) |
 
-### Modified Files (121)
+### Modified Files (119)
 
 | # | Path |
 |---|------|
@@ -41,111 +42,109 @@
 | 14 | `backend/src/lib/notification-dispatcher.ts` |
 | 15 | `backend/src/lib/redis.ts` |
 | 16 | `backend/src/middleware/auth.ts` |
-| 17 | `backend/src/middleware/captcha.ts` |
-| 18 | `backend/src/middleware/requireFeature.ts` |
-| 19 | `backend/src/modules/admin/admin.controller.ts` |
-| 20 | `backend/src/modules/admin/admin.schema.ts` |
-| 21 | `backend/src/modules/admin/admin.service.test.ts` |
-| 22 | `backend/src/modules/admin/admin.service.ts` |
-| 23 | `backend/src/modules/ai/ai.controller.ts` |
-| 24 | `backend/src/modules/alerts/alerts.controller.ts` |
-| 25 | `backend/src/modules/alerts/alerts.service.ts` |
-| 26 | `backend/src/modules/analytics/analytics.controller.ts` |
-| 27 | `backend/src/modules/analytics/analytics.service.test.ts` |
-| 28 | `backend/src/modules/analytics/analytics.service.ts` |
-| 29 | `backend/src/modules/artists/artist-media.controller.ts` |
-| 30 | `backend/src/modules/artists/artist-media.service.ts` |
-| 31 | `backend/src/modules/auth/auth.controller.ts` |
-| 32 | `backend/src/modules/auth/auth.routes.ts` |
-| 33 | `backend/src/modules/auth/auth.service.test.ts` |
-| 34 | `backend/src/modules/auth/auth.service.ts` |
-| 35 | `backend/src/modules/availability/availability.controller.ts` |
-| 36 | `backend/src/modules/booking-photos/booking-photos.controller.ts` |
-| 37 | `backend/src/modules/booking-photos/booking-photos.service.ts` |
-| 38 | `backend/src/modules/bookings/bookings.controller.ts` |
-| 39 | `backend/src/modules/bookings/bookings.service.test.ts` |
-| 40 | `backend/src/modules/bookings/bookings.service.ts` |
-| 41 | `backend/src/modules/calendar/apple-calendar.service.ts` |
-| 42 | `backend/src/modules/calendar/calendar.service.ts` |
-| 43 | `backend/src/modules/calendar/outlook-calendar.service.ts` |
-| 44 | `backend/src/modules/campaigns/campaigns.controller.ts` |
-| 45 | `backend/src/modules/capture/capture.schema.ts` |
-| 46 | `backend/src/modules/capture/capture.service.ts` |
-| 47 | `backend/src/modules/customer-stats/customer-stats.controller.ts` |
-| 48 | `backend/src/modules/customer-stats/customer-stats.service.ts` |
-| 49 | `backend/src/modules/customers/customers.service.ts` |
-| 50 | `backend/src/modules/email-templates/email-templates.controller.ts` |
-| 51 | `backend/src/modules/forms/forms.controller.ts` |
-| 52 | `backend/src/modules/forms/forms.service.ts` |
-| 53 | `backend/src/modules/gift-cards/gift-cards.controller.ts` |
-| 54 | `backend/src/modules/gift-cards/gift-cards.service.ts` |
-| 55 | `backend/src/modules/health-flags/health-flags.controller.ts` |
-| 56 | `backend/src/modules/health-flags/health-flags.service.ts` |
-| 57 | `backend/src/modules/invoices/invoices.controller.ts` |
-| 58 | `backend/src/modules/invoices/invoices.service.ts` |
-| 59 | `backend/src/modules/leads/leads.controller.ts` |
-| 60 | `backend/src/modules/leads/leads.schema.ts` |
-| 61 | `backend/src/modules/leads/leads.service.test.ts` |
-| 62 | `backend/src/modules/leads/leads.service.ts` |
-| 63 | `backend/src/modules/leads/leads.test.ts` |
-| 64 | `backend/src/modules/locations/locations.controller.ts` |
-| 65 | `backend/src/modules/locations/locations.schema.ts` |
-| 66 | `backend/src/modules/locations/locations.service.ts` |
-| 67 | `backend/src/modules/loyalty/loyalty.controller.ts` |
-| 68 | `backend/src/modules/loyalty/loyalty.service.ts` |
-| 69 | `backend/src/modules/memberships/memberships.controller.ts` |
-| 70 | `backend/src/modules/notifications/notifications.controller.ts` |
-| 71 | `backend/src/modules/notifications/notifications.service.ts` |
-| 72 | `backend/src/modules/packages/packages.controller.ts` |
-| 73 | `backend/src/modules/packages/packages.service.ts` |
-| 74 | `backend/src/modules/payments/payments.controller.ts` |
-| 75 | `backend/src/modules/payments/payments.service.ts` |
-| 76 | `backend/src/modules/payroll/payroll.controller.ts` |
-| 77 | `backend/src/modules/payroll/payroll.routes.ts` |
-| 78 | `backend/src/modules/pos/pos.controller.ts` |
-| 79 | `backend/src/modules/pos/pos.service.ts` |
-| 80 | `backend/src/modules/pricing/pricing.controller.ts` |
-| 81 | `backend/src/modules/pricing/pricing.schema.ts` |
-| 82 | `backend/src/modules/pricing/pricing.service.ts` |
-| 83 | `backend/src/modules/products/products.controller.ts` |
-| 84 | `backend/src/modules/products/products.service.ts` |
-| 85 | `backend/src/modules/public/public.routes.ts` |
-| 86 | `backend/src/modules/public/public.service.test.ts` |
-| 87 | `backend/src/modules/public/public.service.ts` |
-| 88 | `backend/src/modules/public/public.test.ts` |
-| 89 | `backend/src/modules/push/push.routes.ts` |
-| 90 | `backend/src/modules/quotes/quotes.controller.ts` |
-| 91 | `backend/src/modules/quotes/quotes.service.ts` |
-| 92 | `backend/src/modules/recurring-bookings/recurring-bookings.controller.ts` |
-| 93 | `backend/src/modules/recurring-bookings/recurring-bookings.routes.ts` |
-| 94 | `backend/src/modules/recurring-bookings/recurring-bookings.schema.ts` |
-| 95 | `backend/src/modules/recurring-bookings/recurring-bookings.service.ts` |
-| 96 | `backend/src/modules/recurring-bookings/recurring-bookings.test.ts` |
-| 97 | `backend/src/modules/referrals/referrals.controller.ts` |
-| 98 | `backend/src/modules/referrals/referrals.service.ts` |
-| 99 | `backend/src/modules/reminders/reminders.queue.ts` |
-| 100 | `backend/src/modules/reviews/reviews.queue.ts` |
-| 101 | `backend/src/modules/roles/roles.controller.ts` |
-| 102 | `backend/src/modules/roles/roles.service.test.ts` |
-| 103 | `backend/src/modules/roles/roles.service.ts` |
-| 104 | `backend/src/modules/rota/rota.controller.ts` |
-| 105 | `backend/src/modules/rota/rota.service.ts` |
-| 106 | `backend/src/modules/sessions/sessions.controller.ts` |
-| 107 | `backend/src/modules/sessions/sessions.schema.ts` |
-| 108 | `backend/src/modules/sessions/sessions.service.ts` |
-| 109 | `backend/src/modules/settings/settings.controller.ts` |
-| 110 | `backend/src/modules/settings/settings.service.ts` |
-| 111 | `backend/src/modules/sms-templates/sms-templates.controller.ts` |
-| 112 | `backend/src/modules/social/social.controller.ts` |
-| 113 | `backend/src/modules/social/social.service.ts` |
-| 114 | `backend/src/modules/social/social.test.ts` |
-| 115 | `backend/src/modules/tables/tables.controller.ts` |
-| 116 | `backend/src/modules/tables/tables.service.ts` |
-| 117 | `backend/src/modules/webhooks/webhooks.controller.ts` |
-| 118 | `backend/src/modules/webhooks/webhooks.service.ts` |
-| 119 | `backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts` |
-| 120 | `backend/src/modules/whatsapp/whatsapp.service.ts` |
-| 121 | `backend/src/server.ts` |
+| 17 | `backend/src/middleware/requireFeature.ts` |
+| 18 | `backend/src/modules/admin/admin.controller.ts` |
+| 19 | `backend/src/modules/admin/admin.schema.ts` |
+| 20 | `backend/src/modules/admin/admin.service.test.ts` |
+| 21 | `backend/src/modules/admin/admin.service.ts` |
+| 22 | `backend/src/modules/ai/ai.controller.ts` |
+| 23 | `backend/src/modules/alerts/alerts.controller.ts` |
+| 24 | `backend/src/modules/alerts/alerts.service.ts` |
+| 25 | `backend/src/modules/analytics/analytics.controller.ts` |
+| 26 | `backend/src/modules/analytics/analytics.service.test.ts` |
+| 27 | `backend/src/modules/analytics/analytics.service.ts` |
+| 28 | `backend/src/modules/artists/artist-media.controller.ts` |
+| 29 | `backend/src/modules/artists/artist-media.service.ts` |
+| 30 | `backend/src/modules/auth/auth.controller.ts` |
+| 31 | `backend/src/modules/auth/auth.routes.ts` |
+| 32 | `backend/src/modules/auth/auth.service.test.ts` |
+| 33 | `backend/src/modules/auth/auth.service.ts` |
+| 34 | `backend/src/modules/availability/availability.controller.ts` |
+| 35 | `backend/src/modules/booking-photos/booking-photos.controller.ts` |
+| 36 | `backend/src/modules/booking-photos/booking-photos.service.ts` |
+| 37 | `backend/src/modules/bookings/bookings.controller.ts` |
+| 38 | `backend/src/modules/bookings/bookings.service.test.ts` |
+| 39 | `backend/src/modules/bookings/bookings.service.ts` |
+| 40 | `backend/src/modules/calendar/apple-calendar.service.ts` |
+| 41 | `backend/src/modules/calendar/calendar.service.ts` |
+| 42 | `backend/src/modules/calendar/outlook-calendar.service.ts` |
+| 43 | `backend/src/modules/campaigns/campaigns.controller.ts` |
+| 44 | `backend/src/modules/capture/capture.schema.ts` |
+| 45 | `backend/src/modules/capture/capture.service.ts` |
+| 46 | `backend/src/modules/customer-stats/customer-stats.controller.ts` |
+| 47 | `backend/src/modules/customer-stats/customer-stats.service.ts` |
+| 48 | `backend/src/modules/customers/customers.service.ts` |
+| 49 | `backend/src/modules/email-templates/email-templates.controller.ts` |
+| 50 | `backend/src/modules/forms/forms.controller.ts` |
+| 51 | `backend/src/modules/forms/forms.service.ts` |
+| 52 | `backend/src/modules/gift-cards/gift-cards.controller.ts` |
+| 53 | `backend/src/modules/gift-cards/gift-cards.service.ts` |
+| 54 | `backend/src/modules/health-flags/health-flags.controller.ts` |
+| 55 | `backend/src/modules/health-flags/health-flags.service.ts` |
+| 56 | `backend/src/modules/invoices/invoices.controller.ts` |
+| 57 | `backend/src/modules/invoices/invoices.service.ts` |
+| 58 | `backend/src/modules/leads/leads.controller.ts` |
+| 59 | `backend/src/modules/leads/leads.schema.ts` |
+| 60 | `backend/src/modules/leads/leads.service.test.ts` |
+| 61 | `backend/src/modules/leads/leads.service.ts` |
+| 62 | `backend/src/modules/leads/leads.test.ts` |
+| 63 | `backend/src/modules/locations/locations.controller.ts` |
+| 64 | `backend/src/modules/locations/locations.schema.ts` |
+| 65 | `backend/src/modules/locations/locations.service.ts` |
+| 66 | `backend/src/modules/loyalty/loyalty.controller.ts` |
+| 67 | `backend/src/modules/loyalty/loyalty.service.ts` |
+| 68 | `backend/src/modules/memberships/memberships.controller.ts` |
+| 69 | `backend/src/modules/notifications/notifications.controller.ts` |
+| 70 | `backend/src/modules/notifications/notifications.service.ts` |
+| 71 | `backend/src/modules/packages/packages.controller.ts` |
+| 72 | `backend/src/modules/packages/packages.service.ts` |
+| 73 | `backend/src/modules/payments/payments.controller.ts` |
+| 74 | `backend/src/modules/payments/payments.service.ts` |
+| 75 | `backend/src/modules/payroll/payroll.routes.ts` |
+| 76 | `backend/src/modules/pos/pos.controller.ts` |
+| 77 | `backend/src/modules/pos/pos.service.ts` |
+| 78 | `backend/src/modules/pricing/pricing.controller.ts` |
+| 79 | `backend/src/modules/pricing/pricing.schema.ts` |
+| 80 | `backend/src/modules/pricing/pricing.service.ts` |
+| 81 | `backend/src/modules/products/products.controller.ts` |
+| 82 | `backend/src/modules/products/products.service.ts` |
+| 83 | `backend/src/modules/public/public.routes.ts` |
+| 84 | `backend/src/modules/public/public.service.test.ts` |
+| 85 | `backend/src/modules/public/public.service.ts` |
+| 86 | `backend/src/modules/public/public.test.ts` |
+| 87 | `backend/src/modules/push/push.routes.ts` |
+| 88 | `backend/src/modules/quotes/quotes.controller.ts` |
+| 89 | `backend/src/modules/quotes/quotes.service.ts` |
+| 90 | `backend/src/modules/recurring-bookings/recurring-bookings.controller.ts` |
+| 91 | `backend/src/modules/recurring-bookings/recurring-bookings.routes.ts` |
+| 92 | `backend/src/modules/recurring-bookings/recurring-bookings.schema.ts` |
+| 93 | `backend/src/modules/recurring-bookings/recurring-bookings.service.ts` |
+| 94 | `backend/src/modules/recurring-bookings/recurring-bookings.test.ts` |
+| 95 | `backend/src/modules/referrals/referrals.controller.ts` |
+| 96 | `backend/src/modules/referrals/referrals.service.ts` |
+| 97 | `backend/src/modules/reminders/reminders.queue.ts` |
+| 98 | `backend/src/modules/reviews/reviews.queue.ts` |
+| 99 | `backend/src/modules/roles/roles.controller.ts` |
+| 100 | `backend/src/modules/roles/roles.service.test.ts` |
+| 101 | `backend/src/modules/roles/roles.service.ts` |
+| 102 | `backend/src/modules/rota/rota.controller.ts` |
+| 103 | `backend/src/modules/rota/rota.service.ts` |
+| 104 | `backend/src/modules/sessions/sessions.controller.ts` |
+| 105 | `backend/src/modules/sessions/sessions.schema.ts` |
+| 106 | `backend/src/modules/sessions/sessions.service.ts` |
+| 107 | `backend/src/modules/settings/settings.controller.ts` |
+| 108 | `backend/src/modules/settings/settings.service.ts` |
+| 109 | `backend/src/modules/sms-templates/sms-templates.controller.ts` |
+| 110 | `backend/src/modules/social/social.controller.ts` |
+| 111 | `backend/src/modules/social/social.service.ts` |
+| 112 | `backend/src/modules/social/social.test.ts` |
+| 113 | `backend/src/modules/tables/tables.controller.ts` |
+| 114 | `backend/src/modules/tables/tables.service.ts` |
+| 115 | `backend/src/modules/webhooks/webhooks.controller.ts` |
+| 116 | `backend/src/modules/webhooks/webhooks.service.ts` |
+| 117 | `backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts` |
+| 118 | `backend/src/modules/whatsapp/whatsapp.service.ts` |
+| 119 | `backend/src/server.ts` |
 
 ---
 
@@ -154,17 +153,18 @@
 Run from `~/Desktop/Automation/backend`:
 
 ```bash
-# --- Created files (8) ---
+# --- Created files (9) ---
 rm -f prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql
 rm -f prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql
 rm -f src/jobs/invoice-overdue.job.ts
+rm -f src/middleware/captcha.ts
 rm -f src/modules/auth/auth.email.processor.ts
 rm -f src/modules/auth/auth.email.queue.ts
 rm -f src/scripts/backfill-analyticsEvent-tenantId.ts
 rm -f src/scripts/backfill-lead-tenantId.ts
 rm -f src/utils/extractTenantId.ts
 
-# --- Modified files (121) ---
+# --- Modified files (119) ---
 rm -f prisma/schema.prisma
 rm -f src/app.ts
 rm -f src/config/businessType.test.ts
@@ -181,7 +181,6 @@ rm -f src/jobs/waitlist-match.job.ts
 rm -f src/lib/notification-dispatcher.ts
 rm -f src/lib/redis.ts
 rm -f src/middleware/auth.ts
-rm -f src/middleware/captcha.ts
 rm -f src/middleware/requireFeature.ts
 rm -f src/modules/admin/admin.controller.ts
 rm -f src/modules/admin/admin.schema.ts
@@ -240,7 +239,6 @@ rm -f src/modules/packages/packages.controller.ts
 rm -f src/modules/packages/packages.service.ts
 rm -f src/modules/payments/payments.controller.ts
 rm -f src/modules/payments/payments.service.ts
-rm -f src/modules/payroll/payroll.controller.ts
 rm -f src/modules/payroll/payroll.routes.ts
 rm -f src/modules/pos/pos.controller.ts
 rm -f src/modules/pos/pos.service.ts
@@ -301,15 +299,64 @@ rmdir --ignore-fail-on-non-empty src/utils 2>/dev/null
 ```bash
 mkdir -p prisma/migrations/20260414000001_remove_gift_voucher_enabled
 mkdir -p prisma/migrations/20260414000002_feature_flag_per_tenant_unique
+mkdir -p src/config
 mkdir -p src/jobs
+mkdir -p src/lib
+mkdir -p src/middleware
+mkdir -p src/modules/admin
+mkdir -p src/modules/ai
+mkdir -p src/modules/alerts
+mkdir -p src/modules/analytics
+mkdir -p src/modules/artists
 mkdir -p src/modules/auth
+mkdir -p src/modules/availability
+mkdir -p src/modules/booking-photos
+mkdir -p src/modules/bookings
+mkdir -p src/modules/calendar
+mkdir -p src/modules/campaigns
+mkdir -p src/modules/capture
+mkdir -p src/modules/customer-stats
+mkdir -p src/modules/customers
+mkdir -p src/modules/email-templates
+mkdir -p src/modules/forms
+mkdir -p src/modules/gift-cards
+mkdir -p src/modules/health-flags
+mkdir -p src/modules/invoices
+mkdir -p src/modules/leads
+mkdir -p src/modules/locations
+mkdir -p src/modules/loyalty
+mkdir -p src/modules/memberships
+mkdir -p src/modules/notifications
+mkdir -p src/modules/packages
+mkdir -p src/modules/payments
+mkdir -p src/modules/payroll
+mkdir -p src/modules/pos
+mkdir -p src/modules/pricing
+mkdir -p src/modules/products
+mkdir -p src/modules/public
+mkdir -p src/modules/push
+mkdir -p src/modules/quotes
+mkdir -p src/modules/recurring-bookings
+mkdir -p src/modules/referrals
+mkdir -p src/modules/reminders
+mkdir -p src/modules/reviews
+mkdir -p src/modules/roles
+mkdir -p src/modules/rota
+mkdir -p src/modules/sessions
+mkdir -p src/modules/settings
+mkdir -p src/modules/sms-templates
+mkdir -p src/modules/social
+mkdir -p src/modules/tables
+mkdir -p src/modules/webhooks
+mkdir -p src/modules/whatsapp
+mkdir -p src/modules/whatsapp-templates
 mkdir -p src/scripts
 mkdir -p src/utils
 ```
 
 ---
 
-## Step 3 — Download NEW files (8 created files)
+## Step 3 — Download NEW files (9 created files)
 
 ```bash
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
@@ -321,6 +368,8 @@ curl -L -o prisma/migrations/20260414000001_remove_gift_voucher_enabled/migratio
 curl -L -o prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql "$BASE/prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql" && echo "OK  migration (feature_flag_per_tenant)" || echo "FAILED  migration (feature_flag_per_tenant)"
 
 curl -L -o src/jobs/invoice-overdue.job.ts "$BASE/src/jobs/invoice-overdue.job.ts" && echo "OK  invoice-overdue.job.ts" || echo "FAILED  invoice-overdue.job.ts"
+
+curl -L -o src/middleware/captcha.ts "$BASE/src/middleware/captcha.ts" && echo "OK  captcha.ts" || echo "FAILED  captcha.ts"
 
 curl -L -o src/modules/auth/auth.email.processor.ts "$BASE/src/modules/auth/auth.email.processor.ts" && echo "OK  auth.email.processor.ts" || echo "FAILED  auth.email.processor.ts"
 
@@ -335,7 +384,7 @@ curl -L -o src/utils/extractTenantId.ts "$BASE/src/utils/extractTenantId.ts" && 
 
 ---
 
-## Step 4 — Download CHANGED files (121 modified files)
+## Step 4 — Download CHANGED files (119 modified files)
 
 Use the same `$BASE` variable set in Step 3.
 
@@ -356,7 +405,6 @@ curl -L -o src/jobs/waitlist-match.job.ts "$BASE/src/jobs/waitlist-match.job.ts"
 curl -L -o src/lib/notification-dispatcher.ts "$BASE/src/lib/notification-dispatcher.ts" && echo "OK  notification-dispatcher.ts" || echo "FAILED  notification-dispatcher.ts"
 curl -L -o src/lib/redis.ts "$BASE/src/lib/redis.ts" && echo "OK  redis.ts" || echo "FAILED  redis.ts"
 curl -L -o src/middleware/auth.ts "$BASE/src/middleware/auth.ts" && echo "OK  middleware/auth.ts" || echo "FAILED  middleware/auth.ts"
-curl -L -o src/middleware/captcha.ts "$BASE/src/middleware/captcha.ts" && echo "OK  middleware/captcha.ts" || echo "FAILED  middleware/captcha.ts"
 curl -L -o src/middleware/requireFeature.ts "$BASE/src/middleware/requireFeature.ts" && echo "OK  requireFeature.ts" || echo "FAILED  requireFeature.ts"
 curl -L -o src/modules/admin/admin.controller.ts "$BASE/src/modules/admin/admin.controller.ts" && echo "OK  admin.controller.ts" || echo "FAILED  admin.controller.ts"
 curl -L -o src/modules/admin/admin.schema.ts "$BASE/src/modules/admin/admin.schema.ts" && echo "OK  admin.schema.ts" || echo "FAILED  admin.schema.ts"
@@ -415,7 +463,6 @@ curl -L -o src/modules/packages/packages.controller.ts "$BASE/src/modules/packag
 curl -L -o src/modules/packages/packages.service.ts "$BASE/src/modules/packages/packages.service.ts" && echo "OK  packages.service.ts" || echo "FAILED  packages.service.ts"
 curl -L -o src/modules/payments/payments.controller.ts "$BASE/src/modules/payments/payments.controller.ts" && echo "OK  payments.controller.ts" || echo "FAILED  payments.controller.ts"
 curl -L -o src/modules/payments/payments.service.ts "$BASE/src/modules/payments/payments.service.ts" && echo "OK  payments.service.ts" || echo "FAILED  payments.service.ts"
-curl -L -o src/modules/payroll/payroll.controller.ts "$BASE/src/modules/payroll/payroll.controller.ts" && echo "OK  payroll.controller.ts" || echo "FAILED  payroll.controller.ts"
 curl -L -o src/modules/payroll/payroll.routes.ts "$BASE/src/modules/payroll/payroll.routes.ts" && echo "OK  payroll.routes.ts" || echo "FAILED  payroll.routes.ts"
 curl -L -o src/modules/pos/pos.controller.ts "$BASE/src/modules/pos/pos.controller.ts" && echo "OK  pos.controller.ts" || echo "FAILED  pos.controller.ts"
 curl -L -o src/modules/pos/pos.service.ts "$BASE/src/modules/pos/pos.service.ts" && echo "OK  pos.service.ts" || echo "FAILED  pos.service.ts"
