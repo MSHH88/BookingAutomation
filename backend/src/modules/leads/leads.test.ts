@@ -169,7 +169,7 @@ describe('GET /api/leads/export', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('GET /api/leads/:id', () => {
   it('200 — ADMIN gets lead detail', async () => {
-    (prisma.lead.findUnique as jest.Mock).mockResolvedValue(baseLead);
+    (prisma.lead.findUnique as jest.Mock).mockResolvedValue({ ...baseLead, tenantId: 'tenant1' });
 
     const res = await request(app)
       .get('/api/leads/lead_1')
@@ -193,10 +193,10 @@ describe('GET /api/leads/:id', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('PATCH /api/leads/:id/status', () => {
   it('200 — ADMIN transitions lead status', async () => {
-    const updatedLead  = { ...baseLead, status: 'CONTACTED' as const };
+    const updatedLead  = { ...baseLead, status: 'CONTACTED' as const, tenantId: 'tenant1' };
 
     (prisma.lead.findUnique as jest.Mock)
-      .mockResolvedValueOnce({ id: 'lead_1', status: 'NEW' })  // status check
+      .mockResolvedValueOnce({ id: 'lead_1', status: 'NEW', tenantId: 'tenant1' })  // status check
       .mockResolvedValueOnce(updatedLead);                       // getLeadById
     (prisma.lead.update as jest.Mock).mockResolvedValue({ id: 'lead_1' });
 
@@ -225,8 +225,8 @@ describe('PATCH /api/leads/:id/score', () => {
     const updated = { ...baseLead, score: 85 };
 
     (prisma.lead.findUnique as jest.Mock)
-      .mockResolvedValueOnce({ id: 'lead_1' })  // existence check
-      .mockResolvedValueOnce(updated);            // getLeadById
+      .mockResolvedValueOnce({ id: 'lead_1', tenantId: 'tenant1' })  // existence check
+      .mockResolvedValueOnce({ ...updated, tenantId: 'tenant1' });    // getLeadById
     (prisma.lead.update as jest.Mock).mockResolvedValue({ id: 'lead_1' });
 
     const res = await request(app)
@@ -236,5 +236,77 @@ describe('PATCH /api/leads/:id/score', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.score).toBe(85);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AUDIT-021 — Tenant isolation on single-record endpoints
+// ─────────────────────────────────────────────────────────────────────────────
+describe('AUDIT-021 — tenant isolation', () => {
+  function makeTokenWithTenant(tenantId: string | null, role: 'SUPER_ADMIN' | 'ADMIN' = 'ADMIN') {
+    return `Bearer ${jwt.sign(
+      {
+        sub:            'u_1',
+        email:          'test@example.com',
+        role,
+        tenantId,
+        canViewLeads:   true,
+        canAssignRoles: false,
+      },
+      SECRET,
+      { expiresIn: '15m' },
+    )}`;
+  }
+
+  it('GET /api/leads/:id — 403 when ADMIN accesses a lead from another tenant', async () => {
+    (prisma.lead.findUnique as jest.Mock).mockResolvedValueOnce({
+      ...baseLead,
+      tenantId: 'tenant_OTHER',
+    });
+
+    const res = await request(app)
+      .get('/api/leads/lead_1')
+      .set('Authorization', makeTokenWithTenant('tenant1'));
+
+    expect(res.status).toBe(403);
+  });
+
+  it('GET /api/leads/:id — 200 when SUPER_ADMIN accesses any lead (unscoped)', async () => {
+    (prisma.lead.findUnique as jest.Mock).mockResolvedValueOnce({
+      ...baseLead,
+      tenantId: 'tenant_OTHER',
+    });
+
+    const res = await request(app)
+      .get('/api/leads/lead_1')
+      .set('Authorization', makeTokenWithTenant(null, 'SUPER_ADMIN'));
+
+    expect(res.status).toBe(200);
+  });
+
+  it('PATCH /api/leads/:id/status — 403 when ADMIN targets a cross-tenant lead', async () => {
+    (prisma.lead.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: 'lead_1', status: 'NEW', tenantId: 'tenant_OTHER',
+    });
+
+    const res = await request(app)
+      .patch('/api/leads/lead_1/status')
+      .set('Authorization', makeTokenWithTenant('tenant1'))
+      .send({ status: 'CONTACTED' });
+
+    expect(res.status).toBe(403);
+  });
+
+  it('PATCH /api/leads/:id/score — 403 when ADMIN targets a cross-tenant lead', async () => {
+    (prisma.lead.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: 'lead_1', tenantId: 'tenant_OTHER',
+    });
+
+    const res = await request(app)
+      .patch('/api/leads/lead_1/score')
+      .set('Authorization', makeTokenWithTenant('tenant1'))
+      .send({ score: 70 });
+
+    expect(res.status).toBe(403);
   });
 });

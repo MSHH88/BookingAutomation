@@ -373,14 +373,20 @@ export async function listLeads(query: ListLeadsQuery, tenantId: string | null =
 
 /**
  * Fetch a single lead by ID (ADMIN only).
+ *
+ * When `tenantId` is non-null, ownership is enforced — the lead must belong
+ * to the caller's tenant.  A null tenantId (SUPER_ADMIN) allows unscoped access.
  */
-export async function getLeadById(id: string): Promise<LeadDetail> {
+export async function getLeadById(id: string, tenantId: string | null = null): Promise<LeadDetail> {
   const lead = await prisma.lead.findUnique({
     where:  { id },
-    select: leadDetailSelect,
+    select: { ...leadDetailSelect, tenantId: true },
   });
   if (!lead) {
     throw new AppError(404, 'LEAD_NOT_FOUND', `Lead '${id}' not found`);
+  }
+  if (tenantId !== null && lead.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Cross-tenant access denied');
   }
   return lead;
 }
@@ -473,18 +479,26 @@ export async function exportLeadsCsv(
 /**
  * Update the status of a lead (ADMIN only).
  * Validates the transition is legal before applying it.
+ *
+ * Tenant isolation: when `tenantId` is non-null, the lead must belong
+ * to the caller's tenant. A null tenantId (SUPER_ADMIN) allows unscoped access.
  */
 export async function updateLeadStatus(
   id: string,
   body: UpdateLeadStatusBody,
+  tenantId: string | null = null,
 ): Promise<LeadDetail> {
   const existing = await prisma.lead.findUnique({
     where:  { id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, tenantId: true },
   });
 
   if (!existing) {
     throw new AppError(404, 'LEAD_NOT_FOUND', `Lead '${id}' not found`);
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Cross-tenant access denied');
   }
 
   const currentStatus = existing.status as LeadStatusValue;
@@ -528,18 +542,26 @@ export async function updateLeadStatus(
 /**
  * Update the CRM score of a lead (ADMIN only).
  * Score is an integer 0–100 representing lead quality.
+ *
+ * Tenant isolation: when `tenantId` is non-null, the lead must belong
+ * to the caller's tenant. A null tenantId (SUPER_ADMIN) allows unscoped access.
  */
 export async function updateLeadScore(
   id: string,
   body: UpdateLeadScoreBody,
+  tenantId: string | null = null,
 ): Promise<LeadDetail> {
   const existing = await prisma.lead.findUnique({
     where:  { id },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
 
   if (!existing) {
     throw new AppError(404, 'LEAD_NOT_FOUND', `Lead '${id}' not found`);
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Cross-tenant access denied');
   }
 
   await prisma.lead.update({

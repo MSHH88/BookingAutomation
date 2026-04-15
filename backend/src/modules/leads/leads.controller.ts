@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as leadsService from './leads.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   CreateLeadBody,
   ListLeadsQuery,
@@ -109,8 +110,9 @@ export async function getLeadById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    const lead   = await leadsService.getLeadById(id);
+    const { id }   = req.params as { id: string };
+    const tenantId = extractTenantId(req);
+    const lead     = await leadsService.getLeadById(id, tenantId);
     res.json(success(lead));
   } catch (err) {
     next(err);
@@ -127,9 +129,10 @@ export async function updateLeadStatus(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    const body   = req.body as UpdateLeadStatusBody;
-    const lead   = await leadsService.updateLeadStatus(id, body);
+    const { id }   = req.params as { id: string };
+    const body     = req.body as UpdateLeadStatusBody;
+    const tenantId = extractTenantId(req);
+    const lead     = await leadsService.updateLeadStatus(id, body, tenantId);
     res.json(success(lead));
   } catch (err) {
     next(err);
@@ -146,9 +149,10 @@ export async function updateLeadScore(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id } = req.params as { id: string };
-    const body   = req.body as UpdateLeadScoreBody;
-    const lead   = await leadsService.updateLeadScore(id, body);
+    const { id }   = req.params as { id: string };
+    const body     = req.body as UpdateLeadScoreBody;
+    const tenantId = extractTenantId(req);
+    const lead     = await leadsService.updateLeadScore(id, body, tenantId);
     res.json(success(lead));
   } catch (err) {
     next(err);
