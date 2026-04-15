@@ -507,3 +507,214 @@ The following modules were re-audited and confirmed to have correct tenant isola
 - **Artists/Services/Styles** — Intentionally global shared catalog (no tenant scoping needed) ✅
 - **Referrals** — `generateReferralCode` uses userId (acceptable for self-service); `lookupReferralCode` is public lookup ✅
 - **Customers (me)** — Uses `customerId` from JWT for scoping (acceptable for customer self-service) ✅
+
+---
+
+## Final Audit — Post-Fix Verification + Gap Analysis (2026-04-15)
+
+- **Audit Date:** 2026-04-15
+- **Branch:** `copilot/create-detailed-automation-plan`
+- **Statement:** Final verification audit after BUG 2–11 fixes; exhaustive re-sweep of all modules, flags, jobs, templates, analytics, and business types.
+
+---
+
+### Step 1 — BUG 2–BUG 11 Fix Verification
+
+| Bug | Status | Verification Evidence |
+|-----|--------|-----------------------|
+| BUG 2 | ✅ **FIXED** | `SMS_ENABLED` fully removed from `businessType.ts` and codebase. Only `SMS_REMINDERS_ENABLED` remains, correctly enforced in `notification-dispatcher.ts:62` via `isFeatureEnabled('SMS_REMINDERS_ENABLED', tenantId)`. |
+| BUG 3 | ✅ **FIXED** | `whatsapp.queue.ts:249-278`: Processor now performs DB template lookup via `prisma.whatsAppTemplate.findFirst({ where: { key: jobName, tenantId: tenantId ?? null, isActive: true } })` before falling back to hardcoded `buildWhatsAppMessage()`. Template variables rendered via `renderTemplate()`. |
+| BUG 4 | ✅ **FIXED** | `bookings.controller.ts`: All five single-record endpoints (`getBookingById`, `confirmBooking`, `completeBooking`, `cancelBooking`, `rescheduleBooking`) now extract `tenantId` via `extractTenantId(req)`. `bookings.service.ts`: All five call `enforceTenantOwnership(booking, tenantId, id)` which throws 403 on cross-tenant access. |
+| BUG 5 | ✅ **FIXED** | `invoices.service.ts:452-495`: `markOverdueInvoices()` now iterates by distinct `tenantId`, calls `isFeatureEnabled('INVOICE_AUTOMATION_ENABLED', tenantId)` per tenant, and scopes `updateMany` with `booking: { tenantId }`. |
+| BUG 6 | ✅ **FIXED** | `waitlist.controller.ts`: All five admin handlers (`listWaitlist`, `getWaitlistEntryById`, `updateWaitlistStatus`, `notifyWaitlistEntry`, `deleteWaitlistEntry`) extract `tenantId` via `extractTenantId(req)`. `waitlist.service.ts`: All functions validate `tenantId` ownership (403 on mismatch). |
+| BUG 7 | ✅ **FIXED** | `invoices.controller.ts`: All four single-record endpoints (`getInvoiceById`, `sendInvoice`, `markInvoicePaid`, `voidInvoice`) extract `tenantId`. `invoices.service.ts`: All four verify `invoice.booking.tenantId === tenantId` (403 on mismatch). |
+| BUG 8 | ✅ **FIXED** | `quotes.controller.ts:111,135`: Both `updateQuote` and `sendQuote` now extract `tenantId`. `quotes.service.ts:337,397`: Both verify `quote.tenantId !== tenantId → 403`. |
+| BUG 9 | ✅ **FIXED** | `calendar.controller.ts`: All three endpoints extract `tenantId`. `calendar.service.ts:71-80`: `resolveArtistId` ADMIN path now fetches the artist and verifies `artist.tenantId === tenantId` (403 on mismatch). |
+| BUG 10 | ✅ **FIXED** | `notifications.controller.ts:148`: `sendTestEmail` extracts `tenantId`. `notifications.service.ts:375`: Verifies `template.tenantId !== tenantId → 403`. |
+| BUG 11 | ✅ **FIXED** | `waitlist.service.ts:114-124`: `joinWaitlist()` now resolves `tenantId` from `artistId` via `prisma.artist.findUnique({ select: { tenantId } })` and stores it on creation (line 157: `tenantId: resolvedTenantId`). |
+
+**Conclusion:** All 10 bugs (BUG 2–BUG 11) are fully fixed. No regressions found.
+
+---
+
+### Step 2 — Final Audit Sweep
+
+#### A) Tenant Isolation Completeness — ✅ All Clear
+
+All list AND single-record endpoints across all modules pass `tenantId` consistently. Verified:
+
+- **Bookings** — All 6 endpoints (list + 5 single-record) pass tenantId; `enforceTenantOwnership()` guard ✅
+- **Invoices** — All 5 endpoints (list + 4 single-record) pass tenantId; booking.tenantId check ✅
+- **Quotes** — All endpoints (create, list, get, update, send, accept, reject) pass tenantId ✅
+- **Waitlist** — All 5 admin endpoints pass tenantId; public `joinWaitlist` resolves from artist ✅
+- **Analytics** — All 9 endpoints (events + 8 analytics functions) pass tenantId ✅
+- **Notifications** — All 6 template CRUD endpoints + sendTestEmail pass tenantId ✅
+- **Email/SMS/WhatsApp Templates** — All CRUD endpoints pass tenantId ✅
+- **Calendar** — All 3 endpoints pass tenantId; artist ownership verification ✅
+- **Leads** — All endpoints (create, list, get, update status, update score) pass tenantId ✅
+- **Gift Cards** — Admin endpoints pass tenantId; public lookup guarded; redeem checks card.tenantId ✅
+- **Recurring Bookings** — All 4 endpoints pass tenantId ✅
+- **Settings** — Both GET and PATCH pass tenantId ✅
+- **Capture** — Public endpoint resolves tenantId from artistId ✅
+- **Payments, Tables, Products, POS, Payroll, Packages, Memberships, Campaigns, Loyalty, Rota, Locations, Sessions, Forms, Booking Photos, Health Flags, Customer Stats, Alerts, Social, Pricing Rules, AI Suggestions** — All previously verified clean; re-confirmed ✅
+- **SUPER_ADMIN** bypass is consistent: all tenant checks use `if (tenantId !== null && ...)` pattern, allowing SUPER_ADMIN (tenantId=null) unrestricted access as designed.
+
+#### B) Feature Flags / Control Centre — ✅ All Clear (with 1 new finding, see BUG 13)
+
+- **45 flags** in `FEATURE_FLAG_KEYS` (down from 46 — `SMS_ENABLED` correctly removed per BUG 2 fix).
+- **45/45 have runtime enforcement** (100% coverage):
+  - 32+ flags enforced via `requireFeature()` middleware on routes.
+  - 14+ flags enforced via `isFeatureEnabled()` in services/jobs/dispatchers.
+  - Multiple flags have dual enforcement (middleware + service layer).
+- **All 6 business types** have complete defaults for all 45 flags ✅.
+- **Per-tenant override support** confirmed via `@@unique([key, tenantId])` on FeatureFlag model with Redis caching (60s TTL) + DB fallback ✅.
+- **1 issue found:** AI suggestion job uses global-only flag check (see BUG 13 below).
+
+#### C) Templates and Messaging — ⚠️ 1 New Finding (BUG 12)
+
+- **Email Templates CRUD:** Tenant-isolated (all endpoints pass tenantId) ✅
+- **SMS Templates CRUD:** Tenant-isolated ✅
+- **WhatsApp Templates CRUD:** Tenant-isolated ✅
+- **SMS send-time usage:** `sms.queue.ts` uses `findFirst({ where: { key, tenantId } })` — tenant-scoped ✅
+- **WhatsApp send-time usage:** `whatsapp.queue.ts` uses `findFirst({ where: { key, tenantId } })` — tenant-scoped ✅
+- **Email send-time usage:** `sendEmail()` uses `findUnique({ where: { key } })` — **NOT tenant-scoped** ❌ (see BUG 12)
+- **Test-send:** `sendTestEmail` is tenant-isolated ✅
+- **Notification dispatcher:** `dispatchSms` and `dispatchWhatsApp` pass `tenantId` in job data ✅; `dispatchEmail` does NOT pass `tenantId` ❌ (related to BUG 12)
+
+#### D) Jobs & Automation — ⚠️ 1 New Finding (BUG 13)
+
+All 8 jobs verified:
+
+| Job | Registered in index.ts | Runtime Flag Check | Per-Tenant Gating |
+|-----|------------------------|-------------------|-------------------|
+| birthday.job.ts | ✅ | ✅ `BIRTHDAY_AUTOMATION_ENABLED` | ✅ tenantId passed |
+| campaign.job.ts | ✅ | ✅ `CAMPAIGNS_ENABLED` | ✅ tenantId passed |
+| no-show.job.ts | ✅ | ✅ `NO_SHOW_AUTOMATION_ENABLED` | ✅ tenantId passed |
+| rebook-nudge.job.ts | ✅ | ✅ `REBOOKING_NUDGES_ENABLED` | ✅ tenantId passed |
+| recurring-booking.job.ts | ✅ | ✅ `RECURRING_BOOKINGS_ENABLED` | ✅ tenantId passed |
+| waitlist-match.job.ts | ✅ | ✅ `WAITING_LIST_ENABLED` | ✅ tenantId passed |
+| invoice-overdue.job.ts | ✅ | ✅ (in service layer per-tenant) | ✅ per-tenant iteration |
+| ai-suggestion.job.ts | ✅ | ✅ `AI_SUGGESTIONS_ENABLED` | ❌ **global-only** (BUG 13) |
+
+- Invoice overdue processing does not cross tenants — `markOverdueInvoices()` iterates per-tenant with `booking: { tenantId }` filter ✅.
+- Review request queue: enqueue checks `isFeatureEnabled('REVIEW_REQUEST_ENABLED', params.tenantId)` ✅.
+
+#### E) Analytics and Tracking — ✅ All Clear
+
+- `trackEvent()` accepts optional `tenantId` parameter, resolves from lead when `leadId` provided, stores on every `AnalyticsEvent` ✅.
+- `listEvents()` accepts `tenantId`, applies `where: { tenantId }` filter when non-null ✅.
+- All 8 analytics endpoints (overview, leads, bookings, revenue, events, artists, services, customers) pass tenantId from controller to service with `...(tenantId !== null ? { tenantId } : {})` in aggregation queries ✅.
+
+#### F) Business Type Scaffolding — ✅ All Clear
+
+All 6 business types (tattoo_studio, hair_salon, barber, nail_salon, masseuse, restaurant) have complete flag defaults for all 45 flags. Every flag set to ON for any business type maps to an existing module/route/job:
+
+- Restaurant correctly restricts scope (booking, tables, waitlist, POS, analytics, rota, referrals, tips, gift cards, inventory, reviews, invoice automation, email/WhatsApp reminders, public booking, staff app).
+- Tattoo shop correctly enables quote system and disables service menu.
+- No business type enables a module that is missing wiring ✅.
+
+#### G) Operational Gap Analysis — ✅ No Operational Blockers
+
+- **Backfill scripts present:** `backfill-analyticsEvent-tenantId.ts` and `backfill-lead-tenantId.ts` exist for data migration ✅.
+- **No undocumented env-only toggles** requiring runtime migration ✅.
+- **No missing migrations** — schema changes have corresponding Prisma migration files ✅.
+
+---
+
+### New Findings
+
+---
+
+### BUG 12 — EmailTemplate Schema Uses `@unique` on `key` Alone, Preventing Per-Tenant Overrides; `sendEmail()` Is Not Tenant-Scoped
+
+**Severity:** Medium
+
+**Files:**
+- `backend/prisma/schema.prisma` — `model EmailTemplate`: `key String @unique`
+- `backend/src/modules/notifications/notifications.service.ts:285-346` (`sendEmail`)
+- `backend/src/lib/notification-dispatcher.ts:155-165` (`dispatchEmail`)
+
+**Issue:**
+The `EmailTemplate` model defines `key String @unique` (globally unique), while the `SmsTemplate` and `WhatsAppTemplate` models both define `@@unique([tenantId, key])` (unique per-tenant+key). This asymmetry means:
+
+1. **Per-tenant email template overrides are impossible at the schema level.** Only one template can exist per `key` across all tenants. If Tenant A creates a `booking-confirmed` template, Tenant B cannot create their own version — the DB unique constraint on `key` rejects it. The schema comment `tenantId String? // null = global default; non-null = per-tenant override` states per-tenant override is intended, but the `@unique` constraint prevents it.
+
+2. **`sendEmail(key, to, variables)` does not accept or use `tenantId`.** It calls `prisma.emailTemplate.findUnique({ where: { key } })` (line 290) — no tenant scoping. By contrast, the SMS queue processor uses `findFirst({ where: { key: jobName, tenantId: tenantId ?? null } })` and the WhatsApp queue processor does the same.
+
+3. **`dispatchEmail()` in `notification-dispatcher.ts:157` does not pass `tenantId` to `sendEmail()`.** Both `dispatchSms` (line 143) and `dispatchWhatsApp` (line 126) include `tenantId` in their job data, but `dispatchEmail` calls `sendEmail(payload.templateKey, payload.email!, payload.variables)` with no tenant context.
+
+**Impact:**
+Email template customization is broken for multi-tenant deployments:
+- **Admin CRUD limitation:** An admin who creates a template "owns" the key; no other tenant can create a template with the same key. The CRUD `createTemplate` function checks for duplicates with `{ key, tenantId }` (line 147-148), so it passes, but the DB `@unique` on `key` alone causes a constraint violation.
+- **Cross-tenant template leakage:** All tenants share the same email template content for a given key. If one admin customizes a `booking-confirmed` template, the change applies to emails sent for all tenants.
+- **Inconsistency with SMS/WhatsApp:** SMS and WhatsApp templates correctly support per-tenant overrides; email templates do not. This is a CRM manageability asymmetry.
+
+**Evidence:**
+- `schema.prisma` `EmailTemplate`: `key String @unique` — global uniqueness.
+- `schema.prisma` `SmsTemplate`: `@@unique([tenantId, key])` — per-tenant uniqueness.
+- `schema.prisma` `WhatsAppTemplate`: `@@unique([tenantId, key])` — per-tenant uniqueness.
+- `notifications.service.ts:290`: `prisma.emailTemplate.findUnique({ where: { key } })` — no tenantId.
+- `notifications.service.ts:143`: `createTemplate` comment: "The key must be unique within the tenant" — contradicts actual schema.
+- `notification-dispatcher.ts:157`: `sendEmail(payload.templateKey, payload.email!, payload.variables)` — no tenantId passed.
+- `notification-dispatcher.ts:143`: `dispatchSms` passes `tenantId: payload.tenantId` ✅.
+- `notification-dispatcher.ts:126`: `dispatchWhatsApp` passes `tenantId: payload.tenantId` ✅.
+
+**Recommended Fix:**
+1. **Schema:** Change `EmailTemplate` from `key String @unique` to `@@unique([tenantId, key])` (matching SMS/WhatsApp pattern). This requires a Prisma migration.
+2. **`sendEmail()`:** Add a `tenantId` parameter. Change lookup to `prisma.emailTemplate.findFirst({ where: { key, tenantId: tenantId ?? null, isActive: true } })`.
+3. **`dispatchEmail()`:** Pass `payload.tenantId` to `sendEmail()` (matching `dispatchSms`/`dispatchWhatsApp`).
+
+---
+
+### BUG 13 — AI Suggestion Job Uses Global-Only Feature Flag Check (No Per-Tenant Gating)
+
+**Severity:** Low
+
+**Files:**
+- `backend/src/jobs/ai-suggestion.job.ts:70-78` (`enqueueAISuggestion` — global check)
+- `backend/src/jobs/ai-suggestion.job.ts:83-90` (`processAISuggestionJob` — global check)
+
+**Issue:**
+Both the enqueue function and the job processor check `isFeatureEnabled('AI_SUGGESTIONS_ENABLED')` without passing a `tenantId`:
+
+- `enqueueAISuggestion` (line 71): `isFeatureEnabled('AI_SUGGESTIONS_ENABLED')` — global only.
+- `processAISuggestionJob` (line 86): `isFeatureEnabled('AI_SUGGESTIONS_ENABLED')` — global only.
+
+The booking data (which contains `tenantId`, line 97) is fetched AFTER the flag check (line 92), so the tenant context is not available at the point of the flag decision. All other jobs (birthday, campaign, no-show, rebook-nudge, recurring-booking, waitlist-match) pass `tenantId` to `isFeatureEnabled()` for per-tenant gating.
+
+**Impact:**
+If a tenant disables `AI_SUGGESTIONS_ENABLED` via a per-tenant override in the Control Centre, AI suggestions are still generated for that tenant's bookings because the global flag (which remains ON for other tenants) gates the check. The per-tenant override is silently ignored. This is inconsistent with the per-tenant flag model used by all other jobs.
+
+**Evidence:**
+- `ai-suggestion.job.ts:71`: `isFeatureEnabled('AI_SUGGESTIONS_ENABLED')` — no tenantId.
+- `ai-suggestion.job.ts:86`: `isFeatureEnabled('AI_SUGGESTIONS_ENABLED')` — no tenantId.
+- `ai-suggestion.job.ts:97`: `tenantId: true` in select — tenant data is fetched but not used for flag check.
+- Compare: `birthday.job.ts:123`: `isFeatureEnabled('BIRTHDAY_AUTOMATION_ENABLED', tenantId)` — tenantId passed ✅.
+- Compare: `campaign.job.ts:157`: `isFeatureEnabled('CAMPAIGNS_ENABLED', tenantId)` — tenantId passed ✅.
+- Compare: `waitlist-match.job.ts:91`: `isFeatureEnabled('WAITING_LIST_ENABLED', tenantId)` — tenantId passed ✅.
+
+**Recommended Fix:**
+1. **`enqueueAISuggestion`:** Accept `tenantId` parameter (from the booking context in `completeBooking`) and pass to `isFeatureEnabled('AI_SUGGESTIONS_ENABLED', tenantId)`.
+2. **`processAISuggestionJob`:** Move the booking fetch before the flag check, then use `booking.tenantId` in `isFeatureEnabled('AI_SUGGESTIONS_ENABLED', booking.tenantId)`.
+
+---
+
+### Final Summary
+
+| Bug | Severity | Category | One-Line Summary | Status |
+|-----|----------|----------|------------------|--------|
+| BUG 1 | Low | Testing | 2 tests missing vs baseline (1754 vs 1756) | Unchanged |
+| BUG 2 | Medium | Feature Flags | SMS_ENABLED flag defined but never enforced at runtime | ✅ **FIXED** |
+| BUG 3 | Medium | CRM/Notifications | WhatsApp processor uses hardcoded messages, ignores editable templates | ✅ **FIXED** |
+| BUG 4 | High | Security/Tenant | Booking single-record endpoints lack tenant isolation for ADMIN users | ✅ **FIXED** |
+| BUG 5 | Low | Automations | Invoice overdue job has global-only flag check, no per-tenant support | ✅ **FIXED** |
+| BUG 6 | High | Security/Tenant | Waitlist admin endpoints have zero tenant isolation | ✅ **FIXED** |
+| BUG 7 | High | Security/Tenant | Invoice single-record endpoints missing tenant isolation | ✅ **FIXED** |
+| BUG 8 | High | Security/Tenant | Quote updateQuote and sendQuote missing tenant isolation | ✅ **FIXED** |
+| BUG 9 | Medium | Security/Tenant | Calendar endpoints allow ADMIN cross-tenant artist access | ✅ **FIXED** |
+| BUG 10 | Medium | Security/Tenant | sendTestEmail bypasses tenant isolation on template lookup | ✅ **FIXED** |
+| BUG 11 | Medium | Data Integrity | joinWaitlist never populates tenantId, breaking smart-match flow | ✅ **FIXED** |
+| **BUG 12** | **Medium** | **CRM/Tenant** | **EmailTemplate `key @unique` prevents per-tenant overrides; `sendEmail()` not tenant-scoped** | **NEW** |
+| **BUG 13** | **Low** | **Feature Flags** | **AI suggestion job global-only flag check ignores per-tenant overrides** | **NEW** |
+
+**Post-fix status: 10/11 bugs fixed. 2 new findings (1 Medium, 1 Low). System is substantially improved — all High-severity tenant isolation bugs resolved.**
