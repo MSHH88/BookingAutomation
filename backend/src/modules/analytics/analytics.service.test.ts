@@ -161,7 +161,7 @@ beforeEach(() => {
 
 describe('trackEvent', () => {
   it('records event with all fields when leadId resolves', async () => {
-    mockLeadFindUnique.mockResolvedValue({ id: 'lead_1' });
+    mockLeadFindUnique.mockResolvedValue({ id: 'lead_1', tenantId: 'tenant_1' });
     mockAnalyticsEventCreate.mockResolvedValue({ id: 'evt_1' });
 
     const result = await trackEvent(
@@ -185,6 +185,7 @@ describe('trackEvent', () => {
         data: expect.objectContaining({
           eventType:   'PAGE_VIEW',
           leadId:      'lead_1',
+          tenantId:    'tenant_1',
           ipAddress:   '1.2.3.4',
           userAgent:   'Mozilla/5.0',
           utmSource:   'google',
@@ -224,6 +225,25 @@ describe('trackEvent', () => {
     await trackEvent({ eventType: 'PAGE_VIEW' });
     const createCall = mockAnalyticsEventCreate.mock.calls[0][0] as { data: { eventType: string } };
     expect(createCall.data.eventType).toBe('PAGE_VIEW');
+  });
+
+  it('resolves tenantId from lead when leadId is provided', async () => {
+    mockLeadFindUnique.mockResolvedValue({ id: 'lead_2', tenantId: 'tenant_42' });
+    await trackEvent({ eventType: 'FORM_SUBMIT', leadId: 'lead_2' });
+    const createCall = mockAnalyticsEventCreate.mock.calls[0][0] as { data: { tenantId: string | null } };
+    expect(createCall.data.tenantId).toBe('tenant_42');
+  });
+
+  it('uses caller tenantId when no leadId is provided', async () => {
+    await trackEvent({ eventType: 'PAGE_VIEW' }, undefined, undefined, 'tenant_99');
+    const createCall = mockAnalyticsEventCreate.mock.calls[0][0] as { data: { tenantId: string | null } };
+    expect(createCall.data.tenantId).toBe('tenant_99');
+  });
+
+  it('tenantId is null when no lead and no caller context', async () => {
+    await trackEvent({ eventType: 'PAGE_VIEW' });
+    const createCall = mockAnalyticsEventCreate.mock.calls[0][0] as { data: { tenantId: string | null } };
+    expect(createCall.data.tenantId).toBeNull();
   });
 });
 

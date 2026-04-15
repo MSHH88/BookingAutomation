@@ -178,16 +178,20 @@ export async function trackEvent(
   body:      TrackEventBody,
   ipAddress?: string,
   userAgent?: string,
+  tenantId?:  string | null,
 ): Promise<{ recorded: boolean }> {
   // Soft-link: verify leadId exists; degrade gracefully if it does not.
   let resolvedLeadId: string | null = null;
+  let resolvedTenantId: string | null = tenantId ?? null;
   if (body.leadId) {
-    const exists = await prisma.lead.findUnique({
+    const lead = await prisma.lead.findUnique({
       where:  { id: body.leadId },
-      select: { id: true },
+      select: { id: true, tenantId: true },
     });
-    if (exists) {
+    if (lead) {
       resolvedLeadId = body.leadId;
+      // Prefer tenantId from the lead when available (most accurate)
+      if (lead.tenantId) resolvedTenantId = lead.tenantId;
     } else {
       logger.warn('trackEvent: leadId not found — persisting without lead link', {
         leadId:    body.leadId,
@@ -200,6 +204,7 @@ export async function trackEvent(
     data: {
       eventType:   body.eventType.toUpperCase().replace(/\s+/g, '_'),
       leadId:      resolvedLeadId,
+      tenantId:    resolvedTenantId,
       sessionId:   body.sessionId   ?? null,
       payload:     body.payload     ? (body.payload as Prisma.InputJsonValue) : Prisma.JsonNull,
       referrer:    body.referrer    ?? null,

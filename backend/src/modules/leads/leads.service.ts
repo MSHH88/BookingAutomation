@@ -290,6 +290,7 @@ export async function createLead(
           data: {
             eventType:   'LEAD_CREATED',
             leadId:      created.id,
+            tenantId:    resolvedTenantId,
             ipAddress:   created.ipAddress  ?? null,
             utmSource:   created.utmSource  ?? null,
             utmMedium:   created.utmMedium  ?? null,
