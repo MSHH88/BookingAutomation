@@ -240,6 +240,29 @@ describe('joinWaitlist', () => {
     expect(createCall.data.requestedDate).toBeInstanceOf(Date);
     expect(createCall.data.requestedDate.toISOString()).toBe('2026-05-01T00:00:00.000Z');
   });
+
+  it('persists tenantId resolved from artistId on create', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
+    mockWaitlistFindFirst.mockResolvedValueOnce(null);
+    mockWaitlistCreate.mockResolvedValue(baseEntry);
+
+    await waitlistService.joinWaitlist(joinBody);
+
+    const createCall = mockWaitlistCreate.mock.calls[0][0];
+    expect(createCall.data.tenantId).toBe('tenant_1');
+  });
+
+  it('leaves tenantId null when artistId is not provided', async () => {
+    mockWaitlistFindFirst.mockResolvedValueOnce(null);
+    mockWaitlistCreate.mockResolvedValue({ ...baseEntry, artistId: null, tenantId: null });
+
+    const bodyWithoutArtist = { ...joinBody, artistId: undefined };
+    await waitlistService.joinWaitlist(bodyWithoutArtist);
+
+    expect(mockArtistFindUnique).not.toHaveBeenCalled();
+    const createCall = mockWaitlistCreate.mock.calls[0][0];
+    expect(createCall.data.tenantId).toBeNull();
+  });
 });
 
 // ─── listWaitlist ─────────────────────────────────────────────────────────────

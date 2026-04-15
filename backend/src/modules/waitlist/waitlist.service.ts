@@ -123,6 +123,8 @@ export async function joinWaitlist(
     }
     resolvedTenantId = artist.tenantId ?? null;
   }
+  // NOTE: Generic entries without artistId cannot be matched by matchAndNotify
+  // because it scopes by tenantId. tenantId will remain null for these entries.
 
   // ── Deduplication check ───────────────────────────────────────────────────
   const duplicate = await prisma.waitlistEntry.findFirst({
