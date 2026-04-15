@@ -1,3 +1,36 @@
+# ✅ ANSWER: Yes — New Tests WERE Introduced in BUG 1–13!
+
+**The claim that the test output should remain at 100 suites / 1754 tests was WRONG.**
+
+The BUG 1–13 fixes introduced **2 brand-new test files** (adding 2 new test suites) and **added new `it()` test cases to 8 existing test files**. The correct expected output after applying all BUG 1–13 fixes is:
+
+```
+Test Suites: 102 passed, 102 total   (was 100 → +2 new suites)
+Tests:       ~1820 passed             (was 1754 → +66 new test cases)
+```
+
+### New test files added by BUG fixes:
+| New file | BUG | Tests added |
+|----------|-----|-------------|
+| `backend/src/jobs/ai-suggestion.job.test.ts` | BUG 13 | 3 tests |
+| `backend/src/modules/whatsapp/whatsapp.queue.test.ts` | BUG 3 | 3 tests |
+
+### Existing test files updated with new tests:
+| File | BUG(s) | What was added |
+|------|--------|----------------|
+| `bookings.service.test.ts` | BUG 4 | Tenant isolation tests |
+| `calendar.service.test.ts` | BUG 9 | Tenant isolation tests |
+| `invoices.service.test.ts` | BUG 5, 7 | Tenant isolation tests |
+| `notifications.service.test.ts` | BUG 10, 12 | Tenant-scoped email tests |
+| `public.test.ts` | BUG 4 | Updated booking signatures |
+| `quotes.service.test.ts` | BUG 8 | Tenant isolation tests |
+| `social.test.ts` | BUG 4 | Updated booking signatures |
+| `waitlist.service.test.ts` | BUG 6, 11 | Tenant isolation tests |
+
+**If you still see 100 suites / 1754 tests after downloading all files, it means the new test files (`ai-suggestion.job.test.ts` and `whatsapp.queue.test.ts`) or the updated test files were not correctly applied. Re-download and verify those files exist on disk.**
+
+---
+
 # ⚠️ FAQ — Common Questions
 
 ## Q1: Why does `rmdir … 2>/dev/null` give `zsh: unknown file attribute` errors?
