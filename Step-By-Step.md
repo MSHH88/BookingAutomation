@@ -220,3 +220,30 @@ If TypeScript type checking is needed:
 ```bash
 npx tsc --noEmit
 ```
+
+---
+
+## Expected Output After Step 6 (`npm test`)
+
+A successful run should look like:
+
+```text
+Test Suites: 100 passed, 100 total
+Tests:       1754 passed, 1754 total
+Snapshots:   0 total
+Time:        <varies>
+Ran all test suites.
+```
+
+> **Note (BUG 1 — Test Count Discrepancy):**
+> The `bugsphase.md` baseline documents **1756 tests** across 100 suites.
+> The current HEAD produces **1754 tests** across 100 suites — 2 tests are
+> missing (see BUG 1 in `LastAudits.md` for details). If your test count
+> differs from the value above, it may indicate an additional regression or
+> a partial fix for BUG 1. Please report any mismatch.
+
+**Common failure signals to watch for:**
+
+- Any line starting with `FAIL` (e.g., `FAIL src/modules/bookings/bookings.test.ts`) — indicates a failing test suite.
+- Non-zero exit code from `npm test` — the process exits with code 1 on any test failure.
+- `"Jest did not exit one second after the test run has completed"` — usually means an open handle (DB connection, Redis client, or timer) was not cleaned up in a test's `afterAll`.
