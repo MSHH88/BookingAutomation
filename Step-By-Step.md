@@ -1,210 +1,500 @@
-# Phase 9 — Scale & Growth (Multi-Location Support + Group Bookings)
+# Step-By-Step Guide — Phase 1–3 + AUDIT-001..026
 
-**Phase 9 sub-phases:**  9.1 Multi-Location Support · 9.2 Group / Class Bookings
-
-**Files changed:**
-- 3 modified (`backend/prisma/schema.prisma`, `backend/src/app.ts`, `backend/src/config/businessType.ts`)
-- 10 new files created (see full list in Step 4)
-
-**New feature flags:** `MULTI_LOCATION_ENABLED`, `GROUP_BOOKING_ENABLED`  
-**New DB models:** `Location`, `Session`, `SessionBooking`; new `locationId` field on `Artist`, `Service`, `Table`, `Booking`  
-**Expected result:** 100 test suites, 1756/1756 tests, 0 TS errors.
+> **Scope:** All bug-fix and audit changes from Phase 1–3 and AUDIT-001 through AUDIT-026.
+> **Branch:** `copilot/create-detailed-automation-plan`
+> **Total files:** 8 created + 121 modified = 129 backend files.
 
 ---
 
-## Step 1 — Open Terminal and navigate to your project
+## Definitive File Lists
 
-```bash
-cd ~/Desktop/Automation/backend
-```
+### Created Files (8)
+
+| # | Path | Origin |
+|---|------|--------|
+| 1 | `backend/prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql` | Phase 3 (FINDING-016) |
+| 2 | `backend/prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql` | Phase 3 (FINDING-011) |
+| 3 | `backend/src/jobs/invoice-overdue.job.ts` | AUDIT-023 |
+| 4 | `backend/src/modules/auth/auth.email.processor.ts` | Phase 1 (FINDING-002) |
+| 5 | `backend/src/modules/auth/auth.email.queue.ts` | Phase 1 (FINDING-002) |
+| 6 | `backend/src/scripts/backfill-analyticsEvent-tenantId.ts` | AUDIT-025 |
+| 7 | `backend/src/scripts/backfill-lead-tenantId.ts` | AUDIT-019 |
+| 8 | `backend/src/utils/extractTenantId.ts` | Phase 2 (FINDING-019/028/030) |
+
+### Modified Files (121)
+
+| # | Path |
+|---|------|
+| 1 | `backend/prisma/schema.prisma` |
+| 2 | `backend/src/app.ts` |
+| 3 | `backend/src/config/businessType.test.ts` |
+| 4 | `backend/src/config/businessType.ts` |
+| 5 | `backend/src/config/index.ts` |
+| 6 | `backend/src/jobs/ai-suggestion.job.ts` |
+| 7 | `backend/src/jobs/birthday.job.ts` |
+| 8 | `backend/src/jobs/campaign.job.ts` |
+| 9 | `backend/src/jobs/index.ts` |
+| 10 | `backend/src/jobs/no-show.job.ts` |
+| 11 | `backend/src/jobs/rebook-nudge.job.ts` |
+| 12 | `backend/src/jobs/recurring-booking.job.ts` |
+| 13 | `backend/src/jobs/waitlist-match.job.ts` |
+| 14 | `backend/src/lib/notification-dispatcher.ts` |
+| 15 | `backend/src/lib/redis.ts` |
+| 16 | `backend/src/middleware/auth.ts` |
+| 17 | `backend/src/middleware/captcha.ts` |
+| 18 | `backend/src/middleware/requireFeature.ts` |
+| 19 | `backend/src/modules/admin/admin.controller.ts` |
+| 20 | `backend/src/modules/admin/admin.schema.ts` |
+| 21 | `backend/src/modules/admin/admin.service.test.ts` |
+| 22 | `backend/src/modules/admin/admin.service.ts` |
+| 23 | `backend/src/modules/ai/ai.controller.ts` |
+| 24 | `backend/src/modules/alerts/alerts.controller.ts` |
+| 25 | `backend/src/modules/alerts/alerts.service.ts` |
+| 26 | `backend/src/modules/analytics/analytics.controller.ts` |
+| 27 | `backend/src/modules/analytics/analytics.service.test.ts` |
+| 28 | `backend/src/modules/analytics/analytics.service.ts` |
+| 29 | `backend/src/modules/artists/artist-media.controller.ts` |
+| 30 | `backend/src/modules/artists/artist-media.service.ts` |
+| 31 | `backend/src/modules/auth/auth.controller.ts` |
+| 32 | `backend/src/modules/auth/auth.routes.ts` |
+| 33 | `backend/src/modules/auth/auth.service.test.ts` |
+| 34 | `backend/src/modules/auth/auth.service.ts` |
+| 35 | `backend/src/modules/availability/availability.controller.ts` |
+| 36 | `backend/src/modules/booking-photos/booking-photos.controller.ts` |
+| 37 | `backend/src/modules/booking-photos/booking-photos.service.ts` |
+| 38 | `backend/src/modules/bookings/bookings.controller.ts` |
+| 39 | `backend/src/modules/bookings/bookings.service.test.ts` |
+| 40 | `backend/src/modules/bookings/bookings.service.ts` |
+| 41 | `backend/src/modules/calendar/apple-calendar.service.ts` |
+| 42 | `backend/src/modules/calendar/calendar.service.ts` |
+| 43 | `backend/src/modules/calendar/outlook-calendar.service.ts` |
+| 44 | `backend/src/modules/campaigns/campaigns.controller.ts` |
+| 45 | `backend/src/modules/capture/capture.schema.ts` |
+| 46 | `backend/src/modules/capture/capture.service.ts` |
+| 47 | `backend/src/modules/customer-stats/customer-stats.controller.ts` |
+| 48 | `backend/src/modules/customer-stats/customer-stats.service.ts` |
+| 49 | `backend/src/modules/customers/customers.service.ts` |
+| 50 | `backend/src/modules/email-templates/email-templates.controller.ts` |
+| 51 | `backend/src/modules/forms/forms.controller.ts` |
+| 52 | `backend/src/modules/forms/forms.service.ts` |
+| 53 | `backend/src/modules/gift-cards/gift-cards.controller.ts` |
+| 54 | `backend/src/modules/gift-cards/gift-cards.service.ts` |
+| 55 | `backend/src/modules/health-flags/health-flags.controller.ts` |
+| 56 | `backend/src/modules/health-flags/health-flags.service.ts` |
+| 57 | `backend/src/modules/invoices/invoices.controller.ts` |
+| 58 | `backend/src/modules/invoices/invoices.service.ts` |
+| 59 | `backend/src/modules/leads/leads.controller.ts` |
+| 60 | `backend/src/modules/leads/leads.schema.ts` |
+| 61 | `backend/src/modules/leads/leads.service.test.ts` |
+| 62 | `backend/src/modules/leads/leads.service.ts` |
+| 63 | `backend/src/modules/leads/leads.test.ts` |
+| 64 | `backend/src/modules/locations/locations.controller.ts` |
+| 65 | `backend/src/modules/locations/locations.schema.ts` |
+| 66 | `backend/src/modules/locations/locations.service.ts` |
+| 67 | `backend/src/modules/loyalty/loyalty.controller.ts` |
+| 68 | `backend/src/modules/loyalty/loyalty.service.ts` |
+| 69 | `backend/src/modules/memberships/memberships.controller.ts` |
+| 70 | `backend/src/modules/notifications/notifications.controller.ts` |
+| 71 | `backend/src/modules/notifications/notifications.service.ts` |
+| 72 | `backend/src/modules/packages/packages.controller.ts` |
+| 73 | `backend/src/modules/packages/packages.service.ts` |
+| 74 | `backend/src/modules/payments/payments.controller.ts` |
+| 75 | `backend/src/modules/payments/payments.service.ts` |
+| 76 | `backend/src/modules/payroll/payroll.controller.ts` |
+| 77 | `backend/src/modules/payroll/payroll.routes.ts` |
+| 78 | `backend/src/modules/pos/pos.controller.ts` |
+| 79 | `backend/src/modules/pos/pos.service.ts` |
+| 80 | `backend/src/modules/pricing/pricing.controller.ts` |
+| 81 | `backend/src/modules/pricing/pricing.schema.ts` |
+| 82 | `backend/src/modules/pricing/pricing.service.ts` |
+| 83 | `backend/src/modules/products/products.controller.ts` |
+| 84 | `backend/src/modules/products/products.service.ts` |
+| 85 | `backend/src/modules/public/public.routes.ts` |
+| 86 | `backend/src/modules/public/public.service.test.ts` |
+| 87 | `backend/src/modules/public/public.service.ts` |
+| 88 | `backend/src/modules/public/public.test.ts` |
+| 89 | `backend/src/modules/push/push.routes.ts` |
+| 90 | `backend/src/modules/quotes/quotes.controller.ts` |
+| 91 | `backend/src/modules/quotes/quotes.service.ts` |
+| 92 | `backend/src/modules/recurring-bookings/recurring-bookings.controller.ts` |
+| 93 | `backend/src/modules/recurring-bookings/recurring-bookings.routes.ts` |
+| 94 | `backend/src/modules/recurring-bookings/recurring-bookings.schema.ts` |
+| 95 | `backend/src/modules/recurring-bookings/recurring-bookings.service.ts` |
+| 96 | `backend/src/modules/recurring-bookings/recurring-bookings.test.ts` |
+| 97 | `backend/src/modules/referrals/referrals.controller.ts` |
+| 98 | `backend/src/modules/referrals/referrals.service.ts` |
+| 99 | `backend/src/modules/reminders/reminders.queue.ts` |
+| 100 | `backend/src/modules/reviews/reviews.queue.ts` |
+| 101 | `backend/src/modules/roles/roles.controller.ts` |
+| 102 | `backend/src/modules/roles/roles.service.test.ts` |
+| 103 | `backend/src/modules/roles/roles.service.ts` |
+| 104 | `backend/src/modules/rota/rota.controller.ts` |
+| 105 | `backend/src/modules/rota/rota.service.ts` |
+| 106 | `backend/src/modules/sessions/sessions.controller.ts` |
+| 107 | `backend/src/modules/sessions/sessions.schema.ts` |
+| 108 | `backend/src/modules/sessions/sessions.service.ts` |
+| 109 | `backend/src/modules/settings/settings.controller.ts` |
+| 110 | `backend/src/modules/settings/settings.service.ts` |
+| 111 | `backend/src/modules/sms-templates/sms-templates.controller.ts` |
+| 112 | `backend/src/modules/social/social.controller.ts` |
+| 113 | `backend/src/modules/social/social.service.ts` |
+| 114 | `backend/src/modules/social/social.test.ts` |
+| 115 | `backend/src/modules/tables/tables.controller.ts` |
+| 116 | `backend/src/modules/tables/tables.service.ts` |
+| 117 | `backend/src/modules/webhooks/webhooks.controller.ts` |
+| 118 | `backend/src/modules/webhooks/webhooks.service.ts` |
+| 119 | `backend/src/modules/whatsapp-templates/whatsapp-templates.controller.ts` |
+| 120 | `backend/src/modules/whatsapp/whatsapp.service.ts` |
+| 121 | `backend/src/server.ts` |
 
 ---
 
-## Step 2 — Create new directories
+## Step 1 — Delete (reset local files)
+
+Run from `~/Desktop/Automation/backend`:
 
 ```bash
-mkdir -p src/modules/locations
-mkdir -p src/modules/sessions
-```
+# --- Created files (8) ---
+rm -f prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql
+rm -f prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql
+rm -f src/jobs/invoice-overdue.job.ts
+rm -f src/modules/auth/auth.email.processor.ts
+rm -f src/modules/auth/auth.email.queue.ts
+rm -f src/scripts/backfill-analyticsEvent-tenantId.ts
+rm -f src/scripts/backfill-lead-tenantId.ts
+rm -f src/utils/extractTenantId.ts
 
-*(These directories are new — `mkdir -p` is safe to run even if they already exist.)*
-
----
-
-## Step 3 — Remove files that will be replaced (modified files)
-
-```bash
-# Modified existing files — remove before downloading fresh copies
+# --- Modified files (121) ---
 rm -f prisma/schema.prisma
 rm -f src/app.ts
+rm -f src/config/businessType.test.ts
 rm -f src/config/businessType.ts
+rm -f src/config/index.ts
+rm -f src/jobs/ai-suggestion.job.ts
+rm -f src/jobs/birthday.job.ts
+rm -f src/jobs/campaign.job.ts
+rm -f src/jobs/index.ts
+rm -f src/jobs/no-show.job.ts
+rm -f src/jobs/rebook-nudge.job.ts
+rm -f src/jobs/recurring-booking.job.ts
+rm -f src/jobs/waitlist-match.job.ts
+rm -f src/lib/notification-dispatcher.ts
+rm -f src/lib/redis.ts
+rm -f src/middleware/auth.ts
+rm -f src/middleware/captcha.ts
+rm -f src/middleware/requireFeature.ts
+rm -f src/modules/admin/admin.controller.ts
+rm -f src/modules/admin/admin.schema.ts
+rm -f src/modules/admin/admin.service.test.ts
+rm -f src/modules/admin/admin.service.ts
+rm -f src/modules/ai/ai.controller.ts
+rm -f src/modules/alerts/alerts.controller.ts
+rm -f src/modules/alerts/alerts.service.ts
+rm -f src/modules/analytics/analytics.controller.ts
+rm -f src/modules/analytics/analytics.service.test.ts
+rm -f src/modules/analytics/analytics.service.ts
+rm -f src/modules/artists/artist-media.controller.ts
+rm -f src/modules/artists/artist-media.service.ts
+rm -f src/modules/auth/auth.controller.ts
+rm -f src/modules/auth/auth.routes.ts
+rm -f src/modules/auth/auth.service.test.ts
+rm -f src/modules/auth/auth.service.ts
+rm -f src/modules/availability/availability.controller.ts
+rm -f src/modules/booking-photos/booking-photos.controller.ts
+rm -f src/modules/booking-photos/booking-photos.service.ts
+rm -f src/modules/bookings/bookings.controller.ts
+rm -f src/modules/bookings/bookings.service.test.ts
+rm -f src/modules/bookings/bookings.service.ts
+rm -f src/modules/calendar/apple-calendar.service.ts
+rm -f src/modules/calendar/calendar.service.ts
+rm -f src/modules/calendar/outlook-calendar.service.ts
+rm -f src/modules/campaigns/campaigns.controller.ts
+rm -f src/modules/capture/capture.schema.ts
+rm -f src/modules/capture/capture.service.ts
+rm -f src/modules/customer-stats/customer-stats.controller.ts
+rm -f src/modules/customer-stats/customer-stats.service.ts
+rm -f src/modules/customers/customers.service.ts
+rm -f src/modules/email-templates/email-templates.controller.ts
+rm -f src/modules/forms/forms.controller.ts
+rm -f src/modules/forms/forms.service.ts
+rm -f src/modules/gift-cards/gift-cards.controller.ts
+rm -f src/modules/gift-cards/gift-cards.service.ts
+rm -f src/modules/health-flags/health-flags.controller.ts
+rm -f src/modules/health-flags/health-flags.service.ts
+rm -f src/modules/invoices/invoices.controller.ts
+rm -f src/modules/invoices/invoices.service.ts
+rm -f src/modules/leads/leads.controller.ts
+rm -f src/modules/leads/leads.schema.ts
+rm -f src/modules/leads/leads.service.test.ts
+rm -f src/modules/leads/leads.service.ts
+rm -f src/modules/leads/leads.test.ts
+rm -f src/modules/locations/locations.controller.ts
+rm -f src/modules/locations/locations.schema.ts
+rm -f src/modules/locations/locations.service.ts
+rm -f src/modules/loyalty/loyalty.controller.ts
+rm -f src/modules/loyalty/loyalty.service.ts
+rm -f src/modules/memberships/memberships.controller.ts
+rm -f src/modules/notifications/notifications.controller.ts
+rm -f src/modules/notifications/notifications.service.ts
+rm -f src/modules/packages/packages.controller.ts
+rm -f src/modules/packages/packages.service.ts
+rm -f src/modules/payments/payments.controller.ts
+rm -f src/modules/payments/payments.service.ts
+rm -f src/modules/payroll/payroll.controller.ts
+rm -f src/modules/payroll/payroll.routes.ts
+rm -f src/modules/pos/pos.controller.ts
+rm -f src/modules/pos/pos.service.ts
+rm -f src/modules/pricing/pricing.controller.ts
+rm -f src/modules/pricing/pricing.schema.ts
+rm -f src/modules/pricing/pricing.service.ts
+rm -f src/modules/products/products.controller.ts
+rm -f src/modules/products/products.service.ts
+rm -f src/modules/public/public.routes.ts
+rm -f src/modules/public/public.service.test.ts
+rm -f src/modules/public/public.service.ts
+rm -f src/modules/public/public.test.ts
+rm -f src/modules/push/push.routes.ts
+rm -f src/modules/quotes/quotes.controller.ts
+rm -f src/modules/quotes/quotes.service.ts
+rm -f src/modules/recurring-bookings/recurring-bookings.controller.ts
+rm -f src/modules/recurring-bookings/recurring-bookings.routes.ts
+rm -f src/modules/recurring-bookings/recurring-bookings.schema.ts
+rm -f src/modules/recurring-bookings/recurring-bookings.service.ts
+rm -f src/modules/recurring-bookings/recurring-bookings.test.ts
+rm -f src/modules/referrals/referrals.controller.ts
+rm -f src/modules/referrals/referrals.service.ts
+rm -f src/modules/reminders/reminders.queue.ts
+rm -f src/modules/reviews/reviews.queue.ts
+rm -f src/modules/roles/roles.controller.ts
+rm -f src/modules/roles/roles.service.test.ts
+rm -f src/modules/roles/roles.service.ts
+rm -f src/modules/rota/rota.controller.ts
+rm -f src/modules/rota/rota.service.ts
+rm -f src/modules/sessions/sessions.controller.ts
+rm -f src/modules/sessions/sessions.schema.ts
+rm -f src/modules/sessions/sessions.service.ts
+rm -f src/modules/settings/settings.controller.ts
+rm -f src/modules/settings/settings.service.ts
+rm -f src/modules/sms-templates/sms-templates.controller.ts
+rm -f src/modules/social/social.controller.ts
+rm -f src/modules/social/social.service.ts
+rm -f src/modules/social/social.test.ts
+rm -f src/modules/tables/tables.controller.ts
+rm -f src/modules/tables/tables.service.ts
+rm -f src/modules/webhooks/webhooks.controller.ts
+rm -f src/modules/webhooks/webhooks.service.ts
+rm -f src/modules/whatsapp-templates/whatsapp-templates.controller.ts
+rm -f src/modules/whatsapp/whatsapp.service.ts
+rm -f src/server.ts
+
+# --- Clean up empty directories (created files only) ---
+rmdir --ignore-fail-on-non-empty prisma/migrations/20260414000001_remove_gift_voucher_enabled 2>/dev/null
+rmdir --ignore-fail-on-non-empty prisma/migrations/20260414000002_feature_flag_per_tenant_unique 2>/dev/null
+rmdir --ignore-fail-on-non-empty src/scripts 2>/dev/null
+rmdir --ignore-fail-on-non-empty src/utils 2>/dev/null
 ```
 
 ---
 
-## Step 4 — Download all Phase 9 files
+## Step 2 — Create directories (mkdir -p)
 
-Run the commands below from inside `~/Desktop/Automation/backend`.  
-Each command prints `OK` or `FAILED` — all must show `OK` before continuing.
+```bash
+mkdir -p prisma/migrations/20260414000001_remove_gift_voucher_enabled
+mkdir -p prisma/migrations/20260414000002_feature_flag_per_tenant_unique
+mkdir -p src/jobs
+mkdir -p src/modules/auth
+mkdir -p src/scripts
+mkdir -p src/utils
+```
+
+---
+
+## Step 3 — Download NEW files (8 created files)
 
 ```bash
 BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
 ```
 
-### 4a — Modified existing files (3 files)
-
 ```bash
-curl -sfL -o prisma/schema.prisma                              "$BASE/prisma/schema.prisma"                                          && echo "OK  prisma/schema.prisma"                                          || echo "FAILED  prisma/schema.prisma"
-curl -sfL -o src/app.ts                                        "$BASE/src/app.ts"                                                     && echo "OK  src/app.ts"                                                    || echo "FAILED  src/app.ts"
-curl -sfL -o src/config/businessType.ts                        "$BASE/src/config/businessType.ts"                                     && echo "OK  src/config/businessType.ts"                                    || echo "FAILED  src/config/businessType.ts"
-```
+curl -L -o prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql "$BASE/prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql" && echo "OK  migration (remove_gift_voucher)" || echo "FAILED  migration (remove_gift_voucher)"
 
-### 4b — New files: Phase 9.1 — Multi-Location Support (5 files)
+curl -L -o prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql "$BASE/prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql" && echo "OK  migration (feature_flag_per_tenant)" || echo "FAILED  migration (feature_flag_per_tenant)"
 
-```bash
-curl -sfL -o src/modules/locations/locations.controller.ts     "$BASE/src/modules/locations/locations.controller.ts"                  && echo "OK  locations.controller.ts"                                       || echo "FAILED  locations.controller.ts"
-curl -sfL -o src/modules/locations/locations.routes.ts         "$BASE/src/modules/locations/locations.routes.ts"                      && echo "OK  locations.routes.ts"                                           || echo "FAILED  locations.routes.ts"
-curl -sfL -o src/modules/locations/locations.schema.ts         "$BASE/src/modules/locations/locations.schema.ts"                      && echo "OK  locations.schema.ts"                                           || echo "FAILED  locations.schema.ts"
-curl -sfL -o src/modules/locations/locations.service.ts        "$BASE/src/modules/locations/locations.service.ts"                     && echo "OK  locations.service.ts"                                          || echo "FAILED  locations.service.ts"
-curl -sfL -o src/modules/locations/locations.test.ts           "$BASE/src/modules/locations/locations.test.ts"                        && echo "OK  locations.test.ts"                                             || echo "FAILED  locations.test.ts"
-```
+curl -L -o src/jobs/invoice-overdue.job.ts "$BASE/src/jobs/invoice-overdue.job.ts" && echo "OK  invoice-overdue.job.ts" || echo "FAILED  invoice-overdue.job.ts"
 
-### 4c — New files: Phase 9.2 — Group / Class Bookings (5 files)
+curl -L -o src/modules/auth/auth.email.processor.ts "$BASE/src/modules/auth/auth.email.processor.ts" && echo "OK  auth.email.processor.ts" || echo "FAILED  auth.email.processor.ts"
 
-```bash
-curl -sfL -o src/modules/sessions/sessions.controller.ts       "$BASE/src/modules/sessions/sessions.controller.ts"                    && echo "OK  sessions.controller.ts"                                        || echo "FAILED  sessions.controller.ts"
-curl -sfL -o src/modules/sessions/sessions.routes.ts           "$BASE/src/modules/sessions/sessions.routes.ts"                        && echo "OK  sessions.routes.ts"                                            || echo "FAILED  sessions.routes.ts"
-curl -sfL -o src/modules/sessions/sessions.schema.ts           "$BASE/src/modules/sessions/sessions.schema.ts"                        && echo "OK  sessions.schema.ts"                                            || echo "FAILED  sessions.schema.ts"
-curl -sfL -o src/modules/sessions/sessions.service.ts          "$BASE/src/modules/sessions/sessions.service.ts"                       && echo "OK  sessions.service.ts"                                           || echo "FAILED  sessions.service.ts"
-curl -sfL -o src/modules/sessions/sessions.test.ts             "$BASE/src/modules/sessions/sessions.test.ts"                          && echo "OK  sessions.test.ts"                                              || echo "FAILED  sessions.test.ts"
+curl -L -o src/modules/auth/auth.email.queue.ts "$BASE/src/modules/auth/auth.email.queue.ts" && echo "OK  auth.email.queue.ts" || echo "FAILED  auth.email.queue.ts"
+
+curl -L -o src/scripts/backfill-analyticsEvent-tenantId.ts "$BASE/src/scripts/backfill-analyticsEvent-tenantId.ts" && echo "OK  backfill-analyticsEvent-tenantId.ts" || echo "FAILED  backfill-analyticsEvent-tenantId.ts"
+
+curl -L -o src/scripts/backfill-lead-tenantId.ts "$BASE/src/scripts/backfill-lead-tenantId.ts" && echo "OK  backfill-lead-tenantId.ts" || echo "FAILED  backfill-lead-tenantId.ts"
+
+curl -L -o src/utils/extractTenantId.ts "$BASE/src/utils/extractTenantId.ts" && echo "OK  extractTenantId.ts" || echo "FAILED  extractTenantId.ts"
 ```
 
 ---
 
-## Step 5 — Install dependencies (no new packages in Phase 9)
+## Step 4 — Download CHANGED files (121 modified files)
 
-Phase 9 introduces no new npm packages. Skip this step unless you are setting up from scratch.
+Use the same `$BASE` variable set in Step 3.
+
+```bash
+curl -L -o prisma/schema.prisma "$BASE/prisma/schema.prisma" && echo "OK  prisma/schema.prisma" || echo "FAILED  prisma/schema.prisma"
+curl -L -o src/app.ts "$BASE/src/app.ts" && echo "OK  src/app.ts" || echo "FAILED  src/app.ts"
+curl -L -o src/config/businessType.test.ts "$BASE/src/config/businessType.test.ts" && echo "OK  businessType.test.ts" || echo "FAILED  businessType.test.ts"
+curl -L -o src/config/businessType.ts "$BASE/src/config/businessType.ts" && echo "OK  businessType.ts" || echo "FAILED  businessType.ts"
+curl -L -o src/config/index.ts "$BASE/src/config/index.ts" && echo "OK  config/index.ts" || echo "FAILED  config/index.ts"
+curl -L -o src/jobs/ai-suggestion.job.ts "$BASE/src/jobs/ai-suggestion.job.ts" && echo "OK  ai-suggestion.job.ts" || echo "FAILED  ai-suggestion.job.ts"
+curl -L -o src/jobs/birthday.job.ts "$BASE/src/jobs/birthday.job.ts" && echo "OK  birthday.job.ts" || echo "FAILED  birthday.job.ts"
+curl -L -o src/jobs/campaign.job.ts "$BASE/src/jobs/campaign.job.ts" && echo "OK  campaign.job.ts" || echo "FAILED  campaign.job.ts"
+curl -L -o src/jobs/index.ts "$BASE/src/jobs/index.ts" && echo "OK  jobs/index.ts" || echo "FAILED  jobs/index.ts"
+curl -L -o src/jobs/no-show.job.ts "$BASE/src/jobs/no-show.job.ts" && echo "OK  no-show.job.ts" || echo "FAILED  no-show.job.ts"
+curl -L -o src/jobs/rebook-nudge.job.ts "$BASE/src/jobs/rebook-nudge.job.ts" && echo "OK  rebook-nudge.job.ts" || echo "FAILED  rebook-nudge.job.ts"
+curl -L -o src/jobs/recurring-booking.job.ts "$BASE/src/jobs/recurring-booking.job.ts" && echo "OK  recurring-booking.job.ts" || echo "FAILED  recurring-booking.job.ts"
+curl -L -o src/jobs/waitlist-match.job.ts "$BASE/src/jobs/waitlist-match.job.ts" && echo "OK  waitlist-match.job.ts" || echo "FAILED  waitlist-match.job.ts"
+curl -L -o src/lib/notification-dispatcher.ts "$BASE/src/lib/notification-dispatcher.ts" && echo "OK  notification-dispatcher.ts" || echo "FAILED  notification-dispatcher.ts"
+curl -L -o src/lib/redis.ts "$BASE/src/lib/redis.ts" && echo "OK  redis.ts" || echo "FAILED  redis.ts"
+curl -L -o src/middleware/auth.ts "$BASE/src/middleware/auth.ts" && echo "OK  middleware/auth.ts" || echo "FAILED  middleware/auth.ts"
+curl -L -o src/middleware/captcha.ts "$BASE/src/middleware/captcha.ts" && echo "OK  middleware/captcha.ts" || echo "FAILED  middleware/captcha.ts"
+curl -L -o src/middleware/requireFeature.ts "$BASE/src/middleware/requireFeature.ts" && echo "OK  requireFeature.ts" || echo "FAILED  requireFeature.ts"
+curl -L -o src/modules/admin/admin.controller.ts "$BASE/src/modules/admin/admin.controller.ts" && echo "OK  admin.controller.ts" || echo "FAILED  admin.controller.ts"
+curl -L -o src/modules/admin/admin.schema.ts "$BASE/src/modules/admin/admin.schema.ts" && echo "OK  admin.schema.ts" || echo "FAILED  admin.schema.ts"
+curl -L -o src/modules/admin/admin.service.test.ts "$BASE/src/modules/admin/admin.service.test.ts" && echo "OK  admin.service.test.ts" || echo "FAILED  admin.service.test.ts"
+curl -L -o src/modules/admin/admin.service.ts "$BASE/src/modules/admin/admin.service.ts" && echo "OK  admin.service.ts" || echo "FAILED  admin.service.ts"
+curl -L -o src/modules/ai/ai.controller.ts "$BASE/src/modules/ai/ai.controller.ts" && echo "OK  ai.controller.ts" || echo "FAILED  ai.controller.ts"
+curl -L -o src/modules/alerts/alerts.controller.ts "$BASE/src/modules/alerts/alerts.controller.ts" && echo "OK  alerts.controller.ts" || echo "FAILED  alerts.controller.ts"
+curl -L -o src/modules/alerts/alerts.service.ts "$BASE/src/modules/alerts/alerts.service.ts" && echo "OK  alerts.service.ts" || echo "FAILED  alerts.service.ts"
+curl -L -o src/modules/analytics/analytics.controller.ts "$BASE/src/modules/analytics/analytics.controller.ts" && echo "OK  analytics.controller.ts" || echo "FAILED  analytics.controller.ts"
+curl -L -o src/modules/analytics/analytics.service.test.ts "$BASE/src/modules/analytics/analytics.service.test.ts" && echo "OK  analytics.service.test.ts" || echo "FAILED  analytics.service.test.ts"
+curl -L -o src/modules/analytics/analytics.service.ts "$BASE/src/modules/analytics/analytics.service.ts" && echo "OK  analytics.service.ts" || echo "FAILED  analytics.service.ts"
+curl -L -o src/modules/artists/artist-media.controller.ts "$BASE/src/modules/artists/artist-media.controller.ts" && echo "OK  artist-media.controller.ts" || echo "FAILED  artist-media.controller.ts"
+curl -L -o src/modules/artists/artist-media.service.ts "$BASE/src/modules/artists/artist-media.service.ts" && echo "OK  artist-media.service.ts" || echo "FAILED  artist-media.service.ts"
+curl -L -o src/modules/auth/auth.controller.ts "$BASE/src/modules/auth/auth.controller.ts" && echo "OK  auth.controller.ts" || echo "FAILED  auth.controller.ts"
+curl -L -o src/modules/auth/auth.routes.ts "$BASE/src/modules/auth/auth.routes.ts" && echo "OK  auth.routes.ts" || echo "FAILED  auth.routes.ts"
+curl -L -o src/modules/auth/auth.service.test.ts "$BASE/src/modules/auth/auth.service.test.ts" && echo "OK  auth.service.test.ts" || echo "FAILED  auth.service.test.ts"
+curl -L -o src/modules/auth/auth.service.ts "$BASE/src/modules/auth/auth.service.ts" && echo "OK  auth.service.ts" || echo "FAILED  auth.service.ts"
+curl -L -o src/modules/availability/availability.controller.ts "$BASE/src/modules/availability/availability.controller.ts" && echo "OK  availability.controller.ts" || echo "FAILED  availability.controller.ts"
+curl -L -o src/modules/booking-photos/booking-photos.controller.ts "$BASE/src/modules/booking-photos/booking-photos.controller.ts" && echo "OK  booking-photos.controller.ts" || echo "FAILED  booking-photos.controller.ts"
+curl -L -o src/modules/booking-photos/booking-photos.service.ts "$BASE/src/modules/booking-photos/booking-photos.service.ts" && echo "OK  booking-photos.service.ts" || echo "FAILED  booking-photos.service.ts"
+curl -L -o src/modules/bookings/bookings.controller.ts "$BASE/src/modules/bookings/bookings.controller.ts" && echo "OK  bookings.controller.ts" || echo "FAILED  bookings.controller.ts"
+curl -L -o src/modules/bookings/bookings.service.test.ts "$BASE/src/modules/bookings/bookings.service.test.ts" && echo "OK  bookings.service.test.ts" || echo "FAILED  bookings.service.test.ts"
+curl -L -o src/modules/bookings/bookings.service.ts "$BASE/src/modules/bookings/bookings.service.ts" && echo "OK  bookings.service.ts" || echo "FAILED  bookings.service.ts"
+curl -L -o src/modules/calendar/apple-calendar.service.ts "$BASE/src/modules/calendar/apple-calendar.service.ts" && echo "OK  apple-calendar.service.ts" || echo "FAILED  apple-calendar.service.ts"
+curl -L -o src/modules/calendar/calendar.service.ts "$BASE/src/modules/calendar/calendar.service.ts" && echo "OK  calendar.service.ts" || echo "FAILED  calendar.service.ts"
+curl -L -o src/modules/calendar/outlook-calendar.service.ts "$BASE/src/modules/calendar/outlook-calendar.service.ts" && echo "OK  outlook-calendar.service.ts" || echo "FAILED  outlook-calendar.service.ts"
+curl -L -o src/modules/campaigns/campaigns.controller.ts "$BASE/src/modules/campaigns/campaigns.controller.ts" && echo "OK  campaigns.controller.ts" || echo "FAILED  campaigns.controller.ts"
+curl -L -o src/modules/capture/capture.schema.ts "$BASE/src/modules/capture/capture.schema.ts" && echo "OK  capture.schema.ts" || echo "FAILED  capture.schema.ts"
+curl -L -o src/modules/capture/capture.service.ts "$BASE/src/modules/capture/capture.service.ts" && echo "OK  capture.service.ts" || echo "FAILED  capture.service.ts"
+curl -L -o src/modules/customer-stats/customer-stats.controller.ts "$BASE/src/modules/customer-stats/customer-stats.controller.ts" && echo "OK  customer-stats.controller.ts" || echo "FAILED  customer-stats.controller.ts"
+curl -L -o src/modules/customer-stats/customer-stats.service.ts "$BASE/src/modules/customer-stats/customer-stats.service.ts" && echo "OK  customer-stats.service.ts" || echo "FAILED  customer-stats.service.ts"
+curl -L -o src/modules/customers/customers.service.ts "$BASE/src/modules/customers/customers.service.ts" && echo "OK  customers.service.ts" || echo "FAILED  customers.service.ts"
+curl -L -o src/modules/email-templates/email-templates.controller.ts "$BASE/src/modules/email-templates/email-templates.controller.ts" && echo "OK  email-templates.controller.ts" || echo "FAILED  email-templates.controller.ts"
+curl -L -o src/modules/forms/forms.controller.ts "$BASE/src/modules/forms/forms.controller.ts" && echo "OK  forms.controller.ts" || echo "FAILED  forms.controller.ts"
+curl -L -o src/modules/forms/forms.service.ts "$BASE/src/modules/forms/forms.service.ts" && echo "OK  forms.service.ts" || echo "FAILED  forms.service.ts"
+curl -L -o src/modules/gift-cards/gift-cards.controller.ts "$BASE/src/modules/gift-cards/gift-cards.controller.ts" && echo "OK  gift-cards.controller.ts" || echo "FAILED  gift-cards.controller.ts"
+curl -L -o src/modules/gift-cards/gift-cards.service.ts "$BASE/src/modules/gift-cards/gift-cards.service.ts" && echo "OK  gift-cards.service.ts" || echo "FAILED  gift-cards.service.ts"
+curl -L -o src/modules/health-flags/health-flags.controller.ts "$BASE/src/modules/health-flags/health-flags.controller.ts" && echo "OK  health-flags.controller.ts" || echo "FAILED  health-flags.controller.ts"
+curl -L -o src/modules/health-flags/health-flags.service.ts "$BASE/src/modules/health-flags/health-flags.service.ts" && echo "OK  health-flags.service.ts" || echo "FAILED  health-flags.service.ts"
+curl -L -o src/modules/invoices/invoices.controller.ts "$BASE/src/modules/invoices/invoices.controller.ts" && echo "OK  invoices.controller.ts" || echo "FAILED  invoices.controller.ts"
+curl -L -o src/modules/invoices/invoices.service.ts "$BASE/src/modules/invoices/invoices.service.ts" && echo "OK  invoices.service.ts" || echo "FAILED  invoices.service.ts"
+curl -L -o src/modules/leads/leads.controller.ts "$BASE/src/modules/leads/leads.controller.ts" && echo "OK  leads.controller.ts" || echo "FAILED  leads.controller.ts"
+curl -L -o src/modules/leads/leads.schema.ts "$BASE/src/modules/leads/leads.schema.ts" && echo "OK  leads.schema.ts" || echo "FAILED  leads.schema.ts"
+curl -L -o src/modules/leads/leads.service.test.ts "$BASE/src/modules/leads/leads.service.test.ts" && echo "OK  leads.service.test.ts" || echo "FAILED  leads.service.test.ts"
+curl -L -o src/modules/leads/leads.service.ts "$BASE/src/modules/leads/leads.service.ts" && echo "OK  leads.service.ts" || echo "FAILED  leads.service.ts"
+curl -L -o src/modules/leads/leads.test.ts "$BASE/src/modules/leads/leads.test.ts" && echo "OK  leads.test.ts" || echo "FAILED  leads.test.ts"
+curl -L -o src/modules/locations/locations.controller.ts "$BASE/src/modules/locations/locations.controller.ts" && echo "OK  locations.controller.ts" || echo "FAILED  locations.controller.ts"
+curl -L -o src/modules/locations/locations.schema.ts "$BASE/src/modules/locations/locations.schema.ts" && echo "OK  locations.schema.ts" || echo "FAILED  locations.schema.ts"
+curl -L -o src/modules/locations/locations.service.ts "$BASE/src/modules/locations/locations.service.ts" && echo "OK  locations.service.ts" || echo "FAILED  locations.service.ts"
+curl -L -o src/modules/loyalty/loyalty.controller.ts "$BASE/src/modules/loyalty/loyalty.controller.ts" && echo "OK  loyalty.controller.ts" || echo "FAILED  loyalty.controller.ts"
+curl -L -o src/modules/loyalty/loyalty.service.ts "$BASE/src/modules/loyalty/loyalty.service.ts" && echo "OK  loyalty.service.ts" || echo "FAILED  loyalty.service.ts"
+curl -L -o src/modules/memberships/memberships.controller.ts "$BASE/src/modules/memberships/memberships.controller.ts" && echo "OK  memberships.controller.ts" || echo "FAILED  memberships.controller.ts"
+curl -L -o src/modules/notifications/notifications.controller.ts "$BASE/src/modules/notifications/notifications.controller.ts" && echo "OK  notifications.controller.ts" || echo "FAILED  notifications.controller.ts"
+curl -L -o src/modules/notifications/notifications.service.ts "$BASE/src/modules/notifications/notifications.service.ts" && echo "OK  notifications.service.ts" || echo "FAILED  notifications.service.ts"
+curl -L -o src/modules/packages/packages.controller.ts "$BASE/src/modules/packages/packages.controller.ts" && echo "OK  packages.controller.ts" || echo "FAILED  packages.controller.ts"
+curl -L -o src/modules/packages/packages.service.ts "$BASE/src/modules/packages/packages.service.ts" && echo "OK  packages.service.ts" || echo "FAILED  packages.service.ts"
+curl -L -o src/modules/payments/payments.controller.ts "$BASE/src/modules/payments/payments.controller.ts" && echo "OK  payments.controller.ts" || echo "FAILED  payments.controller.ts"
+curl -L -o src/modules/payments/payments.service.ts "$BASE/src/modules/payments/payments.service.ts" && echo "OK  payments.service.ts" || echo "FAILED  payments.service.ts"
+curl -L -o src/modules/payroll/payroll.controller.ts "$BASE/src/modules/payroll/payroll.controller.ts" && echo "OK  payroll.controller.ts" || echo "FAILED  payroll.controller.ts"
+curl -L -o src/modules/payroll/payroll.routes.ts "$BASE/src/modules/payroll/payroll.routes.ts" && echo "OK  payroll.routes.ts" || echo "FAILED  payroll.routes.ts"
+curl -L -o src/modules/pos/pos.controller.ts "$BASE/src/modules/pos/pos.controller.ts" && echo "OK  pos.controller.ts" || echo "FAILED  pos.controller.ts"
+curl -L -o src/modules/pos/pos.service.ts "$BASE/src/modules/pos/pos.service.ts" && echo "OK  pos.service.ts" || echo "FAILED  pos.service.ts"
+curl -L -o src/modules/pricing/pricing.controller.ts "$BASE/src/modules/pricing/pricing.controller.ts" && echo "OK  pricing.controller.ts" || echo "FAILED  pricing.controller.ts"
+curl -L -o src/modules/pricing/pricing.schema.ts "$BASE/src/modules/pricing/pricing.schema.ts" && echo "OK  pricing.schema.ts" || echo "FAILED  pricing.schema.ts"
+curl -L -o src/modules/pricing/pricing.service.ts "$BASE/src/modules/pricing/pricing.service.ts" && echo "OK  pricing.service.ts" || echo "FAILED  pricing.service.ts"
+curl -L -o src/modules/products/products.controller.ts "$BASE/src/modules/products/products.controller.ts" && echo "OK  products.controller.ts" || echo "FAILED  products.controller.ts"
+curl -L -o src/modules/products/products.service.ts "$BASE/src/modules/products/products.service.ts" && echo "OK  products.service.ts" || echo "FAILED  products.service.ts"
+curl -L -o src/modules/public/public.routes.ts "$BASE/src/modules/public/public.routes.ts" && echo "OK  public.routes.ts" || echo "FAILED  public.routes.ts"
+curl -L -o src/modules/public/public.service.test.ts "$BASE/src/modules/public/public.service.test.ts" && echo "OK  public.service.test.ts" || echo "FAILED  public.service.test.ts"
+curl -L -o src/modules/public/public.service.ts "$BASE/src/modules/public/public.service.ts" && echo "OK  public.service.ts" || echo "FAILED  public.service.ts"
+curl -L -o src/modules/public/public.test.ts "$BASE/src/modules/public/public.test.ts" && echo "OK  public.test.ts" || echo "FAILED  public.test.ts"
+curl -L -o src/modules/push/push.routes.ts "$BASE/src/modules/push/push.routes.ts" && echo "OK  push.routes.ts" || echo "FAILED  push.routes.ts"
+curl -L -o src/modules/quotes/quotes.controller.ts "$BASE/src/modules/quotes/quotes.controller.ts" && echo "OK  quotes.controller.ts" || echo "FAILED  quotes.controller.ts"
+curl -L -o src/modules/quotes/quotes.service.ts "$BASE/src/modules/quotes/quotes.service.ts" && echo "OK  quotes.service.ts" || echo "FAILED  quotes.service.ts"
+curl -L -o src/modules/recurring-bookings/recurring-bookings.controller.ts "$BASE/src/modules/recurring-bookings/recurring-bookings.controller.ts" && echo "OK  recurring-bookings.controller.ts" || echo "FAILED  recurring-bookings.controller.ts"
+curl -L -o src/modules/recurring-bookings/recurring-bookings.routes.ts "$BASE/src/modules/recurring-bookings/recurring-bookings.routes.ts" && echo "OK  recurring-bookings.routes.ts" || echo "FAILED  recurring-bookings.routes.ts"
+curl -L -o src/modules/recurring-bookings/recurring-bookings.schema.ts "$BASE/src/modules/recurring-bookings/recurring-bookings.schema.ts" && echo "OK  recurring-bookings.schema.ts" || echo "FAILED  recurring-bookings.schema.ts"
+curl -L -o src/modules/recurring-bookings/recurring-bookings.service.ts "$BASE/src/modules/recurring-bookings/recurring-bookings.service.ts" && echo "OK  recurring-bookings.service.ts" || echo "FAILED  recurring-bookings.service.ts"
+curl -L -o src/modules/recurring-bookings/recurring-bookings.test.ts "$BASE/src/modules/recurring-bookings/recurring-bookings.test.ts" && echo "OK  recurring-bookings.test.ts" || echo "FAILED  recurring-bookings.test.ts"
+curl -L -o src/modules/referrals/referrals.controller.ts "$BASE/src/modules/referrals/referrals.controller.ts" && echo "OK  referrals.controller.ts" || echo "FAILED  referrals.controller.ts"
+curl -L -o src/modules/referrals/referrals.service.ts "$BASE/src/modules/referrals/referrals.service.ts" && echo "OK  referrals.service.ts" || echo "FAILED  referrals.service.ts"
+curl -L -o src/modules/reminders/reminders.queue.ts "$BASE/src/modules/reminders/reminders.queue.ts" && echo "OK  reminders.queue.ts" || echo "FAILED  reminders.queue.ts"
+curl -L -o src/modules/reviews/reviews.queue.ts "$BASE/src/modules/reviews/reviews.queue.ts" && echo "OK  reviews.queue.ts" || echo "FAILED  reviews.queue.ts"
+curl -L -o src/modules/roles/roles.controller.ts "$BASE/src/modules/roles/roles.controller.ts" && echo "OK  roles.controller.ts" || echo "FAILED  roles.controller.ts"
+curl -L -o src/modules/roles/roles.service.test.ts "$BASE/src/modules/roles/roles.service.test.ts" && echo "OK  roles.service.test.ts" || echo "FAILED  roles.service.test.ts"
+curl -L -o src/modules/roles/roles.service.ts "$BASE/src/modules/roles/roles.service.ts" && echo "OK  roles.service.ts" || echo "FAILED  roles.service.ts"
+curl -L -o src/modules/rota/rota.controller.ts "$BASE/src/modules/rota/rota.controller.ts" && echo "OK  rota.controller.ts" || echo "FAILED  rota.controller.ts"
+curl -L -o src/modules/rota/rota.service.ts "$BASE/src/modules/rota/rota.service.ts" && echo "OK  rota.service.ts" || echo "FAILED  rota.service.ts"
+curl -L -o src/modules/sessions/sessions.controller.ts "$BASE/src/modules/sessions/sessions.controller.ts" && echo "OK  sessions.controller.ts" || echo "FAILED  sessions.controller.ts"
+curl -L -o src/modules/sessions/sessions.schema.ts "$BASE/src/modules/sessions/sessions.schema.ts" && echo "OK  sessions.schema.ts" || echo "FAILED  sessions.schema.ts"
+curl -L -o src/modules/sessions/sessions.service.ts "$BASE/src/modules/sessions/sessions.service.ts" && echo "OK  sessions.service.ts" || echo "FAILED  sessions.service.ts"
+curl -L -o src/modules/settings/settings.controller.ts "$BASE/src/modules/settings/settings.controller.ts" && echo "OK  settings.controller.ts" || echo "FAILED  settings.controller.ts"
+curl -L -o src/modules/settings/settings.service.ts "$BASE/src/modules/settings/settings.service.ts" && echo "OK  settings.service.ts" || echo "FAILED  settings.service.ts"
+curl -L -o src/modules/sms-templates/sms-templates.controller.ts "$BASE/src/modules/sms-templates/sms-templates.controller.ts" && echo "OK  sms-templates.controller.ts" || echo "FAILED  sms-templates.controller.ts"
+curl -L -o src/modules/social/social.controller.ts "$BASE/src/modules/social/social.controller.ts" && echo "OK  social.controller.ts" || echo "FAILED  social.controller.ts"
+curl -L -o src/modules/social/social.service.ts "$BASE/src/modules/social/social.service.ts" && echo "OK  social.service.ts" || echo "FAILED  social.service.ts"
+curl -L -o src/modules/social/social.test.ts "$BASE/src/modules/social/social.test.ts" && echo "OK  social.test.ts" || echo "FAILED  social.test.ts"
+curl -L -o src/modules/tables/tables.controller.ts "$BASE/src/modules/tables/tables.controller.ts" && echo "OK  tables.controller.ts" || echo "FAILED  tables.controller.ts"
+curl -L -o src/modules/tables/tables.service.ts "$BASE/src/modules/tables/tables.service.ts" && echo "OK  tables.service.ts" || echo "FAILED  tables.service.ts"
+curl -L -o src/modules/webhooks/webhooks.controller.ts "$BASE/src/modules/webhooks/webhooks.controller.ts" && echo "OK  webhooks.controller.ts" || echo "FAILED  webhooks.controller.ts"
+curl -L -o src/modules/webhooks/webhooks.service.ts "$BASE/src/modules/webhooks/webhooks.service.ts" && echo "OK  webhooks.service.ts" || echo "FAILED  webhooks.service.ts"
+curl -L -o src/modules/whatsapp-templates/whatsapp-templates.controller.ts "$BASE/src/modules/whatsapp-templates/whatsapp-templates.controller.ts" && echo "OK  whatsapp-templates.controller.ts" || echo "FAILED  whatsapp-templates.controller.ts"
+curl -L -o src/modules/whatsapp/whatsapp.service.ts "$BASE/src/modules/whatsapp/whatsapp.service.ts" && echo "OK  whatsapp.service.ts" || echo "FAILED  whatsapp.service.ts"
+curl -L -o src/server.ts "$BASE/src/server.ts" && echo "OK  server.ts" || echo "FAILED  server.ts"
+```
 
 ---
 
-## Step 6 — Generate Prisma client and run migration
+## Step 5 — Install dependencies
+
+```bash
+cd ~/Desktop/Automation/backend
+npm install
+```
+
+> If Docker is required for PostgreSQL / Redis:
+> ```bash
+> docker compose up -d
+> ```
+
+Then regenerate the Prisma client and run migrations:
 
 ```bash
 npx prisma generate
-npx prisma migrate dev --name phase9_multi_location_group_bookings
+npx prisma migrate dev
 ```
 
 ---
 
-## Step 7 — Run the test suite
+## Step 6 — Run tests
 
 ```bash
+cd ~/Desktop/Automation/backend
 npm test
 ```
 
-**Expected output:**
-
-```
-Test Suites: 100 passed, 100 total
-Tests:       1756 passed, 1756 total
-```
-
----
-
-## Phase 9 — Complete file list
-
-### Modified files (3)
-
-| File | What changed |
-|------|-------------|
-| `backend/prisma/schema.prisma` | Added `Location`, `Session`, `SessionBooking` models; `locationId` field on `Artist`, `Service`, `Table`, `Booking`; `MULTI_LOCATION_ENABLED` and `GROUP_BOOKING_ENABLED` feature enums |
-| `backend/src/app.ts` | Mounted `/api/locations` (Phase 9.1) and `/api/sessions` (Phase 9.2) |
-| `backend/src/config/businessType.ts` | Added `MULTI_LOCATION_ENABLED`, `GROUP_BOOKING_ENABLED` flags to all business-type configs |
-
-### New files — Phase 9.1 — Multi-Location Support (5)
-
-| File | Description |
-|------|-------------|
-| `backend/src/modules/locations/locations.controller.ts` | HTTP handlers for location CRUD |
-| `backend/src/modules/locations/locations.routes.ts` | Router for `/api/locations` — gated by `MULTI_LOCATION_ENABLED` |
-| `backend/src/modules/locations/locations.schema.ts` | Zod schemas for location create/update/list |
-| `backend/src/modules/locations/locations.service.ts` | Tenant-scoped CRUD service for `Location` |
-| `backend/src/modules/locations/locations.test.ts` | Integration tests for all location endpoints |
-
-### New files — Phase 9.2 — Group / Class Bookings (5)
-
-| File | Description |
-|------|-------------|
-| `backend/src/modules/sessions/sessions.controller.ts` | HTTP handlers for session CRUD and spot booking |
-| `backend/src/modules/sessions/sessions.routes.ts` | Router for `/api/sessions` — gated by `GROUP_BOOKING_ENABLED` |
-| `backend/src/modules/sessions/sessions.schema.ts` | Zod schemas for session create/update/list/book/cancel |
-| `backend/src/modules/sessions/sessions.service.ts` | Atomic capacity management, tenant + customer tenant validation; updateSession locationId cross-tenant guard + capacity→status sync (bug fix) |
-| `backend/src/modules/sessions/sessions.test.ts` | Integration tests including customer cross-tenant guard, location cross-tenant guard, and capacity-driven status transitions (bug fix) |
-
----
-
-## New API endpoints
-
-### Phase 9.1 — Multi-Location  (`MULTI_LOCATION_ENABLED`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/locations` | ADMIN | List all locations for this tenant |
-| POST | `/api/locations` | ADMIN | Create a new location |
-| GET | `/api/locations/:id` | ADMIN | Get a single location |
-| PATCH | `/api/locations/:id` | ADMIN | Update a location |
-| DELETE | `/api/locations/:id` | ADMIN | Delete a location |
-
-### Phase 9.2 — Group / Class Bookings  (`GROUP_BOOKING_ENABLED`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/sessions` | ADMIN | List sessions (filterable by service/artist/location/status/date) |
-| POST | `/api/sessions` | ADMIN | Create a new group session |
-| GET | `/api/sessions/:id` | ADMIN | Get session with full attendee list |
-| PATCH | `/api/sessions/:id` | ADMIN | Update session details or status |
-| DELETE | `/api/sessions/:id` | ADMIN | Delete a session |
-| POST | `/api/sessions/:id/book` | ADMIN | Book a customer spot (atomic capacity decrement) |
-| GET | `/api/sessions/:id/bookings` | ADMIN | List all bookings for a session |
-| DELETE | `/api/sessions/:id/bookings/:bookingId` | ADMIN | Cancel a session booking (reopens spot) |
-
----
-
-## Delete / clean-up (to remove Phase 9 new files)
-
-Run these from `~/Desktop/Automation/backend`:
+If TypeScript type checking is needed:
 
 ```bash
-# New files — Phase 9.1 Multi-Location
-rm -f src/modules/locations/locations.controller.ts
-rm -f src/modules/locations/locations.routes.ts
-rm -f src/modules/locations/locations.schema.ts
-rm -f src/modules/locations/locations.service.ts
-rm -f src/modules/locations/locations.test.ts
-rmdir --ignore-fail-on-non-empty src/modules/locations
-
-# New files — Phase 9.2 Group Bookings
-rm -f src/modules/sessions/sessions.controller.ts
-rm -f src/modules/sessions/sessions.routes.ts
-rm -f src/modules/sessions/sessions.schema.ts
-rm -f src/modules/sessions/sessions.service.ts
-rm -f src/modules/sessions/sessions.test.ts
-rmdir --ignore-fail-on-non-empty src/modules/sessions
+npx tsc --noEmit
 ```
-
----
-
-## Replace / outdated files (modified files)
-
-The 3 files below were modified for Phase 9. If you need to replace an outdated local copy,
-download the current version using the curl commands in Step 4a above.
-
-> **Do not delete** `prisma/schema.prisma`, `src/app.ts`, or `src/config/businessType.ts`
-> unless you intend to revert to the pre-Phase-9 state — they contain content from all earlier phases too.
-
-| File | How to replace |
-|------|----------------|
-| `backend/prisma/schema.prisma` | `rm -f prisma/schema.prisma && curl … (Step 4a)` then re-run `npx prisma generate` |
-| `backend/src/app.ts` | `rm -f src/app.ts && curl … (Step 4a)` |
-| `backend/src/config/businessType.ts` | `rm -f src/config/businessType.ts && curl … (Step 4a)` |
-
