@@ -287,6 +287,9 @@ export const FEATURE_FLAG_KEYS = [
   'MULTI_LOCATION_ENABLED',         // multi-location support — each artist/service/booking scoped to a location
   'GROUP_BOOKING_ENABLED',          // group / class bookings — session model with capacity management
 
+  // ── Invoice automation ──────────────────────────────────────────────────
+  'INVOICE_AUTOMATION_ENABLED',     // daily job to mark overdue invoices
+
   // ── Security & infrastructure ──────────────────────────────────────────
   'PUBLIC_CAPTCHA_ENABLED',         // CAPTCHA verification on public booking routes (runtime-toggleable)
 ] as const;
@@ -350,6 +353,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    INVOICE_AUTOMATION_ENABLED: true,
     PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
@@ -398,6 +402,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    INVOICE_AUTOMATION_ENABLED: true,
     PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
@@ -446,6 +451,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    INVOICE_AUTOMATION_ENABLED: true,
     PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
@@ -494,6 +500,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    INVOICE_AUTOMATION_ENABLED: true,
     PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
@@ -542,6 +549,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    INVOICE_AUTOMATION_ENABLED: true,
     PUBLIC_CAPTCHA_ENABLED:     false,
   },
 
@@ -590,6 +598,7 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     AI_SUGGESTIONS_ENABLED:     false,
     MULTI_LOCATION_ENABLED:     false,
     GROUP_BOOKING_ENABLED:      false,
+    INVOICE_AUTOMATION_ENABLED: true,
     PUBLIC_CAPTCHA_ENABLED:     false,
   },
 };

@@ -14,6 +14,7 @@ import { setupCampaignJob } from './campaign.job';
 import { startNoShowWorker } from './no-show.job';
 import { startWaitlistMatchWorker } from './waitlist-match.job';
 import { startAISuggestionWorker }  from './ai-suggestion.job';
+import { setupInvoiceOverdueJob }   from './invoice-overdue.job';
 
 export async function registerAllJobs(): Promise<void> {
   if (await isFeatureEnabled('BIRTHDAY_AUTOMATION_ENABLED')) {
@@ -49,6 +50,11 @@ export async function registerAllJobs(): Promise<void> {
   if (await isFeatureEnabled('AI_SUGGESTIONS_ENABLED')) {
     startAISuggestionWorker();
     logger.info('AI suggestion worker started');
+  }
+
+  if (await isFeatureEnabled('INVOICE_AUTOMATION_ENABLED')) {
+    await setupInvoiceOverdueJob();
+    logger.info('Invoice overdue automation job registered');
   }
 
   logger.info('All background jobs registered');
