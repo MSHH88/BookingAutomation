@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as waitlistService           from './waitlist.service';
 import { success, paginated }         from '../../utils/apiResponse';
+import { extractTenantId }            from '../../utils/extractTenantId';
 import type {
   JoinWaitlistBody,
   ListWaitlistQuery,
@@ -58,8 +59,9 @@ export async function listWaitlist(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const query  = req.query as unknown as ListWaitlistQuery;
-    const result = await waitlistService.listWaitlist(query);
+    const result = await waitlistService.listWaitlist(tenantId, query);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -78,8 +80,9 @@ export async function getWaitlistEntryById(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id } = req.params as { id: string };
-    const entry  = await waitlistService.getWaitlistEntryById(id);
+    const entry  = await waitlistService.getWaitlistEntryById(id, tenantId);
     res.json(success(entry));
   } catch (err) {
     next(err);
@@ -99,9 +102,10 @@ export async function updateWaitlistStatus(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id } = req.params as { id: string };
     const body   = req.body as UpdateWaitlistStatusBody;
-    const entry  = await waitlistService.updateWaitlistStatus(id, body);
+    const entry  = await waitlistService.updateWaitlistStatus(id, body, tenantId);
     res.json(success(entry));
   } catch (err) {
     next(err);
@@ -124,9 +128,10 @@ export async function notifyWaitlistEntry(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id } = req.params as { id: string };
     const body   = req.body as NotifyWaitlistEntryBody;
-    const entry  = await waitlistService.notifyWaitlistEntry(id, body);
+    const entry  = await waitlistService.notifyWaitlistEntry(id, body, tenantId);
     res.json(success(entry));
   } catch (err) {
     next(err);
@@ -145,8 +150,9 @@ export async function deleteWaitlistEntry(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id } = req.params as { id: string };
-    const result = await waitlistService.deleteWaitlistEntry(id);
+    const result = await waitlistService.deleteWaitlistEntry(id, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);

@@ -74,6 +74,8 @@ const mockWaitlistCreate     = jest.fn();
 const mockWaitlistUpdate     = jest.fn();
 const mockWaitlistDelete     = jest.fn();
 
+const mockArtistFindUnique   = jest.fn();
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     waitlistEntry: {
@@ -84,6 +86,9 @@ jest.mock('../../lib/prisma', () => ({
       create:     (...a: unknown[]) => mockWaitlistCreate(...a),
       update:     (...a: unknown[]) => mockWaitlistUpdate(...a),
       delete:     (...a: unknown[]) => mockWaitlistDelete(...a),
+    },
+    artist: {
+      findUnique: (...a: unknown[]) => mockArtistFindUnique(...a),
     },
   },
 }));
@@ -106,6 +111,7 @@ const NOW = new Date('2026-04-07T10:00:00Z');
 
 const baseEntry = {
   id:                 'wl_1',
+  tenantId:           'tenant_1',
   name:               'Jane Smith',
   email:              'jane@example.com',
   phone:              '+44 7700 900001',
@@ -125,6 +131,7 @@ const baseEntry = {
 
 const baseListItem = {
   id:                 'wl_1',
+  tenantId:           'tenant_1',
   name:               'Jane Smith',
   email:              'jane@example.com',
   phone:              '+44 7700 900001',
@@ -160,6 +167,7 @@ describe('joinWaitlist', () => {
   };
 
   it('creates and returns a waitlist entry on success', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
     mockWaitlistFindFirst.mockResolvedValueOnce(null);  // no duplicate
     mockWaitlistCreate.mockResolvedValue(baseEntry);
 
@@ -172,6 +180,7 @@ describe('joinWaitlist', () => {
           name:  'Jane Smith',
           email: 'jane@example.com',
           phone: '+44 7700 900001',
+          tenantId: 'tenant_1',
         }),
         select: expect.objectContaining({ id: true, status: true }),
       }),
@@ -179,6 +188,7 @@ describe('joinWaitlist', () => {
   });
 
   it('throws 409 WAITLIST_DUPLICATE when same email+artistId has WAITING status', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
     mockWaitlistFindFirst.mockResolvedValueOnce({ id: 'wl_existing' });
 
     await expect(
@@ -189,6 +199,7 @@ describe('joinWaitlist', () => {
   });
 
   it('throws 409 WAITLIST_DUPLICATE when same email+artistId has NOTIFIED status', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
     mockWaitlistFindFirst.mockResolvedValueOnce({ id: 'wl_notified' });
 
     await expect(
@@ -197,6 +208,7 @@ describe('joinWaitlist', () => {
   });
 
   it('creates entry when same email has a BOOKED status (terminal — can rejoin)', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
     mockWaitlistFindFirst.mockResolvedValueOnce(null);  // findFirst returns no active duplicate
     mockWaitlistCreate.mockResolvedValue({ ...baseEntry, status: 'WAITING' });
 
@@ -207,6 +219,7 @@ describe('joinWaitlist', () => {
   });
 
   it('creates entry when same email but different artistId', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
     mockWaitlistFindFirst.mockResolvedValueOnce(null);  // different artistId → no conflict
     mockWaitlistCreate.mockResolvedValue({ ...baseEntry, artistId: 'artist_2' });
 
@@ -217,6 +230,7 @@ describe('joinWaitlist', () => {
   });
 
   it('correctly converts requestedDate ISO string to a Date object', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_1' });
     mockWaitlistFindFirst.mockResolvedValueOnce(null);
     mockWaitlistCreate.mockResolvedValue(baseEntry);
 
@@ -235,7 +249,7 @@ describe('listWaitlist', () => {
     mockWaitlistCount.mockResolvedValue(1);
     mockWaitlistFindMany.mockResolvedValue([baseListItem]);
 
-    const result = await waitlistService.listWaitlist({});
+    const result = await waitlistService.listWaitlist(null, {});
 
     expect(result.data).toHaveLength(1);
     expect(result.meta.total).toBe(1);
@@ -251,7 +265,7 @@ describe('listWaitlist', () => {
     mockWaitlistCount.mockResolvedValue(2);
     mockWaitlistFindMany.mockResolvedValue([baseListItem]);
 
-    await waitlistService.listWaitlist({ status: 'WAITING' });
+    await waitlistService.listWaitlist(null, { status: 'WAITING' });
 
     expect(mockWaitlistFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { status: 'WAITING' } }),
@@ -262,7 +276,7 @@ describe('listWaitlist', () => {
     mockWaitlistCount.mockResolvedValue(1);
     mockWaitlistFindMany.mockResolvedValue([baseListItem]);
 
-    await waitlistService.listWaitlist({ artistId: 'artist_1' });
+    await waitlistService.listWaitlist(null, { artistId: 'artist_1' });
 
     expect(mockWaitlistFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { artistId: 'artist_1' } }),
@@ -273,7 +287,7 @@ describe('listWaitlist', () => {
     mockWaitlistCount.mockResolvedValue(1);
     mockWaitlistFindMany.mockResolvedValue([baseListItem]);
 
-    await waitlistService.listWaitlist({ email: 'jane@example.com' });
+    await waitlistService.listWaitlist(null, { email: 'jane@example.com' });
 
     expect(mockWaitlistFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { email: 'jane@example.com' } }),
@@ -284,7 +298,7 @@ describe('listWaitlist', () => {
     mockWaitlistCount.mockResolvedValue(50);
     mockWaitlistFindMany.mockResolvedValue([]);
 
-    await waitlistService.listWaitlist({ page: '3', limit: '5' });
+    await waitlistService.listWaitlist(null, { page: '3', limit: '5' });
 
     expect(mockWaitlistFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 10, take: 5 }),
@@ -298,7 +312,7 @@ describe('getWaitlistEntryById', () => {
   it('returns full detail when entry exists', async () => {
     mockWaitlistFindUnique.mockResolvedValueOnce(baseEntry);
 
-    const result = await waitlistService.getWaitlistEntryById('wl_1');
+    const result = await waitlistService.getWaitlistEntryById('wl_1', null);
 
     expect(result).toEqual(baseEntry);
     expect(mockWaitlistFindUnique).toHaveBeenCalledWith({
@@ -310,7 +324,7 @@ describe('getWaitlistEntryById', () => {
   it('throws 404 WAITLIST_ENTRY_NOT_FOUND when entry does not exist', async () => {
     mockWaitlistFindUnique.mockResolvedValueOnce(null);
 
-    await expect(waitlistService.getWaitlistEntryById('missing'))
+    await expect(waitlistService.getWaitlistEntryById('missing', null))
       .rejects.toMatchObject({ statusCode: 404, code: 'WAITLIST_ENTRY_NOT_FOUND' });
   });
 });
@@ -319,10 +333,10 @@ describe('getWaitlistEntryById', () => {
 
 describe('updateWaitlistStatus', () => {
   it('transitions WAITING → NOTIFIED successfully', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'NOTIFIED' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'NOTIFIED' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'NOTIFIED' }, null);
 
     expect(result.status).toBe('NOTIFIED');
     expect(mockWaitlistUpdate).toHaveBeenCalledWith({
@@ -333,75 +347,75 @@ describe('updateWaitlistStatus', () => {
   });
 
   it('transitions WAITING → BOOKED successfully', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'BOOKED' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'BOOKED' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'BOOKED' }, null);
 
     expect(result.status).toBe('BOOKED');
   });
 
   it('transitions WAITING → CANCELLED successfully', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'CANCELLED' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'CANCELLED' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'CANCELLED' }, null);
 
     expect(result.status).toBe('CANCELLED');
   });
 
   it('transitions WAITING → EXPIRED successfully', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'EXPIRED' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'EXPIRED' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'EXPIRED' }, null);
 
     expect(result.status).toBe('EXPIRED');
   });
 
   it('transitions NOTIFIED → BOOKED successfully', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'NOTIFIED' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'NOTIFIED', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'BOOKED' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'BOOKED' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'BOOKED' }, null);
 
     expect(result.status).toBe('BOOKED');
   });
 
   it('transitions NOTIFIED → EXPIRED successfully', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'NOTIFIED' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'NOTIFIED', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'EXPIRED' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'EXPIRED' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'EXPIRED' }, null);
 
     expect(result.status).toBe('EXPIRED');
   });
 
   it('throws 409 WAITLIST_INVALID_TRANSITION for BOOKED → WAITING (terminal)', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'BOOKED' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'BOOKED', tenantId: 'tenant_1' });
 
     await expect(
-      waitlistService.updateWaitlistStatus('wl_1', { status: 'WAITING' }),
+      waitlistService.updateWaitlistStatus('wl_1', { status: 'WAITING' }, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_INVALID_TRANSITION' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
   });
 
   it('throws 409 WAITLIST_INVALID_TRANSITION for CANCELLED → WAITING (terminal)', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'CANCELLED' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'CANCELLED', tenantId: 'tenant_1' });
 
     await expect(
-      waitlistService.updateWaitlistStatus('wl_1', { status: 'WAITING' }),
+      waitlistService.updateWaitlistStatus('wl_1', { status: 'WAITING' }, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_INVALID_TRANSITION' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
   });
 
   it('transitions EXPIRED → WAITING (re-activation)', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'EXPIRED' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'EXPIRED', tenantId: 'tenant_1' });
     mockWaitlistUpdate.mockResolvedValue({ ...baseEntry, status: 'WAITING' });
 
-    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'WAITING' });
+    const result = await waitlistService.updateWaitlistStatus('wl_1', { status: 'WAITING' }, null);
 
     expect(result.status).toBe('WAITING');
   });
@@ -410,7 +424,7 @@ describe('updateWaitlistStatus', () => {
     mockWaitlistFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      waitlistService.updateWaitlistStatus('missing', { status: 'NOTIFIED' }),
+      waitlistService.updateWaitlistStatus('missing', { status: 'NOTIFIED' }, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'WAITLIST_ENTRY_NOT_FOUND' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
@@ -432,7 +446,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistUpdate.mockResolvedValue(notifiedEntry);
     mockSendEmail.mockResolvedValue(undefined);
 
-    const result = await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 });
+    const result = await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, null);
 
     expect(result.status).toBe('NOTIFIED');
     expect(result.notifiedAt).not.toBeNull();
@@ -454,7 +468,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistUpdate.mockResolvedValue(notifiedEntry);
     mockSendEmail.mockResolvedValue(undefined);
 
-    await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 48 });
+    await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 48 }, null);
 
     expect(mockWaitlistUpdate).toHaveBeenCalledTimes(1);
     expect(mockSendEmail).toHaveBeenCalledTimes(1);
@@ -470,7 +484,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistUpdate.mockResolvedValue(notifiedEntry);
     mockSendEmail.mockResolvedValue(undefined);
 
-    await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 });
+    await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, null);
 
     const after     = Date.now();
     const updateArg = mockWaitlistUpdate.mock.calls[0][0].data;
@@ -492,7 +506,7 @@ describe('notifyWaitlistEntry', () => {
     });
     mockSendEmail.mockResolvedValue(undefined);
 
-    await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 24 });
+    await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 24 }, null);
 
     const updateArg = mockWaitlistUpdate.mock.calls[0][0].data;
     expect(updateArg.expiresAt.getTime() - updateArg.notifiedAt.getTime())
@@ -507,7 +521,7 @@ describe('notifyWaitlistEntry', () => {
     await waitlistService.notifyWaitlistEntry('wl_1', {
       expiresInHours: 72,
       customMessage:  'Alex has a slot open Saturday!',
-    });
+    }, null);
 
     expect(mockSendEmail).toHaveBeenCalledWith(
       'waitlist-slot-available',
@@ -527,7 +541,7 @@ describe('notifyWaitlistEntry', () => {
     mockSendEmail.mockRejectedValue(new Error('Template not found'));
 
     // Should NOT throw — email failure is best-effort
-    const result = await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 });
+    const result = await waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, null);
 
     expect(result.status).toBe('NOTIFIED');
     expect(mockWaitlistUpdate).toHaveBeenCalledTimes(1);
@@ -537,7 +551,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistFindUnique.mockResolvedValueOnce({ ...baseEntry, status: 'BOOKED' });
 
     await expect(
-      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }),
+      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_CANNOT_NOTIFY' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
@@ -548,7 +562,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistFindUnique.mockResolvedValueOnce({ ...baseEntry, status: 'EXPIRED' });
 
     await expect(
-      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }),
+      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_CANNOT_NOTIFY' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
@@ -558,7 +572,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistFindUnique.mockResolvedValueOnce({ ...baseEntry, status: 'CANCELLED' });
 
     await expect(
-      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }),
+      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'WAITLIST_CANNOT_NOTIFY' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
@@ -569,7 +583,7 @@ describe('notifyWaitlistEntry', () => {
     mockWaitlistFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      waitlistService.notifyWaitlistEntry('missing', { expiresInHours: 72 }),
+      waitlistService.notifyWaitlistEntry('missing', { expiresInHours: 72 }, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'WAITLIST_ENTRY_NOT_FOUND' });
 
     expect(mockWaitlistUpdate).not.toHaveBeenCalled();
@@ -581,10 +595,10 @@ describe('notifyWaitlistEntry', () => {
 
 describe('deleteWaitlistEntry', () => {
   it('deletes the entry and returns { id }', async () => {
-    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1' });
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', tenantId: 'tenant_1' });
     mockWaitlistDelete.mockResolvedValue({ id: 'wl_1' });
 
-    const result = await waitlistService.deleteWaitlistEntry('wl_1');
+    const result = await waitlistService.deleteWaitlistEntry('wl_1', null);
 
     expect(result).toEqual({ id: 'wl_1' });
     expect(mockWaitlistDelete).toHaveBeenCalledWith({ where: { id: 'wl_1' } });
@@ -593,9 +607,101 @@ describe('deleteWaitlistEntry', () => {
   it('throws 404 WAITLIST_ENTRY_NOT_FOUND when entry does not exist', async () => {
     mockWaitlistFindUnique.mockResolvedValueOnce(null);
 
-    await expect(waitlistService.deleteWaitlistEntry('missing'))
+    await expect(waitlistService.deleteWaitlistEntry('missing', null))
       .rejects.toMatchObject({ statusCode: 404, code: 'WAITLIST_ENTRY_NOT_FOUND' });
 
     expect(mockWaitlistDelete).not.toHaveBeenCalled();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tenant isolation — BUG 6
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('tenant isolation (BUG 6)', () => {
+  const crossTenantId = 'tenant_other';
+
+  it('listWaitlist — scoped to tenant when tenantId is provided', async () => {
+    mockWaitlistCount.mockResolvedValue(0);
+    mockWaitlistFindMany.mockResolvedValue([]);
+
+    await waitlistService.listWaitlist('tenant_1', {});
+
+    expect(mockWaitlistFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ tenantId: 'tenant_1' }),
+      }),
+    );
+  });
+
+  it('getWaitlistEntryById — ADMIN with different tenantId gets 403', async () => {
+    mockWaitlistFindUnique.mockResolvedValue(baseEntry);
+
+    await expect(
+      waitlistService.getWaitlistEntryById('wl_1', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('getWaitlistEntryById — SUPER_ADMIN with null tenantId can access any entry', async () => {
+    mockWaitlistFindUnique.mockResolvedValue(baseEntry);
+
+    const result = await waitlistService.getWaitlistEntryById('wl_1', null);
+    expect(result.id).toBe('wl_1');
+  });
+
+  it('updateWaitlistStatus — ADMIN with different tenantId gets 403', async () => {
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', status: 'WAITING', tenantId: 'tenant_1' });
+
+    await expect(
+      waitlistService.updateWaitlistStatus('wl_1', { status: 'NOTIFIED' }, crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('notifyWaitlistEntry — ADMIN with different tenantId gets 403', async () => {
+    mockWaitlistFindUnique.mockResolvedValue(baseEntry);
+
+    await expect(
+      waitlistService.notifyWaitlistEntry('wl_1', { expiresInHours: 72 }, crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('deleteWaitlistEntry — ADMIN with different tenantId gets 403', async () => {
+    mockWaitlistFindUnique.mockResolvedValueOnce({ id: 'wl_1', tenantId: 'tenant_1' });
+
+    await expect(
+      waitlistService.deleteWaitlistEntry('wl_1', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('joinWaitlist — persists tenantId resolved from artistId', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_resolved' });
+    mockWaitlistFindFirst.mockResolvedValueOnce(null);
+    mockWaitlistCreate.mockResolvedValue({ ...baseEntry, tenantId: 'tenant_resolved' });
+
+    await waitlistService.joinWaitlist({
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      phone: '+44 7700 900001',
+      artistId: 'artist_1',
+    });
+
+    expect(mockWaitlistCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ tenantId: 'tenant_resolved' }),
+      }),
+    );
+  });
+
+  it('joinWaitlist — throws 400 when artistId references non-existent artist', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce(null);
+
+    await expect(
+      waitlistService.joinWaitlist({
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        phone: '+44 7700 900001',
+        artistId: 'nonexistent',
+      }),
+    ).rejects.toMatchObject({ statusCode: 400, code: 'ARTIST_NOT_FOUND' });
   });
 });

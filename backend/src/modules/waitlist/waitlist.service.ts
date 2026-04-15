@@ -51,6 +51,7 @@ import { VALID_WAITLIST_TRANSITIONS } from './waitlist.schema';
  */
 const waitlistDetailSelect = {
   id:                 true,
+  tenantId:           true,
   name:               true,
   email:              true,
   phone:              true,
@@ -74,6 +75,7 @@ const waitlistDetailSelect = {
  */
 const waitlistListSelect = {
   id:                 true,
+  tenantId:           true,
   name:               true,
   email:              true,
   phone:              true,
@@ -109,6 +111,19 @@ export async function joinWaitlist(
   body:       JoinWaitlistBody,
   ipAddress?: string,
 ): Promise<WaitlistDetail> {
+  // ── Resolve tenantId from artistId ────────────────────────────────────────
+  let resolvedTenantId: string | null = null;
+  if (body.artistId) {
+    const artist = await prisma.artist.findUnique({
+      where:  { id: body.artistId },
+      select: { tenantId: true },
+    });
+    if (!artist) {
+      throw new AppError(400, 'ARTIST_NOT_FOUND', 'The specified artist does not exist');
+    }
+    resolvedTenantId = artist.tenantId ?? null;
+  }
+
   // ── Deduplication check ───────────────────────────────────────────────────
   const duplicate = await prisma.waitlistEntry.findFirst({
     where: {
@@ -137,6 +152,7 @@ export async function joinWaitlist(
       requestedDate:  body.requestedDate ? new Date(body.requestedDate) : undefined,
       notes:          body.notes,
       timePreference: body.timePreference ?? 'ANY',
+      tenantId:       resolvedTenantId,
     },
     select: waitlistDetailSelect,
   });
@@ -158,9 +174,12 @@ export async function joinWaitlist(
  * Ordered newest-first so recently joined entries appear at the top.
  */
 export async function listWaitlist(
+  tenantId: string | null,
   query: ListWaitlistQuery,
 ): Promise<PaginatedResult<WaitlistListItem>> {
   const where: Prisma.WaitlistEntryWhereInput = {};
+
+  if (tenantId !== null) where.tenantId = tenantId;
 
   if (query.status)   where.status   = query.status as WaitlistStatus;
   if (query.artistId) where.artistId = query.artistId;
@@ -178,7 +197,10 @@ export async function listWaitlist(
  *
  * Throws 404 when the entry does not exist.
  */
-export async function getWaitlistEntryById(id: string): Promise<WaitlistDetail> {
+export async function getWaitlistEntryById(
+  id: string,
+  tenantId: string | null,
+): Promise<WaitlistDetail> {
   const entry = await prisma.waitlistEntry.findUnique({
     where:  { id },
     select: waitlistDetailSelect,
@@ -186,6 +208,10 @@ export async function getWaitlistEntryById(id: string): Promise<WaitlistDetail> 
 
   if (!entry) {
     throw new AppError(404, 'WAITLIST_ENTRY_NOT_FOUND', `Waitlist entry '${id}' not found`);
+  }
+
+  if (tenantId !== null && entry.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to access this waitlist entry');
   }
 
   return entry;
@@ -206,14 +232,19 @@ export async function getWaitlistEntryById(id: string): Promise<WaitlistDetail> 
 export async function updateWaitlistStatus(
   id:   string,
   body: UpdateWaitlistStatusBody,
+  tenantId: string | null,
 ): Promise<WaitlistDetail> {
   const existing = await prisma.waitlistEntry.findUnique({
     where:  { id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, tenantId: true },
   });
 
   if (!existing) {
     throw new AppError(404, 'WAITLIST_ENTRY_NOT_FOUND', `Waitlist entry '${id}' not found`);
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this waitlist entry');
   }
 
   const allowed = VALID_WAITLIST_TRANSITIONS[existing.status] ?? [];
@@ -257,6 +288,7 @@ export async function updateWaitlistStatus(
 export async function notifyWaitlistEntry(
   id:   string,
   body: NotifyWaitlistEntryBody,
+  tenantId: string | null,
 ): Promise<WaitlistDetail> {
   const entry = await prisma.waitlistEntry.findUnique({
     where:  { id },
@@ -265,6 +297,10 @@ export async function notifyWaitlistEntry(
 
   if (!entry) {
     throw new AppError(404, 'WAITLIST_ENTRY_NOT_FOUND', `Waitlist entry '${id}' not found`);
+  }
+
+  if (tenantId !== null && entry.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to notify this waitlist entry');
   }
 
   const notifiableStatuses: WaitlistStatus[] = ['WAITING', 'NOTIFIED'];
@@ -330,14 +366,21 @@ export async function notifyWaitlistEntry(
  *
  * Throws 404 when the entry does not exist.
  */
-export async function deleteWaitlistEntry(id: string): Promise<{ id: string }> {
+export async function deleteWaitlistEntry(
+  id: string,
+  tenantId: string | null,
+): Promise<{ id: string }> {
   const existing = await prisma.waitlistEntry.findUnique({
     where:  { id },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
 
   if (!existing) {
     throw new AppError(404, 'WAITLIST_ENTRY_NOT_FOUND', `Waitlist entry '${id}' not found`);
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to delete this waitlist entry');
   }
 
   await prisma.waitlistEntry.delete({ where: { id } });
