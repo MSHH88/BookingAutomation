@@ -222,8 +222,19 @@ function buildDateRange(
 export async function createLead(
   body: CreateLeadBody,
   ipAddress?: string,
+  tenantId?: string | null,
 ): Promise<LeadDetail> {
   const businessType = config.BUSINESS_TYPE;
+
+  // ── Resolve tenantId from artist when not explicitly provided ──────────────
+  let resolvedTenantId = tenantId ?? null;
+  if (!resolvedTenantId && body.artistId) {
+    const artist = await prisma.artist.findUnique({
+      where:  { id: body.artistId },
+      select: { tenantId: true },
+    });
+    resolvedTenantId = artist?.tenantId ?? null;
+  }
 
   const created = await prisma.lead.create({
     data: {
@@ -250,6 +261,7 @@ export async function createLead(
       artistId:     body.artistId     ?? null,
       styleId:      body.styleId      ?? null,
       serviceId:    body.serviceId    ?? null,
+      tenantId:     resolvedTenantId,
       status: 'NEW',
       score: 0,
     },

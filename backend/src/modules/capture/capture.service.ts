@@ -253,7 +253,7 @@ export async function captureLeadPublic(
   //   - inquiry-received email stub
   //   - inquiry-notification email stub
   //   - WhatsApp message 1 stub
-  const lead = await createLead(enrichedBody, ipAddress);
+  const lead = await createLead(enrichedBody, ipAddress, tenantId);
 
   // ── 6. Update score ─────────────────────────────────────────────────────────
   // createLead always sets score = 0. We patch it with our computed value.

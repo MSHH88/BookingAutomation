@@ -34,6 +34,7 @@ const mockLeadFindMany   = jest.fn();
 const mockLeadCount      = jest.fn();
 const mockLeadUpdate     = jest.fn();
 const mockAnalyticsCreate = jest.fn();
+const mockArtistFindUnique = jest.fn();
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -46,6 +47,9 @@ jest.mock('../../lib/prisma', () => ({
     },
     analyticsEvent: {
       create: (...a: unknown[]) => mockAnalyticsCreate(...a),
+    },
+    artist: {
+      findUnique: (...a: unknown[]) => mockArtistFindUnique(...a),
     },
   },
 }));
@@ -239,6 +243,40 @@ describe('createLead', () => {
     const createArgs = mockLeadCreate.mock.calls[0][0] as { data: Record<string, unknown> };
     expect(createArgs.data.preferWhatsApp).toBe(false);
     expect(createArgs.data.marketingConsent).toBe(false);
+  });
+
+  it('persists tenantId when explicitly provided', async () => {
+    mockLeadCreate.mockResolvedValueOnce(baseLeadCreate);
+    mockLeadFindUnique.mockResolvedValueOnce(baseLeadDetail);
+
+    await leadsService.createLead(baseCreateBody, '1.2.3.4', 'tenant_abc');
+
+    const createArgs = mockLeadCreate.mock.calls[0][0] as { data: Record<string, unknown> };
+    expect(createArgs.data.tenantId).toBe('tenant_abc');
+  });
+
+  it('resolves tenantId from artistId when not explicitly provided', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ tenantId: 'tenant_xyz' });
+    mockLeadCreate.mockResolvedValueOnce({ ...baseLeadCreate, artistId: 'artist_1' });
+    mockLeadFindUnique.mockResolvedValueOnce({ ...baseLeadDetail, artistId: 'artist_1' });
+
+    await leadsService.createLead({ ...baseCreateBody, artistId: 'artist_1' }, '1.2.3.4');
+
+    expect(mockArtistFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'artist_1' }, select: { tenantId: true } }),
+    );
+    const createArgs = mockLeadCreate.mock.calls[0][0] as { data: Record<string, unknown> };
+    expect(createArgs.data.tenantId).toBe('tenant_xyz');
+  });
+
+  it('sets tenantId to null when no artistId and no explicit tenantId', async () => {
+    mockLeadCreate.mockResolvedValueOnce(baseLeadCreate);
+    mockLeadFindUnique.mockResolvedValueOnce(baseLeadDetail);
+
+    await leadsService.createLead(baseCreateBody, '1.2.3.4');
+
+    const createArgs = mockLeadCreate.mock.calls[0][0] as { data: Record<string, unknown> };
+    expect(createArgs.data.tenantId).toBeNull();
   });
 });
 
