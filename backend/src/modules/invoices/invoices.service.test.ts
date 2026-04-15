@@ -79,6 +79,13 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ─── Mock isFeatureEnabled (per-tenant flag checks) ───────────────────────────
+
+const mockIsFeatureEnabled = jest.fn().mockResolvedValue(true);
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: (...a: unknown[]) => mockIsFeatureEnabled(...a),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as invoicesService from './invoices.service';
@@ -484,27 +491,57 @@ describe('voidInvoice', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('markOverdueInvoices', () => {
-  it('updates past-due UNPAID invoices and returns the count', async () => {
-    mockInvoiceUpdateMany.mockResolvedValue({ count: 3 });
+  it('updates past-due UNPAID invoices per-tenant and returns the total count', async () => {
+    mockInvoiceFindMany.mockResolvedValue([
+      { booking: { tenantId: 'tenant_1' } },
+      { booking: { tenantId: 'tenant_1' } },
+      { booking: { tenantId: 'tenant_2' } },
+    ]);
+    mockIsFeatureEnabled.mockResolvedValue(true);
+    mockInvoiceUpdateMany
+      .mockResolvedValueOnce({ count: 2 }) // tenant_1
+      .mockResolvedValueOnce({ count: 1 }); // tenant_2
 
     const count = await invoicesService.markOverdueInvoices();
 
     expect(count).toBe(3);
-    expect(mockInvoiceUpdateMany).toHaveBeenCalledWith({
-      where: {
-        status:  'UNPAID',
-        dueDate: { lt: expect.any(Date) },
-      },
-      data: { status: 'OVERDUE' },
-    });
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('INVOICE_AUTOMATION_ENABLED', 'tenant_1');
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('INVOICE_AUTOMATION_ENABLED', 'tenant_2');
+    expect(mockInvoiceUpdateMany).toHaveBeenCalledTimes(2);
   });
 
   it('returns 0 when no overdue invoices exist', async () => {
-    mockInvoiceUpdateMany.mockResolvedValue({ count: 0 });
+    mockInvoiceFindMany.mockResolvedValue([]);
 
     const count = await invoicesService.markOverdueInvoices();
 
     expect(count).toBe(0);
+    expect(mockInvoiceUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it('skips tenants where INVOICE_AUTOMATION_ENABLED is disabled', async () => {
+    mockInvoiceFindMany.mockResolvedValue([
+      { booking: { tenantId: 'tenant_enabled' } },
+      { booking: { tenantId: 'tenant_disabled' } },
+    ]);
+    mockIsFeatureEnabled
+      .mockResolvedValueOnce(true)   // tenant_enabled
+      .mockResolvedValueOnce(false); // tenant_disabled
+    mockInvoiceUpdateMany.mockResolvedValueOnce({ count: 1 });
+
+    const count = await invoicesService.markOverdueInvoices();
+
+    expect(count).toBe(1);
+    // Only one updateMany call (for the enabled tenant)
+    expect(mockInvoiceUpdateMany).toHaveBeenCalledTimes(1);
+    expect(mockInvoiceUpdateMany).toHaveBeenCalledWith({
+      where: {
+        status:  'UNPAID',
+        dueDate: { lt: expect.any(Date) },
+        booking: { tenantId: 'tenant_enabled' },
+      },
+      data: { status: 'OVERDUE' },
+    });
   });
 });
 

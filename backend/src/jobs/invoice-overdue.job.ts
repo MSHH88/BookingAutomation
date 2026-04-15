@@ -15,7 +15,6 @@ import { Queue, Worker, Job }   from 'bullmq';
 
 import { config }              from '../config';
 import { logger }              from '../utils/logger';
-import { isFeatureEnabled }    from '../middleware/requireFeature';
 import { markOverdueInvoices } from '../modules/invoices/invoices.service';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -54,12 +53,6 @@ export const invoiceOverdueQueue = new Queue<InvoiceOverdueJobData>(INVOICE_OVER
 // ─── Job processor ────────────────────────────────────────────────────────────
 
 export async function processInvoiceOverdueJob(_job: Job<InvoiceOverdueJobData>): Promise<void> {
-  // Runtime flag check — toggles take effect immediately without restart
-  if (!(await isFeatureEnabled('INVOICE_AUTOMATION_ENABLED'))) {
-    logger.debug('Invoice overdue job skipped — INVOICE_AUTOMATION_ENABLED is off');
-    return;
-  }
-
   logger.info('Processing invoice overdue check');
 
   const count = await markOverdueInvoices();

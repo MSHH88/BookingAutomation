@@ -29,6 +29,7 @@ import { prisma }                     from '../../lib/prisma';
 import { AppError }                   from '../../errors/AppError';
 import { paginate, PaginatedResult }  from '../../utils/paginate';
 import { logger }                     from '../../utils/logger';
+import { isFeatureEnabled }           from '../../middleware/requireFeature';
 import type {
   ListInvoicesQuery,
   MarkPaidBody,
@@ -411,26 +412,62 @@ export async function voidInvoice(
 }
 
 /**
- * Mark all UNPAID invoices whose `dueDate` is in the past as OVERDUE.
+ * Mark UNPAID invoices whose `dueDate` is in the past as OVERDUE,
+ * respecting per-tenant INVOICE_AUTOMATION_ENABLED flag overrides.
  *
- * Designed to be called from a BullMQ daily cron job (Phase 2).
+ * Processing strategy:
+ *  1. Find all overdue-eligible invoices (UNPAID, dueDate < now).
+ *  2. Identify the distinct tenantIds from their bookings.
+ *  3. For each tenantId, check the INVOICE_AUTOMATION_ENABLED flag.
+ *  4. Only update invoices belonging to tenants where the flag is enabled.
+ *
  * Safe to call multiple times — already-OVERDUE invoices are not re-processed
  * because the `where` clause explicitly filters for `UNPAID` only.
  *
- * Returns the number of invoices updated.
+ * Returns the total number of invoices updated across all tenants.
  */
 export async function markOverdueInvoices(): Promise<number> {
-  const result = await prisma.invoice.updateMany({
+  const now = new Date();
+
+  // Step 1: Find distinct tenantIds among overdue-eligible invoices
+  const overdueInvoices = await prisma.invoice.findMany({
     where: {
       status:  'UNPAID',
-      dueDate: { lt: new Date() },
+      dueDate: { lt: now },
     },
-    data: { status: 'OVERDUE' },
+    select: { booking: { select: { tenantId: true } } },
   });
 
-  if (result.count > 0) {
-    logger.info('Overdue invoices marked', { count: result.count });
+  // Build unique tenantId set (null tenantId treated as global/unscoped)
+  const tenantIds = [...new Set(overdueInvoices.map((inv) => inv.booking.tenantId))];
+
+  if (tenantIds.length === 0) return 0;
+
+  let totalCount = 0;
+
+  // Step 2: Process per-tenant with flag check
+  for (const tenantId of tenantIds) {
+    const enabled = await isFeatureEnabled('INVOICE_AUTOMATION_ENABLED', tenantId);
+    if (!enabled) {
+      logger.debug('Invoice overdue skipped for tenant — INVOICE_AUTOMATION_ENABLED is off', { tenantId });
+      continue;
+    }
+
+    const result = await prisma.invoice.updateMany({
+      where: {
+        status:  'UNPAID',
+        dueDate: { lt: now },
+        booking: { tenantId },
+      },
+      data: { status: 'OVERDUE' },
+    });
+
+    totalCount += result.count;
   }
 
-  return result.count;
+  if (totalCount > 0) {
+    logger.info('Overdue invoices marked', { count: totalCount });
+  }
+
+  return totalCount;
 }
