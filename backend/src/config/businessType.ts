@@ -242,7 +242,6 @@ export const FEATURE_FLAG_KEYS = [
   'LOYALTY_ENABLED',            // loyalty points accumulation and redemption
 
   // ── Phase 1: Messaging foundation ──────────────────────────────────────
-  'SMS_ENABLED',                    // SMS messaging channel (Twilio SMS)
   'BIRTHDAY_AUTOMATION_ENABLED',    // automated birthday messages
   'REBOOKING_NUDGES_ENABLED',       // automated rebook nudge after service
   'RECURRING_BOOKINGS_ENABLED',     // recurring / subscription bookings
@@ -325,7 +324,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       false,
     LOYALTY_ENABLED:            true,
-    SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
@@ -374,7 +372,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            true,
-    SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
@@ -423,7 +420,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            true,
-    SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
@@ -472,7 +468,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            true,
-    SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
@@ -521,7 +516,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       false,
     LOYALTY_ENABLED:            true,
-    SMS_ENABLED:                true,
     BIRTHDAY_AUTOMATION_ENABLED: true,
     REBOOKING_NUDGES_ENABLED:   true,
     RECURRING_BOOKINGS_ENABLED: true,
@@ -570,7 +564,6 @@ export const defaultFeatureFlags: BusinessFeatureFlagMap = {
     CANCELLATION_FEE_ENABLED:   false,
     WAITING_LIST_ENABLED:       true,
     LOYALTY_ENABLED:            false,
-    SMS_ENABLED:                false,
     BIRTHDAY_AUTOMATION_ENABLED: false,
     REBOOKING_NUDGES_ENABLED:   false,
     RECURRING_BOOKINGS_ENABLED: false,

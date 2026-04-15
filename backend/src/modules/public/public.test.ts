@@ -58,7 +58,6 @@ const allEnabledFlags: Record<string, boolean> = {
   GIFT_VOUCHER_ENABLED: false,
   WAITING_LIST_ENABLED: false,
   LOYALTY_ENABLED: false,
-  SMS_ENABLED: true,
   BIRTHDAY_AUTOMATION_ENABLED: true,
   REBOOKING_NUDGES_ENABLED: true,
   RECURRING_BOOKINGS_ENABLED: true,

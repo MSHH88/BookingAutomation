@@ -15,7 +15,7 @@
  *
  * Feature flag gates:
  *   - WHATSAPP_CONTACT_ENABLED must be ON for WhatsApp
- *   - SMS_ENABLED must be ON for SMS
+ *   - SMS_REMINDERS_ENABLED must be ON for SMS
  *   - EMAIL_REMINDERS_ENABLED must be ON for email
  */
 import { logger }           from '../utils/logger';
