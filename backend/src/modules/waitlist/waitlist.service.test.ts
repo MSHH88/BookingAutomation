@@ -706,6 +706,7 @@ describe('tenant isolation (BUG 6)', () => {
       email: 'jane@example.com',
       phone: '+44 7700 900001',
       artistId: 'artist_1',
+      timePreference: 'ANY',
     });
 
     expect(mockWaitlistCreate).toHaveBeenCalledWith(
@@ -724,6 +725,7 @@ describe('tenant isolation (BUG 6)', () => {
         email: 'jane@example.com',
         phone: '+44 7700 900001',
         artistId: 'nonexistent',
+        timePreference: 'ANY',
       }),
     ).rejects.toMatchObject({ statusCode: 400, code: 'ARTIST_NOT_FOUND' });
   });

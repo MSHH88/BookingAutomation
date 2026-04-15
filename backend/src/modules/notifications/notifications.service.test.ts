@@ -63,6 +63,7 @@ process.env['RESEND_FROM_NAME']   = 'Test Studio';
 // ─── Mock Prisma ──────────────────────────────────────────────────────────────
 
 const mockTemplateFindUnique = jest.fn();
+const mockTemplateFindFirst  = jest.fn();
 const mockTemplateFindMany   = jest.fn();
 const mockTemplateCount      = jest.fn();
 const mockTemplateCreate     = jest.fn();
@@ -72,6 +73,7 @@ jest.mock('../../lib/prisma', () => ({
   prisma: {
     emailTemplate: {
       findUnique: (...a: unknown[]) => mockTemplateFindUnique(...a),
+      findFirst:  (...a: unknown[]) => mockTemplateFindFirst(...a),
       findMany:   (...a: unknown[]) => mockTemplateFindMany(...a),
       count:      (...a: unknown[]) => mockTemplateCount(...a),
       create:     (...a: unknown[]) => mockTemplateCreate(...a),
@@ -102,6 +104,7 @@ const NOW = new Date('2026-04-07T10:00:00Z');
 
 const baseTemplateDetail = {
   id:        'tpl_1',
+  tenantId:  null as string | null,
   key:       'booking-confirmed',
   subject:   'Booking confirmed for {{customerName}}',
   htmlBody:  '<h1>Hello {{customerName}}, your booking is confirmed for {{bookingDate}}.</h1>',
@@ -112,6 +115,7 @@ const baseTemplateDetail = {
 
 const baseTemplateListItem = {
   id:        'tpl_1',
+  tenantId:  null as string | null,
   key:       'booking-confirmed',
   subject:   'Booking confirmed for {{customerName}}',
   variables: ['customerName', 'bookingDate', 'artistName'],
@@ -132,13 +136,13 @@ describe('listTemplates', () => {
     mockTemplateCount.mockResolvedValue(1);
     mockTemplateFindMany.mockResolvedValue([baseTemplateListItem]);
 
-    const result = await notificationsService.listTemplates({});
+    const result = await notificationsService.listTemplates(null, {});
 
     expect(result.data).toHaveLength(1);
     expect(result.meta.total).toBe(1);
     expect(mockTemplateFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where:   {},
+        where:   expect.objectContaining({ tenantId: null }),
         orderBy: { key: 'asc' },
       }),
     );
@@ -148,10 +152,10 @@ describe('listTemplates', () => {
     mockTemplateCount.mockResolvedValue(1);
     mockTemplateFindMany.mockResolvedValue([baseTemplateListItem]);
 
-    await notificationsService.listTemplates({ isActive: true });
+    await notificationsService.listTemplates(null, { isActive: true });
 
     expect(mockTemplateFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { isActive: true } }),
+      expect.objectContaining({ where: expect.objectContaining({ isActive: true }) }),
     );
   });
 
@@ -159,10 +163,10 @@ describe('listTemplates', () => {
     mockTemplateCount.mockResolvedValue(0);
     mockTemplateFindMany.mockResolvedValue([]);
 
-    await notificationsService.listTemplates({ isActive: false });
+    await notificationsService.listTemplates(null, { isActive: false });
 
     expect(mockTemplateFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { isActive: false } }),
+      expect.objectContaining({ where: expect.objectContaining({ isActive: false }) }),
     );
   });
 
@@ -170,7 +174,7 @@ describe('listTemplates', () => {
     mockTemplateCount.mockResolvedValue(50);
     mockTemplateFindMany.mockResolvedValue([]);
 
-    await notificationsService.listTemplates({ page: '3', limit: '5' });
+    await notificationsService.listTemplates(null, { page: '3', limit: '5' });
 
     expect(mockTemplateFindMany).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 10, take: 5 }),
@@ -184,7 +188,7 @@ describe('getTemplateById', () => {
   it('returns template detail when found', async () => {
     mockTemplateFindUnique.mockResolvedValueOnce(baseTemplateDetail);
 
-    const result = await notificationsService.getTemplateById('tpl_1');
+    const result = await notificationsService.getTemplateById(null, 'tpl_1');
 
     expect(result).toEqual(baseTemplateDetail);
     expect(mockTemplateFindUnique).toHaveBeenCalledWith({
@@ -196,7 +200,7 @@ describe('getTemplateById', () => {
   it('throws 404 TEMPLATE_NOT_FOUND when template does not exist', async () => {
     mockTemplateFindUnique.mockResolvedValueOnce(null);
 
-    await expect(notificationsService.getTemplateById('missing'))
+    await expect(notificationsService.getTemplateById(null, 'missing'))
       .rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
   });
 });
@@ -213,10 +217,10 @@ describe('createTemplate', () => {
   };
 
   it('creates and returns a new template', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce(null); // no duplicate
+    mockTemplateFindFirst.mockResolvedValueOnce(null); // no duplicate
     mockTemplateCreate.mockResolvedValue({ ...baseTemplateDetail, key: 'quote-sent' });
 
-    const result = await notificationsService.createTemplate(createBody);
+    const result = await notificationsService.createTemplate(null, createBody);
 
     expect(result.key).toBe('quote-sent');
     expect(mockTemplateCreate).toHaveBeenCalledWith({
@@ -231,9 +235,9 @@ describe('createTemplate', () => {
   });
 
   it('throws 409 TEMPLATE_KEY_CONFLICT when key already exists', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_existing' });
+    mockTemplateFindFirst.mockResolvedValueOnce({ id: 'tpl_existing' });
 
-    await expect(notificationsService.createTemplate(createBody))
+    await expect(notificationsService.createTemplate(null, createBody))
       .rejects.toMatchObject({ statusCode: 409, code: 'TEMPLATE_KEY_CONFLICT' });
 
     expect(mockTemplateCreate).not.toHaveBeenCalled();
@@ -244,10 +248,10 @@ describe('createTemplate', () => {
 
 describe('updateTemplate', () => {
   it('updates subject only', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null });
     mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, subject: 'New subject' });
 
-    const result = await notificationsService.updateTemplate('tpl_1', { subject: 'New subject' });
+    const result = await notificationsService.updateTemplate(null, 'tpl_1', { subject: 'New subject' });
 
     expect(result.subject).toBe('New subject');
     expect(mockTemplateUpdate).toHaveBeenCalledWith({
@@ -259,10 +263,10 @@ describe('updateTemplate', () => {
 
   it('updates htmlBody only', async () => {
     const newBody = '<h1>Updated content {{name}}</h1>';
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null });
     mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, htmlBody: newBody });
 
-    const result = await notificationsService.updateTemplate('tpl_1', { htmlBody: newBody });
+    const result = await notificationsService.updateTemplate(null, 'tpl_1', { htmlBody: newBody });
 
     expect(result.htmlBody).toBe(newBody);
     expect(mockTemplateUpdate).toHaveBeenCalledWith(
@@ -272,19 +276,19 @@ describe('updateTemplate', () => {
 
   it('updates variables only', async () => {
     const newVars = ['customerName', 'newVar'];
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null });
     mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, variables: newVars });
 
-    const result = await notificationsService.updateTemplate('tpl_1', { variables: newVars });
+    const result = await notificationsService.updateTemplate(null, 'tpl_1', { variables: newVars });
 
     expect(result.variables).toEqual(newVars);
   });
 
   it('updates isActive only', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null });
     mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, isActive: false });
 
-    const result = await notificationsService.updateTemplate('tpl_1', { isActive: false });
+    const result = await notificationsService.updateTemplate(null, 'tpl_1', { isActive: false });
 
     expect(result.isActive).toBe(false);
     expect(mockTemplateUpdate).toHaveBeenCalledWith(
@@ -294,10 +298,10 @@ describe('updateTemplate', () => {
 
   it('updates multiple fields at once', async () => {
     const updatedTpl = { ...baseTemplateDetail, subject: 'New', isActive: false };
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1' });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null });
     mockTemplateUpdate.mockResolvedValue(updatedTpl);
 
-    await notificationsService.updateTemplate('tpl_1', { subject: 'New', isActive: false });
+    await notificationsService.updateTemplate(null, 'tpl_1', { subject: 'New', isActive: false });
 
     expect(mockTemplateUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ data: { subject: 'New', isActive: false } }),
@@ -307,7 +311,7 @@ describe('updateTemplate', () => {
   it('throws 404 TEMPLATE_NOT_FOUND when template does not exist', async () => {
     mockTemplateFindUnique.mockResolvedValueOnce(null);
 
-    await expect(notificationsService.updateTemplate('missing', { subject: 'X' }))
+    await expect(notificationsService.updateTemplate(null, 'missing', { subject: 'X' }))
       .rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
 
     expect(mockTemplateUpdate).not.toHaveBeenCalled();
@@ -318,10 +322,10 @@ describe('updateTemplate', () => {
 
 describe('deleteTemplate', () => {
   it('deactivates an active template and returns updated record', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', isActive: true });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null, isActive: true });
     mockTemplateUpdate.mockResolvedValue({ ...baseTemplateDetail, isActive: false });
 
-    const result = await notificationsService.deleteTemplate('tpl_1');
+    const result = await notificationsService.deleteTemplate(null, 'tpl_1');
 
     expect(result.isActive).toBe(false);
     expect(mockTemplateUpdate).toHaveBeenCalledWith({
@@ -332,9 +336,9 @@ describe('deleteTemplate', () => {
   });
 
   it('throws 409 TEMPLATE_ALREADY_INACTIVE when already inactive', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', isActive: false });
+    mockTemplateFindUnique.mockResolvedValueOnce({ id: 'tpl_1', tenantId: null, isActive: false });
 
-    await expect(notificationsService.deleteTemplate('tpl_1'))
+    await expect(notificationsService.deleteTemplate(null, 'tpl_1'))
       .rejects.toMatchObject({ statusCode: 409, code: 'TEMPLATE_ALREADY_INACTIVE' });
 
     expect(mockTemplateUpdate).not.toHaveBeenCalled();
@@ -343,7 +347,7 @@ describe('deleteTemplate', () => {
   it('throws 404 TEMPLATE_NOT_FOUND when template does not exist', async () => {
     mockTemplateFindUnique.mockResolvedValueOnce(null);
 
-    await expect(notificationsService.deleteTemplate('missing'))
+    await expect(notificationsService.deleteTemplate(null, 'missing'))
       .rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
   });
 });
