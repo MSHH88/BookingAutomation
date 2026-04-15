@@ -57,14 +57,30 @@ async function resolveArtistId(
   queryArtistId: string | undefined,
   actorId:       string,
   actorRole:     'ADMIN' | 'ARTIST',
+  tenantId:      string | null,
 ): Promise<string> {
   if (actorRole === 'ADMIN') {
-    if (queryArtistId) return queryArtistId;
-    throw new AppError(
-      400,
-      'ARTIST_ID_REQUIRED',
-      'artistId query parameter is required for ADMIN callers',
-    );
+    if (!queryArtistId) {
+      throw new AppError(
+        400,
+        'ARTIST_ID_REQUIRED',
+        'artistId query parameter is required for ADMIN callers',
+      );
+    }
+    // Verify the artist belongs to the caller's tenant
+    if (tenantId !== null) {
+      const artist = await prisma.artist.findUnique({
+        where:  { id: queryArtistId },
+        select: { id: true, tenantId: true },
+      });
+      if (!artist) {
+        throw new AppError(404, 'ARTIST_NOT_FOUND', `Artist ${queryArtistId} not found`);
+      }
+      if (artist.tenantId !== tenantId) {
+        throw new AppError(403, 'FORBIDDEN', 'You do not have permission to access this artist');
+      }
+    }
+    return queryArtistId;
   }
 
   // ARTIST: always use own profile, ignore any provided artistId
@@ -104,8 +120,9 @@ export async function getOAuthUrl(
   queryArtistId: string | undefined,
   actorId:       string,
   actorRole:     'ADMIN' | 'ARTIST',
+  tenantId:      string | null,
 ): Promise<{ url: string }> {
-  const artistId = await resolveArtistId(queryArtistId, actorId, actorRole);
+  const artistId = await resolveArtistId(queryArtistId, actorId, actorRole, tenantId);
 
   // Encode artistId in state so callback can persist tokens to the right Artist
   const state = Buffer.from(JSON.stringify({ artistId })).toString('base64url');
@@ -200,8 +217,9 @@ export async function getCalendarStatus(
   queryArtistId: string | undefined,
   actorId:       string,
   actorRole:     'ADMIN' | 'ARTIST',
+  tenantId:      string | null,
 ): Promise<{ connected: boolean; expiresAt: Date | null }> {
-  const artistId = await resolveArtistId(queryArtistId, actorId, actorRole);
+  const artistId = await resolveArtistId(queryArtistId, actorId, actorRole, tenantId);
 
   const artist = await prisma.artist.findUnique({
     where:  { id: artistId },
@@ -232,8 +250,9 @@ export async function disconnectCalendar(
   queryArtistId: string | undefined,
   actorId:       string,
   actorRole:     'ADMIN' | 'ARTIST',
+  tenantId:      string | null,
 ): Promise<void> {
-  const artistId = await resolveArtistId(queryArtistId, actorId, actorRole);
+  const artistId = await resolveArtistId(queryArtistId, actorId, actorRole, tenantId);
 
   const artist = await prisma.artist.findUnique({
     where:  { id: artistId },

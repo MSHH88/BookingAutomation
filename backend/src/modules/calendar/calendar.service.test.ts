@@ -137,7 +137,8 @@ beforeEach(() => {
 
 describe('getOAuthUrl', () => {
   it('ADMIN — returns auth URL for specified artistId', async () => {
-    const result = await svc.getOAuthUrl(artistId, userId, 'ADMIN');
+    mockArtistFindUnique.mockResolvedValueOnce({ id: artistId, tenantId: 'tenant_1' });
+    const result = await svc.getOAuthUrl(artistId, userId, 'ADMIN', 'tenant_1');
     expect(result.url).toBe('https://accounts.google.com/auth');
     expect(mockGenerateAuthUrl).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -154,22 +155,37 @@ describe('getOAuthUrl', () => {
   });
 
   it('ADMIN — throws 400 when artistId is missing', async () => {
-    await expect(svc.getOAuthUrl(undefined, userId, 'ADMIN')).rejects.toMatchObject({
+    await expect(svc.getOAuthUrl(undefined, userId, 'ADMIN', null)).rejects.toMatchObject({
       statusCode: 400,
       code:   'ARTIST_ID_REQUIRED',
     });
   });
 
+  it('ADMIN — throws 403 when artistId belongs to different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ id: artistId, tenantId: 'tenant_B' });
+    await expect(svc.getOAuthUrl(artistId, userId, 'ADMIN', 'tenant_A')).rejects.toMatchObject({
+      statusCode: 403,
+      code:   'FORBIDDEN',
+    });
+  });
+
+  it('ADMIN — SUPER_ADMIN (null tenantId) skips tenant check', async () => {
+    const result = await svc.getOAuthUrl(artistId, userId, 'ADMIN', null);
+    expect(result.url).toBe('https://accounts.google.com/auth');
+    // No artist lookup needed for SUPER_ADMIN
+    expect(mockArtistFindUnique).not.toHaveBeenCalled();
+  });
+
   it('ARTIST — resolves own artist profile and returns auth URL', async () => {
     mockArtistFindFirst.mockResolvedValue({ id: artistId });
-    const result = await svc.getOAuthUrl(undefined, userId, 'ARTIST');
+    const result = await svc.getOAuthUrl(undefined, userId, 'ARTIST', null);
     expect(result.url).toBe('https://accounts.google.com/auth');
     expect(mockArtistFindFirst).toHaveBeenCalledWith({ where: { userId }, select: { id: true } });
   });
 
   it('ARTIST — throws 404 when artist profile not found', async () => {
     mockArtistFindFirst.mockResolvedValue(null);
-    await expect(svc.getOAuthUrl(undefined, userId, 'ARTIST')).rejects.toMatchObject({
+    await expect(svc.getOAuthUrl(undefined, userId, 'ARTIST', null)).rejects.toMatchObject({
       statusCode: 404,
       code:   'ARTIST_PROFILE_NOT_FOUND',
     });
@@ -258,7 +274,7 @@ describe('getCalendarStatus', () => {
       calendarRefreshToken:   'refresh',
       calendarTokenExpiresAt: new Date('2026-05-01'),
     });
-    const result = await svc.getCalendarStatus(artistId, userId, 'ADMIN');
+    const result = await svc.getCalendarStatus(artistId, userId, 'ADMIN', null);
     expect(result.connected).toBe(true);
     expect(result.expiresAt).toEqual(new Date('2026-05-01'));
   });
@@ -269,14 +285,14 @@ describe('getCalendarStatus', () => {
       calendarRefreshToken:   null,
       calendarTokenExpiresAt: null,
     });
-    const result = await svc.getCalendarStatus(artistId, userId, 'ADMIN');
+    const result = await svc.getCalendarStatus(artistId, userId, 'ADMIN', null);
     expect(result.connected).toBe(false);
     expect(result.expiresAt).toBeNull();
   });
 
   it('throws 404 when artist not found', async () => {
     mockArtistFindUnique.mockResolvedValue(null);
-    await expect(svc.getCalendarStatus(artistId, userId, 'ADMIN')).rejects.toMatchObject({
+    await expect(svc.getCalendarStatus(artistId, userId, 'ADMIN', null)).rejects.toMatchObject({
       statusCode: 404,
       code:   'ARTIST_NOT_FOUND',
     });
@@ -289,8 +305,16 @@ describe('getCalendarStatus', () => {
       calendarRefreshToken:   'r',
       calendarTokenExpiresAt: null,
     });
-    const result = await svc.getCalendarStatus(undefined, userId, 'ARTIST');
+    const result = await svc.getCalendarStatus(undefined, userId, 'ARTIST', null);
     expect(result.connected).toBe(true);
+  });
+
+  it('ADMIN — throws 403 when artistId belongs to different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ id: artistId, tenantId: 'tenant_B' });
+    await expect(svc.getCalendarStatus(artistId, userId, 'ADMIN', 'tenant_A')).rejects.toMatchObject({
+      statusCode: 403,
+      code:   'FORBIDDEN',
+    });
   });
 });
 
@@ -301,7 +325,7 @@ describe('getCalendarStatus', () => {
 describe('disconnectCalendar', () => {
   it('success — clears tokens', async () => {
     mockArtistFindUnique.mockResolvedValue({ id: artistId, calendarRefreshToken: 'refresh' });
-    await svc.disconnectCalendar(artistId, userId, 'ADMIN');
+    await svc.disconnectCalendar(artistId, userId, 'ADMIN', null);
     expect(mockArtistUpdate).toHaveBeenCalledWith({
       where: { id: artistId },
       data:  {
@@ -314,7 +338,7 @@ describe('disconnectCalendar', () => {
 
   it('throws 409 when calendar is not connected', async () => {
     mockArtistFindUnique.mockResolvedValue({ id: artistId, calendarRefreshToken: null });
-    await expect(svc.disconnectCalendar(artistId, userId, 'ADMIN')).rejects.toMatchObject({
+    await expect(svc.disconnectCalendar(artistId, userId, 'ADMIN', null)).rejects.toMatchObject({
       statusCode: 409,
       code:   'CALENDAR_NOT_CONNECTED',
     });
@@ -322,7 +346,7 @@ describe('disconnectCalendar', () => {
 
   it('throws 404 when artist not found', async () => {
     mockArtistFindUnique.mockResolvedValue(null);
-    await expect(svc.disconnectCalendar(artistId, userId, 'ADMIN')).rejects.toMatchObject({
+    await expect(svc.disconnectCalendar(artistId, userId, 'ADMIN', null)).rejects.toMatchObject({
       statusCode: 404,
       code:   'ARTIST_NOT_FOUND',
     });
@@ -331,8 +355,16 @@ describe('disconnectCalendar', () => {
   it('ARTIST — uses own profile', async () => {
     mockArtistFindFirst.mockResolvedValue({ id: artistId });
     mockArtistFindUnique.mockResolvedValue({ id: artistId, calendarRefreshToken: 'refresh' });
-    await svc.disconnectCalendar(undefined, userId, 'ARTIST');
+    await svc.disconnectCalendar(undefined, userId, 'ARTIST', null);
     expect(mockArtistUpdate).toHaveBeenCalled();
+  });
+
+  it('ADMIN — throws 403 when artistId belongs to different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValueOnce({ id: artistId, tenantId: 'tenant_B' });
+    await expect(svc.disconnectCalendar(artistId, userId, 'ADMIN', 'tenant_A')).rejects.toMatchObject({
+      statusCode: 403,
+      code:   'FORBIDDEN',
+    });
   });
 });
 

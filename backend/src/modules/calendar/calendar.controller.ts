@@ -7,6 +7,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as svc from './calendar.service';
 import { success } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type { GetAuthUrlQuery, CallbackQuery, GetStatusQuery } from './calendar.schema';
 
 // ─── getAuthUrl ───────────────────────────────────────────────────────────────
@@ -25,10 +26,12 @@ export async function getAuthUrl(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req as Request);
     const result = await svc.getOAuthUrl(
       req.query.artistId,
       req.user!.id,
       req.user!.role as 'ADMIN' | 'ARTIST',
+      tenantId,
     );
     res.json(success(result));
   } catch (err) {
@@ -91,10 +94,12 @@ export async function getStatus(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req as Request);
     const result = await svc.getCalendarStatus(
       req.query.artistId,
       req.user!.id,
       req.user!.role as 'ADMIN' | 'ARTIST',
+      tenantId,
     );
     res.json(success(result));
   } catch (err) {
@@ -116,10 +121,12 @@ export async function disconnectCalendarHandler(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req as Request);
     await svc.disconnectCalendar(
       req.query.artistId,
       req.user!.id,
       req.user!.role as 'ADMIN' | 'ARTIST',
+      tenantId,
     );
     res.sendStatus(204);
   } catch (err) {
