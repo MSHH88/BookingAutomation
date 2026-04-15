@@ -359,16 +359,21 @@ export async function sendEmail(
  * @param body - { to, variables }
  */
 export async function sendTestEmail(
+  tenantId: string | null,
   id:   string,
   body: SendTestBody,
 ): Promise<{ templateId: string; to: string; subject: string }> {
   const template = await prisma.emailTemplate.findUnique({
     where:  { id },
-    select: { id: true, subject: true, htmlBody: true, isActive: true, key: true },
+    select: { id: true, tenantId: true, subject: true, htmlBody: true, isActive: true, key: true },
   });
 
   if (!template) {
     throw new AppError(404, 'TEMPLATE_NOT_FOUND', `Email template '${id}' not found`);
+  }
+
+  if (tenantId !== null && template.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to access this template');
   }
 
   const renderedSubject = Handlebars.compile(template.subject, { noEscape: true })(body.variables);

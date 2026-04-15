@@ -481,6 +481,7 @@ describe('sendEmail', () => {
 describe('sendTestEmail', () => {
   const template = {
     id:       'tpl_1',
+    tenantId: 'tenant_1',
     key:      'booking-confirmed',
     subject:  'Booking for {{customerName}}',
     htmlBody: '<h1>Hi {{customerName}}!</h1>',
@@ -491,7 +492,7 @@ describe('sendTestEmail', () => {
     mockTemplateFindUnique.mockResolvedValueOnce(template);
     mockResendSend.mockResolvedValue({ data: { id: 'r1' }, error: null });
 
-    const result = await notificationsService.sendTestEmail('tpl_1', {
+    const result = await notificationsService.sendTestEmail(null, 'tpl_1', {
       to:        'admin@studio.com',
       variables: { customerName: 'Admin Preview' },
     });
@@ -507,7 +508,7 @@ describe('sendTestEmail', () => {
     mockTemplateFindUnique.mockResolvedValueOnce(template);
     mockResendSend.mockResolvedValue({ data: { id: 'r2' }, error: null });
 
-    const result = await notificationsService.sendTestEmail('tpl_1', {
+    const result = await notificationsService.sendTestEmail(null, 'tpl_1', {
       to:        'test@example.com',
       variables: { customerName: 'Test User' },
     });
@@ -521,7 +522,7 @@ describe('sendTestEmail', () => {
     mockTemplateFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      notificationsService.sendTestEmail('missing', { to: 'x@x.com', variables: {} }),
+      notificationsService.sendTestEmail(null, 'missing', { to: 'x@x.com', variables: {} }),
     ).rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
   });
 
@@ -530,7 +531,7 @@ describe('sendTestEmail', () => {
     mockResendSend.mockResolvedValue({ data: null, error: { message: 'API limit reached' } });
 
     await expect(
-      notificationsService.sendTestEmail('tpl_1', {
+      notificationsService.sendTestEmail(null, 'tpl_1', {
         to:        'x@x.com',
         variables: { customerName: 'X' },
       }),
@@ -541,7 +542,7 @@ describe('sendTestEmail', () => {
     mockTemplateFindUnique.mockResolvedValueOnce({ ...template, isActive: false });
     mockResendSend.mockResolvedValue({ data: { id: 'r3' }, error: null });
 
-    const result = await notificationsService.sendTestEmail('tpl_1', {
+    const result = await notificationsService.sendTestEmail(null, 'tpl_1', {
       to:        'dev@studio.com',
       variables: { customerName: 'Dev' },
     });
@@ -558,7 +559,7 @@ describe('sendTestEmail', () => {
     });
     mockResendSend.mockResolvedValue({ data: { id: 'r4' }, error: null });
 
-    const result = await notificationsService.sendTestEmail('tpl_1', {
+    const result = await notificationsService.sendTestEmail(null, 'tpl_1', {
       to:        'test@example.com',
       variables: { name: "Smith & O'Brien" },
     });
@@ -567,5 +568,30 @@ describe('sendTestEmail', () => {
     expect(result.subject).toBe("Test booking for Smith & O'Brien");
     expect(result.subject).not.toContain('&amp;');
     expect(result.subject).not.toContain('&#x27;');
+  });
+
+  it('throws 403 FORBIDDEN when template belongs to different tenant', async () => {
+    mockTemplateFindUnique.mockResolvedValueOnce({ ...template, tenantId: 'tenant_B' });
+
+    await expect(
+      notificationsService.sendTestEmail('tenant_A', 'tpl_1', {
+        to:        'admin@studio.com',
+        variables: { customerName: 'X' },
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+    expect(mockResendSend).not.toHaveBeenCalled();
+  });
+
+  it('SUPER_ADMIN (null tenantId) can test-send any template', async () => {
+    mockTemplateFindUnique.mockResolvedValueOnce(template);
+    mockResendSend.mockResolvedValue({ data: { id: 'r5' }, error: null });
+
+    const result = await notificationsService.sendTestEmail(null, 'tpl_1', {
+      to:        'super@admin.com',
+      variables: { customerName: 'Super' },
+    });
+
+    expect(result.templateId).toBe('tpl_1');
+    expect(mockResendSend).toHaveBeenCalledTimes(1);
   });
 });

@@ -145,9 +145,10 @@ export async function sendTestEmail(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id } = req.params as { id: string };
     const body   = req.body as SendTestBody;
-    const result = await notificationsService.sendTestEmail(id, body);
+    const result = await notificationsService.sendTestEmail(tenantId, id, body);
     res.json(success(result));
   } catch (err) {
     next(err);
