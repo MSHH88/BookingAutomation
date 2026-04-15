@@ -1,3 +1,55 @@
+## AUDIT‑011..AUDIT‑018 Completion Status (Verification)
+
+> Verified: 2026-04-15 against commit `a598094` (HEAD of `copilot/create-detailed-automation-plan`).
+
+- **AUDIT‑011:** ✅ Completed — `admin.service.ts` `getStudioSettings(tenantId)` and `updateStudioSettings(tenantId, body)` now use `where: { tenantId }`; `admin.controller.ts` extracts `tenantId` via `extractTenantId(req)`. Commit `6fd41ba`.
+- **AUDIT‑012:** ✅ Completed — Duplicate flag keys canonicalized: `RECURRING_BOOKING_ENABLED` → `RECURRING_BOOKINGS_ENABLED` everywhere; `REBOOK_REMINDER_ENABLED`, `TIP_COLLECTION_ENABLED`, `FORMS_ENABLED` removed from `FEATURE_FLAG_KEYS`. Commit `cd800b5`.
+- **AUDIT‑013:** ✅ Completed — 14 orphan flags removed from `FEATURE_FLAG_KEYS` and all `getDefaultFlags` blocks (GDPR_ENABLED, DAILY_REPORT_ENABLED, COVERS_MANAGEMENT_ENABLED, PARTY_SIZE_ENABLED, SPECIAL_REQUESTS_ENABLED, PORTFOLIO_ENABLED, GALLERY_UPLOAD_ENABLED, LEAD_SCORING_ENABLED, ICS_DOWNLOAD_ENABLED, DEPOSIT_PARTIAL_ENABLED, PRICE_LIST_VISIBLE, INSTANT_BOOKING_ENABLED, MANNEQUIN_ENABLED, REFERENCE_IMAGES_ENABLED). Commit `f1032b2`.
+- **AUDIT‑014:** ✅ Completed — `resolveChannels()` in `notification-dispatcher.ts` now accepts `tenantId` and passes it to all `isFeatureEnabled()` calls. `enqueueBookingReminder` and `cancelBookingReminder` in `reminders.queue.ts` now pass `tenantId`. Commit `60d3fed`.
+- **AUDIT‑015:** ✅ Completed — `createPaymentIntent()` in `payments.service.ts` now checks `await isFeatureEnabled('TIPS_ENABLED', tenantId)` and zeros out tip when disabled, with structured warning log. Commit `66e8be0`.
+- **AUDIT‑016:** ✅ Completed — All 6 job processors (`birthday`, `campaign`, `rebook-nudge`, `recurring-booking`, `no-show`, `waitlist-match`) now check their respective feature flag at the top of `process()` and no-op when disabled. Commit `3c50ff4`.
+- **AUDIT‑017:** ✅ Completed — `PUBLIC_CAPTCHA_ENABLED` added to `FEATURE_FLAG_KEYS` and all 6 business-type defaults in `businessType.ts`. `requireCaptcha` middleware in `captcha.ts` now checks `isFeatureEnabled('PUBLIC_CAPTCHA_ENABLED')` first, falls back to env-var. Commit `74203d0`.
+- **AUDIT‑018:** ✅ Completed — Per-tenant feature flag checks added in `birthday.job.ts` (per-customer `tenantId`), `campaign.job.ts` (per-campaign `tenantId`), `recurring-booking.job.ts` (per-record `tenantId`). `reminders.queue.ts` already passes `tenantId` (AUDIT-014). Commit `a598094`.
+
+### Created Files (AUDIT‑011..AUDIT‑018)
+
+None. All AUDIT fixes are changes to existing files only.
+
+### Modified Files (AUDIT‑011..AUDIT‑018)
+
+- `backend/src/modules/admin/admin.controller.ts` — AUDIT-011
+- `backend/src/modules/admin/admin.service.ts` — AUDIT-011
+- `backend/src/modules/admin/admin.service.test.ts` — AUDIT-011
+- `backend/src/config/businessType.ts` — AUDIT-012, AUDIT-013, AUDIT-017
+- `backend/src/config/businessType.test.ts` — AUDIT-013
+- `backend/src/modules/recurring-bookings/recurring-bookings.routes.ts` — AUDIT-012
+- `backend/src/modules/recurring-bookings/recurring-bookings.schema.ts` — AUDIT-012
+- `backend/src/modules/recurring-bookings/recurring-bookings.service.ts` — AUDIT-012
+- `backend/src/modules/recurring-bookings/recurring-bookings.test.ts` — AUDIT-012
+- `backend/src/modules/public/public.test.ts` — AUDIT-012, AUDIT-013
+- `backend/src/modules/social/social.test.ts` — AUDIT-012, AUDIT-013
+- `backend/src/modules/bookings/bookings.service.ts` — AUDIT-013, AUDIT-014
+- `backend/src/modules/capture/capture.schema.ts` — AUDIT-013
+- `backend/src/modules/leads/leads.schema.ts` — AUDIT-013
+- `backend/src/lib/notification-dispatcher.ts` — AUDIT-014
+- `backend/src/modules/reminders/reminders.queue.ts` — AUDIT-014
+- `backend/src/modules/payments/payments.service.ts` — AUDIT-015
+- `backend/src/jobs/birthday.job.ts` — AUDIT-016, AUDIT-018
+- `backend/src/jobs/campaign.job.ts` — AUDIT-016, AUDIT-018
+- `backend/src/jobs/rebook-nudge.job.ts` — AUDIT-016
+- `backend/src/jobs/recurring-booking.job.ts` — AUDIT-016, AUDIT-018
+- `backend/src/jobs/no-show.job.ts` — AUDIT-016
+- `backend/src/jobs/waitlist-match.job.ts` — AUDIT-016
+- `backend/src/middleware/captcha.ts` — AUDIT-017
+
+### Missing Items
+
+None. All AUDIT-011..AUDIT-018 items are implemented and committed on `copilot/create-detailed-automation-plan`.
+
+AUDIT‑011..AUDIT‑018: ✅ All fixed
+
+---
+
 ## AUDIT‑001..AUDIT‑010 Completion Status (Verification)
 
 > Verified: 2026-04-14 against commit `a94cddd` (HEAD of `copilot/create-detailed-automation-plan`).
