@@ -39,6 +39,8 @@ import { Queue, Worker, Job }   from 'bullmq';
 import { config }              from '../../config';
 import { logger }              from '../../utils/logger';
 import { sendWhatsAppMessage } from '../../lib/twilio';
+import { renderTemplate }      from '../../lib/template-renderer';
+import { prisma }              from '../../lib/prisma';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -83,6 +85,8 @@ export interface WhatsAppJobData {
   partySize?: number;
   /** Google Review URL included in post-visit review messages. */
   googleReviewUrl?: string;
+  /** Tenant ID for multi-tenant template lookup (optional). */
+  tenantId?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -235,13 +239,42 @@ export const whatsappQueue = new Queue<WhatsAppJobData>(WHATSAPP_QUEUE_NAME, {
 /**
  * Processes a single WhatsApp job.
  *
- * Builds the message body from the job payload using `buildWhatsAppMessage`,
- * then dispatches via `sendWhatsAppMessage`.  Errors propagate so BullMQ
- * applies the configured retry / back-off policy.
+ * First attempts to look up an active WhatsApp template from the database
+ * using the jobName as the key (same pattern as the SMS queue processor).
+ * Falls back to the hardcoded `buildWhatsAppMessage` factory when no active
+ * template is found for the tenant.
+ *
+ * Errors propagate so BullMQ applies the configured retry / back-off policy.
  */
 async function processWhatsAppJob(job: Job<WhatsAppJobData>): Promise<void> {
+  const { to, jobName, tenantId } = job.data;
+
+  // Look up template from DB (per-tenant override, then global fallback)
+  const template = await prisma.whatsAppTemplate.findFirst({
+    where: { key: jobName, tenantId: tenantId ?? null, isActive: true },
+    select: { body: true },
+  });
+
+  if (template) {
+    const variables: Record<string, string | number | undefined> = {
+      customerName: job.data.customerName,
+      studioName:   job.data.studioName,
+      artistName:   job.data.artistName,
+      bookingId:    job.data.bookingId,
+      startAt:      job.data.startAt,
+      service:      job.data.service,
+      partySize:    job.data.partySize,
+      googleReviewUrl: job.data.googleReviewUrl,
+    };
+    const rendered = renderTemplate(template.body, variables);
+    await sendWhatsAppMessage(to, rendered);
+    return;
+  }
+
+  // Fallback to hardcoded message builder when no active template exists
+  logger.debug('WhatsApp template not found, using hardcoded fallback', { jobName, tenantId });
   const message = buildWhatsAppMessage(job.data);
-  await sendWhatsAppMessage(job.data.to, message);
+  await sendWhatsAppMessage(to, message);
 }
 
 // ─── Worker factory ───────────────────────────────────────────────────────────

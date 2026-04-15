@@ -123,6 +123,7 @@ async function dispatchWhatsApp(payload: NotificationPayload): Promise<void> {
       bookingId:    (payload.variables['bookingId'] as string) ?? '',
       startAt:      (payload.variables['startAt'] as string) ?? '',
       service:      (payload.variables['serviceType'] as string) ?? '',
+      tenantId:     payload.tenantId,
     }, payload.delayMs ? { delay: payload.delayMs } : undefined);
     logger.info('WhatsApp notification queued', { templateKey: payload.templateKey });
   } catch (err) {
