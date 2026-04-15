@@ -84,6 +84,7 @@ export interface BookingsAnalyticsResult {
   byArtist:               Array<{ artistId: string; artistName: string; count: number }>;
   byService:              Array<{ serviceId: string; serviceName: string; count: number }>;
   byDayOfWeek:            Array<{ day: string; count: number }>;
+  byLocation:             Array<{ locationId: string; locationName: string; count: number }>;
   averageDurationMinutes: number;
   noShowRate:             number;
   cancellationRate:       number;
@@ -97,7 +98,16 @@ export interface RevenueAnalyticsResult {
     overdue:       number;
     voided:        number;
     totalInvoiced: number;
+    grossRevenue:       number;
+    totalCommissions:   number;
+    netRevenue:         number;
     currency:      string;
+  };
+  deposits: {
+    collected: number;
+    refunded:  number;
+    /** Net deposits = collected - refunded. Forfeit tracking unavailable in current model. */
+    net:       number;
   };
   byMonth:             Array<{ month: string; paid: number; issued: number }>;
   topServices:         Array<{ serviceName: string; revenue: number }>;
@@ -414,7 +424,7 @@ export async function getLeadsAnalytics(query: LeadsAnalyticsQuery, tenantId: st
 }
 
 /**
- * Booking breakdown by status, artist, service and day-of-week.
+ * Booking breakdown by status, artist, service, day-of-week and location.
  */
 export async function getBookingsAnalytics(
   query: BookingsAnalyticsQuery,
@@ -432,6 +442,7 @@ export async function getBookingsAnalytics(
     byStatus,
     byArtistRaw,
     byServiceRaw,
+    byLocationRaw,
     bookingsList,
   ] = await Promise.all([
     prisma.booking.count({ where }),
@@ -453,6 +464,13 @@ export async function getBookingsAnalytics(
       where:   { ...where, serviceId: { not: null } },
       _count:  { _all: true },
       orderBy: { _count: { serviceId: 'desc' } },
+      take:    10,
+    }),
+    prisma.booking.groupBy({
+      by:      ['locationId'],
+      where:   { ...where, locationId: { not: null } },
+      _count:  { _all: true },
+      orderBy: { _count: { locationId: 'desc' } },
       take:    10,
     }),
     // Fetch startAt + duration for day-of-week and average duration calculations
@@ -479,6 +497,17 @@ export async function getBookingsAnalytics(
   });
   const serviceNameMap: Record<string, string> = {};
   for (const s of services) serviceNameMap[s.id] = s.name;
+
+  // Resolve location names
+  const locationIds = byLocationRaw.map((r) => r.locationId).filter(Boolean) as string[];
+  const locations = locationIds.length > 0
+    ? await prisma.location.findMany({
+        where:  { id: { in: locationIds } },
+        select: { id: true, name: true },
+      })
+    : [];
+  const locationNameMap: Record<string, string> = {};
+  for (const l of locations) locationNameMap[l.id] = l.name;
 
   // Day-of-week breakdown + average duration (computed in JS — UTC day)
   const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -513,6 +542,11 @@ export async function getBookingsAnalytics(
       serviceName: serviceNameMap[r.serviceId ?? ''] ?? '(unknown)',
       count:       r._count._all,
     })),
+    byLocation: byLocationRaw.map((r) => ({
+      locationId:   r.locationId ?? '',
+      locationName: locationNameMap[r.locationId ?? ''] ?? '(unknown)',
+      count:        r._count._all,
+    })),
     byDayOfWeek:            dowCounts.map((count, i) => ({ day: DAY_NAMES[i], count })),
     averageDurationMinutes: durationCount > 0 ? Math.round(durationTotal / durationCount) : 0,
     noShowRate,
@@ -528,26 +562,49 @@ export async function getRevenueAnalytics(query: RevenueAnalyticsQuery, tenantId
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
-  const invoices = await prisma.invoice.findMany({
-    where: { createdAt: df, ...(tenantId !== null ? { booking: { tenantId } } : {}) },
-    select: {
-      amount:    true,
-      status:    true,
-      currency:  true,
-      createdAt: true,
-      booking: {
-        select: {
-          service: { select: { name: true } },
-          services: {
-            select: {
-              price:   true,
-              service: { select: { name: true } },
+  const tenantScope = tenantId !== null ? { booking: { tenantId } } : {};
+
+  const [invoices, commissionBookings, depositBookings] = await Promise.all([
+    prisma.invoice.findMany({
+      where: { createdAt: df, ...tenantScope },
+      select: {
+        amount:    true,
+        status:    true,
+        currency:  true,
+        createdAt: true,
+        booking: {
+          select: {
+            service: { select: { name: true } },
+            services: {
+              select: {
+                price:   true,
+                service: { select: { name: true } },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+    // Commission data from bookings for the period
+    prisma.booking.findMany({
+      where: {
+        createdAt: df,
+        status: 'COMPLETED',
+        commissionEarned: { not: null },
+        ...(tenantId !== null ? { tenantId } : {}),
+      },
+      select: { commissionEarned: true },
+    }),
+    // Deposit tracking from bookings
+    prisma.booking.findMany({
+      where: {
+        createdAt: df,
+        depositAmount: { not: null },
+        ...(tenantId !== null ? { tenantId } : {}),
+      },
+      select: { depositAmount: true, depositPaidAt: true, depositRefunded: true },
+    }),
+  ]);
 
   let totalPaid    = 0;
   let outstanding  = 0;
@@ -590,6 +647,22 @@ export async function getRevenueAnalytics(query: RevenueAnalyticsQuery, tenantId
 
   const totalInvoiced = totalPaid + outstanding + overdue;
 
+  // Commission-adjusted net revenue
+  const totalCommissions = commissionBookings.reduce(
+    (sum, b) => sum + Number(b.commissionEarned ?? 0), 0,
+  );
+  const grossRevenue = totalPaid;
+  const netRevenue   = grossRevenue - totalCommissions;
+
+  // Deposit tracking
+  let depositsCollected = 0;
+  let depositsRefunded  = 0;
+  for (const b of depositBookings) {
+    const amt = Number(b.depositAmount ?? 0);
+    if (b.depositPaidAt) depositsCollected += amt;
+    if (b.depositRefunded) depositsRefunded += amt;
+  }
+
   const byMonth = Object.entries(monthlyMap)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, data]) => ({
@@ -606,12 +679,20 @@ export async function getRevenueAnalytics(query: RevenueAnalyticsQuery, tenantId
   return {
     period: { from: range.from.toISOString(), to: range.to.toISOString() },
     summary: {
-      totalPaid:     round2(totalPaid),
-      outstanding:   round2(outstanding),
-      overdue:       round2(overdue),
-      voided:        round2(voided),
-      totalInvoiced: round2(totalInvoiced),
+      totalPaid:       round2(totalPaid),
+      outstanding:     round2(outstanding),
+      overdue:         round2(overdue),
+      voided:          round2(voided),
+      totalInvoiced:   round2(totalInvoiced),
+      grossRevenue:    round2(grossRevenue),
+      totalCommissions: round2(totalCommissions),
+      netRevenue:      round2(netRevenue),
       currency,
+    },
+    deposits: {
+      collected: round2(depositsCollected),
+      refunded:  round2(depositsRefunded),
+      net:       round2(depositsCollected - depositsRefunded),
     },
     byMonth,
     topServices,
@@ -683,7 +764,7 @@ async function setCache(key: string, value: unknown): Promise<void> {
 
 /**
  * GET /api/analytics/artists
- * Revenue and booking count per artist for the date range.
+ * Revenue, booking count and utilization rate per artist for the date range.
  */
 export async function getArtistsAnalytics(
   tenantId: string,
@@ -703,6 +784,40 @@ export async function getArtistsAnalytics(
     },
   });
 
+  // Pre-fetch shift data for all active artists in the tenant (for utilization)
+  const shifts = await prisma.shift.findMany({
+    where: {
+      tenantId,
+      artistId: { in: artists.map((a) => a.id) },
+      effectiveFrom: { lte: toDate },
+      OR: [
+        { effectiveUntil: null },
+        { effectiveUntil: { gte: fromDate } },
+      ],
+    },
+    select: { artistId: true, dayOfWeek: true, startTime: true, endTime: true },
+  });
+
+  // Build per-artist shift map: artistId → array of { dayOfWeek, minutes }
+  const artistShiftMap: Record<string, Array<{ dayOfWeek: number; minutes: number }>> = {};
+  for (const s of shifts) {
+    if (!artistShiftMap[s.artistId]) artistShiftMap[s.artistId] = [];
+    const [sh, sm] = s.startTime.split(':').map(Number);
+    const [eh, em] = s.endTime.split(':').map(Number);
+    const mins = ((eh ?? 0) * 60 + (em ?? 0)) - ((sh ?? 0) * 60 + (sm ?? 0));
+    if (mins > 0) {
+      artistShiftMap[s.artistId].push({ dayOfWeek: s.dayOfWeek, minutes: mins });
+    }
+  }
+
+  // Count calendar days in the range by day-of-week (0=Sun..6=Sat)
+  const dayOfWeekCounts = new Array<number>(7).fill(0);
+  const cursor = new Date(fromDate);
+  while (cursor <= toDate) {
+    dayOfWeekCounts[cursor.getUTCDay()]++;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
   const artistStats = await Promise.all(
     artists.map(async (artist) => {
       const bookings = await prisma.booking.findMany({
@@ -712,7 +827,7 @@ export async function getArtistsAnalytics(
           status:   'COMPLETED',
           startAt:  { gte: fromDate, lte: toDate },
         },
-        select: { id: true },
+        select: { id: true, totalDurationMinutes: true },
       });
 
       const bookingIds = bookings.map((b) => b.id);
@@ -729,12 +844,26 @@ export async function getArtistsAnalytics(
       const revenue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
       const tips    = payments.reduce((sum, p) => sum + Number(p.tipAmount ?? 0), 0);
 
+      // Utilization rate: bookedMinutes / availableMinutes
+      const bookedMinutes = bookings.reduce((sum, b) => sum + (b.totalDurationMinutes ?? 0), 0);
+      const artistShifts  = artistShiftMap[artist.id] ?? [];
+      let availableMinutes = 0;
+      for (const s of artistShifts) {
+        availableMinutes += s.minutes * (dayOfWeekCounts[s.dayOfWeek] ?? 0);
+      }
+      const utilizationRate = availableMinutes > 0
+        ? Math.round((bookedMinutes / availableMinutes) * 1000) / 10
+        : 0;
+
       return {
         artistId:     artist.id,
         artistName:   artist.user.name,
         bookingCount: bookings.length,
         revenue:      Math.round(revenue * 100) / 100,
         totalTips:    Math.round(tips * 100) / 100,
+        availableMinutes,
+        bookedMinutes,
+        utilizationRate,
       };
     }),
   );
@@ -849,6 +978,7 @@ export async function getCustomersAnalytics(
     select: {
       id:         true,
       customerId: true,
+      startAt:    true,
     },
   });
 
@@ -899,6 +1029,33 @@ export async function getCustomersAnalytics(
 
   const totalCustomers = Object.keys(customerBookingCount).length;
 
+  // ── Rebook rate: customers who booked again within 30 days ──────────────
+  const REBOOK_WINDOW_DAYS = 30;
+  // Group bookings by customer, sorted by startAt
+  const customerBookings: Record<string, Date[]> = {};
+  for (const b of bookings) {
+    const key = b.customerId ?? '(walk-in)';
+    if (!customerBookings[key]) customerBookings[key] = [];
+    customerBookings[key].push(b.startAt);
+  }
+  let rebookNumerator   = 0;
+  let rebookDenominator = 0;
+  for (const dates of Object.values(customerBookings)) {
+    if (dates.length === 0) continue;
+    dates.sort((a, b) => a.getTime() - b.getTime());
+    rebookDenominator++;
+    // Check if any consecutive pair is within the rebook window
+    let rebooked = false;
+    for (let i = 0; i < dates.length - 1; i++) {
+      const diffDays = (dates[i + 1].getTime() - dates[i].getTime()) / (24 * 60 * 60 * 1000);
+      if (diffDays <= REBOOK_WINDOW_DAYS) { rebooked = true; break; }
+    }
+    if (rebooked) rebookNumerator++;
+  }
+  const rebookRate = rebookDenominator > 0
+    ? Math.round((rebookNumerator / rebookDenominator) * 1000) / 10
+    : 0;
+
   const result = {
     period:            { from: fromDate.toISOString(), to: toDate.toISOString() },
     totalCustomers,
@@ -907,6 +1064,9 @@ export async function getCustomersAnalytics(
     repeatRate:        totalCustomers > 0
       ? Math.round((returningCustomers / totalCustomers) * 1000) / 10
       : 0,
+    rebookRate,
+    rebookNumerator,
+    rebookDenominator,
     topSpenders,
     ltvDistribution: ltvBands,
   };

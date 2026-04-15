@@ -78,6 +78,7 @@ const mockBookingGroupBy        = jest.fn();
 const mockBookingFindMany       = jest.fn();
 const mockArtistFindMany        = jest.fn();
 const mockServiceFindMany       = jest.fn();
+const mockLocationFindMany      = jest.fn();
 const mockInvoiceFindMany       = jest.fn();
 const mockWaitlistEntryCount    = jest.fn();
 const mockAnalyticsEventCreate  = jest.fn();
@@ -103,6 +104,9 @@ jest.mock('../../lib/prisma', () => ({
     },
     service: {
       findMany: (...a: unknown[]) => mockServiceFindMany(...a),
+    },
+    location: {
+      findMany: (...a: unknown[]) => mockLocationFindMany(...a),
     },
     invoice: {
       findMany: (...a: unknown[]) => mockInvoiceFindMany(...a),
@@ -155,6 +159,7 @@ beforeEach(() => {
   mockAnalyticsEventCreate.mockResolvedValue({ id: 'evt_1' });
   mockArtistFindMany.mockResolvedValue([]);
   mockServiceFindMany.mockResolvedValue([]);
+  mockLocationFindMany.mockResolvedValue([]);
 });
 
 // ─── trackEvent ───────────────────────────────────────────────────────────────
@@ -457,6 +462,7 @@ describe('getBookingsAnalytics', () => {
     bookingsList?: Array<{ startAt: Date; totalDurationMinutes: number | null }>;
     artists?: Array<{ id: string; user: { name: string } }>;
     services?: Array<{ id: string; name: string }>;
+    locations?: Array<{ id: string; name: string }>;
   } = {}) {
     const {
       total       = 40,
@@ -468,16 +474,19 @@ describe('getBookingsAnalytics', () => {
       ],
       artists  = [{ id: 'artist_1', user: { name: 'Alex Ink' } }],
       services = [{ id: 'service_1', name: 'Full Sleeve' }],
+      locations = [{ id: 'loc_1', name: 'Main Studio' }],
     } = overrides;
 
     mockBookingCount.mockResolvedValue(total);
     mockBookingGroupBy
       .mockResolvedValueOnce(makeBookingStatusRows(statusMap))
       .mockResolvedValueOnce([{ artistId: 'artist_1', _count: { _all: 25 } }])
-      .mockResolvedValueOnce([{ serviceId: 'service_1', _count: { _all: 18 } }]);
+      .mockResolvedValueOnce([{ serviceId: 'service_1', _count: { _all: 18 } }])
+      .mockResolvedValueOnce([{ locationId: 'loc_1', _count: { _all: 30 } }]);
     mockBookingFindMany.mockResolvedValue(bookingsList);
     mockArtistFindMany.mockResolvedValue(artists);
     mockServiceFindMany.mockResolvedValue(services);
+    mockLocationFindMany.mockResolvedValue(locations);
   }
 
   it('returns all seven day-of-week entries', async () => {
@@ -553,11 +562,24 @@ describe('getBookingsAnalytics', () => {
     const serviceRow = result.byService[0];
     expect(serviceRow?.serviceName).toBe('(unknown)');
   });
+
+  it('includes byLocation breakdown', async () => {
+    setupBookingsMocks();
+    const result = await getBookingsAnalytics({});
+    expect(result.byLocation).toEqual([
+      { locationId: 'loc_1', locationName: 'Main Studio', count: 30 },
+    ]);
+  });
 });
 
 // ─── getRevenueAnalytics ──────────────────────────────────────────────────────
 
 describe('getRevenueAnalytics', () => {
+  beforeEach(() => {
+    // Commission/deposit booking queries default to empty
+    mockBookingFindMany.mockResolvedValue([]);
+  });
+
   it('returns correct summary totals', async () => {
     mockInvoiceFindMany.mockResolvedValue([
       { amount: '200.00', status: 'PAID',    currency: 'GBP', createdAt: new Date('2024-03-01'), booking: { service: null, services: [] } },
@@ -573,6 +595,41 @@ describe('getRevenueAnalytics', () => {
     expect(result.summary.voided).toBe(10);
     expect(result.summary.totalInvoiced).toBe(280); // paid + unpaid + overdue
     expect(result.summary.currency).toBe('GBP');
+    // New fields: grossRevenue = totalPaid, net = gross - commissions
+    expect(result.summary.grossRevenue).toBe(200);
+    expect(result.summary.totalCommissions).toBe(0);
+    expect(result.summary.netRevenue).toBe(200);
+  });
+
+  it('computes commission-adjusted net revenue', async () => {
+    mockInvoiceFindMany.mockResolvedValue([
+      { amount: '500.00', status: 'PAID', currency: 'GBP', createdAt: new Date('2024-03-01'), booking: { service: null, services: [] } },
+    ]);
+    // Commissions from completed bookings
+    mockBookingFindMany
+      .mockResolvedValueOnce([{ commissionEarned: '75.00' }, { commissionEarned: '25.00' }])
+      .mockResolvedValueOnce([]); // deposits
+
+    const result = await getRevenueAnalytics({});
+    expect(result.summary.grossRevenue).toBe(500);
+    expect(result.summary.totalCommissions).toBe(100);
+    expect(result.summary.netRevenue).toBe(400);
+  });
+
+  it('computes deposit tracking', async () => {
+    mockInvoiceFindMany.mockResolvedValue([]);
+    mockBookingFindMany
+      .mockResolvedValueOnce([]) // commissions
+      .mockResolvedValueOnce([
+        { depositAmount: '50.00', depositPaidAt: new Date(), depositRefunded: false },
+        { depositAmount: '30.00', depositPaidAt: new Date(), depositRefunded: true },
+        { depositAmount: '20.00', depositPaidAt: null, depositRefunded: false },
+      ]);
+
+    const result = await getRevenueAnalytics({});
+    expect(result.deposits.collected).toBe(80); // 50 + 30 (both have depositPaidAt)
+    expect(result.deposits.refunded).toBe(30);
+    expect(result.deposits.net).toBe(50);
   });
 
   it('builds monthly trend sorted chronologically', async () => {
