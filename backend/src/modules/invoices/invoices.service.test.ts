@@ -169,7 +169,7 @@ describe('listInvoices', () => {
     mockInvoiceCount.mockResolvedValue(1);
     mockInvoiceFindMany.mockResolvedValue([listItem]);
 
-    const result = await invoicesService.listInvoices({});
+    const result = await invoicesService.listInvoices(null, {});
 
     expect(result.data).toHaveLength(1);
     expect(result.meta.total).toBe(1);
@@ -181,7 +181,7 @@ describe('listInvoices', () => {
     mockInvoiceCount.mockResolvedValue(0);
     mockInvoiceFindMany.mockResolvedValue([]);
 
-    await invoicesService.listInvoices({ status: 'PAID' });
+    await invoicesService.listInvoices(null, { status: 'PAID' });
 
     const countArgs = mockInvoiceCount.mock.calls[0][0] as { where: Record<string, unknown> };
     expect(countArgs.where.status).toBe('PAID');
@@ -191,7 +191,7 @@ describe('listInvoices', () => {
     mockInvoiceCount.mockResolvedValue(0);
     mockInvoiceFindMany.mockResolvedValue([]);
 
-    await invoicesService.listInvoices({ from: '2026-01-01', to: '2026-03-31' });
+    await invoicesService.listInvoices(null, { from: '2026-01-01', to: '2026-03-31' });
 
     const countArgs = mockInvoiceCount.mock.calls[0][0] as { where: Record<string, unknown> };
     expect(countArgs.where.createdAt).toMatchObject({

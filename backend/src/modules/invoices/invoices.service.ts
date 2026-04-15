@@ -163,9 +163,11 @@ export async function listInvoices(
   tenantId: string | null,
   query: ListInvoicesQuery,
 ): Promise<PaginatedResult<InvoiceListItem>> {
-  const where: Prisma.InvoiceWhereInput = {
-    booking: { tenantId },
-  };
+  const where: Prisma.InvoiceWhereInput = {};
+
+  if (tenantId !== null) {
+    where.booking = { tenantId };
+  }
 
   if (query.status) where.status = query.status;
 
