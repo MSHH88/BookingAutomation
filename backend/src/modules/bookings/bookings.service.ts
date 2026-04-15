@@ -117,6 +117,20 @@ const bookingDetailSelect = {
 
 type BookingDetail = Prisma.BookingGetPayload<{ select: typeof bookingDetailSelect }>;
 
+/**
+ * Verifies that the booking belongs to the caller's tenant.
+ * SUPER_ADMIN callers pass tenantId = null and skip the check.
+ */
+function enforceTenantOwnership(
+  booking: { tenantId?: string | null },
+  tenantId: string | null,
+  bookingId: string,
+): void {
+  if (tenantId !== null && booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', `Booking ${bookingId} does not belong to your tenant`);
+  }
+}
+
 /** Slimmer list shape — returned on GET /api/bookings. */
 const bookingListSelect = {
   id:                   true,
@@ -209,15 +223,18 @@ export async function getBookingById(
   id:        string,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null = null,
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
-    select: bookingDetailSelect,
+    select: { ...bookingDetailSelect, tenantId: true },
   });
 
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', `Booking ${id} not found`);
   }
+
+  enforceTenantOwnership(booking, tenantId, id);
 
   if (actorRole === 'ARTIST') {
     const artist = await prisma.artist.findFirst({
@@ -250,6 +267,7 @@ export async function confirmBooking(
   id:        string,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null = null,
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
@@ -259,6 +277,8 @@ export async function confirmBooking(
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', `Booking ${id} not found`);
   }
+
+  enforceTenantOwnership(booking, tenantId, id);
 
   if (actorRole === 'ARTIST') {
     const artist = await prisma.artist.findFirst({
@@ -407,6 +427,7 @@ export async function completeBooking(
   body:      CompleteBookingBody,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null = null,
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
@@ -430,6 +451,8 @@ export async function completeBooking(
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', `Booking ${id} not found`);
   }
+
+  enforceTenantOwnership(booking, tenantId, id);
 
   if (actorRole === 'ARTIST') {
     const artist = await prisma.artist.findFirst({
@@ -599,6 +622,7 @@ export async function cancelBooking(
   body:      CancelBookingBody,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null = null,
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
@@ -608,6 +632,8 @@ export async function cancelBooking(
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', `Booking ${id} not found`);
   }
+
+  enforceTenantOwnership(booking, tenantId, id);
 
   if (actorRole === 'ARTIST') {
     const artist = await prisma.artist.findFirst({
@@ -704,6 +730,7 @@ export async function rescheduleBooking(
   body:      RescheduleBookingBody,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null = null,
 ): Promise<BookingDetail> {
   const booking = await prisma.booking.findUnique({
     where:  { id },
@@ -713,6 +740,8 @@ export async function rescheduleBooking(
   if (!booking) {
     throw new AppError(404, 'BOOKING_NOT_FOUND', `Booking ${id} not found`);
   }
+
+  enforceTenantOwnership(booking, tenantId, id);
 
   if (actorRole === 'ARTIST') {
     const artist = await prisma.artist.findFirst({

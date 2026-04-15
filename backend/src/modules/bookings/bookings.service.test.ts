@@ -142,6 +142,7 @@ const baseBooking = {
   startAt:              FUTURE_START,
   endAt:                FUTURE_END,
   artistId:             'artist_1',
+  tenantId:             'tenant_1',
   notes:                null,
   specialRequests:      null,
   partySize:            null,
@@ -769,5 +770,66 @@ describe('rescheduleBooking', () => {
     await expect(
       bookingsService.rescheduleBooking('ghost', rescheduleBody, 'admin_1', 'ADMIN'),
     ).rejects.toMatchObject({ statusCode: 404, code: 'BOOKING_NOT_FOUND' });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tenant isolation — BUG 4
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('tenant isolation (BUG 4)', () => {
+  const crossTenantId = 'tenant_other';
+
+  it('getBookingById — ADMIN with different tenantId gets 403', async () => {
+    mockBookingFindUnique.mockResolvedValue(baseBooking);
+
+    await expect(
+      bookingsService.getBookingById('booking_1', 'admin_1', 'ADMIN', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('getBookingById — SUPER_ADMIN with null tenantId can access any booking', async () => {
+    mockBookingFindUnique.mockResolvedValue(baseBooking);
+
+    const result = await bookingsService.getBookingById('booking_1', 'admin_1', 'ADMIN', null);
+    expect(result.id).toBe('booking_1');
+  });
+
+  it('confirmBooking — ADMIN with different tenantId gets 403', async () => {
+    mockBookingFindUnique.mockResolvedValue(baseBooking);
+
+    await expect(
+      bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('completeBooking — ADMIN with different tenantId gets 403', async () => {
+    mockBookingFindUnique.mockResolvedValue({ ...confirmedBooking, totalAmount: '250.00', quote: { price: '250.00' }, services: [] });
+
+    await expect(
+      bookingsService.completeBooking('booking_1', {}, 'admin_1', 'ADMIN', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('cancelBooking — ADMIN with different tenantId gets 403', async () => {
+    mockBookingFindUnique.mockResolvedValue(baseBooking);
+
+    await expect(
+      bookingsService.cancelBooking('booking_1', { cancelReason: 'test' }, 'admin_1', 'ADMIN', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('rescheduleBooking — ADMIN with different tenantId gets 403', async () => {
+    mockBookingFindUnique.mockResolvedValue(confirmedBooking);
+
+    await expect(
+      bookingsService.rescheduleBooking(
+        'booking_1',
+        { startAt: NEW_START.toISOString(), endAt: NEW_END.toISOString() },
+        'admin_1',
+        'ADMIN',
+        crossTenantId,
+      ),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });

@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as bookingsService from './bookings.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   ListBookingsQuery,
   CompleteBookingBody,
@@ -59,7 +60,8 @@ export async function getBookingById(
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const booking   = await bookingsService.getBookingById(id, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const booking   = await bookingsService.getBookingById(id, actorId, actorRole, tenantId);
     res.json(success(booking));
   } catch (err) {
     next(err);
@@ -82,7 +84,8 @@ export async function confirmBooking(
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const booking   = await bookingsService.confirmBooking(id, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const booking   = await bookingsService.confirmBooking(id, actorId, actorRole, tenantId);
     res.json(success(booking));
   } catch (err) {
     next(err);
@@ -106,7 +109,8 @@ export async function completeBooking(
     const body      = req.body as CompleteBookingBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const booking   = await bookingsService.completeBooking(id, body, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const booking   = await bookingsService.completeBooking(id, body, actorId, actorRole, tenantId);
     res.json(success(booking));
   } catch (err) {
     next(err);
@@ -130,7 +134,8 @@ export async function cancelBooking(
     const body      = req.body as CancelBookingBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const booking   = await bookingsService.cancelBooking(id, body, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const booking   = await bookingsService.cancelBooking(id, body, actorId, actorRole, tenantId);
     res.json(success(booking));
   } catch (err) {
     next(err);
@@ -154,7 +159,8 @@ export async function rescheduleBooking(
     const body      = req.body as RescheduleBookingBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const booking   = await bookingsService.rescheduleBooking(id, body, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const booking   = await bookingsService.rescheduleBooking(id, body, actorId, actorRole, tenantId);
     res.json(success(booking));
   } catch (err) {
     next(err);
