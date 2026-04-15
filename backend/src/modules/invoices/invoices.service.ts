@@ -66,7 +66,8 @@ const invoiceDetailSelect = {
   updatedAt: true,
   booking: {
     select: {
-      id:      true,
+      id:       true,
+      tenantId: true,
       startAt: true,
       endAt:   true,
       status:  true,
@@ -197,6 +198,7 @@ export async function getInvoiceById(
   id:        string,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<InvoiceDetail> {
   const invoice = await prisma.invoice.findUnique({
     where:  { id },
@@ -205,6 +207,10 @@ export async function getInvoiceById(
 
   if (!invoice) {
     throw new AppError(404, 'INVOICE_NOT_FOUND', `Invoice '${id}' not found`);
+  }
+
+  if (tenantId !== null && invoice.booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to access this invoice');
   }
 
   if (actorRole === 'ARTIST') {
@@ -234,14 +240,19 @@ export async function sendInvoice(
   id:        string,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<InvoiceDetail> {
   const invoice = await prisma.invoice.findUnique({
     where:  { id },
-    select: { id: true, status: true, booking: { select: { artist: { select: { id: true } }, customer: { select: { email: true, name: true } } } } },
+    select: { id: true, status: true, booking: { select: { tenantId: true, artist: { select: { id: true } }, customer: { select: { email: true, name: true } } } } },
   });
 
   if (!invoice) {
     throw new AppError(404, 'INVOICE_NOT_FOUND', `Invoice '${id}' not found`);
+  }
+
+  if (tenantId !== null && invoice.booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to send this invoice');
   }
 
   if (invoice.status === 'VOID') {
@@ -293,14 +304,19 @@ export async function sendInvoice(
 export async function markInvoicePaid(
   id:   string,
   body: MarkPaidBody,
+  tenantId: string | null,
 ): Promise<InvoiceDetail> {
   const invoice = await prisma.invoice.findUnique({
     where:  { id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, booking: { select: { tenantId: true } } },
   });
 
   if (!invoice) {
     throw new AppError(404, 'INVOICE_NOT_FOUND', `Invoice '${id}' not found`);
+  }
+
+  if (tenantId !== null && invoice.booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this invoice');
   }
 
   const currentStatus = invoice.status as InvoiceStatusValue;
@@ -359,14 +375,19 @@ export async function markInvoicePaid(
 export async function voidInvoice(
   id:   string,
   body: VoidInvoiceBody,
+  tenantId: string | null,
 ): Promise<InvoiceDetail> {
   const invoice = await prisma.invoice.findUnique({
     where:  { id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, booking: { select: { tenantId: true } } },
   });
 
   if (!invoice) {
     throw new AppError(404, 'INVOICE_NOT_FOUND', `Invoice '${id}' not found`);
+  }
+
+  if (tenantId !== null && invoice.booking.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to void this invoice');
   }
 
   const currentStatus = invoice.status as InvoiceStatusValue;

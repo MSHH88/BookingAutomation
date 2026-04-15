@@ -60,10 +60,11 @@ export async function getInvoiceById(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId  = extractTenantId(req);
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const invoice   = await invoicesService.getInvoiceById(id, actorId, actorRole);
+    const invoice   = await invoicesService.getInvoiceById(id, actorId, actorRole, tenantId);
     res.json(success(invoice));
   } catch (err) {
     next(err);
@@ -84,10 +85,11 @@ export async function sendInvoice(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId  = extractTenantId(req);
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const invoice   = await invoicesService.sendInvoice(id, actorId, actorRole);
+    const invoice   = await invoicesService.sendInvoice(id, actorId, actorRole, tenantId);
     res.json(success(invoice));
   } catch (err) {
     next(err);
@@ -109,9 +111,10 @@ export async function markInvoicePaid(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id }  = req.params as { id: string };
     const body    = req.body as MarkPaidBody;
-    const invoice = await invoicesService.markInvoicePaid(id, body);
+    const invoice = await invoicesService.markInvoicePaid(id, body, tenantId);
     res.json(success(invoice));
   } catch (err) {
     next(err);
@@ -132,9 +135,10 @@ export async function voidInvoice(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const tenantId = extractTenantId(req);
     const { id }  = req.params as { id: string };
     const body    = req.body as VoidInvoiceBody;
-    const invoice = await invoicesService.voidInvoice(id, body);
+    const invoice = await invoicesService.voidInvoice(id, body, tenantId);
     res.json(success(invoice));
   } catch (err) {
     next(err);

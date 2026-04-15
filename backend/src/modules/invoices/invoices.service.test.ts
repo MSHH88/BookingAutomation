@@ -97,7 +97,8 @@ const DUE_7   = new Date('2026-04-13T10:00:00Z');
 const PAST_DUE = new Date('2026-03-30T10:00:00Z');
 
 const baseBookingSnippet = {
-  id:      'booking_1',
+  id:       'booking_1',
+  tenantId: 'tenant_1',
   startAt: new Date('2026-04-01T14:00:00Z'),
   endAt:   new Date('2026-04-01T16:00:00Z'),
   status:  'COMPLETED',
@@ -208,7 +209,7 @@ describe('getInvoiceById', () => {
   it('ADMIN: returns invoice when found', async () => {
     mockInvoiceFindUnique.mockResolvedValue(baseInvoice);
 
-    const result = await invoicesService.getInvoiceById('invoice_1', 'admin_1', 'ADMIN');
+    const result = await invoicesService.getInvoiceById('invoice_1', 'admin_1', 'ADMIN', null);
 
     expect(result.id).toBe('invoice_1');
     expect(mockArtistFindFirst).not.toHaveBeenCalled();
@@ -218,7 +219,7 @@ describe('getInvoiceById', () => {
     mockInvoiceFindUnique.mockResolvedValue(null);
 
     await expect(
-      invoicesService.getInvoiceById('missing', 'admin_1', 'ADMIN'),
+      invoicesService.getInvoiceById('missing', 'admin_1', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'INVOICE_NOT_FOUND' });
   });
 
@@ -226,7 +227,7 @@ describe('getInvoiceById', () => {
     mockInvoiceFindUnique.mockResolvedValue(baseInvoice);
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
 
-    const result = await invoicesService.getInvoiceById('invoice_1', 'user_artist_1', 'ARTIST');
+    const result = await invoicesService.getInvoiceById('invoice_1', 'user_artist_1', 'ARTIST', null);
 
     expect(result.id).toBe('invoice_1');
   });
@@ -236,7 +237,7 @@ describe('getInvoiceById', () => {
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_99' }); // different artist
 
     await expect(
-      invoicesService.getInvoiceById('invoice_1', 'user_artist_99', 'ARTIST'),
+      invoicesService.getInvoiceById('invoice_1', 'user_artist_99', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 
@@ -245,7 +246,7 @@ describe('getInvoiceById', () => {
     mockArtistFindFirst.mockResolvedValue(null);
 
     await expect(
-      invoicesService.getInvoiceById('invoice_1', 'user_nobody', 'ARTIST'),
+      invoicesService.getInvoiceById('invoice_1', 'user_nobody', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'ARTIST_NOT_FOUND' });
   });
 });
@@ -259,6 +260,7 @@ describe('sendInvoice', () => {
     id:      'invoice_1',
     status:  'UNPAID',
     booking: {
+      tenantId: 'tenant_1',
       artist:   { id: 'artist_1' },
       customer: { email: 'jane@example.com', name: 'Jane Smith' },
     },
@@ -272,7 +274,7 @@ describe('sendInvoice', () => {
       .mockResolvedValueOnce({ ...baseInvoice, sentAt: NOW });
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    const result = await invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN');
+    const result = await invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN', null);
 
     expect(mockInvoiceUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ data: { sentAt: expect.any(Date) } }),
@@ -287,7 +289,7 @@ describe('sendInvoice', () => {
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
     await expect(
-      invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN'),
+      invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN', null),
     ).resolves.toBeDefined();
   });
 
@@ -295,7 +297,7 @@ describe('sendInvoice', () => {
     mockInvoiceFindUnique.mockResolvedValueOnce({ ...invoiceForSend, status: 'VOID' });
 
     await expect(
-      invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN'),
+      invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'INVOICE_VOIDED' });
   });
 
@@ -303,7 +305,7 @@ describe('sendInvoice', () => {
     mockInvoiceFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      invoicesService.sendInvoice('missing', 'admin_1', 'ADMIN'),
+      invoicesService.sendInvoice('missing', 'admin_1', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'INVOICE_NOT_FOUND' });
   });
 
@@ -315,7 +317,7 @@ describe('sendInvoice', () => {
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
     await expect(
-      invoicesService.sendInvoice('invoice_1', 'user_artist_1', 'ARTIST'),
+      invoicesService.sendInvoice('invoice_1', 'user_artist_1', 'ARTIST', null),
     ).resolves.toBeDefined();
   });
 
@@ -324,7 +326,7 @@ describe('sendInvoice', () => {
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_99' });
 
     await expect(
-      invoicesService.sendInvoice('invoice_1', 'user_artist_99', 'ARTIST'),
+      invoicesService.sendInvoice('invoice_1', 'user_artist_99', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });
@@ -338,11 +340,11 @@ describe('markInvoicePaid', () => {
 
   it('UNPAID → PAID: paidAt defaults to now', async () => {
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce(paidInvoice);
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    const result = await invoicesService.markInvoicePaid('invoice_1', {});
+    const result = await invoicesService.markInvoicePaid('invoice_1', {}, null);
 
     expect(mockInvoiceUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -358,11 +360,11 @@ describe('markInvoicePaid', () => {
   it('UNPAID → PAID: explicit paidAt is used', async () => {
     const explicitDate = '2026-04-05T12:00:00Z';
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce(paidInvoice);
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    await invoicesService.markInvoicePaid('invoice_1', { paidAt: explicitDate });
+    await invoicesService.markInvoicePaid('invoice_1', { paidAt: explicitDate }, null);
 
     const updateArgs = mockInvoiceUpdate.mock.calls[0][0] as { data: { paidAt: Date } };
     expect(updateArgs.data.paidAt.toISOString()).toBe('2026-04-05T12:00:00.000Z');
@@ -370,11 +372,11 @@ describe('markInvoicePaid', () => {
 
   it('UNPAID → PAID: optional notes are stored', async () => {
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce({ ...paidInvoice, notes: 'Bank transfer ref #XYZ' });
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    await invoicesService.markInvoicePaid('invoice_1', { notes: 'Bank transfer ref #XYZ' });
+    await invoicesService.markInvoicePaid('invoice_1', { notes: 'Bank transfer ref #XYZ' }, null);
 
     const updateArgs = mockInvoiceUpdate.mock.calls[0][0] as { data: { notes: string } };
     expect(updateArgs.data.notes).toBe('Bank transfer ref #XYZ');
@@ -382,26 +384,26 @@ describe('markInvoicePaid', () => {
 
   it('OVERDUE → PAID: allowed', async () => {
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'OVERDUE' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'OVERDUE', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce(paidInvoice);
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    await expect(invoicesService.markInvoicePaid('invoice_1', {})).resolves.toBeDefined();
+    await expect(invoicesService.markInvoicePaid('invoice_1', {}, null)).resolves.toBeDefined();
   });
 
   it('PAID → PAID: throws 409 INVOICE_ALREADY_PAID', async () => {
-    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'PAID' });
+    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'PAID', booking: { tenantId: 'tenant_1' } });
 
     await expect(
-      invoicesService.markInvoicePaid('invoice_1', {}),
+      invoicesService.markInvoicePaid('invoice_1', {}, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'INVOICE_ALREADY_PAID' });
   });
 
   it('VOID → PAID: throws 409 INVOICE_VOIDED', async () => {
-    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'VOID' });
+    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'VOID', booking: { tenantId: 'tenant_1' } });
 
     await expect(
-      invoicesService.markInvoicePaid('invoice_1', {}),
+      invoicesService.markInvoicePaid('invoice_1', {}, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'INVOICE_VOIDED' });
   });
 
@@ -409,7 +411,7 @@ describe('markInvoicePaid', () => {
     mockInvoiceFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      invoicesService.markInvoicePaid('missing', {}),
+      invoicesService.markInvoicePaid('missing', {}, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'INVOICE_NOT_FOUND' });
   });
 });
@@ -423,11 +425,11 @@ describe('voidInvoice', () => {
 
   it('UNPAID → VOID: voidedAt is set', async () => {
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce(voidedInvoice);
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    const result = await invoicesService.voidInvoice('invoice_1', {});
+    const result = await invoicesService.voidInvoice('invoice_1', {}, null);
 
     expect(mockInvoiceUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -442,38 +444,38 @@ describe('voidInvoice', () => {
 
   it('OVERDUE → VOID: allowed', async () => {
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'OVERDUE' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'OVERDUE', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce(voidedInvoice);
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    await expect(invoicesService.voidInvoice('invoice_1', {})).resolves.toBeDefined();
+    await expect(invoicesService.voidInvoice('invoice_1', {}, null)).resolves.toBeDefined();
   });
 
   it('UNPAID → VOID: optional notes are stored', async () => {
     mockInvoiceFindUnique
-      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID' })
+      .mockResolvedValueOnce({ id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' } })
       .mockResolvedValueOnce({ ...voidedInvoice, notes: 'Duplicate booking' });
     mockInvoiceUpdate.mockResolvedValue({ id: 'invoice_1' });
 
-    await invoicesService.voidInvoice('invoice_1', { notes: 'Duplicate booking' });
+    await invoicesService.voidInvoice('invoice_1', { notes: 'Duplicate booking' }, null);
 
     const updateArgs = mockInvoiceUpdate.mock.calls[0][0] as { data: { notes: string } };
     expect(updateArgs.data.notes).toBe('Duplicate booking');
   });
 
   it('PAID → VOID: throws 409 INVOICE_ALREADY_PAID', async () => {
-    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'PAID' });
+    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'PAID', booking: { tenantId: 'tenant_1' } });
 
     await expect(
-      invoicesService.voidInvoice('invoice_1', {}),
+      invoicesService.voidInvoice('invoice_1', {}, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'INVOICE_ALREADY_PAID' });
   });
 
   it('VOID → VOID: throws 409 INVOICE_ALREADY_VOIDED', async () => {
-    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'VOID' });
+    mockInvoiceFindUnique.mockResolvedValueOnce({ id: 'invoice_1', status: 'VOID', booking: { tenantId: 'tenant_1' } });
 
     await expect(
-      invoicesService.voidInvoice('invoice_1', {}),
+      invoicesService.voidInvoice('invoice_1', {}, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'INVOICE_ALREADY_VOIDED' });
   });
 
@@ -481,7 +483,7 @@ describe('voidInvoice', () => {
     mockInvoiceFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      invoicesService.voidInvoice('missing', {}),
+      invoicesService.voidInvoice('missing', {}, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'INVOICE_NOT_FOUND' });
   });
 });
@@ -542,6 +544,61 @@ describe('markOverdueInvoices', () => {
       },
       data: { status: 'OVERDUE' },
     });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tenant isolation — BUG 7
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('tenant isolation (BUG 7)', () => {
+  const crossTenantId = 'tenant_other';
+
+  it('getInvoiceById — ADMIN with different tenantId gets 403', async () => {
+    mockInvoiceFindUnique.mockResolvedValue(baseInvoice);
+
+    await expect(
+      invoicesService.getInvoiceById('invoice_1', 'admin_1', 'ADMIN', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('getInvoiceById — SUPER_ADMIN with null tenantId can access any invoice', async () => {
+    mockInvoiceFindUnique.mockResolvedValue(baseInvoice);
+
+    const result = await invoicesService.getInvoiceById('invoice_1', 'admin_1', 'ADMIN', null);
+    expect(result.id).toBe('invoice_1');
+  });
+
+  it('sendInvoice — ADMIN with different tenantId gets 403', async () => {
+    mockInvoiceFindUnique.mockResolvedValue({
+      id: 'invoice_1',
+      status: 'UNPAID',
+      booking: { tenantId: 'tenant_1', artist: { id: 'artist_1' }, customer: { email: 'x@x.com', name: 'X' } },
+    });
+
+    await expect(
+      invoicesService.sendInvoice('invoice_1', 'admin_1', 'ADMIN', crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('markInvoicePaid — ADMIN with different tenantId gets 403', async () => {
+    mockInvoiceFindUnique.mockResolvedValue({
+      id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' },
+    });
+
+    await expect(
+      invoicesService.markInvoicePaid('invoice_1', {}, crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('voidInvoice — ADMIN with different tenantId gets 403', async () => {
+    mockInvoiceFindUnique.mockResolvedValue({
+      id: 'invoice_1', status: 'UNPAID', booking: { tenantId: 'tenant_1' },
+    });
+
+    await expect(
+      invoicesService.voidInvoice('invoice_1', {}, crossTenantId),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });
 
