@@ -108,7 +108,8 @@ export async function updateQuote(
     const body      = req.body as UpdateQuoteBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const quote     = await quotesService.updateQuote(id, body, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const quote     = await quotesService.updateQuote(id, body, actorId, actorRole, tenantId);
     res.json(success(quote));
   } catch (err) {
     next(err);
@@ -132,7 +133,8 @@ export async function sendQuote(
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
-    const quote     = await quotesService.sendQuote(id, actorId, actorRole);
+    const tenantId  = extractTenantId(req);
+    const quote     = await quotesService.sendQuote(id, actorId, actorRole, tenantId);
     res.json(success(quote));
   } catch (err) {
     next(err);

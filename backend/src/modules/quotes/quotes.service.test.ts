@@ -92,6 +92,7 @@ const PAST_DATE   = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
 const baseQuoteFull = {
   id:          'q_1',
+  tenantId:    'tenant_1',
   leadId:      'lead_1',
   artistId:    'artist_1',
   price:       250.00,
@@ -145,6 +146,7 @@ describe('createQuote', () => {
       { leadId: 'lead_1', artistId: 'artist_1', price: 250 },
       'admin_user',
       'ADMIN',
+      null,
     );
 
     expect(mockLeadFindUnique).toHaveBeenCalledWith({ where: { id: 'lead_1' }, select: expect.any(Object) });
@@ -166,6 +168,7 @@ describe('createQuote', () => {
       { leadId: 'lead_1', price: 300, hours: 3, notes: 'Geometric back piece' },
       'artist_user_id',
       'ARTIST',
+      null,
     );
 
     expect(mockArtistFindFirst).toHaveBeenCalledWith({ where: { userId: 'artist_user_id' }, select: { id: true } });
@@ -183,7 +186,7 @@ describe('createQuote', () => {
     mockQuoteFindUnique.mockResolvedValue(baseQuoteFull);
 
     const before = Date.now();
-    await quotesService.createQuote({ leadId: 'lead_1', artistId: 'artist_1', price: 200 }, 'admin', 'ADMIN');
+    await quotesService.createQuote({ leadId: 'lead_1', artistId: 'artist_1', price: 200 }, 'admin', 'ADMIN', null);
     const after  = Date.now();
 
     const createCall = mockQuoteCreate.mock.calls[0][0] as { data: { validUntil: Date } };
@@ -198,7 +201,7 @@ describe('createQuote', () => {
     mockLeadFindUnique.mockResolvedValue(null);
 
     await expect(
-      quotesService.createQuote({ leadId: 'no_such_lead', artistId: 'artist_1', price: 100 }, 'admin', 'ADMIN'),
+      quotesService.createQuote({ leadId: 'no_such_lead', artistId: 'artist_1', price: 100 }, 'admin', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
   });
 
@@ -206,7 +209,7 @@ describe('createQuote', () => {
     mockLeadFindUnique.mockResolvedValue({ id: 'lead_1', status: 'BOOKED' });
 
     await expect(
-      quotesService.createQuote({ leadId: 'lead_1', artistId: 'artist_1', price: 100 }, 'admin', 'ADMIN'),
+      quotesService.createQuote({ leadId: 'lead_1', artistId: 'artist_1', price: 100 }, 'admin', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'CONFLICT' });
   });
 
@@ -214,14 +217,14 @@ describe('createQuote', () => {
     for (const status of ['COMPLETED', 'CANCELLED', 'LOST']) {
       mockLeadFindUnique.mockResolvedValue({ id: 'lead_1', status });
       await expect(
-        quotesService.createQuote({ leadId: 'lead_1', artistId: 'artist_1', price: 100 }, 'admin', 'ADMIN'),
+        quotesService.createQuote({ leadId: 'lead_1', artistId: 'artist_1', price: 100 }, 'admin', 'ADMIN', null),
       ).rejects.toMatchObject({ statusCode: 409 });
     }
   });
 
   it('throws 400 when ADMIN does not supply artistId', async () => {
     await expect(
-      quotesService.createQuote({ leadId: 'lead_1', price: 100 }, 'admin', 'ADMIN'),
+      quotesService.createQuote({ leadId: 'lead_1', price: 100 }, 'admin', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 400, code: 'VALIDATION_ERROR' });
   });
 
@@ -229,7 +232,7 @@ describe('createQuote', () => {
     mockArtistFindFirst.mockResolvedValue(null);
 
     await expect(
-      quotesService.createQuote({ leadId: 'lead_1', price: 100 }, 'artist_user_id', 'ARTIST'),
+      quotesService.createQuote({ leadId: 'lead_1', price: 100 }, 'artist_user_id', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });
@@ -243,7 +246,7 @@ describe('listQuotes', () => {
     mockQuoteCount.mockResolvedValue(1);
     mockQuoteFindMany.mockResolvedValue([baseQuoteList]);
 
-    const result = await quotesService.listQuotes({}, 'admin_user', 'ADMIN');
+    const result = await quotesService.listQuotes({}, 'admin_user', 'ADMIN', null);
 
     expect(result.data).toHaveLength(1);
     expect(result.meta.total).toBe(1);
@@ -255,7 +258,7 @@ describe('listQuotes', () => {
     mockQuoteCount.mockResolvedValue(0);
     mockQuoteFindMany.mockResolvedValue([]);
 
-    await quotesService.listQuotes({ status: 'SENT' }, 'admin_user', 'ADMIN');
+    await quotesService.listQuotes({ status: 'SENT' }, 'admin_user', 'ADMIN', null);
 
     const findManyCall = mockQuoteFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
     expect(findManyCall.where).toMatchObject({ status: 'SENT' });
@@ -265,7 +268,7 @@ describe('listQuotes', () => {
     mockQuoteCount.mockResolvedValue(0);
     mockQuoteFindMany.mockResolvedValue([]);
 
-    await quotesService.listQuotes({ artistId: 'artist_2' }, 'admin_user', 'ADMIN');
+    await quotesService.listQuotes({ artistId: 'artist_2' }, 'admin_user', 'ADMIN', null);
 
     const findManyCall = mockQuoteFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
     expect(findManyCall.where).toMatchObject({ artistId: 'artist_2' });
@@ -276,7 +279,7 @@ describe('listQuotes', () => {
     mockQuoteCount.mockResolvedValue(2);
     mockQuoteFindMany.mockResolvedValue([baseQuoteList, { ...baseQuoteList, id: 'q_2' }]);
 
-    const result = await quotesService.listQuotes({}, 'artist_user_id', 'ARTIST');
+    const result = await quotesService.listQuotes({}, 'artist_user_id', 'ARTIST', null);
 
     expect(mockArtistFindFirst).toHaveBeenCalledWith({ where: { userId: 'artist_user_id' }, select: { id: true } });
     const findManyCall = mockQuoteFindMany.mock.calls[0][0] as { where: Record<string, unknown> };
@@ -289,7 +292,7 @@ describe('listQuotes', () => {
     mockQuoteCount.mockResolvedValue(0);
     mockQuoteFindMany.mockResolvedValue([]);
 
-    const result = await quotesService.listQuotes({}, 'artist_user_id', 'ARTIST');
+    const result = await quotesService.listQuotes({}, 'artist_user_id', 'ARTIST', null);
 
     expect(result.data).toHaveLength(0);
     expect(result.meta.total).toBe(0);
@@ -305,7 +308,7 @@ describe('getQuoteById', () => {
   it('ADMIN: returns any quote', async () => {
     mockQuoteFindUnique.mockResolvedValue(baseQuoteFull);
 
-    const result = await quotesService.getQuoteById('q_1', 'admin_user', 'ADMIN');
+    const result = await quotesService.getQuoteById('q_1', 'admin_user', 'ADMIN', null);
 
     expect(result).toEqual(baseQuoteFull);
     expect(mockArtistFindFirst).not.toHaveBeenCalled();
@@ -315,7 +318,7 @@ describe('getQuoteById', () => {
     mockQuoteFindUnique.mockResolvedValue(baseQuoteFull);
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
 
-    const result = await quotesService.getQuoteById('q_1', 'artist_user_id', 'ARTIST');
+    const result = await quotesService.getQuoteById('q_1', 'artist_user_id', 'ARTIST', null);
 
     expect(result).toEqual(baseQuoteFull);
   });
@@ -325,7 +328,7 @@ describe('getQuoteById', () => {
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
 
     await expect(
-      quotesService.getQuoteById('q_1', 'artist_user_id', 'ARTIST'),
+      quotesService.getQuoteById('q_1', 'artist_user_id', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 
@@ -333,7 +336,7 @@ describe('getQuoteById', () => {
     mockQuoteFindUnique.mockResolvedValue(null);
 
     await expect(
-      quotesService.getQuoteById('no_such_id', 'admin_user', 'ADMIN'),
+      quotesService.getQuoteById('no_such_id', 'admin_user', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
   });
 });
@@ -344,13 +347,13 @@ describe('getQuoteById', () => {
 
 describe('updateQuote', () => {
   it('ADMIN: updates a DRAFT quote successfully', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique
       .mockResolvedValueOnce(draftQuote)            // ownership/status check
       .mockResolvedValueOnce({ ...baseQuoteFull, price: 300 }); // post-update fetch
     mockQuoteUpdate.mockResolvedValue({ id: 'q_1' });
 
-    const result = await quotesService.updateQuote('q_1', { price: 300 }, 'admin_user', 'ADMIN');
+    const result = await quotesService.updateQuote('q_1', { price: 300 }, 'admin_user', 'ADMIN', null);
 
     expect(mockQuoteUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -362,35 +365,35 @@ describe('updateQuote', () => {
   });
 
   it('ARTIST: updates own DRAFT quote successfully', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique
       .mockResolvedValueOnce(draftQuote)
       .mockResolvedValueOnce(baseQuoteFull);
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
     mockQuoteUpdate.mockResolvedValue({ id: 'q_1' });
 
-    await quotesService.updateQuote('q_1', { hours: 5 }, 'artist_user_id', 'ARTIST');
+    await quotesService.updateQuote('q_1', { hours: 5 }, 'artist_user_id', 'ARTIST', null);
 
     expect(mockQuoteUpdate).toHaveBeenCalled();
   });
 
   it('ARTIST: throws 403 when editing another artist\'s quote', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_99', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_99', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique.mockResolvedValueOnce(draftQuote);
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
 
     await expect(
-      quotesService.updateQuote('q_1', { price: 500 }, 'artist_user_id', 'ARTIST'),
+      quotesService.updateQuote('q_1', { price: 500 }, 'artist_user_id', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 
   it('throws 409 when trying to edit a SENT quote', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce({
-      id: 'q_1', status: 'SENT', artistId: 'artist_1', leadId: 'lead_1',
+      id: 'q_1', status: 'SENT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1',
     });
 
     await expect(
-      quotesService.updateQuote('q_1', { price: 300 }, 'admin_user', 'ADMIN'),
+      quotesService.updateQuote('q_1', { price: 300 }, 'admin_user', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'CONFLICT' });
   });
 
@@ -398,18 +401,18 @@ describe('updateQuote', () => {
     mockQuoteFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      quotesService.updateQuote('no_id', { notes: 'test' }, 'admin_user', 'ADMIN'),
+      quotesService.updateQuote('no_id', { notes: 'test' }, 'admin_user', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
   });
 
   it('clears notes when empty string is provided', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique
       .mockResolvedValueOnce(draftQuote)
       .mockResolvedValueOnce({ ...baseQuoteFull, notes: null });
     mockQuoteUpdate.mockResolvedValue({ id: 'q_1' });
 
-    await quotesService.updateQuote('q_1', { notes: '' }, 'admin_user', 'ADMIN');
+    await quotesService.updateQuote('q_1', { notes: '' }, 'admin_user', 'ADMIN', null);
 
     const updateCall = mockQuoteUpdate.mock.calls[0][0] as { data: { notes: unknown } };
     expect(updateCall.data.notes).toBeNull();
@@ -422,14 +425,14 @@ describe('updateQuote', () => {
 
 describe('sendQuote', () => {
   it('transitions DRAFT → SENT and advances lead to QUOTED', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique
       .mockResolvedValueOnce(draftQuote)            // status check
       .mockResolvedValueOnce(baseSentQuote);         // post-send fetch
     mockQuoteUpdate.mockResolvedValue({ id: 'q_1' });
     mockLeadUpdateMany.mockResolvedValue({ count: 1 });
 
-    const result = await quotesService.sendQuote('q_1', 'admin_user', 'ADMIN');
+    const result = await quotesService.sendQuote('q_1', 'admin_user', 'ADMIN', null);
 
     expect(mockQuoteUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -444,7 +447,7 @@ describe('sendQuote', () => {
   });
 
   it('ARTIST: sends their own quote successfully', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique
       .mockResolvedValueOnce(draftQuote)
       .mockResolvedValueOnce(baseSentQuote);
@@ -452,38 +455,38 @@ describe('sendQuote', () => {
     mockQuoteUpdate.mockResolvedValue({ id: 'q_1' });
     mockLeadUpdateMany.mockResolvedValue({ count: 1 });
 
-    await quotesService.sendQuote('q_1', 'artist_user_id', 'ARTIST');
+    await quotesService.sendQuote('q_1', 'artist_user_id', 'ARTIST', null);
 
     expect(mockQuoteUpdate).toHaveBeenCalled();
   });
 
   it('ARTIST: throws 403 when sending another artist\'s quote', async () => {
-    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_99', leadId: 'lead_1' };
+    const draftQuote = { id: 'q_1', status: 'DRAFT', artistId: 'artist_99', leadId: 'lead_1', tenantId: 'tenant_1' };
     mockQuoteFindUnique.mockResolvedValueOnce(draftQuote);
     mockArtistFindFirst.mockResolvedValue({ id: 'artist_1' });
 
     await expect(
-      quotesService.sendQuote('q_1', 'artist_user_id', 'ARTIST'),
+      quotesService.sendQuote('q_1', 'artist_user_id', 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 
   it('throws 409 when quote is already SENT', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce({
-      id: 'q_1', status: 'SENT', artistId: 'artist_1', leadId: 'lead_1',
+      id: 'q_1', status: 'SENT', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1',
     });
 
     await expect(
-      quotesService.sendQuote('q_1', 'admin_user', 'ADMIN'),
+      quotesService.sendQuote('q_1', 'admin_user', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'CONFLICT' });
   });
 
   it('throws 409 when quote is ACCEPTED', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce({
-      id: 'q_1', status: 'ACCEPTED', artistId: 'artist_1', leadId: 'lead_1',
+      id: 'q_1', status: 'ACCEPTED', artistId: 'artist_1', leadId: 'lead_1', tenantId: 'tenant_1',
     });
 
     await expect(
-      quotesService.sendQuote('q_1', 'admin_user', 'ADMIN'),
+      quotesService.sendQuote('q_1', 'admin_user', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 409 });
   });
 
@@ -491,7 +494,7 @@ describe('sendQuote', () => {
     mockQuoteFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      quotesService.sendQuote('no_id', 'admin_user', 'ADMIN'),
+      quotesService.sendQuote('no_id', 'admin_user', 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
   });
 });
@@ -532,7 +535,7 @@ describe('acceptQuote', () => {
       return callback(txMock);
     });
 
-    const result = await quotesService.acceptQuote('q_1', acceptBody);
+    const result = await quotesService.acceptQuote('q_1', acceptBody, null);
 
     expect(mockTransaction).toHaveBeenCalledTimes(1);
     expect(result.status).toBe('ACCEPTED');
@@ -540,7 +543,7 @@ describe('acceptQuote', () => {
 
   it('passes correct Booking data (startAt, endAt, totalAmount, totalDurationMinutes)', async () => {
     const sentQuote = {
-      id: 'q_1', status: 'SENT', leadId: 'lead_1', artistId: 'artist_1',
+      id: 'q_1', status: 'SENT', leadId: 'lead_1', artistId: 'artist_1', tenantId: 'tenant_1',
       price: 300.00, hours: 3, validUntil: FUTURE_DATE,
     };
     mockQuoteFindUnique
@@ -565,7 +568,7 @@ describe('acceptQuote', () => {
     await quotesService.acceptQuote('q_1', {
       startAt: '2026-04-10T10:00:00Z',
       endAt:   '2026-04-10T13:00:00Z',
-    });
+    }, null);
 
     expect(capturedBookingData).toMatchObject({
       data: expect.objectContaining({
@@ -581,12 +584,12 @@ describe('acceptQuote', () => {
 
   it('throws 409 QUOTE_EXPIRED for an expired quote', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce({
-      id: 'q_1', status: 'SENT', leadId: 'lead_1', artistId: 'artist_1',
+      id: 'q_1', status: 'SENT', leadId: 'lead_1', artistId: 'artist_1', tenantId: 'tenant_1',
       price: 200, hours: 2, validUntil: PAST_DATE,
     });
 
     await expect(
-      quotesService.acceptQuote('q_1', acceptBody),
+      quotesService.acceptQuote('q_1', acceptBody, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'QUOTE_EXPIRED' });
 
     expect(mockTransaction).not.toHaveBeenCalled();
@@ -594,23 +597,23 @@ describe('acceptQuote', () => {
 
   it('throws 409 when quote is DRAFT (not SENT)', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce({
-      id: 'q_1', status: 'DRAFT', leadId: 'lead_1', artistId: 'artist_1',
+      id: 'q_1', status: 'DRAFT', leadId: 'lead_1', artistId: 'artist_1', tenantId: 'tenant_1',
       price: 200, hours: 2, validUntil: FUTURE_DATE,
     });
 
     await expect(
-      quotesService.acceptQuote('q_1', acceptBody),
+      quotesService.acceptQuote('q_1', acceptBody, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'CONFLICT' });
   });
 
   it('throws 409 when quote is already ACCEPTED', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce({
-      id: 'q_1', status: 'ACCEPTED', leadId: 'lead_1', artistId: 'artist_1',
+      id: 'q_1', status: 'ACCEPTED', leadId: 'lead_1', artistId: 'artist_1', tenantId: 'tenant_1',
       price: 200, hours: 2, validUntil: FUTURE_DATE,
     });
 
     await expect(
-      quotesService.acceptQuote('q_1', acceptBody),
+      quotesService.acceptQuote('q_1', acceptBody, null),
     ).rejects.toMatchObject({ statusCode: 409, code: 'CONFLICT' });
   });
 
@@ -618,7 +621,7 @@ describe('acceptQuote', () => {
     mockQuoteFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      quotesService.acceptQuote('no_id', acceptBody),
+      quotesService.acceptQuote('no_id', acceptBody, null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
   });
 });
@@ -629,7 +632,7 @@ describe('acceptQuote', () => {
 
 describe('rejectQuote', () => {
   it('transitions SENT → REJECTED and sets respondedAt', async () => {
-    const sentQuote = { id: 'q_1', status: 'SENT', leadId: 'lead_1' };
+    const sentQuote = { id: 'q_1', status: 'SENT', leadId: 'lead_1', tenantId: 'tenant_1' };
     const rejectedFull = { ...baseQuoteFull, status: 'REJECTED', respondedAt: new Date() };
 
     mockQuoteFindUnique
@@ -637,7 +640,7 @@ describe('rejectQuote', () => {
       .mockResolvedValueOnce(rejectedFull);
     mockQuoteUpdate.mockResolvedValue({ id: 'q_1' });
 
-    const result = await quotesService.rejectQuote('q_1');
+    const result = await quotesService.rejectQuote('q_1', null);
 
     expect(mockQuoteUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -648,24 +651,24 @@ describe('rejectQuote', () => {
   });
 
   it('throws 409 when quote is DRAFT (not SENT)', async () => {
-    mockQuoteFindUnique.mockResolvedValueOnce({ id: 'q_1', status: 'DRAFT', leadId: 'lead_1' });
+    mockQuoteFindUnique.mockResolvedValueOnce({ id: 'q_1', status: 'DRAFT', leadId: 'lead_1', tenantId: 'tenant_1' });
 
-    await expect(quotesService.rejectQuote('q_1')).rejects.toMatchObject({
+    await expect(quotesService.rejectQuote('q_1', null)).rejects.toMatchObject({
       statusCode: 409,
       code:       'CONFLICT',
     });
   });
 
   it('throws 409 when quote is already REJECTED', async () => {
-    mockQuoteFindUnique.mockResolvedValueOnce({ id: 'q_1', status: 'REJECTED', leadId: 'lead_1' });
+    mockQuoteFindUnique.mockResolvedValueOnce({ id: 'q_1', status: 'REJECTED', leadId: 'lead_1', tenantId: 'tenant_1' });
 
-    await expect(quotesService.rejectQuote('q_1')).rejects.toMatchObject({ statusCode: 409 });
+    await expect(quotesService.rejectQuote('q_1', null)).rejects.toMatchObject({ statusCode: 409 });
   });
 
   it('throws 404 when quote does not exist', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce(null);
 
-    await expect(quotesService.rejectQuote('no_id')).rejects.toMatchObject({
+    await expect(quotesService.rejectQuote('no_id', null)).rejects.toMatchObject({
       statusCode: 404,
       code:       'NOT_FOUND',
     });
@@ -680,7 +683,7 @@ describe('AppError shape', () => {
   it('errors thrown are instances of AppError', async () => {
     mockQuoteFindUnique.mockResolvedValueOnce(null);
     try {
-      await quotesService.getQuoteById('no_id', 'admin', 'ADMIN');
+      await quotesService.getQuoteById('no_id', 'admin', 'ADMIN', null);
     } catch (err) {
       expect(err).toBeInstanceOf(AppError);
     }

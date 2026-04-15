@@ -303,7 +303,7 @@ export async function getQuoteById(
 ): Promise<QuoteDetail> {
   const quote = await fetchQuoteDetail(id);
 
-  if (quote.tenantId !== tenantId) {
+  if (tenantId !== null && quote.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'You do not have permission to view this quote');
   }
 
@@ -328,13 +328,18 @@ export async function updateQuote(
   body: UpdateQuoteBody,
   actorId: string,
   actorRole: ActorRole,
+  tenantId: string | null,
 ): Promise<QuoteDetail> {
   const quote = await prisma.quote.findUnique({
     where:  { id },
-    select: { id: true, status: true, artistId: true, leadId: true },
+    select: { id: true, status: true, artistId: true, leadId: true, tenantId: true },
   });
 
   if (!quote) throw new AppError(404, 'NOT_FOUND', 'Quote not found');
+
+  if (tenantId !== null && quote.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this quote');
+  }
 
   if (quote.status !== 'DRAFT') {
     throw new AppError(
@@ -380,13 +385,18 @@ export async function sendQuote(
   id: string,
   actorId: string,
   actorRole: ActorRole,
+  tenantId: string | null,
 ): Promise<QuoteDetail> {
   const quote = await prisma.quote.findUnique({
     where:  { id },
-    select: { id: true, status: true, artistId: true, leadId: true },
+    select: { id: true, status: true, artistId: true, leadId: true, tenantId: true },
   });
 
   if (!quote) throw new AppError(404, 'NOT_FOUND', 'Quote not found');
+
+  if (tenantId !== null && quote.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You do not have permission to send this quote');
+  }
 
   if (quote.status !== 'DRAFT') {
     throw new AppError(
@@ -456,7 +466,7 @@ export async function acceptQuote(
 
   if (!quote) throw new AppError(404, 'NOT_FOUND', 'Quote not found');
 
-  if (quote.tenantId !== tenantId) {
+  if (tenantId !== null && quote.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this quote');
   }
 
@@ -543,7 +553,7 @@ export async function rejectQuote(id: string, tenantId: string | null): Promise<
 
   if (!quote) throw new AppError(404, 'NOT_FOUND', 'Quote not found');
 
-  if (quote.tenantId !== tenantId) {
+  if (tenantId !== null && quote.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'You do not have permission to modify this quote');
   }
 
