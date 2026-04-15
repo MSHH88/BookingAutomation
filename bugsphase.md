@@ -50,6 +50,34 @@ AUDIT‑011..AUDIT‑018: ✅ All fixed
 
 ---
 
+## AUDIT‑019..AUDIT‑020 Completion Status (Verification)
+
+> Verified: 2026-04-15 against commit `c7b628b` (HEAD of `copilot/create-detailed-automation-plan`).
+
+- **AUDIT‑019:** ✅ Completed — `createLead()` in `leads.service.ts` now accepts optional `tenantId` param and persists it via `prisma.lead.create({ data: { tenantId } })`. Auto-resolves from `artist.tenantId` when not explicitly provided. `captureLeadPublic()` in `capture.service.ts` passes resolved `tenantId` to `createLead()`. Backfill script created at `backend/src/scripts/backfill-lead-tenantId.ts`. 3 new unit tests added. Commit `529f7c9`.
+- **AUDIT‑020:** ✅ Completed — `listEvents()` in `analytics.service.ts` now accepts optional `tenantId` param and applies `where.tenantId = tenantId` when non-null; SUPER_ADMIN (null) sees all events. `events()` handler in `analytics.controller.ts` now extracts `tenantId` via `extractTenantId(req)`. 2 new unit tests added. Commit `c7b628b`.
+
+### Created Files (AUDIT‑019..AUDIT‑020)
+
+- `backend/src/scripts/backfill-lead-tenantId.ts` — AUDIT-019
+
+### Modified Files (AUDIT‑019..AUDIT‑020)
+
+- `backend/src/modules/leads/leads.service.ts` — AUDIT-019
+- `backend/src/modules/capture/capture.service.ts` — AUDIT-019
+- `backend/src/modules/leads/leads.service.test.ts` — AUDIT-019
+- `backend/src/modules/analytics/analytics.service.ts` — AUDIT-020
+- `backend/src/modules/analytics/analytics.controller.ts` — AUDIT-020
+- `backend/src/modules/analytics/analytics.service.test.ts` — AUDIT-020
+
+### Missing Items
+
+None. All AUDIT-019..AUDIT-020 items are implemented and committed on `copilot/create-detailed-automation-plan`.
+
+AUDIT‑019..AUDIT‑020: ✅ All fixed
+
+---
+
 ## AUDIT‑001..AUDIT‑010 Completion Status (Verification)
 
 > Verified: 2026-04-14 against commit `a94cddd` (HEAD of `copilot/create-detailed-automation-plan`).
