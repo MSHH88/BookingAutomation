@@ -598,7 +598,7 @@ export async function completeBooking(
   }
 
   // ── Phase 8.2 — Enqueue AI suggestion (fire-and-forget) ──────────────────
-  enqueueAISuggestion(id);
+  enqueueAISuggestion(id, booking.tenantId);
 
   return updated;
 }

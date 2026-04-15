@@ -67,8 +67,8 @@ export function getAISuggestionQueue(): Queue<AISuggestionJobData> {
 // ─── Enqueue ──────────────────────────────────────────────────────────────────
 
 /** Enqueues an AI suggestion job for a completed booking (fire-and-forget). */
-export function enqueueAISuggestion(bookingId: string): void {
-  void isFeatureEnabled('AI_SUGGESTIONS_ENABLED').then((enabled) => {
+export function enqueueAISuggestion(bookingId: string, tenantId?: string | null): void {
+  void isFeatureEnabled('AI_SUGGESTIONS_ENABLED', tenantId).then((enabled) => {
     if (!enabled) return;
     void getAISuggestionQueue()
       .add('generate', { bookingId }, { delay: 5 * 60 * 1000 }) // 5 min delay
@@ -82,12 +82,6 @@ export function enqueueAISuggestion(bookingId: string): void {
 
 async function processAISuggestionJob(job: Job<AISuggestionJobData>): Promise<void> {
   const { bookingId } = job.data;
-
-  const enabled = await isFeatureEnabled('AI_SUGGESTIONS_ENABLED');
-  if (!enabled) {
-    logger.debug('AI suggestion job skipped — AI_SUGGESTIONS_ENABLED is off', { bookingId });
-    return;
-  }
 
   const booking = await prisma.booking.findUnique({
     where:  { id: bookingId },
@@ -104,6 +98,12 @@ async function processAISuggestionJob(job: Job<AISuggestionJobData>): Promise<vo
 
   if (!booking) {
     logger.warn('AI suggestion job: booking not found', { bookingId });
+    return;
+  }
+
+  const enabled = await isFeatureEnabled('AI_SUGGESTIONS_ENABLED', booking.tenantId);
+  if (!enabled) {
+    logger.debug('AI suggestion job skipped — AI_SUGGESTIONS_ENABLED is off', { bookingId, tenantId: booking.tenantId });
     return;
   }
 
