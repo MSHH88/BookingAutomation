@@ -113,6 +113,15 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ─── Mock Redis (needed by bumpRbacVersion called from updateUser) ────────────
+jest.mock('../../lib/redis', () => ({
+  getRedis: () => ({
+    get:   jest.fn().mockResolvedValue(null),
+    setex: jest.fn().mockResolvedValue('OK'),
+    incr:  jest.fn().mockResolvedValue(1),
+  }),
+}));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 import { AppError } from '../../errors/AppError';

@@ -20,6 +20,7 @@ import { Prisma, Role } from '@prisma/client';
 
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
+import { bumpRbacVersion } from '../auth/auth.service';
 import { paginate, PaginatedResult } from '../../utils/paginate';
 import type {
   ListRoleUsersQuery,
@@ -169,9 +170,16 @@ export async function updateUserRole(
   if (body.canViewLeads   !== undefined) data.canViewLeads   = body.canViewLeads;
   if (body.canAssignRoles !== undefined) data.canAssignRoles = body.canAssignRoles;
 
-  return prisma.user.update({
+  const updated = await prisma.user.update({
     where:  { id: targetId },
     data,
     select: roleUserSelect,
   });
+
+  // Invalidate outstanding access tokens when any RBAC-relevant field changed
+  if (body.role !== undefined || body.canViewLeads !== undefined || body.canAssignRoles !== undefined) {
+    await bumpRbacVersion(targetId);
+  }
+
+  return updated;
 }

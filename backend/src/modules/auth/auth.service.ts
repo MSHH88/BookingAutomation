@@ -51,6 +51,8 @@ export interface JwtPayload {
   canViewLeads: boolean;
   /** Whether this user may assign roles within their tenant. */
   canAssignRoles: boolean;
+  /** RBAC version — incremented on role/permission changes; stale tokens are rejected. */
+  rbacVersion?: number;
   iat?: number;
   exp?: number;
 }
@@ -125,8 +127,15 @@ function toSafeUser(user: {
   };
 }
 
-/** Signs a short-lived JWT access token. */
-function signAccessToken(user: SafeUser): string {
+/** Signs a short-lived JWT access token. Embeds the current rbacVersion from Redis (default 0). */
+async function signAccessToken(user: SafeUser): Promise<string> {
+  let rbacVersion = 0;
+  try {
+    const raw = await getRedis().get(`rbacVersion:${user.id}`);
+    if (raw !== null) rbacVersion = parseInt(raw, 10) || 0;
+  } catch {
+    // Redis unavailable — use default 0; verifyAccessToken will also default to 0
+  }
   const payload: JwtPayload = {
     sub:            user.id,
     jti:            crypto.randomUUID(),
@@ -135,6 +144,7 @@ function signAccessToken(user: SafeUser): string {
     tenantId:       user.tenantId,
     canViewLeads:   user.canViewLeads,
     canAssignRoles: user.canAssignRoles,
+    rbacVersion,
   };
   return jwt.sign(payload, config.JWT_ACCESS_SECRET, {
     expiresIn: config.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions['expiresIn'],
@@ -167,7 +177,7 @@ async function buildAuthTokens(user: {
   updatedAt: Date;
 }): Promise<AuthTokens> {
   const safeUser = toSafeUser(user);
-  const accessToken = signAccessToken(safeUser);
+  const accessToken = await signAccessToken(safeUser);
   const refreshToken = await createDbRefreshToken(user.id);
   return { accessToken, refreshToken, user: safeUser };
 }
@@ -396,7 +406,8 @@ export async function updateMe(userId: string, input: UpdateMeBody): Promise<Saf
 /**
  * Verifies a JWT access token and returns its payload.
  * Checks the Redis revocation list for jti-based logout.
- * Throws 401 AppError for any failure (expired, malformed, wrong secret, revoked).
+ * Checks rbacVersion to detect stale RBAC state after role/permission changes.
+ * Throws 401 AppError for any failure (expired, malformed, wrong secret, revoked, stale RBAC).
  */
 export async function verifyAccessToken(token: string): Promise<JwtPayload> {
   let payload: JwtPayload;
@@ -420,5 +431,31 @@ export async function verifyAccessToken(token: string): Promise<JwtPayload> {
     }
   }
 
+  // Check rbacVersion — stale tokens are rejected after role/permission changes
+  try {
+    const raw = await getRedis().get(`rbacVersion:${payload.sub}`);
+    const currentVersion = raw !== null ? (parseInt(raw, 10) || 0) : 0;
+    const tokenVersion   = payload.rbacVersion ?? 0;
+    if (tokenVersion !== currentVersion) {
+      throw new AppError(401, 'INVALID_TOKEN', 'Access token invalidated by RBAC change');
+    }
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+    logger.warn('Redis unavailable for rbacVersion check — allowing token', { sub: payload.sub });
+  }
+
   return payload;
+}
+
+/**
+ * Increments the rbacVersion counter for a user in Redis.
+ * Called when role or permission flags (canViewLeads, canAssignRoles) change,
+ * invalidating all outstanding access tokens for that user.
+ */
+export async function bumpRbacVersion(userId: string): Promise<void> {
+  try {
+    await getRedis().incr(`rbacVersion:${userId}`);
+  } catch {
+    logger.warn('Redis unavailable — could not bump rbacVersion', { userId });
+  }
 }

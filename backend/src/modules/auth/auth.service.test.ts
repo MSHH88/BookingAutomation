@@ -32,14 +32,16 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
-// ─── Mock Redis (used by verifyAccessToken + logout jti revocation) ───────────
-const mockRedisGet    = jest.fn().mockResolvedValue(null); // null = not revoked
+// ─── Mock Redis (used by verifyAccessToken + logout jti revocation + rbacVersion) ───
+const mockRedisGet    = jest.fn().mockResolvedValue(null); // null = not revoked / no rbacVersion
 const mockRedisSetex  = jest.fn().mockResolvedValue('OK');
+const mockRedisIncr   = jest.fn().mockResolvedValue(1);
 
 jest.mock('../../lib/redis', () => ({
   getRedis: () => ({
     get:   (...a: unknown[]) => mockRedisGet(...a),
     setex: (...a: unknown[]) => mockRedisSetex(...a),
+    incr:  (...a: unknown[]) => mockRedisIncr(...a),
   }),
 }));
 
@@ -352,5 +354,51 @@ describe('verifyAccessToken', () => {
     await expect(authService.verifyAccessToken('not.a.valid.jwt')).rejects.toMatchObject(
       expect.objectContaining({ statusCode: 401, code: 'INVALID_TOKEN' }),
     );
+  });
+
+  it('rejects token when rbacVersion has been bumped (RBAC change)', async () => {
+    // Issue a token (rbacVersion will be 0 because mockRedisGet returns null)
+    mockFindUnique.mockResolvedValueOnce(baseUser);
+    mockCreate.mockResolvedValueOnce({ id: 'rt_2', token: 'refresh_hex_2', expiresAt: new Date() });
+
+    const tokens = await authService.login({ email: baseUser.email, password: 'pass' });
+
+    // Simulate an RBAC bump: now Redis returns '1' for rbacVersion:{userId}
+    mockRedisGet.mockImplementation(async (key: string) => {
+      if (key === `rbacVersion:${baseUser.id}`) return '1';
+      return null;
+    });
+
+    await expect(authService.verifyAccessToken(tokens.accessToken)).rejects.toMatchObject({
+      statusCode: 401,
+      code: 'INVALID_TOKEN',
+    });
+
+    // Reset mock
+    mockRedisGet.mockResolvedValue(null);
+  });
+
+  it('accepts token when rbacVersion matches', async () => {
+    // Issue a token with rbacVersion = 0
+    mockFindUnique.mockResolvedValueOnce(baseUser);
+    mockCreate.mockResolvedValueOnce({ id: 'rt_3', token: 'refresh_hex_3', expiresAt: new Date() });
+
+    const tokens = await authService.login({ email: baseUser.email, password: 'pass' });
+
+    // rbacVersion still 0 (null → default 0)
+    mockRedisGet.mockResolvedValue(null);
+
+    const payload = await authService.verifyAccessToken(tokens.accessToken);
+    expect(payload.sub).toBe(baseUser.id);
+    expect(payload.rbacVersion).toBe(0);
+  });
+});
+
+// ─── bumpRbacVersion ──────────────────────────────────────────────────────────
+
+describe('bumpRbacVersion', () => {
+  it('increments the Redis rbacVersion key for the user', async () => {
+    await authService.bumpRbacVersion('user_123');
+    expect(mockRedisIncr).toHaveBeenCalledWith('rbacVersion:user_123');
   });
 });

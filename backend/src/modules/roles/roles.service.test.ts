@@ -51,6 +51,15 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+// ─── Mock Redis (needed by bumpRbacVersion called from updateUserRole) ────────
+jest.mock('../../lib/redis', () => ({
+  getRedis: () => ({
+    get:   jest.fn().mockResolvedValue(null),
+    setex: jest.fn().mockResolvedValue('OK'),
+    incr:  jest.fn().mockResolvedValue(1),
+  }),
+}));
+
 import { listUsers, updateUserRole } from './roles.service';
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────

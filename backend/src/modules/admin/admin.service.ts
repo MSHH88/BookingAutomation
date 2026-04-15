@@ -30,6 +30,7 @@ import { Prisma } from '@prisma/client';
 
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
+import { bumpRbacVersion } from '../auth/auth.service';
 import { paginate, PaginatedResult } from '../../utils/paginate';
 import type {
   UpdateSettingsBody,
@@ -316,11 +317,18 @@ export async function updateUser(
   if (body.isActive !== undefined) data.isActive = body.isActive;
   if (body.name     !== undefined) data.name     = body.name;
 
-  return prisma.user.update({
+  const updated = await prisma.user.update({
     where:  { id },
     data,
     select: userListSelect,
   });
+
+  // Invalidate outstanding access tokens when RBAC-relevant fields changed
+  if (body.role !== undefined) {
+    await bumpRbacVersion(id);
+  }
+
+  return updated;
 }
 
 // ─── Artist Management ────────────────────────────────────────────────────────
