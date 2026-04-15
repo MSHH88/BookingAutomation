@@ -151,8 +151,9 @@ export async function events(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const query  = req.query as unknown as EventsListQuery;
-    const result = await analyticsService.listEvents(query);
+    const query    = req.query as unknown as EventsListQuery;
+    const tenantId = extractTenantId(req);
+    const result   = await analyticsService.listEvents(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);

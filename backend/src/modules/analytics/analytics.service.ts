@@ -617,11 +617,12 @@ export async function getRevenueAnalytics(query: RevenueAnalyticsQuery, tenantId
 /**
  * Paginated raw AnalyticsEvent log (admin only).
  */
-export async function listEvents(query: EventsListQuery): Promise<PaginatedResult<AnalyticsEventItem>> {
+export async function listEvents(query: EventsListQuery, tenantId: string | null = null): Promise<PaginatedResult<AnalyticsEventItem>> {
   const range = resolveRange(query.from, query.to);
   const df    = mkDateFilter(range.from, range.to);
 
   const where: Prisma.AnalyticsEventWhereInput = { createdAt: df };
+  if (tenantId !== null) where.tenantId = tenantId;
   if (query.eventType) {
     where.eventType = { equals: query.eventType.toUpperCase(), mode: 'insensitive' };
   }

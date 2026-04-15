@@ -681,4 +681,16 @@ describe('listEvents', () => {
     expect(findManyCall.skip).toBe(20); // (page 3 - 1) * 10
     expect(findManyCall.take).toBe(10);
   });
+
+  it('applies tenantId filter when provided (AUDIT-020)', async () => {
+    await listEvents({ page: 1, limit: 20 }, 'tenant_abc');
+    const countCall = mockAnalyticsEventCount.mock.calls[0][0] as { where: { tenantId?: string } };
+    expect(countCall.where.tenantId).toBe('tenant_abc');
+  });
+
+  it('does not apply tenantId filter for SUPER_ADMIN (null tenantId)', async () => {
+    await listEvents({ page: 1, limit: 20 }, null);
+    const countCall = mockAnalyticsEventCount.mock.calls[0][0] as { where: Record<string, unknown> };
+    expect(countCall.where.tenantId).toBeUndefined();
+  });
 });
