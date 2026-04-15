@@ -78,6 +78,48 @@ AUDIT‑019..AUDIT‑020: ✅ All fixed
 
 ---
 
+## AUDIT‑021..AUDIT‑026 Completion Status (Verification)
+
+> Verified: 2026-04-15 against commit `f5533ef` (HEAD of `copilot/create-detailed-automation-plan`).
+
+- **AUDIT‑021:** ✅ Completed — `getLeadById()`, `updateLeadStatus()`, `updateLeadScore()` in `leads.service.ts` now accept `tenantId` and return 403 on cross-tenant access. `leads.controller.ts` extracts `tenantId` via `extractTenantId(req)`. `leads.test.ts` updated with cross-tenant 403 tests. Commit `cddd76b`.
+- **AUDIT‑022:** ✅ Completed — `updateUser()` in `admin.service.ts` now requires `callerRole === 'SUPER_ADMIN'` or `callerCanAssignRoles === true` for role/permission changes. `admin.controller.ts` passes caller info. Commit `40cbf56`.
+- **AUDIT‑023:** ✅ Completed — `invoice-overdue.job.ts` created: daily BullMQ job (02:00 UTC) marks invoices overdue. `INVOICE_AUTOMATION_ENABLED` added to `businessType.ts`. Job registered in `jobs/index.ts`. Commit `d11e82b`.
+- **AUDIT‑024:** ✅ Completed — RBAC versioning: `rbacVersion` added to JWT payload at issuance (from Redis `rbacVersion:{userId}`, default 0). `verifyAccessToken()` in `auth.service.ts` compares token vs Redis. `bumpRbacVersion()` called by `admin.service.ts updateUser()` and `roles.service.ts updateUserRole()` when role/canViewLeads/canAssignRoles change. Commit `bbccca7`.
+- **AUDIT‑025:** ✅ Completed — `trackEvent()` in `analytics.service.ts` now accepts optional `tenantId` and resolves from `lead.tenantId` when `leadId` provided. `createLead()` side-effect in `leads.service.ts` includes resolved `tenantId` in `LEAD_CREATED` event. Backfill script at `backend/src/scripts/backfill-analyticsEvent-tenantId.ts`. Commit `9c87a97`.
+- **AUDIT‑026:** ✅ Completed — `getArtistsAnalytics()` adds `availableMinutes`/`bookedMinutes`/`utilizationRate` from Shift model. `getRevenueAnalytics()` adds `grossRevenue`/`totalCommissions`/`netRevenue` + deposit tracking (`depositsCollected`/`depositsRefunded`/`depositsNet`). `getCustomersAnalytics()` adds `rebookRate`/`rebookNumerator`/`rebookDenominator` (30-day window). `getBookingsAnalytics()` adds `byLocation` breakdown. Commit `f5533ef`.
+
+### Created Files (AUDIT‑021..AUDIT‑026)
+
+- `backend/src/jobs/invoice-overdue.job.ts` — AUDIT-023
+- `backend/src/scripts/backfill-analyticsEvent-tenantId.ts` — AUDIT-025
+
+### Modified Files (AUDIT‑021..AUDIT‑026)
+
+- `backend/src/modules/leads/leads.controller.ts` — AUDIT-021
+- `backend/src/modules/leads/leads.service.ts` — AUDIT-021, AUDIT-025
+- `backend/src/modules/leads/leads.test.ts` — AUDIT-021
+- `backend/src/modules/admin/admin.controller.ts` — AUDIT-022
+- `backend/src/modules/admin/admin.service.ts` — AUDIT-022, AUDIT-024
+- `backend/src/modules/admin/admin.service.test.ts` — AUDIT-022, AUDIT-024
+- `backend/src/config/businessType.ts` — AUDIT-023
+- `backend/src/jobs/index.ts` — AUDIT-023
+- `backend/src/modules/auth/auth.service.ts` — AUDIT-024
+- `backend/src/modules/auth/auth.service.test.ts` — AUDIT-024
+- `backend/src/modules/roles/roles.service.ts` — AUDIT-024
+- `backend/src/modules/roles/roles.service.test.ts` — AUDIT-024
+- `backend/src/modules/analytics/analytics.service.ts` — AUDIT-025, AUDIT-026
+- `backend/src/modules/analytics/analytics.service.test.ts` — AUDIT-025, AUDIT-026
+- `backend/src/modules/leads/leads.service.test.ts` — AUDIT-025 (backfill test)
+
+### Missing Items
+
+None. All AUDIT-021..AUDIT-026 items are implemented and committed on `copilot/create-detailed-automation-plan`.
+
+AUDIT‑021..AUDIT‑026: ✅ All fixed
+
+---
+
 ## AUDIT‑001..AUDIT‑010 Completion Status (Verification)
 
 > Verified: 2026-04-14 against commit `a94cddd` (HEAD of `copilot/create-detailed-automation-plan`).
@@ -117,7 +159,7 @@ None. All AUDIT fixes are changes to existing files only.
 - `backend/src/modules/customers/customers.service.ts` — AUDIT-003, AUDIT-010
 - `backend/src/modules/reviews/reviews.queue.ts` — AUDIT-003
 - `backend/src/modules/bookings/bookings.service.ts` — AUDIT-003, AUDIT-006
-- `backend/src/lib/apple-calendar.ts` — AUDIT-003
+- `backend/src/modules/calendar/apple-calendar.service.ts` — AUDIT-003
 - `backend/src/modules/whatsapp/whatsapp.service.ts` — AUDIT-003
 - `backend/src/modules/admin/admin.service.ts` — AUDIT-004
 - `backend/src/modules/capture/capture.service.ts` — AUDIT-005
@@ -531,11 +573,13 @@ Partially. The DB model and admin API correctly support per-tenant override rows
 
 ---
 
-# Phase 1–3 Implementation File Register (AUTO-GENERATED)
+# Phase 1–3 + AUDIT-001..026 Implementation File Register (AUTO-GENERATED)
 
-> Generated: 2026-04-14 by post-phase-3 verification agent.
+> Updated: 2026-04-15 by audit verification agent.
 > Branch: `copilot/create-detailed-automation-plan`
 > Working tree: **CLEAN** — nothing uncommitted.
+>
+> **AUDIT‑001..AUDIT‑026: ✅ All fixed** (26/26 audits complete)
 
 ---
 AUDIT-001:
