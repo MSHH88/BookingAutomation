@@ -145,7 +145,9 @@ export async function patchUser(
     const { id }   = req.params as UpdateUserParams;
     const body     = req.body as UpdateUserBody;
     const tenantId = extractTenantId(req);
-    const user     = await adminService.updateUser(id, body, tenantId);
+    const callerRole           = req.user?.role ?? 'ADMIN';
+    const callerCanAssignRoles = req.user?.canAssignRoles ?? false;
+    const user     = await adminService.updateUser(id, body, tenantId, callerRole, callerCanAssignRoles);
     res.json(success(user));
   } catch (err) {
     next(err);

@@ -484,7 +484,7 @@ describe('updateUser', () => {
     mockUserFindUnique.mockResolvedValue(stubUser({ role: 'CUSTOMER' }));
     mockUserUpdate.mockResolvedValue(stubUser({ role: 'ADMIN' }));
 
-    const result = await service.updateUser('user-1', { role: 'ADMIN' }, null);
+    const result = await service.updateUser('user-1', { role: 'ADMIN' }, null, 'SUPER_ADMIN');
 
     expect(result.role).toBe('ADMIN');
     expect(mockUserUpdate).toHaveBeenCalledWith(
@@ -510,7 +510,7 @@ describe('updateUser', () => {
       stubUser({ role: 'ARTIST', isActive: true, name: 'Bob' }),
     );
 
-    await service.updateUser('user-1', { role: 'ARTIST', isActive: true, name: 'Bob' }, null);
+    await service.updateUser('user-1', { role: 'ARTIST', isActive: true, name: 'Bob' }, null, 'SUPER_ADMIN');
 
     expect(mockUserUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -531,6 +531,47 @@ describe('updateUser', () => {
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
 
     expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  // ── AUDIT-022: canAssignRoles guard ────────────────────────────────────────
+  it('throws 403 when ADMIN without canAssignRoles tries to change role', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser({ tenantId: 'tenant1' }));
+
+    await expect(
+      service.updateUser('user-1', { role: 'ADMIN' }, 'tenant1', 'ADMIN', false),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  it('allows ADMIN with canAssignRoles to change role', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser({ tenantId: 'tenant1' }));
+    mockUserUpdate.mockResolvedValue(stubUser({ role: 'ADMIN', tenantId: 'tenant1' }));
+
+    const result = await service.updateUser('user-1', { role: 'ADMIN' }, 'tenant1', 'ADMIN', true);
+
+    expect(result.role).toBe('ADMIN');
+    expect(mockUserUpdate).toHaveBeenCalled();
+  });
+
+  it('allows SUPER_ADMIN to change role without canAssignRoles', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser());
+    mockUserUpdate.mockResolvedValue(stubUser({ role: 'ARTIST' }));
+
+    const result = await service.updateUser('user-1', { role: 'ARTIST' }, null, 'SUPER_ADMIN', false);
+
+    expect(result.role).toBe('ARTIST');
+    expect(mockUserUpdate).toHaveBeenCalled();
+  });
+
+  it('allows ADMIN without canAssignRoles to update non-role fields', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser({ tenantId: 'tenant1' }));
+    mockUserUpdate.mockResolvedValue(stubUser({ name: 'New Name', tenantId: 'tenant1' }));
+
+    const result = await service.updateUser('user-1', { name: 'New Name' }, 'tenant1', 'ADMIN', false);
+
+    expect(result.name).toBe('New Name');
+    expect(mockUserUpdate).toHaveBeenCalled();
   });
 });
 

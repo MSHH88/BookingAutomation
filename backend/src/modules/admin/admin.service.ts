@@ -282,12 +282,19 @@ export async function listUsers(
 /**
  * Updates a user's role, active state, or display name.
  *
+ * When `body.role` is present, the caller must either be SUPER_ADMIN or have
+ * `canAssignRoles === true`.  This prevents privilege escalation through the
+ * admin user management endpoint.
+ *
  * @throws AppError 404 — user with the given id does not exist.
+ * @throws AppError 403 — cross-tenant access or missing canAssignRoles permission.
  */
 export async function updateUser(
   id:       string,
   body:     UpdateUserBody,
   tenantId: string | null,
+  callerRole: string = 'ADMIN',
+  callerCanAssignRoles: boolean = false,
 ): Promise<UserListItem> {
   const user = await prisma.user.findUnique({ where: { id } });
 
@@ -297,6 +304,11 @@ export async function updateUser(
 
   if (tenantId !== null && user.tenantId !== tenantId) {
     throw new AppError(403, 'FORBIDDEN', 'User not in your tenant');
+  }
+
+  // Guard: role changes require SUPER_ADMIN or canAssignRoles permission
+  if (body.role !== undefined && callerRole !== 'SUPER_ADMIN' && !callerCanAssignRoles) {
+    throw new AppError(403, 'FORBIDDEN', 'Missing permission: canAssignRoles');
   }
 
   const data: Prisma.UserUpdateInput = {};
