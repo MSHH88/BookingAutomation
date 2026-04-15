@@ -286,25 +286,28 @@ export async function sendEmail(
   key:       string,
   to:        string,
   variables: Record<string, unknown> = {},
+  tenantId?: string | null,
 ): Promise<void> {
-  const template = await prisma.emailTemplate.findUnique({
-    where:  { key },
-    select: { id: true, subject: true, htmlBody: true, isActive: true },
-  });
+  // Try tenant-specific template first, then fall back to global default
+  let template = tenantId
+    ? await prisma.emailTemplate.findFirst({
+        where:  { key, tenantId, isActive: true },
+        select: { id: true, subject: true, htmlBody: true, isActive: true },
+      })
+    : null;
+
+  if (!template) {
+    template = await prisma.emailTemplate.findFirst({
+      where:  { key, tenantId: null, isActive: true },
+      select: { id: true, subject: true, htmlBody: true, isActive: true },
+    });
+  }
 
   if (!template) {
     throw new AppError(
       404,
       'TEMPLATE_NOT_FOUND',
       `Email template '${key}' not found`,
-    );
-  }
-
-  if (!template.isActive) {
-    throw new AppError(
-      409,
-      'TEMPLATE_INACTIVE',
-      `Email template '${key}' is inactive and cannot be sent`,
     );
   }
 

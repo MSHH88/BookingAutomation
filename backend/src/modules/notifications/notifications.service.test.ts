@@ -363,7 +363,7 @@ describe('sendEmail', () => {
   };
 
   it('dispatches email with rendered Handlebars variables', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce(template);
+    mockTemplateFindFirst.mockResolvedValueOnce(template);
     mockResendSend.mockResolvedValue({ data: { id: 'resend_id' }, error: null });
 
     await notificationsService.sendEmail('booking-confirmed', 'jane@example.com', {
@@ -378,7 +378,7 @@ describe('sendEmail', () => {
   });
 
   it('sends email to the correct recipient via Resend', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce(template);
+    mockTemplateFindFirst.mockResolvedValueOnce(template);
     mockResendSend.mockResolvedValue({ data: { id: 'resend_id' }, error: null });
 
     await notificationsService.sendEmail('booking-confirmed', 'customer@example.com', {
@@ -392,7 +392,7 @@ describe('sendEmail', () => {
   });
 
   it('throws 404 TEMPLATE_NOT_FOUND when key does not exist', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce(null);
+    mockTemplateFindFirst.mockResolvedValueOnce(null);
 
     await expect(
       notificationsService.sendEmail('nonexistent-key', 'x@x.com'),
@@ -401,18 +401,20 @@ describe('sendEmail', () => {
     expect(mockResendSend).not.toHaveBeenCalled();
   });
 
-  it('throws 409 TEMPLATE_INACTIVE when template is inactive', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce({ ...template, isActive: false });
+  it('throws 404 TEMPLATE_NOT_FOUND when template is inactive (filtered by isActive)', async () => {
+    // With tenant-scoped lookup, inactive templates are filtered in the query
+    // so they appear as "not found" rather than a separate INACTIVE error.
+    mockTemplateFindFirst.mockResolvedValueOnce(null);
 
     await expect(
       notificationsService.sendEmail('booking-confirmed', 'x@x.com'),
-    ).rejects.toMatchObject({ statusCode: 409, code: 'TEMPLATE_INACTIVE' });
+    ).rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
 
     expect(mockResendSend).not.toHaveBeenCalled();
   });
 
   it('throws 502 EMAIL_SEND_FAILED on Resend error and propagates message', async () => {
-    mockTemplateFindUnique.mockResolvedValueOnce(template);
+    mockTemplateFindFirst.mockResolvedValueOnce(template);
     mockResendSend.mockResolvedValue({ data: null, error: { message: 'Invalid API key' } });
 
     await expect(
@@ -431,7 +433,7 @@ describe('sendEmail', () => {
       htmlBody: '<p>Welcome to the studio!</p>',
       isActive: true,
     };
-    mockTemplateFindUnique.mockResolvedValueOnce(plainTemplate);
+    mockTemplateFindFirst.mockResolvedValueOnce(plainTemplate);
     mockResendSend.mockResolvedValue({ data: { id: 'ok' }, error: null });
 
     await notificationsService.sendEmail('welcome', 'test@example.com');
@@ -448,7 +450,7 @@ describe('sendEmail', () => {
       htmlBody: '<p>Your account has been created successfully.</p>',
       isActive: true,
     };
-    mockTemplateFindUnique.mockResolvedValueOnce(simpleTemplate);
+    mockTemplateFindFirst.mockResolvedValueOnce(simpleTemplate);
     mockResendSend.mockResolvedValue({ data: { id: 'ok' }, error: null });
 
     await notificationsService.sendEmail('account-created', 'new@user.com', {});
@@ -465,7 +467,7 @@ describe('sendEmail', () => {
       htmlBody: '<p>Hi {{customerName}},</p>',
       isActive: true,
     };
-    mockTemplateFindUnique.mockResolvedValueOnce(specialTemplate);
+    mockTemplateFindFirst.mockResolvedValueOnce(specialTemplate);
     mockResendSend.mockResolvedValue({ data: { id: 'ok' }, error: null });
 
     await notificationsService.sendEmail('booking-confirmed', 'test@example.com', {
@@ -477,6 +479,76 @@ describe('sendEmail', () => {
     expect(sendCall.subject).toBe("Booking confirmed for O'Brien & Co");
     expect(sendCall.subject).not.toContain('&amp;');
     expect(sendCall.subject).not.toContain('&#x27;');
+  });
+
+  // ── Tenant-scoped sendEmail tests (BUG 12) ─────────────────────────────────
+
+  it('uses tenant override template when tenantId is provided and override exists', async () => {
+    const tenantTemplate = {
+      id:       'tpl_tenant',
+      subject:  'Custom booking for {{customerName}}',
+      htmlBody: '<h1>Tenant custom: {{customerName}}</h1>',
+      isActive: true,
+    };
+    // First call: tenant-specific lookup returns a match
+    mockTemplateFindFirst.mockResolvedValueOnce(tenantTemplate);
+    mockResendSend.mockResolvedValue({ data: { id: 'ok' }, error: null });
+
+    await notificationsService.sendEmail('booking-confirmed', 'user@example.com', {
+      customerName: 'Tenant User',
+    }, 'tenant_A');
+
+    // Verify tenant-specific lookup was attempted
+    expect(mockTemplateFindFirst).toHaveBeenCalledWith({
+      where:  { key: 'booking-confirmed', tenantId: 'tenant_A', isActive: true },
+      select: expect.objectContaining({ id: true }),
+    });
+
+    const sendCall = mockResendSend.mock.calls[0][0];
+    expect(sendCall.subject).toBe('Custom booking for Tenant User');
+  });
+
+  it('falls back to global default when tenantId is provided but no tenant override exists', async () => {
+    const globalTemplate = {
+      id:       'tpl_global',
+      subject:  'Global booking for {{customerName}}',
+      htmlBody: '<h1>Global: {{customerName}}</h1>',
+      isActive: true,
+    };
+    // First call: tenant-specific lookup returns null
+    mockTemplateFindFirst.mockResolvedValueOnce(null);
+    // Second call: global fallback returns a match
+    mockTemplateFindFirst.mockResolvedValueOnce(globalTemplate);
+    mockResendSend.mockResolvedValue({ data: { id: 'ok' }, error: null });
+
+    await notificationsService.sendEmail('booking-confirmed', 'user@example.com', {
+      customerName: 'Fallback User',
+    }, 'tenant_B');
+
+    // First call: tenant-specific
+    expect(mockTemplateFindFirst).toHaveBeenNthCalledWith(1, {
+      where:  { key: 'booking-confirmed', tenantId: 'tenant_B', isActive: true },
+      select: expect.objectContaining({ id: true }),
+    });
+    // Second call: global fallback
+    expect(mockTemplateFindFirst).toHaveBeenNthCalledWith(2, {
+      where:  { key: 'booking-confirmed', tenantId: null, isActive: true },
+      select: expect.objectContaining({ id: true }),
+    });
+
+    const sendCall = mockResendSend.mock.calls[0][0];
+    expect(sendCall.subject).toBe('Global booking for Fallback User');
+  });
+
+  it('throws 404 when tenantId is provided but neither tenant nor global template exists', async () => {
+    mockTemplateFindFirst.mockResolvedValueOnce(null); // tenant lookup
+    mockTemplateFindFirst.mockResolvedValueOnce(null); // global fallback
+
+    await expect(
+      notificationsService.sendEmail('missing-key', 'x@x.com', {}, 'tenant_C'),
+    ).rejects.toMatchObject({ statusCode: 404, code: 'TEMPLATE_NOT_FOUND' });
+
+    expect(mockResendSend).not.toHaveBeenCalled();
   });
 });
 

@@ -154,7 +154,7 @@ async function dispatchSms(payload: NotificationPayload): Promise<void> {
 
 async function dispatchEmail(payload: NotificationPayload): Promise<void> {
   try {
-    await sendEmail(payload.templateKey, payload.email!, payload.variables);
+    await sendEmail(payload.templateKey, payload.email!, payload.variables, payload.tenantId ?? null);
     logger.info('Email notification sent', { templateKey: payload.templateKey });
   } catch (err) {
     logger.error('Email dispatch failed', {

@@ -522,7 +522,7 @@ model PasswordResetToken {
 model EmailTemplate {
   id        String   @id @default(cuid())
   tenantId  String?  // null = global default; non-null = per-tenant override
-  key       String   @unique
+  key       String
   subject   String
   htmlBody  String
   variables Json
@@ -531,6 +531,7 @@ model EmailTemplate {
 
   tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([tenantId, key])
   @@index([tenantId])
   @@index([isActive])
   @@map("email_templates")
