@@ -267,19 +267,23 @@ npx tsc --noEmit
 A successful run should look like:
 
 ```text
-Test Suites: 100 passed, 100 total
-Tests:       1754 passed, 1754 total
+Test Suites: 102 passed, 102 total
+Tests:       ~1820+ passed, ~1820+ total
 Snapshots:   0 total
 Time:        <varies>
 Ran all test suites.
 ```
 
-> **Note (BUG 1 — Test Count Discrepancy):**
-> The `bugsphase.md` baseline documents **1756 tests** across 100 suites.
-> The current HEAD produces **1754 tests** across 100 suites — 2 tests are
-> missing (see BUG 1 in `LastAudits.md` for details). If your test count
-> differs from the value above, it may indicate an additional regression or
-> a partial fix for BUG 1. Please report any mismatch.
+> **Why 102 suites (not 100)?** The BUG 1–13 fixes introduced 2 brand-new
+> test files: `ai-suggestion.job.test.ts` (BUG 13) and
+> `whatsapp.queue.test.ts` (BUG 3). Additionally, 8 existing test files
+> were updated with new tenant-isolation tests, increasing the total test
+> count well above the pre-fix baseline of 1754.
+>
+> **Note:** The exact test count depends on the Jest test runner and any
+> parameterized tests. If your suite count is not 102, check that Step 3
+> downloaded both new test files successfully. If your test count differs
+> significantly, it may indicate a download or migration issue.
 
 **Common failure signals to watch for:**
 

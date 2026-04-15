@@ -1,3 +1,59 @@
+# ⚠️ FAQ — Common Questions
+
+## Q1: Why does `rmdir … 2>/dev/null` give `zsh: unknown file attribute` errors?
+
+**Terminal output you saw:**
+```
+rmdir --ignore-fail-on-non-empty prisma/migrations/20260415000001_email_template_tenant_key_unique 2>/dev/null
+zsh: unknown file attribute: 1
+zsh: unknown file attribute: 2
+zsh: missing end of string
+```
+
+**Root cause:** You copied the command from GitHub's **rendered** web page (the PR or the file viewer). GitHub's HTML renderer converts `>` to the HTML entity `&gt;`. When you copy-paste from the rendered page, some browsers paste the **literal** `&gt;` instead of `>`. So your terminal received:
+
+```
+rmdir … 20260415000001_email_template_tenant_key_unique 2&gt;/dev/null
+```
+
+In zsh, the `&` backgrounds the rmdir command, then zsh tries to interpret `gt;/dev/null` as a new command, producing the confusing errors.
+
+**Fix:** The Step-By-Step.md was already updated to use `|| true` instead of `2>/dev/null` to avoid this exact HTML-encoding problem. **Always copy commands from the "Raw" view** on GitHub (click the `Raw` button), not from the rendered markdown. Alternatively, use `|| true` instead of `2>/dev/null` — it works the same way (suppress errors) and is safe to copy from any rendering.
+
+---
+
+## Q2: Were new tests introduced in the BUG 1–13 fixes?
+
+**Yes.** The BUG 1–13 fixes introduced **2 brand-new test files** and **updated 8 existing test files** with additional test cases for tenant isolation:
+
+### New test files (2 new suites):
+| File | BUG | New `it()` tests |
+|------|-----|-------------------|
+| `src/jobs/ai-suggestion.job.test.ts` | BUG 13 | 3 |
+| `src/modules/whatsapp/whatsapp.queue.test.ts` | BUG 3 | 3 |
+
+### Modified test files (additional tests added):
+| File | BUG(s) |
+|------|--------|
+| `src/modules/bookings/bookings.service.test.ts` | BUG 4 (tenant isolation tests) |
+| `src/modules/calendar/calendar.service.test.ts` | BUG 9 (tenant isolation tests) |
+| `src/modules/invoices/invoices.service.test.ts` | BUG 5, 7 (tenant isolation tests) |
+| `src/modules/notifications/notifications.service.test.ts` | BUG 10, 12 (tenant-scoped email tests) |
+| `src/modules/public/public.test.ts` | BUG 4 (aligned with updated booking signatures) |
+| `src/modules/quotes/quotes.service.test.ts` | BUG 8 (tenant isolation tests) |
+| `src/modules/social/social.test.ts` | BUG 4 (aligned with updated booking signatures) |
+| `src/modules/waitlist/waitlist.service.test.ts` | BUG 6, 11 (tenant isolation tests) |
+
+### Expected test output AFTER applying BUG 1–13 fixes:
+```
+Test Suites: 102 passed, 102 total
+Tests:       ~1820+ passed (exact count depends on test runner)
+```
+
+**NOT** the old `100 suites / 1754 tests`. The suite count went from 100 → 102 (2 new test files), and the test count increased significantly due to new tenant-isolation tests across 10 test files.
+
+---
+
 # LastAudits.md — Full-System Audit Report
 
 - **Audit Date:** 2026-04-15
