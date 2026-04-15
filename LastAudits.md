@@ -250,3 +250,260 @@ The following areas were audited and found to be correctly wired with no issues:
 | BUG 5 | Low | Automations | Invoice overdue job has global-only flag check, no per-tenant support |
 
 **Total: 5 findings (1 High, 2 Medium, 2 Low)**
+
+---
+
+## Full Re-Audit — Pass 2 (2026-04-15)
+
+- **Audit Date:** 2026-04-15
+- **Branch:** `copilot/create-detailed-automation-plan`
+- **Commit:** `90a57a9`
+- **Statement:** Full-system re-audit completed; all modules/routes/jobs/flags re-reviewed.
+
+### BUG 1–5 Status Check
+
+| Bug | Status | Notes |
+|-----|--------|-------|
+| BUG 1 | **Still valid** | 2 tests missing vs baseline remains true at HEAD |
+| BUG 2 | **Still valid** | SMS_ENABLED still has zero runtime enforcement |
+| BUG 3 | **Still valid** | WhatsApp processor still uses hardcoded `buildWhatsAppMessage()` |
+| BUG 4 | **Still valid** | Booking single-record endpoints still lack tenantId pass-through |
+| BUG 5 | **Still valid** | Invoice overdue job still uses global-only flag check |
+
+---
+
+### BUG 6 — Waitlist Admin Endpoints Have Zero Tenant Isolation
+
+**Severity:** High
+
+**Files:**
+- `backend/src/modules/waitlist/waitlist.controller.ts:55-154` (all admin handlers)
+- `backend/src/modules/waitlist/waitlist.service.ts:160-174` (`listWaitlist`)
+- `backend/src/modules/waitlist/waitlist.service.ts:181-192` (`getWaitlistEntryById`)
+- `backend/src/modules/waitlist/waitlist.service.ts:200-241` (`updateWaitlistStatus`)
+- `backend/src/modules/waitlist/waitlist.service.ts:257-323` (`notifyWaitlistEntry`)
+- `backend/src/modules/waitlist/waitlist.service.ts:333-348` (`deleteWaitlistEntry`)
+- `backend/prisma/schema.prisma:684-686` (`WaitlistEntry` model — has `tenantId String?`)
+
+**Issue:**
+All five admin-facing waitlist endpoints (`listWaitlist`, `getWaitlistEntryById`, `updateWaitlistStatus`, `notifyWaitlistEntry`, `deleteWaitlistEntry`) have no tenant isolation whatsoever. The controller does not extract `tenantId` from `req.user`, and the service layer does not filter by `tenantId` in any of its queries. In contrast, the internal `matchAndNotify()` function (line 438) correctly uses `tenantId` in its where clause (line 452).
+
+Additionally, `joinWaitlist()` (line 130) creates entries without setting `tenantId` — the field exists on the model (schema.prisma:686) but is never populated on creation from the public endpoint, making it permanently `null` for public join entries.
+
+**Impact:**
+An ADMIN from Tenant A can list, view, update, notify, and delete waitlist entries belonging to Tenant B. This exposes customer PII (name, email, phone) cross-tenant. The `notifyWaitlistEntry` function can also send emails to customers of other tenants, which could be used for phishing or spam.
+
+**Evidence:**
+- `waitlist.controller.ts:62`: `const result = await waitlistService.listWaitlist(query)` — no tenantId parameter.
+- `waitlist.service.ts:163`: `const where: Prisma.WaitlistEntryWhereInput = {}` — empty where, no tenantId filter.
+- `waitlist.service.ts:182-184`: `prisma.waitlistEntry.findUnique({ where: { id } })` — direct ID lookup, no tenant guard.
+- Compare with `waitlist.service.ts:452`: `where: { tenantId, ... }` — correctly scoped in `matchAndNotify`.
+- `joinWaitlist()` create data (line 130-141) does not include `tenantId`.
+
+**Recommended Fix:**
+1. Controller: Extract `tenantId` via `extractTenantId(req)` in all five admin handlers and pass to service.
+2. Service: Add `tenantId` filter to `listWaitlist` where clause, and add `tenantId` ownership guard to `getWaitlistEntryById`, `updateWaitlistStatus`, `notifyWaitlistEntry`, `deleteWaitlistEntry`.
+3. `joinWaitlist`: Resolve `tenantId` from the `artistId` (if provided) and store it on the entry, so admin queries can be scoped.
+
+---
+
+### BUG 7 — Invoice Single-Record Endpoints Missing Tenant Isolation
+
+**Severity:** High
+
+**Files:**
+- `backend/src/modules/invoices/invoices.controller.ts:57-71` (`getInvoiceById` — no tenantId)
+- `backend/src/modules/invoices/invoices.controller.ts:81-95` (`sendInvoice` — no tenantId)
+- `backend/src/modules/invoices/invoices.controller.ts:106-119` (`markInvoicePaid` — no tenantId)
+- `backend/src/modules/invoices/invoices.controller.ts:129-142` (`voidInvoice` — no tenantId)
+- `backend/src/modules/invoices/invoices.service.ts:195-217` (`getInvoiceById` — no tenant guard for ADMIN)
+- `backend/src/modules/invoices/invoices.service.ts:292-347` (`markInvoicePaid` — no tenant guard)
+- `backend/src/modules/invoices/invoices.service.ts:358-411` (`voidInvoice` — no tenant guard)
+
+**Issue:**
+The `listInvoices` controller correctly extracts `tenantId` (line 41) and passes it to the service (line 43), where it is used to filter by `booking.tenantId` (service line 165). However, all four single-record endpoints (`getInvoiceById`, `sendInvoice`, `markInvoicePaid`, `voidInvoice`) do NOT extract `tenantId` from the request and do NOT pass it to the service layer.
+
+In the service layer, `getInvoiceById` only checks ARTIST ownership (line 209-214) but gives ADMIN unrestricted access (no tenant check). `markInvoicePaid` and `voidInvoice` do not even receive an `actorId` or `actorRole` — they perform no access control at all beyond requiring the invoice to exist.
+
+**Impact:**
+An ADMIN from Tenant A can view, send, mark as paid, or void invoices belonging to Tenant B by knowing or guessing the invoice ID. `markInvoicePaid` is particularly dangerous because it directly changes financial records cross-tenant. `sendInvoice` can trigger emails to customers of other tenants.
+
+**Evidence:**
+- `invoices.controller.ts:41`: `const tenantId = extractTenantId(req);` — only in `listInvoices`.
+- `invoices.controller.ts:66`: `await invoicesService.getInvoiceById(id, actorId, actorRole)` — no tenantId.
+- `invoices.controller.ts:114`: `await invoicesService.markInvoicePaid(id, body)` — no actorId/role/tenantId at all.
+- `invoices.service.ts:200`: `prisma.invoice.findUnique({ where: { id } })` — direct ID lookup.
+- `invoices.service.ts:296-298`: `prisma.invoice.findUnique({ where: { id }, select: { id: true, status: true } })` — no tenant filter.
+
+**Recommended Fix:**
+1. Controller: Extract `tenantId` via `extractTenantId(req)` in all four single-record handlers and pass to service.
+2. Service: After fetching the invoice, validate `invoice.booking.tenantId === tenantId` (for non-SUPER_ADMIN), or add tenantId to the findUnique where clause via a relation filter.
+
+---
+
+### BUG 8 — Quote `updateQuote` and `sendQuote` Missing Tenant Isolation
+
+**Severity:** High
+
+**Files:**
+- `backend/src/modules/quotes/quotes.controller.ts:101-116` (`updateQuote` — no tenantId)
+- `backend/src/modules/quotes/quotes.controller.ts:126-140` (`sendQuote` — no tenantId)
+- `backend/src/modules/quotes/quotes.service.ts:326-366` (`updateQuote` — no tenant guard for ADMIN)
+- `backend/src/modules/quotes/quotes.service.ts:379-434` (`sendQuote` — no tenant guard for ADMIN)
+
+**Issue:**
+The quotes controller passes `tenantId` to `createQuote` (line 40), `listQuotes` (line 64), `getQuoteById` (line 87), `acceptQuote` (line 157), and `rejectQuote` (line 178). However, `updateQuote` (line 111) and `sendQuote` (line 135) do NOT extract or pass `tenantId`.
+
+In the service layer, `getQuoteById` (service line 306-308) correctly validates `quote.tenantId !== tenantId` and throws 403, and `acceptQuote`/`rejectQuote` do the same. But `updateQuote` and `sendQuote` only check ARTIST ownership — ADMIN callers have unrestricted cross-tenant access.
+
+**Impact:**
+An ADMIN from Tenant A can edit or send quotes belonging to Tenant B. `sendQuote` also advances the associated lead's status to `QUOTED` (service line 416-428) and queues a quote-sent email, meaning cross-tenant actions trigger side effects on foreign tenant data.
+
+**Evidence:**
+- `quotes.controller.ts:111`: `await quotesService.updateQuote(id, body, actorId, actorRole)` — no tenantId.
+- `quotes.controller.ts:135`: `await quotesService.sendQuote(id, actorId, actorRole)` — no tenantId.
+- Compare: `quotes.controller.ts:87-88`: `const tenantId = extractTenantId(req); await quotesService.getQuoteById(id, actorId, actorRole, tenantId)` — has tenantId.
+- `quotes.service.ts:332-334`: `prisma.quote.findUnique({ where: { id } })` — no tenant filter for ADMIN.
+
+**Recommended Fix:**
+1. Controller: Extract `tenantId` via `extractTenantId(req)` in `updateQuote` and `sendQuote` and pass it to the service.
+2. Service: After fetching the quote, validate `quote.tenantId === tenantId` (matching the pattern in `getQuoteById`/`acceptQuote`/`rejectQuote`).
+
+---
+
+### BUG 9 — Calendar Endpoints Allow ADMIN Cross-Tenant Artist Access
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/calendar/calendar.controller.ts:22-37` (`getAuthUrl`)
+- `backend/src/modules/calendar/calendar.controller.ts:88-103` (`getStatus`)
+- `backend/src/modules/calendar/calendar.controller.ts:113-128` (`disconnectCalendarHandler`)
+- `backend/src/modules/calendar/calendar.service.ts:56-79` (`resolveArtistId`)
+
+**Issue:**
+The calendar controller does not extract or pass `tenantId`. It relies on `resolveArtistId()` which, for ADMIN callers (line 61-62), simply returns whatever `queryArtistId` is provided without any tenant verification: `if (actorRole === 'ADMIN') { if (queryArtistId) return queryArtistId; }`. This means an ADMIN from Tenant A can pass `?artistId=<artist_from_tenant_B>` and gain full calendar control over that artist.
+
+For ARTIST callers, this is not an issue because the function resolves the artist from the caller's own userId (line 71-78).
+
+**Impact:**
+An ADMIN from Tenant A can: (1) generate an OAuth URL for an artist in Tenant B, potentially hijacking their Google Calendar connection; (2) check calendar connection status for artists in other tenants; (3) disconnect calendar for artists in other tenants, disrupting their booking sync. While this requires knowing an artist ID from another tenant, IDs are CUIDs which may be exposed in API responses.
+
+**Evidence:**
+- `calendar.service.ts:61-62`: ADMIN path returns `queryArtistId` directly with no tenant check.
+- `calendar.controller.ts:28-31`: Passes `req.query.artistId` directly.
+- No `tenantId` extraction or validation exists anywhere in the calendar module.
+
+**Recommended Fix:**
+1. Controller: Extract `tenantId` from `req.user` and pass to service.
+2. Service `resolveArtistId`: For ADMIN callers, after resolving `queryArtistId`, fetch the artist and verify `artist.tenantId === callerTenantId`. Reject with 403 if mismatched.
+
+---
+
+### BUG 10 — `sendTestEmail` in Notifications Module Missing Tenant Isolation
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/notifications/notifications.controller.ts:142-155` (`sendTestEmail`)
+- `backend/src/modules/notifications/notifications.service.ts:361-407` (`sendTestEmail`)
+
+**Issue:**
+The `sendTestEmail` controller (line 148-150) passes only the template `id` and `body` to the service. It does NOT extract `tenantId` from the request. In the service layer (line 365-367), the template is looked up by `id` only — no tenant ownership check is performed. Compare with `getTemplateById` (line 123-134) which correctly verifies `template.tenantId !== tenantId` and throws 403.
+
+**Impact:**
+An ADMIN from Tenant A can send test emails using templates owned by Tenant B. The template content (subject, HTML body) may contain Tenant B's branding, internal messaging, or sensitive business language, which would be disclosed. The email is sent to a recipient address supplied by the caller, so it could be sent to their own inbox to extract the template content.
+
+**Evidence:**
+- `notifications.controller.ts:150`: `await notificationsService.sendTestEmail(id, body)` — no tenantId.
+- `notifications.service.ts:365`: `prisma.emailTemplate.findUnique({ where: { id } })` — no tenant check.
+- Compare: `notifications.service.ts:133`: `if (template.tenantId !== tenantId) throw 403` — exists in `getTemplateById`.
+
+**Recommended Fix:**
+1. Controller: Extract `tenantId` via `extractTenantId(req)` and pass to service.
+2. Service: After fetching the template, verify `template.tenantId === tenantId` (matching the pattern in `getTemplateById`).
+
+---
+
+### BUG 11 — `joinWaitlist` Does Not Populate `tenantId` on WaitlistEntry
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/waitlist/waitlist.service.ts:108-152` (`joinWaitlist`)
+- `backend/prisma/schema.prisma:684-686` (`WaitlistEntry.tenantId String?`)
+
+**Issue:**
+The `WaitlistEntry` model has a `tenantId` field (schema.prisma:686), and the internal `matchAndNotify` function correctly queries by `tenantId` (line 452). However, `joinWaitlist()` (lines 130-141) never sets `tenantId` when creating an entry. The created entry's `tenantId` is always `null`.
+
+This means that even if BUG 6 were fixed (admin endpoints checking `tenantId`), entries created through the public join endpoint would never match any tenant's scope and would be invisible to admin users filtering by tenant. The internal `matchAndNotify` would also never match these entries because it queries `where: { tenantId }` and entries have `tenantId: null`.
+
+**Impact:**
+Waitlist entries created via the public endpoint are orphaned — they have no tenant association. The `matchAndNotify` smart matching algorithm (called on booking cancellation) will never find these entries because it filters by `tenantId`. This means the waitlist feature is effectively broken for the smart-match flow: customers join but are never auto-notified when a slot opens.
+
+**Evidence:**
+- `waitlist.service.ts:130-141`: Create data has `name`, `email`, `phone`, `artistId`, `serviceId`, `requestedDate`, `notes`, `timePreference` — no `tenantId`.
+- `waitlist.service.ts:452`: `where: { tenantId, status: 'WAITING', ... }` — filters by non-null tenantId.
+- `waitlist.service.ts:108`: Function signature accepts only `body` and `ipAddress`, not `tenantId`.
+
+**Recommended Fix:**
+1. Resolve `tenantId` from the `artistId` (if provided) by looking up `artist.tenantId` during `joinWaitlist()`.
+2. Store the resolved `tenantId` in the `data` block when creating the entry.
+3. If no `artistId` is provided, leave `tenantId` null but document this as a known limitation (generic entries are not matched by `matchAndNotify`).
+
+---
+
+## Re-Audit Pass 2 — Updated Summary
+
+| Bug | Severity | Category | One-Line Summary |
+|-----|----------|----------|------------------|
+| BUG 1 | Low | Testing | 2 tests missing vs baseline (1754 vs 1756) |
+| BUG 2 | Medium | Feature Flags | SMS_ENABLED flag defined but never enforced at runtime |
+| BUG 3 | Medium | CRM/Notifications | WhatsApp processor uses hardcoded messages, ignores editable templates |
+| BUG 4 | High | Security/Tenant | Booking single-record endpoints lack tenant isolation for ADMIN users |
+| BUG 5 | Low | Automations | Invoice overdue job has global-only flag check, no per-tenant support |
+| BUG 6 | High | Security/Tenant | Waitlist admin endpoints have zero tenant isolation |
+| BUG 7 | High | Security/Tenant | Invoice single-record endpoints missing tenant isolation |
+| BUG 8 | High | Security/Tenant | Quote `updateQuote` and `sendQuote` missing tenant isolation |
+| BUG 9 | Medium | Security/Tenant | Calendar endpoints allow ADMIN cross-tenant artist access |
+| BUG 10 | Medium | Security/Tenant | `sendTestEmail` bypasses tenant isolation on template lookup |
+| BUG 11 | Medium | Data Integrity | `joinWaitlist` never populates `tenantId`, breaking smart-match flow |
+
+**Total: 11 findings (4 High, 4 Medium, 2 Low, 1 still Low from BUG 1)**
+
+### Modules/Areas Verified Clean in Re-Audit
+
+The following modules were re-audited and confirmed to have correct tenant isolation and wiring:
+
+- **Payments** — All authenticated endpoints pass tenantId ✅
+- **Tables** — All endpoints pass tenantId ✅
+- **Products** — All endpoints pass tenantId ✅
+- **POS** — All endpoints pass tenantId ✅
+- **Payroll** — All endpoints pass tenantId (except self-service `getMyEarnings` which uses artistId, acceptable) ✅
+- **Packages** — All endpoints pass tenantId ✅
+- **Memberships** — All endpoints pass tenantId ✅
+- **Campaigns** — All endpoints pass tenantId ✅
+- **Loyalty** — All endpoints pass tenantId ✅
+- **Rota** — All endpoints pass tenantId ✅
+- **Locations** — All endpoints pass tenantId ✅
+- **Sessions** — All endpoints pass tenantId ✅
+- **Forms** — All admin endpoints pass tenantId; public form endpoints intentionally skip (uses bookingToken) ✅
+- **Booking Photos** — Admin endpoints pass tenantId; portfolio is intentionally public ✅
+- **Health Flags** — All endpoints pass tenantId ✅
+- **Customer Stats** — All endpoints pass tenantId ✅
+- **Alerts** — All endpoints pass tenantId ✅
+- **Social** — All endpoints pass tenantId ✅
+- **Pricing Rules** — All endpoints pass tenantId ✅
+- **AI Suggestions** — All endpoints pass tenantId ✅
+- **Leads** — All endpoints pass tenantId (AUDIT-019/021 fixes verified) ✅
+- **Analytics** — All endpoints pass tenantId (AUDIT-020/025/026 fixes verified) ✅
+- **Admin** — Role mutation requires SUPER_ADMIN or canAssignRoles (AUDIT-022 verified) ✅
+- **Roles** — RBAC version bump on role changes (AUDIT-024 verified) ✅
+- **Auth** — JWT rbacVersion comparison (AUDIT-024 verified) ✅
+- **Feature Flags** — 45/46 flags enforced at runtime (BUG 2 SMS_ENABLED is the only orphan) ✅
+- **Jobs** — All 7 non-invoice jobs check per-tenant feature flags at runtime ✅
+- **Notification Dispatcher** — Respects per-tenant flags with tenantId ✅
+- **Reminders Queue** — Respects per-tenant flags with tenantId ✅
+- **Artists/Services/Styles** — Intentionally global shared catalog (no tenant scoping needed) ✅
+- **Referrals** — `generateReferralCode` uses userId (acceptable for self-service); `lookupReferralCode` is public lookup ✅
+- **Customers (me)** — Uses `customerId` from JWT for scoping (acceptable for customer self-service) ✅
