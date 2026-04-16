@@ -7,322 +7,88 @@
 
 ---
 
-## Current npm test failures — What happened / What to do next
+## Why tests are missing / why totals don't match
 
-### What happened
-
-The previous version of this guide only downloaded **29 files** (the BUG 1–13
-fixes). But those 29 files depend on **114+ other files** that were also changed
-in earlier phases (AUDIT-013 through AUDIT-026, FINDING-011 through FINDING-020,
-Phase 9 features). Your local copy still had **old versions** of those
-dependency files, causing cascading TypeScript compile errors that made **49 out
-of 102 test suites fail**.
-
-The terminal output you pasted was **partial samples** — only a few
-representative error blocks. The actual run had:
+### Current test status (authoritative — from user's local run)
 
 ```
-Test Suites: 49 failed, 53 passed, 102 total
-Tests:       1058 passed, 1058 total
+Test Suites: 25 failed, 77 passed, 102 total
+Tests:       60 failed, 1695 passed, 1755 total
 Snapshots:   0 total
-Time:        297.5 s
+Time:        816.499 s
 Ran all test suites.
 ```
 
-### Root cause: stale local files (NOT a repo code defect)
+### Previous expected total vs observed
 
-The repo at HEAD has **zero TypeScript errors** (`npx tsc --noEmit` passes
-clean). The errors you saw come from old file versions on your machine:
+The previous version of this guide claimed an expected total of **~1821 tests**.
+The actual run shows **1755 total**. The difference of **66 tests** is accounted
+for by **3 test suites that fail to compile** (their tests are not counted by Jest):
 
-| Error you saw | Old file | What changed |
+| Suite | Compile Error | Tests Lost |
 |---|---|---|
-| `MANNEQUIN_ENABLED` not in `FeatureFlagDefaults` | `leads.schema.ts` | AUDIT-013 removed 14 orphan flags; schema rewritten to use `activeBusinessType` |
-| `isFeatureEnabled` not exported from `requireFeature` | `requireFeature.ts` | FINDING-011 rewrote feature flag middleware with `isFeatureEnabled` export |
-| `tenantId` not in `EnqueueReminderParams` | `reminders.queue.ts` | AUDIT-014 added tenantId to reminder params |
-| `FeatureFlagWhereUniqueInput` compound key mismatch | `admin.service.ts` | FINDING-011 changed FeatureFlag to compound unique `@@unique([key, tenantId])` |
-| `enabled` implicitly has `any` type | `bookings.service.ts` | Multiple AUDIT fixes added typed feature flag checks |
-
-### What to do now
-
-1. **Follow this updated guide** — it downloads ALL 372 backend files (everything except `.env`)
-2. Run `npm install` then `npx prisma generate` then `npx prisma migrate dev`
-3. Run `npm test`
-4. You should see: **102 suites passed, 1821 tests passed**
-
-### Error samples from the failed run (verbatim)
-
-```
- FAIL  src/modules/alerts/alerts.test.ts
-  ● Test suite failed to run
-
-    src/modules/leads/leads.schema.ts:46:29 - error TS7053: Element implicitly has an 'any' type because expression of type '"MANNEQUIN_ENABLED"' can't be used to index type 'FeatureFlagDefaults'.
-      Property 'MANNEQUIN_ENABLED' does not exist on type 'FeatureFlagDefaults'.
-
-    46   const placementRequired = flags['MANNEQUIN_ENABLED'] === true;
-                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
- FAIL  src/modules/bookings/bookings.service.test.ts
-  ● Test suite failed to run
-
-    src/modules/bookings/bookings.service.ts:52:10 - error TS2305: Module '"../../middleware/requireFeature"' has no exported member 'isFeatureEnabled'.
-
-    52 import { isFeatureEnabled } from '../../middleware/requireFeature';
-                ~~~~~~~~~~~~~~~~
-    src/modules/bookings/bookings.service.ts:349:5 - error TS2353: Object literal may only specify known properties, and 'tenantId' does not exist in type 'EnqueueReminderParams'.
-
-    349     tenantId:       booking.tenantId,
-            ~~~~~~~~
-    src/modules/bookings/bookings.service.ts:393:53 - error TS7006: Parameter 'enabled' implicitly has an 'any' type.
-
- FAIL  src/modules/admin/admin.service.test.ts
-  ● Test suite failed to run
-
-    src/modules/admin/admin.service.ts:188:54 - error TS2322: Type '{ key: string; }' is not assignable to type 'FeatureFlagWhereUniqueInput'.
-
- FAIL  src/modules/leads/leads.service.test.ts
-  ● Test suite failed to run
-
-    src/modules/leads/leads.schema.ts:46:29 - error TS7053: Element implicitly has an 'any' type because expression of type '"MANNEQUIN_ENABLED"' can't be used to index type 'FeatureFlagDefaults'.
-
- FAIL  src/modules/auth/auth.test.ts
-  ● Test suite failed to run
-
-    src/modules/leads/leads.schema.ts:46:29 - error TS7053: ...same MANNEQUIN_ENABLED error...
-
- FAIL  src/modules/sessions/sessions.test.ts
-  ● Test suite failed to run
-
-    src/modules/leads/leads.schema.ts:46:29 - error TS7053: ...same MANNEQUIN_ENABLED error...
-
- FAIL  src/modules/artists/artists.test.ts
-  ● Test suite failed to run
-
-    src/modules/leads/leads.schema.ts:46:29 - error TS7053: ...same MANNEQUIN_ENABLED error...
-```
-
----
-
-## Prisma `migrate dev` errors P3006 / P1014 — What happened + Fix
-
-### Terminal output — first error (verbatim)
-
-```text
-rm -rf node_modules
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-npm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-
-added 674 packages, and audited 675 packages in 5s
-
-121 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-Environment variables loaded from .env
-Prisma schema loaded from prisma/schema.prisma
-
-✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 303ms
-
-Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
-
-Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
-
-Environment variables loaded from .env
-Prisma schema loaded from prisma/schema.prisma
-Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5433"
-
-Error: P3006
-
-Migration `20260416100129_y` failed to apply cleanly to the shadow database. 
-Error:
-ERROR: index "feature_flags_key_key" does not exist
-   0: sql_schema_connector::validate_migrations
-           with namespaces=None
-             at schema-engine/connectors/sql-schema-connector/src/lib.rs:335
-   1: schema_core::state::DevDiagnostic
-             at schema-engine/core/src/state.rs:276
-
-neilapacesaite@Neilas-MacBook-Pro backend % cd ~/Desktop/Automation
-docker compose up -d
-[+] up 2/2
- ✔ Container bookingautomation_postgres Running                             0.0s
- ✔ Container bookingautomation_redis    Running                             0.0s
-```
-
-### Terminal output — error persisted after full reset + stale migration removal (verbatim)
-
-```text
-cd ~/Desktop/Automation
-docker compose down -v
-docker compose up -d
-cd backend
-rm -rf prisma/migrations/20260416100129_REdev   # remove stale local migration
-npx prisma migrate dev
-
-Error: P3006
-
-Migration `20260414000001_remove_gift_voucher_enabled` failed to apply cleanly to the shadow database. 
-Error code: P1014
-Error:
-The underlying table for model `feature_flags` does not exist.
-```
-
-```text
-% cd ~/Desktop/Automation
-docker compose down -v
-docker compose up -d
-cd backend
-rm -rf prisma/migrations/20260416100129_REdev   # remove stale local migration
-npx prisma migrate dev
-[+] down 5/5
- ✔ Container bookingautomation_redis    Removed                                               0.3s
- ✔ Container bookingautomation_postgres Removed                                               0.3s
- ! Network automation_bookingautomation Resource is still in use                              0.0s
- ✔ Volume automation_postgres_data      Removed                                               0.0s
- ✔ Volume automation_redis_data         Removed                                               0.0s
-[+] up 4/4
- ✔ Volume automation_redis_data         Created                                               0.0s
- ✔ Volume automation_postgres_data      Created                                               0.0s
- ✔ Container bookingautomation_postgres Started                                               0.2s
- ✔ Container bookingautomation_redis    Started                                               0.2s
-Environment variables loaded from .env
-Prisma schema loaded from prisma/schema.prisma
-Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5433"
-
-Error: P3006
-
-Migration `20260414000001_remove_gift_voucher_enabled` failed to apply cleanly to the shadow database. 
-Error code: P1014
-Error:
-The underlying table for model `feature_flags` does not exist.
-```
-
-### What do P3006 and P1014 mean?
-
-**P3006** means a migration failed to apply cleanly on Prisma's **shadow database**. When you run `npx prisma migrate dev`, Prisma creates a temporary empty shadow database, replays ALL migrations in order against it, and compares the result to your `schema.prisma`. If any migration fails during this replay, you get P3006.
-
-**P1014** means Prisma tried to operate on a table that does not exist.
-
-### Root cause (confirmed by code investigation)
-
-The repo previously had **three incremental migrations** that assumed the database tables already existed:
-
-1. `20260414000001_remove_gift_voucher_enabled` — runs `DELETE FROM feature_flags WHERE key = 'GIFT_VOUCHER_ENABLED'`
-2. `20260414000002_feature_flag_per_tenant_unique` — runs `ALTER TABLE "feature_flags" DROP CONSTRAINT ...`
-3. `20260415000001_email_template_tenant_key_unique` — runs `ALTER TABLE "email_templates" DROP CONSTRAINT ...`
-
-**But there was no initial migration that creates the tables.** The schema was likely managed with `prisma db push` before migrations were introduced. When Prisma replays migrations on an empty shadow database, the very first migration (`DELETE FROM feature_flags`) fails because **the `feature_flags` table does not exist yet** — nothing created it.
-
-Removing stale local migrations (like `20260416100129_y` or `20260416100129_REdev`) only helps with locally-generated files. It does **not** fix the fundamental problem: the committed migrations are incomplete (no `CREATE TABLE`).
-
-**This has been fixed.** The three incremental migrations have been replaced with a single baseline migration `20260413000000_init` that creates the entire database schema (all tables, enums, indexes, and foreign keys) in one step. After downloading the latest files from this guide, `npx prisma migrate dev` will work.
-
-### What to do now (exact commands)
-
-**Prerequisite:** Docker must be running with Postgres on **localhost:5433**. Your `.env` must contain `DATABASE_URL="postgresql://postgres:postgres@localhost:5433/automation_dev?schema=public"` (or equivalent).
-
-**Step 1:** Reset your Docker database (fresh start):
-
-```bash
-cd ~/Desktop/Automation
-docker compose down -v
-docker compose up -d
-```
-
-> `docker compose down -v` deletes the Postgres volume, wiping all local dev data. A fresh empty database will be created.
-
-**Step 2:** Remove ALL old migration folders and download the new ones by following Steps 1–5 of this guide below.
-
-**Step 3:** After downloading all files, verify your migrations folder:
-
-```bash
-cd ~/Desktop/Automation/backend
-ls prisma/migrations/
-```
-
-You should see **exactly**:
-
-```
-20260413000000_init/
-migration_lock.toml
-```
-
-If you see any other folders (like `20260416100129_y`, `20260416100129_REdev`, `20260414000001_*`, etc.), delete them:
-
-```bash
-cd ~/Desktop/Automation/backend
-find prisma/migrations -mindepth 1 -maxdepth 1 -type d ! -name '20260413000000_init' -exec rm -rf {} +
-```
-
-**Step 4:** Run migrations:
-
-```bash
-cd ~/Desktop/Automation/backend
-rm -rf node_modules
-npm install
-npx prisma generate
-npx prisma migrate dev
-```
-
-**Expected output** (success looks like this):
-
-```
-Prisma schema loaded from prisma/schema.prisma
-Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5433"
-
-Applying migration `20260413000000_init`
-
-The following migration(s) have been applied:
-  ...
-Your database is now in sync with your schema.
-```
-
-### Decision tree — If you still get Prisma errors
-
-| Error | Cause | Fix |
-|---|---|---|
-| P3006 + `index "..." does not exist` | Stale local migration folder referencing an index that doesn't exist | Delete any migration folders NOT in the repo (keep only `20260413000000_init`), then `docker compose down -v`, `docker compose up -d`, `npx prisma migrate dev` |
-| P3006 + P1014 `table does not exist` | Missing initial `CREATE TABLE` migration | You have old migration files. Re-download using Steps 1–5 of this guide. The new `20260413000000_init` migration creates all tables. |
-| P3005 `migration not found in migration directory` | Your local `_prisma_migrations` table references a migration folder that no longer exists | Run `docker compose down -v` then `docker compose up -d` to reset, then `npx prisma migrate dev` |
-| `Could not connect to database` | Docker Postgres not running or wrong port | Run `docker compose up -d` and verify `.env` uses `localhost:5433` |
-
-> **Important:** Removing a stale migration folder only helps if the folder was locally created and is NOT in git. It will **not** fix broken committed migrations. If the committed migrations themselves are wrong, you need the updated migration files from the repository.
+| `sessions.test.ts` | TS1005: missing closing `}` brace (truncated describe block) | 32 |
+| `settings.service.test.ts` | TS2554: `getCachedSettings()` now requires `tenantId` arg | 12 |
+| `webhooks.service.test.ts` | TS2554: `listWebhooks()` / `getWebhookById()` now require `tenantId` arg | 22 |
+| **Total** | | **66** |
+
+**1821 − 66 = 1755** ✅ matches observed count exactly.
+
+### Root cause analysis (5 error patterns)
+
+1. **Compile errors in 3 test files** — test files not updated to match source signature changes
+   (tenantId parameters added to `getCachedSettings`, `listWebhooks`, `getWebhookById`,
+   `testWebhook`, `updateSettings`; missing `}` in sessions.test.ts)
+
+2. **Feature flag 503 mismatches (10 suites)** — integration tests expect `requireFeature`
+   middleware to return HTTP 503, but the middleware's `isFeatureEnabled()` now does DB lookup
+   with static-default fallback; in test env the DB is unavailable so it falls back to defaults
+   where the flag is typically `true`, returning 200 instead of 503
+
+3. **Calendar service assertion failures (4 suites)** — tests mock `getDefaultFlags()` to
+   disable `CALENDAR_ENABLED`, but source now calls `isFeatureEnabled()` which does DB lookup
+   first; the mock doesn't intercept the new code path
+
+4. **Auth middleware failures** — `requireAuth` now does async `rbacVersion` check via Redis;
+   the test calls it synchronously without awaiting
+
+5. **Capture service signature mismatch** — `createLead()` now accepts optional `tenantId`
+   third parameter; test assertion doesn't account for the extra `null` argument
+
+### Key conclusion
+
+> **Migration already passed.** This is a **file/version + test mismatch investigation**.
+>
+> All 372 backend source files at repo HEAD compile cleanly (`tsc --noEmit` passes with
+> 0 errors after `prisma generate`). The test failures are caused by **outdated test files**
+> that have not been updated to match source-level changes from AUDIT-013 through AUDIT-026,
+> FINDING-011 through FINDING-020, and Phase 9 features.
+>
+> This guide ensures you download ALL 372 files from the repo. After downloading,
+> the 3 compile-error suites and 22 assertion-failure suites still need their **test files
+> updated** to match the current source signatures and behavior.
 
 ---
 
 ## ⚠️ IMPORTANT — How to copy commands from this guide
 
-> **DO NOT copy from GitHub's rendered HTML page.** GitHub renders `&&` as
-> `&amp;&amp;` in the raw HTML, and pasting that into your terminal gives you the
-> `cmdand cmdor dquote>` error you saw.
->
-> **Instead:** Click the **Raw** button at the top-right of this file on GitHub,
-> then copy from the raw text view. Or use the copy button on each code block.
->
-> **All commands below avoid `&&` and `||` entirely** so they are safe to paste
-> even from the rendered page.
+1. Each step is a single `bash` code block.
+2. Copy the **entire block** (triple-backtick to triple-backtick) and paste into Terminal.
+3. Do NOT copy line-by-line — the `dl()` helper function must be defined first.
+4. If a download says `FAILED`, re-run just that single `dl "..."` line.
 
 ---
 
 ## ⚠️ Files that are PRESERVED (not deleted, not downloaded)
 
-The following files are **never touched** by this guide:
+- **`.env`** — contains your local database URL, secrets, API keys
+- **`node_modules/`** — will be reinstalled in Step 5
 
-- `.env` — your database URL, API keys, passwords, ports, etc.
-- `.env.local` — if you have one
-- `node_modules/` — will be reinstalled in Step 5
-- `package-lock.json` — will be regenerated by npm install
-
-**You will NOT need to re-enter any passwords, ports, or API keys.**
+Everything else is replaced to ensure a clean sync.
 
 ---
 
-## Step 1 — Delete old files (Part 1 of 2: files 1–187)
+## Step 1 — Delete old files (Part 1 of 2: files 1–186)
 
 Run from `~/Desktop/Automation/backend`:
 
@@ -333,6 +99,7 @@ rm -f ".env.example"
 rm -f ".gitignore"
 rm -f "Dockerfile"
 rm -f "jest.setup.ts"
+rm -f "package-lock.json"
 rm -f "package.json"
 rm -f "prisma/migrations/20260413000000_init/migration.sql"
 rm -f "prisma/migrations/migration_lock.toml"
@@ -513,16 +280,13 @@ rm -f "src/modules/leads/leads.test.ts"
 rm -f "src/modules/locations/locations.controller.ts"
 rm -f "src/modules/locations/locations.routes.ts"
 rm -f "src/modules/locations/locations.schema.ts"
-rm -f "src/modules/locations/locations.service.ts"
-echo "Part 1 delete done (187 files)"
 ```
 
----
-
-## Step 2 — Delete old files (Part 2 of 2: files 188–372)
+## Step 2 — Delete old files (Part 2 of 2: files 187–372)
 
 ```bash
 cd ~/Desktop/Automation/backend
+rm -f "src/modules/locations/locations.service.ts"
 rm -f "src/modules/locations/locations.test.ts"
 rm -f "src/modules/loyalty/loyalty.controller.ts"
 rm -f "src/modules/loyalty/loyalty.routes.ts"
@@ -708,21 +472,18 @@ rm -f "src/utils/extractTenantId.ts"
 rm -f "src/utils/logger.ts"
 rm -f "src/utils/paginate.ts"
 rm -f "tsconfig.json"
-echo "Part 2 delete done (185 files). Total: 372 files deleted."
-echo "Removing any stale local migrations not in repo..."
-find prisma/migrations -mindepth 1 -maxdepth 1 -type d \
-  ! -name '20260413000000_init' \
-  -exec rm -rf {} +
-echo "Stale migrations cleaned."
-```
 
----
+# Clean up empty directories
+find src -type d -empty -delete 2>/dev/null
+find prisma -type d -empty -delete 2>/dev/null
+```
 
 ## Step 3 — Create all directories
 
 ```bash
 cd ~/Desktop/Automation/backend
 mkdir -p "prisma"
+mkdir -p "prisma/migrations"
 mkdir -p "prisma/migrations/20260413000000_init"
 mkdir -p "src"
 mkdir -p "src/config"
@@ -730,6 +491,7 @@ mkdir -p "src/errors"
 mkdir -p "src/jobs"
 mkdir -p "src/lib"
 mkdir -p "src/middleware"
+mkdir -p "src/modules"
 mkdir -p "src/modules/admin"
 mkdir -p "src/modules/ai"
 mkdir -p "src/modules/alerts"
@@ -788,12 +550,9 @@ mkdir -p "src/modules/whatsapp-templates"
 mkdir -p "src/scripts"
 mkdir -p "src/types"
 mkdir -p "src/utils"
-echo "All directories created."
 ```
 
----
-
-## Step 4 — Download ALL files (Part 1 of 2: files 1–187)
+## Step 4 — Download ALL files (Part 1 of 2: files 1–186)
 
 **IMPORTANT:** Run from `~/Desktop/Automation/backend`. Copy-paste this ENTIRE block at once.
 
@@ -812,10 +571,11 @@ dl ".env.example" "  2/372"
 dl ".gitignore" "  3/372"
 dl "Dockerfile" "  4/372"
 dl "jest.setup.ts" "  5/372"
-dl "package.json" "  6/372"
-dl "prisma/migrations/20260413000000_init/migration.sql" "  7/372"
-dl "prisma/migrations/migration_lock.toml" "  8/372"
-dl "prisma/schema.prisma" "  9/372"
+dl "package-lock.json" "  6/372"
+dl "package.json" "  7/372"
+dl "prisma/migrations/20260413000000_init/migration.sql" "  8/372"
+dl "prisma/migrations/migration_lock.toml" "  9/372"
+dl "prisma/schema.prisma" " 10/372"
 dl "src/app.ts" " 11/372"
 dl "src/config/businessType.test.ts" " 12/372"
 dl "src/config/businessType.ts" " 13/372"
@@ -992,16 +752,9 @@ dl "src/modules/leads/leads.test.ts" "183/372"
 dl "src/modules/locations/locations.controller.ts" "184/372"
 dl "src/modules/locations/locations.routes.ts" "185/372"
 dl "src/modules/locations/locations.schema.ts" "186/372"
-dl "src/modules/locations/locations.service.ts" "187/372"
-
-echo "Part 1 download done (187/372)"
 ```
 
-**After running:** You should see `OK` for all 187 lines. If ANY line says `FAILED`, re-run that specific `dl` line.
-
----
-
-## Step 5 — Download ALL files (Part 2 of 2: files 188–372)
+## Step 5 — Download ALL files (Part 2 of 2: files 187–372)
 
 ```bash
 cd ~/Desktop/Automation/backend
@@ -1013,6 +766,7 @@ dl() {
   if [ $? -eq 0 ]; then echo "OK  $2"; else echo "FAILED $2"; fi
 }
 
+dl "src/modules/locations/locations.service.ts" "187/372"
 dl "src/modules/locations/locations.test.ts" "188/372"
 dl "src/modules/loyalty/loyalty.controller.ts" "189/372"
 dl "src/modules/loyalty/loyalty.routes.ts" "190/372"
@@ -1198,73 +952,54 @@ dl "src/utils/extractTenantId.ts" "369/372"
 dl "src/utils/logger.ts" "370/372"
 dl "src/utils/paginate.ts" "371/372"
 dl "tsconfig.json" "372/372"
-
-echo "Part 2 download done (372/372). ALL FILES DOWNLOADED."
 ```
-
-**After running:** You should see `OK` for all lines. If ANY line says `FAILED`, re-run that specific `dl` line.
-
----
 
 ## Step 6 — Verify critical files exist
 
 ```bash
 cd ~/Desktop/Automation/backend
-echo "--- Checking critical files ---"
-if [ -f src/middleware/requireFeature.ts ]; then echo "OK: requireFeature.ts"; else echo "MISSING: requireFeature.ts"; fi
-if [ -f src/modules/leads/leads.schema.ts ]; then echo "OK: leads.schema.ts"; else echo "MISSING: leads.schema.ts"; fi
-if [ -f src/modules/reminders/reminders.queue.ts ]; then echo "OK: reminders.queue.ts"; else echo "MISSING: reminders.queue.ts"; fi
-if [ -f src/modules/admin/admin.service.ts ]; then echo "OK: admin.service.ts"; else echo "MISSING: admin.service.ts"; fi
-if [ -f src/jobs/ai-suggestion.job.test.ts ]; then echo "OK: ai-suggestion.job.test.ts"; else echo "MISSING: ai-suggestion.job.test.ts"; fi
-if [ -f src/modules/whatsapp/whatsapp.queue.test.ts ]; then echo "OK: whatsapp.queue.test.ts"; else echo "MISSING: whatsapp.queue.test.ts"; fi
-if [ -f prisma/schema.prisma ]; then echo "OK: schema.prisma"; else echo "MISSING: schema.prisma"; fi
-if [ -f package.json ]; then echo "OK: package.json"; else echo "MISSING: package.json"; fi
-echo "--- Done ---"
+echo "=== Critical file check ==="
+for f in \
+  prisma/schema.prisma \
+  prisma/migrations/20260413000000_init/migration.sql \
+  prisma/migrations/migration_lock.toml \
+  src/app.ts \
+  src/config/businessType.ts \
+  src/middleware/requireFeature.ts \
+  src/modules/sessions/sessions.test.ts \
+  src/modules/settings/settings.service.test.ts \
+  src/modules/webhooks/webhooks.service.test.ts \
+  package.json \
+  package-lock.json \
+  tsconfig.json; do
+  if [ -f "$f" ]; then echo "✅ $f"; else echo "❌ MISSING: $f"; fi
+done
 ```
-
-All must say `OK`. If any say `MISSING`, go back to Step 4/5 and re-run the `dl` line for that file.
-
----
 
 ## Step 7 — Install dependencies and migrate
 
-> **Prerequisites before running:**
-> - Docker must be running with Postgres on port 5433: `docker compose up -d` (from repo root)
-> - Your `.env` must have `DATABASE_URL` pointing to `localhost:5433`
-> - If you previously had migration errors, reset the DB first: `docker compose down -v` then `docker compose up -d`
-
 ```bash
 cd ~/Desktop/Automation/backend
-rm -rf node_modules
+
+# 1. Install
 npm install
+
+# 2. Generate Prisma client
 npx prisma generate
+
+# 3. Run migrations (Docker DB must be running)
 npx prisma migrate dev
 ```
 
-> If Docker is required for PostgreSQL / Redis:
-> ```bash
-> cd ~/Desktop/Automation
-> docker compose up -d
-> ```
+If you see `Your database is now in sync with your schema` — migration passed. ✅
 
-> **If you get Prisma error P3006 or P1014:** see the [Prisma P3006/P1014 troubleshooting section](#prisma-migrate-dev-errors-p3006--p1014--what-happened--fix) at the top of this guide. Quick summary:
->
-> 1. Make sure you downloaded the latest migration files (Steps 1–5). The repo now uses a single `20260413000000_init` baseline migration.
-> 2. Remove any stale/extra migration folders:
-> ```bash
-> cd ~/Desktop/Automation/backend
-> find prisma/migrations -mindepth 1 -maxdepth 1 -type d ! -name '20260413000000_init' -exec rm -rf {} +
-> ```
-> 3. Reset Docker and re-run:
-> ```bash
-> cd ~/Desktop/Automation
-> docker compose down -v
-> docker compose up -d
-> cd backend
-> npx prisma migrate dev
-> ```
-
----
+If you get **P3006** or **P1014** errors, reset your database first:
+```bash
+docker compose down -v
+docker compose up -d
+sleep 3
+npx prisma migrate dev
+```
 
 ## Step 8 — Run tests
 
@@ -1273,47 +1008,35 @@ cd ~/Desktop/Automation/backend
 npm test
 ```
 
-If TypeScript type checking is needed separately:
+### Expected output
 
-```bash
-npx tsc --noEmit
+The repo at HEAD contains **102 test suites** and **1821 `it()` test cases**.
+
+**Current known state:**
+- **3 test suites fail to compile** (sessions.test.ts, settings.service.test.ts,
+  webhooks.service.test.ts) — these account for **66 tests** that Jest cannot discover
+- **22 test suites have assertion failures** — test expectations don't match updated source behavior
+- **77 test suites pass**
+
+```
+Test Suites: 25 failed, 77 passed, 102 total
+Tests:       60 failed, 1695 passed, 1755 total
 ```
 
----
+### If totals are lower than expected
 
-## Expected Output After Step 8
+If you see **fewer than 102 suites** or **fewer than 1755 tests**, it likely means:
+- Some files were not downloaded correctly (re-run the failed `dl` commands)
+- `prisma generate` was not run (Prisma client types missing)
+- `npm install` was not run (dependencies missing)
 
-```text
-Test Suites: 102 passed, 102 total
-Tests:       1821 passed, 1821 total
-Snapshots:   0 total
-Time:        <varies>
-Ran all test suites.
-```
+### To get to 0 failures
 
-**Key checkpoints:**
-- **102 suites** — all 372 files present and compiling
-- **1821 tests** — all `it()` test cases passing
-- **0 TypeScript errors** — `npx tsc --noEmit` should exit cleanly
-- If TypeScript compile errors exist, Jest will show `Test suite failed to run` and many suites can fail from a single broken import chain
-
-**If tests still fail:**
-1. Run `npx tsc --noEmit` first — if it shows errors, some file was not downloaded correctly
-2. Check which file the error points to, re-download it from Step 4 or 5
-3. Paste back the full `npm test` output and the `npx tsc --noEmit` output
-
----
-
-## Troubleshooting — "cmdand cmdor dquote>" error
-
-If you see `cmdand cmdor dquote>` in your terminal, it means you pasted `&amp;&amp;`
-(the HTML-encoded form of `&&`) instead of actual `&&`. This happens when you copy
-commands from GitHub's **rendered markdown page** instead of the **Raw** view.
-
-**Fix:** Press `Ctrl+C` to cancel the broken command, then:
-1. Go to this file on GitHub
-2. Click the **Raw** button (top-right of the file)
-3. Copy the commands from the raw plain-text view
-4. Paste into your terminal
-
-All commands in this guide avoid `&&` and `||` so this should not happen.
+The 25 failing suites require **test file updates** (not source file changes) to match
+the current source signatures. The source code compiles cleanly (`tsc --noEmit` = 0 errors).
+The test files need to be updated to:
+1. Add `tenantId` parameter to calls that now require it
+2. Fix the missing `}` in sessions.test.ts
+3. Mock `isFeatureEnabled()` instead of `getDefaultFlags()` for feature-flag skip tests
+4. Await async `requireAuth` in auth.test.ts
+5. Account for extra `tenantId` parameter in `createLead()` assertions
