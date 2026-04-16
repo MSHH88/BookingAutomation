@@ -7,6 +7,20 @@
 
 ---
 
+## ⚠️ IMPORTANT — How to copy commands from this guide
+
+> **DO NOT copy from GitHub's rendered HTML page.** GitHub renders `&&` as
+> `&amp;&amp;` in the raw HTML, and pasting that into your terminal gives you the
+> `cmdand cmdor dquote>` error you saw.
+>
+> **Instead:** Click the **Raw** button at the top-right of this file on GitHub,
+> then copy from the raw text view. Or use the copy button on each code block.
+>
+> **All commands below have been rewritten to avoid `&&` and `||` entirely**
+> so they will work even if GitHub mangles them.
+
+---
+
 ## Why you got 100 suites / 1754 instead of 102 / 1821
 
 The BUG 1–13 fixes introduced **2 brand-new test files** (adding 2 new test suites)
@@ -18,8 +32,8 @@ and **added new `it()` test cases to 8 existing test files**. If you still see
    If your delete step only deleted files that already existed, these were never
    created. **You must run ALL the curl commands below, including the new files.**
 2. **The 8 modified test files still have old content** — the curls either failed
-   silently or you copied from GitHub's rendered HTML (which mangles `&&` into
-   `&amp;&amp;`). **Always copy from the Raw view or use the commands below exactly.**
+   silently or you copied from GitHub's rendered HTML. **Always copy from the
+   Raw view or use the commands below exactly.**
 3. **You ran the curls from a wrong directory** — all commands assume you are in
    `~/Desktop/Automation/backend`. If you were one level up, files went to wrong paths.
 
@@ -123,7 +137,7 @@ rm -f src/modules/waitlist/waitlist.service.test.ts
 rm -f src/modules/waitlist/waitlist.service.ts
 rm -f src/modules/whatsapp/whatsapp.queue.test.ts
 rm -f src/modules/whatsapp/whatsapp.queue.ts
-rmdir --ignore-fail-on-non-empty "prisma/migrations/20260415000001_email_template_tenant_key_unique" || true
+rmdir prisma/migrations/20260415000001_email_template_tenant_key_unique 2>/dev/null; true
 ```
 
 ---
@@ -153,52 +167,67 @@ mkdir -p src/modules/whatsapp
 
 **IMPORTANT:** Run from `~/Desktop/Automation/backend`. Copy-paste this ENTIRE block at once.
 
+> These commands use a helper function `dl` that does NOT use `&&` or `||`,
+> so they are safe to paste from GitHub.
+
 ```bash
 cd ~/Desktop/Automation/backend
-curl -sfL -o prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql" && echo "OK  1/29 migration.sql" || echo "FAILED 1/29 migration.sql"
-curl -sfL -o prisma/schema.prisma "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/prisma/schema.prisma" && echo "OK  2/29 schema.prisma" || echo "FAILED 2/29 schema.prisma"
-curl -sfL -o src/config/businessType.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/config/businessType.ts" && echo "OK  3/29 businessType.ts" || echo "FAILED 3/29 businessType.ts"
-curl -sfL -o src/jobs/ai-suggestion.job.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/jobs/ai-suggestion.job.test.ts" && echo "OK  4/29 ai-suggestion.job.test.ts (NEW TEST)" || echo "FAILED 4/29 ai-suggestion.job.test.ts"
-curl -sfL -o src/jobs/ai-suggestion.job.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/jobs/ai-suggestion.job.ts" && echo "OK  5/29 ai-suggestion.job.ts" || echo "FAILED 5/29 ai-suggestion.job.ts"
-curl -sfL -o src/jobs/invoice-overdue.job.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/jobs/invoice-overdue.job.ts" && echo "OK  6/29 invoice-overdue.job.ts" || echo "FAILED 6/29 invoice-overdue.job.ts"
-curl -sfL -o src/lib/notification-dispatcher.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/lib/notification-dispatcher.ts" && echo "OK  7/29 notification-dispatcher.ts" || echo "FAILED 7/29 notification-dispatcher.ts"
-curl -sfL -o src/modules/bookings/bookings.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.controller.ts" && echo "OK  8/29 bookings.controller.ts" || echo "FAILED 8/29 bookings.controller.ts"
-curl -sfL -o src/modules/bookings/bookings.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.test.ts" && echo "OK  9/29 bookings.service.test.ts (UPDATED TESTS)" || echo "FAILED 9/29 bookings.service.test.ts"
-curl -sfL -o src/modules/bookings/bookings.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/bookings/bookings.service.ts" && echo "OK 10/29 bookings.service.ts" || echo "FAILED 10/29 bookings.service.ts"
-curl -sfL -o src/modules/calendar/calendar.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.controller.ts" && echo "OK 11/29 calendar.controller.ts" || echo "FAILED 11/29 calendar.controller.ts"
-curl -sfL -o src/modules/calendar/calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.test.ts" && echo "OK 12/29 calendar.service.test.ts (UPDATED TESTS)" || echo "FAILED 12/29 calendar.service.test.ts"
-curl -sfL -o src/modules/calendar/calendar.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.ts" && echo "OK 13/29 calendar.service.ts" || echo "FAILED 13/29 calendar.service.ts"
-curl -sfL -o src/modules/invoices/invoices.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/invoices/invoices.controller.ts" && echo "OK 14/29 invoices.controller.ts" || echo "FAILED 14/29 invoices.controller.ts"
-curl -sfL -o src/modules/invoices/invoices.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/invoices/invoices.service.test.ts" && echo "OK 15/29 invoices.service.test.ts (UPDATED TESTS)" || echo "FAILED 15/29 invoices.service.test.ts"
-curl -sfL -o src/modules/invoices/invoices.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/invoices/invoices.service.ts" && echo "OK 16/29 invoices.service.ts" || echo "FAILED 16/29 invoices.service.ts"
-curl -sfL -o src/modules/notifications/notifications.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.controller.ts" && echo "OK 17/29 notifications.controller.ts" || echo "FAILED 17/29 notifications.controller.ts"
-curl -sfL -o src/modules/notifications/notifications.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.service.test.ts" && echo "OK 18/29 notifications.service.test.ts (UPDATED TESTS)" || echo "FAILED 18/29 notifications.service.test.ts"
-curl -sfL -o src/modules/notifications/notifications.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/notifications/notifications.service.ts" && echo "OK 19/29 notifications.service.ts" || echo "FAILED 19/29 notifications.service.ts"
-curl -sfL -o src/modules/public/public.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/public/public.test.ts" && echo "OK 20/29 public.test.ts (UPDATED TESTS)" || echo "FAILED 20/29 public.test.ts"
-curl -sfL -o src/modules/quotes/quotes.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.controller.ts" && echo "OK 21/29 quotes.controller.ts" || echo "FAILED 21/29 quotes.controller.ts"
-curl -sfL -o src/modules/quotes/quotes.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.test.ts" && echo "OK 22/29 quotes.service.test.ts (UPDATED TESTS)" || echo "FAILED 22/29 quotes.service.test.ts"
-curl -sfL -o src/modules/quotes/quotes.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/quotes/quotes.service.ts" && echo "OK 23/29 quotes.service.ts" || echo "FAILED 23/29 quotes.service.ts"
-curl -sfL -o src/modules/social/social.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/social/social.test.ts" && echo "OK 24/29 social.test.ts (UPDATED TESTS)" || echo "FAILED 24/29 social.test.ts"
-curl -sfL -o src/modules/waitlist/waitlist.controller.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.controller.ts" && echo "OK 25/29 waitlist.controller.ts" || echo "FAILED 25/29 waitlist.controller.ts"
-curl -sfL -o src/modules/waitlist/waitlist.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.service.test.ts" && echo "OK 26/29 waitlist.service.test.ts (UPDATED TESTS)" || echo "FAILED 26/29 waitlist.service.test.ts"
-curl -sfL -o src/modules/waitlist/waitlist.service.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/waitlist/waitlist.service.ts" && echo "OK 27/29 waitlist.service.ts" || echo "FAILED 27/29 waitlist.service.ts"
-curl -sfL -o src/modules/whatsapp/whatsapp.queue.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.queue.test.ts" && echo "OK 28/29 whatsapp.queue.test.ts (NEW TEST)" || echo "FAILED 28/29 whatsapp.queue.test.ts"
-curl -sfL -o src/modules/whatsapp/whatsapp.queue.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/whatsapp/whatsapp.queue.ts" && echo "OK 29/29 whatsapp.queue.ts" || echo "FAILED 29/29 whatsapp.queue.ts"
+
+B="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
+
+dl() {
+  curl -sfL -o "$1" "$B/$1"
+  if [ $? -eq 0 ]; then echo "OK  $2 $3"; else echo "FAILED $2 $3"; fi
+}
+
+dl "prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql" " 1/29" "migration.sql"
+dl "prisma/schema.prisma"                                        " 2/29" "schema.prisma"
+dl "src/config/businessType.ts"                                  " 3/29" "businessType.ts"
+dl "src/jobs/ai-suggestion.job.test.ts"                          " 4/29" "ai-suggestion.job.test.ts (NEW TEST)"
+dl "src/jobs/ai-suggestion.job.ts"                               " 5/29" "ai-suggestion.job.ts"
+dl "src/jobs/invoice-overdue.job.ts"                             " 6/29" "invoice-overdue.job.ts"
+dl "src/lib/notification-dispatcher.ts"                          " 7/29" "notification-dispatcher.ts"
+dl "src/modules/bookings/bookings.controller.ts"                 " 8/29" "bookings.controller.ts"
+dl "src/modules/bookings/bookings.service.test.ts"               " 9/29" "bookings.service.test.ts (UPDATED TESTS)"
+dl "src/modules/bookings/bookings.service.ts"                    "10/29" "bookings.service.ts"
+dl "src/modules/calendar/calendar.controller.ts"                 "11/29" "calendar.controller.ts"
+dl "src/modules/calendar/calendar.service.test.ts"               "12/29" "calendar.service.test.ts (UPDATED TESTS)"
+dl "src/modules/calendar/calendar.service.ts"                    "13/29" "calendar.service.ts"
+dl "src/modules/invoices/invoices.controller.ts"                 "14/29" "invoices.controller.ts"
+dl "src/modules/invoices/invoices.service.test.ts"               "15/29" "invoices.service.test.ts (UPDATED TESTS)"
+dl "src/modules/invoices/invoices.service.ts"                    "16/29" "invoices.service.ts"
+dl "src/modules/notifications/notifications.controller.ts"       "17/29" "notifications.controller.ts"
+dl "src/modules/notifications/notifications.service.test.ts"     "18/29" "notifications.service.test.ts (UPDATED TESTS)"
+dl "src/modules/notifications/notifications.service.ts"          "19/29" "notifications.service.ts"
+dl "src/modules/public/public.test.ts"                           "20/29" "public.test.ts (UPDATED TESTS)"
+dl "src/modules/quotes/quotes.controller.ts"                     "21/29" "quotes.controller.ts"
+dl "src/modules/quotes/quotes.service.test.ts"                   "22/29" "quotes.service.test.ts (UPDATED TESTS)"
+dl "src/modules/quotes/quotes.service.ts"                        "23/29" "quotes.service.ts"
+dl "src/modules/social/social.test.ts"                           "24/29" "social.test.ts (UPDATED TESTS)"
+dl "src/modules/waitlist/waitlist.controller.ts"                 "25/29" "waitlist.controller.ts"
+dl "src/modules/waitlist/waitlist.service.test.ts"               "26/29" "waitlist.service.test.ts (UPDATED TESTS)"
+dl "src/modules/waitlist/waitlist.service.ts"                    "27/29" "waitlist.service.ts"
+dl "src/modules/whatsapp/whatsapp.queue.test.ts"                 "28/29" "whatsapp.queue.test.ts (NEW TEST)"
+dl "src/modules/whatsapp/whatsapp.queue.ts"                      "29/29" "whatsapp.queue.ts"
 ```
 
-**After running:** You should see `OK` for all 29 lines. If ANY line says `FAILED`, that file was not downloaded — re-run that specific curl command.
+**After running:** You should see `OK` for all 29 lines. If ANY line says `FAILED`, that file was not downloaded — re-run that specific `dl` line.
 
 ---
 
 ## Step 4 — Verify the 2 NEW test files exist
 
+> These commands do NOT use `&&` or `||` so they are safe to paste anywhere.
+
 ```bash
 cd ~/Desktop/Automation/backend
-ls -la src/jobs/ai-suggestion.job.test.ts && echo "EXISTS" || echo "MISSING!"
-ls -la src/modules/whatsapp/whatsapp.queue.test.ts && echo "EXISTS" || echo "MISSING!"
+echo "--- Checking new test files ---"
+if [ -f src/jobs/ai-suggestion.job.test.ts ]; then echo "EXISTS: ai-suggestion.job.test.ts"; else echo "MISSING: ai-suggestion.job.test.ts"; fi
+if [ -f src/modules/whatsapp/whatsapp.queue.test.ts ]; then echo "EXISTS: whatsapp.queue.test.ts"; else echo "MISSING: whatsapp.queue.test.ts"; fi
+echo "--- Done ---"
 ```
 
-Both must say `EXISTS`. If either says `MISSING!`, the download failed and you'll stay at 100 suites.
+Both must say `EXISTS`. If either says `MISSING`, the download failed — go back to Step 3 and re-run the `dl` line for that file. You will stay at 100 suites until both new test files are present.
 
 ---
 
@@ -254,3 +283,20 @@ Ran all test suites.
 - Any line starting with `FAIL` — a failing test suite
 - Non-zero exit code from `npm test`
 - `"Jest did not exit one second after…"` — open handle not cleaned up in `afterAll`
+
+---
+
+## Troubleshooting — "cmdand cmdor dquote>" error
+
+If you see `cmdand cmdor dquote>` in your terminal, it means you pasted `&amp;&amp;`
+(the HTML-encoded form of `&&`) instead of actual `&&`. This happens when you copy
+commands from GitHub's **rendered markdown page** instead of the **Raw** view.
+
+**Fix:** Press `Ctrl+C` to cancel the broken command, then:
+1. Go to this file on GitHub
+2. Click the **Raw** button (top-right of the file)
+3. Copy the commands from the raw plain-text view
+4. Paste into your terminal
+
+All commands in this guide have been rewritten to avoid `&&` and `||` so this
+should no longer happen.
