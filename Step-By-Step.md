@@ -102,9 +102,9 @@ clean). The errors you saw come from old file versions on your machine:
 
 ---
 
-## Prisma `migrate dev` error P3006 — Fix steps
+## Prisma `migrate dev` errors P3006 / P1014 — What happened + Fix
 
-### Terminal output (verbatim)
+### Terminal output — first error (verbatim)
 
 ```text
 rm -rf node_modules
@@ -154,23 +154,79 @@ docker compose up -d
  ✔ Container bookingautomation_redis    Running                             0.0s
 ```
 
-### What does P3006 mean?
+### Terminal output — error persisted after full reset + stale migration removal (verbatim)
 
-**P3006** means a migration failed to apply cleanly on Prisma's **shadow database**. When you run `npx prisma migrate dev`, Prisma creates a temporary shadow database, replays ALL migrations in order against it, and compares the result to your `schema.prisma`. If any migration fails during this replay, you get P3006.
+```text
+cd ~/Desktop/Automation
+docker compose down -v
+docker compose up -d
+cd backend
+rm -rf prisma/migrations/20260416100129_REdev   # remove stale local migration
+npx prisma migrate dev
 
-### Why is it happening?
+Error: P3006
 
-The migration `20260416100129_y` is a **locally-generated migration** that does NOT exist in the repository. It was created on your machine (probably by a previous `npx prisma migrate dev` run) and it tries to `DROP INDEX "feature_flags_key_key"` — but that index does **not exist** because:
+Migration `20260414000001_remove_gift_voucher_enabled` failed to apply cleanly to the shadow database. 
+Error code: P1014
+Error:
+The underlying table for model `feature_flags` does not exist.
+```
 
-1. The original `feature_flags` table had `@unique` on `key` alone (creating index `feature_flags_key_key`)
-2. Migration `20260414000002_feature_flag_per_tenant_unique` (in the repo) already drops that index safely with `DROP INDEX IF EXISTS "feature_flags_key_key"` and creates the new compound unique `feature_flags_key_tenantId_key`
-3. Your local migration `20260416100129_y` tries to drop the same index **again** — but it's already gone, so Postgres says "index does not exist"
+```text
+% cd ~/Desktop/Automation
+docker compose down -v
+docker compose up -d
+cd backend
+rm -rf prisma/migrations/20260416100129_REdev   # remove stale local migration
+npx prisma migrate dev
+[+] down 5/5
+ ✔ Container bookingautomation_redis    Removed                                               0.3s
+ ✔ Container bookingautomation_postgres Removed                                               0.3s
+ ! Network automation_bookingautomation Resource is still in use                              0.0s
+ ✔ Volume automation_postgres_data      Removed                                               0.0s
+ ✔ Volume automation_redis_data         Removed                                               0.0s
+[+] up 4/4
+ ✔ Volume automation_redis_data         Created                                               0.0s
+ ✔ Volume automation_postgres_data      Created                                               0.0s
+ ✔ Container bookingautomation_postgres Started                                               0.2s
+ ✔ Container bookingautomation_redis    Started                                               0.2s
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5433"
 
-The root cause: you have a **stale local migration** in `backend/prisma/migrations/20260416100129_y/` that should not be there.
+Error: P3006
 
-### Option A — Clean DB reset (recommended for local dev)
+Migration `20260414000001_remove_gift_voucher_enabled` failed to apply cleanly to the shadow database. 
+Error code: P1014
+Error:
+The underlying table for model `feature_flags` does not exist.
+```
 
-If you do NOT need to preserve your local dev database data:
+### What do P3006 and P1014 mean?
+
+**P3006** means a migration failed to apply cleanly on Prisma's **shadow database**. When you run `npx prisma migrate dev`, Prisma creates a temporary empty shadow database, replays ALL migrations in order against it, and compares the result to your `schema.prisma`. If any migration fails during this replay, you get P3006.
+
+**P1014** means Prisma tried to operate on a table that does not exist.
+
+### Root cause (confirmed by code investigation)
+
+The repo previously had **three incremental migrations** that assumed the database tables already existed:
+
+1. `20260414000001_remove_gift_voucher_enabled` — runs `DELETE FROM feature_flags WHERE key = 'GIFT_VOUCHER_ENABLED'`
+2. `20260414000002_feature_flag_per_tenant_unique` — runs `ALTER TABLE "feature_flags" DROP CONSTRAINT ...`
+3. `20260415000001_email_template_tenant_key_unique` — runs `ALTER TABLE "email_templates" DROP CONSTRAINT ...`
+
+**But there was no initial migration that creates the tables.** The schema was likely managed with `prisma db push` before migrations were introduced. When Prisma replays migrations on an empty shadow database, the very first migration (`DELETE FROM feature_flags`) fails because **the `feature_flags` table does not exist yet** — nothing created it.
+
+Removing stale local migrations (like `20260416100129_y` or `20260416100129_REdev`) only helps with locally-generated files. It does **not** fix the fundamental problem: the committed migrations are incomplete (no `CREATE TABLE`).
+
+**This has been fixed.** The three incremental migrations have been replaced with a single baseline migration `20260413000000_init` that creates the entire database schema (all tables, enums, indexes, and foreign keys) in one step. After downloading the latest files from this guide, `npx prisma migrate dev` will work.
+
+### What to do now (exact commands)
+
+**Prerequisite:** Docker must be running with Postgres on **localhost:5433**. Your `.env` must contain `DATABASE_URL="postgresql://postgres:postgres@localhost:5433/automation_dev?schema=public"` (or equivalent).
+
+**Step 1:** Reset your Docker database (fresh start):
 
 ```bash
 cd ~/Desktop/Automation
@@ -178,69 +234,64 @@ docker compose down -v
 docker compose up -d
 ```
 
-Then delete the stale local migration and re-run:
+> `docker compose down -v` deletes the Postgres volume, wiping all local dev data. A fresh empty database will be created.
 
-```bash
-cd ~/Desktop/Automation/backend
-rm -rf prisma/migrations/20260416100129_y
-npx prisma migrate dev
-```
+**Step 2:** Remove ALL old migration folders and download the new ones by following Steps 1–5 of this guide below.
 
-> `docker compose down -v` removes the Postgres volume, wiping all dev data. The fresh DB will be recreated by `prisma migrate dev`.
-
-### Option B — Keep DB data (advanced)
-
-If you want to keep your current dev data:
-
-1. First, inspect your local DB indexes to see what actually exists:
-
-```bash
-docker exec -it bookingautomation_postgres psql -U postgres -d automation_dev -c "\di+ feature_flags*"
-```
-
-2. Delete the stale local migration folder:
-
-```bash
-cd ~/Desktop/Automation/backend
-rm -rf prisma/migrations/20260416100129_y
-```
-
-3. Re-run migrate dev:
-
-```bash
-npx prisma migrate dev
-```
-
-If Prisma detects drift (schema doesn't match migrations), it may prompt you to reset. Say yes if you're OK losing data, or use `npx prisma migrate resolve` if you need to mark migrations as applied.
-
-### Important note
-
-The migration `20260416100129_y` is NOT in the GitHub repository — it was generated locally on your machine. The repo only contains these 3 migrations:
-
-- `20260414000001_remove_gift_voucher_enabled`
-- `20260414000002_feature_flag_per_tenant_unique`
-- `20260415000001_email_template_tenant_key_unique`
-
-After following this guide's Steps 1–5 (delete all files → download all files), you will have the correct migrations. The stale migration should be gone because Step 1 deletes everything. **But** if you have extra local migration folders that were NOT deleted (because they didn't exist when this guide was written), you need to manually remove them:
+**Step 3:** After downloading all files, verify your migrations folder:
 
 ```bash
 cd ~/Desktop/Automation/backend
 ls prisma/migrations/
 ```
 
-You should see ONLY these folders:
+You should see **exactly**:
 
 ```
-20260414000001_remove_gift_voucher_enabled/
-20260414000002_feature_flag_per_tenant_unique/
-20260415000001_email_template_tenant_key_unique/
+20260413000000_init/
+migration_lock.toml
 ```
 
-If you see any other folders (like `20260416100129_y`), delete them:
+If you see any other folders (like `20260416100129_y`, `20260416100129_REdev`, `20260414000001_*`, etc.), delete them:
 
 ```bash
-rm -rf prisma/migrations/20260416100129_y
+cd ~/Desktop/Automation/backend
+find prisma/migrations -mindepth 1 -maxdepth 1 -type d ! -name '20260413000000_init' -exec rm -rf {} +
 ```
+
+**Step 4:** Run migrations:
+
+```bash
+cd ~/Desktop/Automation/backend
+rm -rf node_modules
+npm install
+npx prisma generate
+npx prisma migrate dev
+```
+
+**Expected output** (success looks like this):
+
+```
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5433"
+
+Applying migration `20260413000000_init`
+
+The following migration(s) have been applied:
+  ...
+Your database is now in sync with your schema.
+```
+
+### Decision tree — If you still get Prisma errors
+
+| Error | Cause | Fix |
+|---|---|---|
+| P3006 + `index "..." does not exist` | Stale local migration folder referencing an index that doesn't exist | Delete any migration folders NOT in the repo (keep only `20260413000000_init`), then `docker compose down -v`, `docker compose up -d`, `npx prisma migrate dev` |
+| P3006 + P1014 `table does not exist` | Missing initial `CREATE TABLE` migration | You have old migration files. Re-download using Steps 1–5 of this guide. The new `20260413000000_init` migration creates all tables. |
+| P3005 `migration not found in migration directory` | Your local `_prisma_migrations` table references a migration folder that no longer exists | Run `docker compose down -v` then `docker compose up -d` to reset, then `npx prisma migrate dev` |
+| `Could not connect to database` | Docker Postgres not running or wrong port | Run `docker compose up -d` and verify `.env` uses `localhost:5433` |
+
+> **Important:** Removing a stale migration folder only helps if the folder was locally created and is NOT in git. It will **not** fix broken committed migrations. If the committed migrations themselves are wrong, you need the updated migration files from the repository.
 
 ---
 
@@ -283,9 +334,8 @@ rm -f ".gitignore"
 rm -f "Dockerfile"
 rm -f "jest.setup.ts"
 rm -f "package.json"
-rm -f "prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql"
-rm -f "prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql"
-rm -f "prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql"
+rm -f "prisma/migrations/20260413000000_init/migration.sql"
+rm -f "prisma/migrations/migration_lock.toml"
 rm -f "prisma/schema.prisma"
 rm -f "src/app.ts"
 rm -f "src/config/businessType.test.ts"
@@ -661,9 +711,7 @@ rm -f "tsconfig.json"
 echo "Part 2 delete done (185 files). Total: 372 files deleted."
 echo "Removing any stale local migrations not in repo..."
 find prisma/migrations -mindepth 1 -maxdepth 1 -type d \
-  ! -name '20260414000001_remove_gift_voucher_enabled' \
-  ! -name '20260414000002_feature_flag_per_tenant_unique' \
-  ! -name '20260415000001_email_template_tenant_key_unique' \
+  ! -name '20260413000000_init' \
   -exec rm -rf {} +
 echo "Stale migrations cleaned."
 ```
@@ -675,9 +723,7 @@ echo "Stale migrations cleaned."
 ```bash
 cd ~/Desktop/Automation/backend
 mkdir -p "prisma"
-mkdir -p "prisma/migrations/20260414000001_remove_gift_voucher_enabled"
-mkdir -p "prisma/migrations/20260414000002_feature_flag_per_tenant_unique"
-mkdir -p "prisma/migrations/20260415000001_email_template_tenant_key_unique"
+mkdir -p "prisma/migrations/20260413000000_init"
 mkdir -p "src"
 mkdir -p "src/config"
 mkdir -p "src/errors"
@@ -767,10 +813,9 @@ dl ".gitignore" "  3/372"
 dl "Dockerfile" "  4/372"
 dl "jest.setup.ts" "  5/372"
 dl "package.json" "  6/372"
-dl "prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql" "  7/372"
-dl "prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql" "  8/372"
-dl "prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql" "  9/372"
-dl "prisma/schema.prisma" " 10/372"
+dl "prisma/migrations/20260413000000_init/migration.sql" "  7/372"
+dl "prisma/migrations/migration_lock.toml" "  8/372"
+dl "prisma/schema.prisma" "  9/372"
 dl "src/app.ts" " 11/372"
 dl "src/config/businessType.test.ts" " 12/372"
 dl "src/config/businessType.ts" " 13/372"
@@ -1183,6 +1228,11 @@ All must say `OK`. If any say `MISSING`, go back to Step 4/5 and re-run the `dl`
 
 ## Step 7 — Install dependencies and migrate
 
+> **Prerequisites before running:**
+> - Docker must be running with Postgres on port 5433: `docker compose up -d` (from repo root)
+> - Your `.env` must have `DATABASE_URL` pointing to `localhost:5433`
+> - If you previously had migration errors, reset the DB first: `docker compose down -v` then `docker compose up -d`
+
 ```bash
 cd ~/Desktop/Automation/backend
 rm -rf node_modules
@@ -1197,13 +1247,20 @@ npx prisma migrate dev
 > docker compose up -d
 > ```
 
-> **If you get Prisma error P3006:** see the [Prisma P3006 troubleshooting section](#prisma-migrate-dev-error-p3006--fix-steps) at the top of this guide. The most common fix is:
+> **If you get Prisma error P3006 or P1014:** see the [Prisma P3006/P1014 troubleshooting section](#prisma-migrate-dev-errors-p3006--p1014--what-happened--fix) at the top of this guide. Quick summary:
+>
+> 1. Make sure you downloaded the latest migration files (Steps 1–5). The repo now uses a single `20260413000000_init` baseline migration.
+> 2. Remove any stale/extra migration folders:
+> ```bash
+> cd ~/Desktop/Automation/backend
+> find prisma/migrations -mindepth 1 -maxdepth 1 -type d ! -name '20260413000000_init' -exec rm -rf {} +
+> ```
+> 3. Reset Docker and re-run:
 > ```bash
 > cd ~/Desktop/Automation
 > docker compose down -v
 > docker compose up -d
 > cd backend
-> rm -rf prisma/migrations/20260416100129_y   # remove stale local migration
 > npx prisma migrate dev
 > ```
 
