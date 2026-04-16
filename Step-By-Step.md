@@ -2,7 +2,7 @@
 
 > **Branch:** `copilot/create-detailed-automation-plan`
 > **Owner/Repo:** `MSHH88/BookingAutomation`
-> **Total files to download:** **371** (split into 2 parts)
+> **Total files to download:** **372** (split into 2 parts)
 > **Files preserved (NOT touched):** `.env` and any local secrets/passwords
 
 ---
@@ -44,7 +44,7 @@ clean). The errors you saw come from old file versions on your machine:
 
 ### What to do now
 
-1. **Follow this updated guide** — it downloads ALL 371 backend files (everything except `.env`)
+1. **Follow this updated guide** — it downloads ALL 372 backend files (everything except `.env`)
 2. Run `npm install` then `npx prisma generate` then `npx prisma migrate dev`
 3. Run `npm test`
 4. You should see: **102 suites passed, 1821 tests passed**
@@ -102,6 +102,148 @@ clean). The errors you saw come from old file versions on your machine:
 
 ---
 
+## Prisma `migrate dev` error P3006 — Fix steps
+
+### Terminal output (verbatim)
+
+```text
+rm -rf node_modules
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+added 674 packages, and audited 675 packages in 5s
+
+121 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 303ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "automation_dev", schema "public" at "localhost:5433"
+
+Error: P3006
+
+Migration `20260416100129_y` failed to apply cleanly to the shadow database. 
+Error:
+ERROR: index "feature_flags_key_key" does not exist
+   0: sql_schema_connector::validate_migrations
+           with namespaces=None
+             at schema-engine/connectors/sql-schema-connector/src/lib.rs:335
+   1: schema_core::state::DevDiagnostic
+             at schema-engine/core/src/state.rs:276
+
+neilapacesaite@Neilas-MacBook-Pro backend % cd ~/Desktop/Automation
+docker compose up -d
+[+] up 2/2
+ ✔ Container bookingautomation_postgres Running                             0.0s
+ ✔ Container bookingautomation_redis    Running                             0.0s
+```
+
+### What does P3006 mean?
+
+**P3006** means a migration failed to apply cleanly on Prisma's **shadow database**. When you run `npx prisma migrate dev`, Prisma creates a temporary shadow database, replays ALL migrations in order against it, and compares the result to your `schema.prisma`. If any migration fails during this replay, you get P3006.
+
+### Why is it happening?
+
+The migration `20260416100129_y` is a **locally-generated migration** that does NOT exist in the repository. It was created on your machine (probably by a previous `npx prisma migrate dev` run) and it tries to `DROP INDEX "feature_flags_key_key"` — but that index does **not exist** because:
+
+1. The original `feature_flags` table had `@unique` on `key` alone (creating index `feature_flags_key_key`)
+2. Migration `20260414000002_feature_flag_per_tenant_unique` (in the repo) already drops that index safely with `DROP INDEX IF EXISTS "feature_flags_key_key"` and creates the new compound unique `feature_flags_key_tenantId_key`
+3. Your local migration `20260416100129_y` tries to drop the same index **again** — but it's already gone, so Postgres says "index does not exist"
+
+The root cause: you have a **stale local migration** in `backend/prisma/migrations/20260416100129_y/` that should not be there.
+
+### Option A — Clean DB reset (recommended for local dev)
+
+If you do NOT need to preserve your local dev database data:
+
+```bash
+cd ~/Desktop/Automation
+docker compose down -v
+docker compose up -d
+```
+
+Then delete the stale local migration and re-run:
+
+```bash
+cd ~/Desktop/Automation/backend
+rm -rf prisma/migrations/20260416100129_y
+npx prisma migrate dev
+```
+
+> `docker compose down -v` removes the Postgres volume, wiping all dev data. The fresh DB will be recreated by `prisma migrate dev`.
+
+### Option B — Keep DB data (advanced)
+
+If you want to keep your current dev data:
+
+1. First, inspect your local DB indexes to see what actually exists:
+
+```bash
+docker exec -it bookingautomation_postgres psql -U postgres -d automation_dev -c "\di+ feature_flags*"
+```
+
+2. Delete the stale local migration folder:
+
+```bash
+cd ~/Desktop/Automation/backend
+rm -rf prisma/migrations/20260416100129_y
+```
+
+3. Re-run migrate dev:
+
+```bash
+npx prisma migrate dev
+```
+
+If Prisma detects drift (schema doesn't match migrations), it may prompt you to reset. Say yes if you're OK losing data, or use `npx prisma migrate resolve` if you need to mark migrations as applied.
+
+### Important note
+
+The migration `20260416100129_y` is NOT in the GitHub repository — it was generated locally on your machine. The repo only contains these 3 migrations:
+
+- `20260414000001_remove_gift_voucher_enabled`
+- `20260414000002_feature_flag_per_tenant_unique`
+- `20260415000001_email_template_tenant_key_unique`
+
+After following this guide's Steps 1–5 (delete all files → download all files), you will have the correct migrations. The stale migration should be gone because Step 1 deletes everything. **But** if you have extra local migration folders that were NOT deleted (because they didn't exist when this guide was written), you need to manually remove them:
+
+```bash
+cd ~/Desktop/Automation/backend
+ls prisma/migrations/
+```
+
+You should see ONLY these folders:
+
+```
+20260414000001_remove_gift_voucher_enabled/
+20260414000002_feature_flag_per_tenant_unique/
+20260415000001_email_template_tenant_key_unique/
+```
+
+If you see any other folders (like `20260416100129_y`), delete them:
+
+```bash
+rm -rf prisma/migrations/20260416100129_y
+```
+
+---
+
 ## ⚠️ IMPORTANT — How to copy commands from this guide
 
 > **DO NOT copy from GitHub's rendered HTML page.** GitHub renders `&&` as
@@ -129,13 +271,14 @@ The following files are **never touched** by this guide:
 
 ---
 
-## Step 1 — Delete old files (Part 1 of 2: files 1–186)
+## Step 1 — Delete old files (Part 1 of 2: files 1–187)
 
 Run from `~/Desktop/Automation/backend`:
 
 ```bash
 cd ~/Desktop/Automation/backend
 rm -f ".dockerignore"
+rm -f ".env.example"
 rm -f ".gitignore"
 rm -f "Dockerfile"
 rm -f "jest.setup.ts"
@@ -321,12 +464,12 @@ rm -f "src/modules/locations/locations.controller.ts"
 rm -f "src/modules/locations/locations.routes.ts"
 rm -f "src/modules/locations/locations.schema.ts"
 rm -f "src/modules/locations/locations.service.ts"
-echo "Part 1 delete done (186 files)"
+echo "Part 1 delete done (187 files)"
 ```
 
 ---
 
-## Step 2 — Delete old files (Part 2 of 2: files 187–371)
+## Step 2 — Delete old files (Part 2 of 2: files 188–372)
 
 ```bash
 cd ~/Desktop/Automation/backend
@@ -515,7 +658,14 @@ rm -f "src/utils/extractTenantId.ts"
 rm -f "src/utils/logger.ts"
 rm -f "src/utils/paginate.ts"
 rm -f "tsconfig.json"
-echo "Part 2 delete done (185 files). Total: 371 files deleted."
+echo "Part 2 delete done (185 files). Total: 372 files deleted."
+echo "Removing any stale local migrations not in repo..."
+find prisma/migrations -mindepth 1 -maxdepth 1 -type d \
+  ! -name '20260414000001_remove_gift_voucher_enabled' \
+  ! -name '20260414000002_feature_flag_per_tenant_unique' \
+  ! -name '20260415000001_email_template_tenant_key_unique' \
+  -exec rm -rf {} +
+echo "Stale migrations cleaned."
 ```
 
 ---
@@ -597,7 +747,7 @@ echo "All directories created."
 
 ---
 
-## Step 4 — Download ALL files (Part 1 of 2: files 1–186)
+## Step 4 — Download ALL files (Part 1 of 2: files 1–187)
 
 **IMPORTANT:** Run from `~/Desktop/Automation/backend`. Copy-paste this ENTIRE block at once.
 
@@ -611,201 +761,202 @@ dl() {
   if [ $? -eq 0 ]; then echo "OK  $2"; else echo "FAILED $2"; fi
 }
 
-dl ".dockerignore" "  1/371"
-dl ".gitignore" "  2/371"
-dl "Dockerfile" "  3/371"
-dl "jest.setup.ts" "  4/371"
-dl "package.json" "  5/371"
-dl "prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql" "  6/371"
-dl "prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql" "  7/371"
-dl "prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql" "  8/371"
-dl "prisma/schema.prisma" "  9/371"
-dl "src/app.ts" " 10/371"
-dl "src/config/businessType.test.ts" " 11/371"
-dl "src/config/businessType.ts" " 12/371"
-dl "src/config/index.ts" " 13/371"
-dl "src/errors/AppError.ts" " 14/371"
-dl "src/index.ts" " 15/371"
-dl "src/jobs/ai-suggestion.job.test.ts" " 16/371"
-dl "src/jobs/ai-suggestion.job.ts" " 17/371"
-dl "src/jobs/birthday.job.test.ts" " 18/371"
-dl "src/jobs/birthday.job.ts" " 19/371"
-dl "src/jobs/campaign.job.ts" " 20/371"
-dl "src/jobs/index.ts" " 21/371"
-dl "src/jobs/invoice-overdue.job.ts" " 22/371"
-dl "src/jobs/no-show.job.test.ts" " 23/371"
-dl "src/jobs/no-show.job.ts" " 24/371"
-dl "src/jobs/rebook-nudge.job.test.ts" " 25/371"
-dl "src/jobs/rebook-nudge.job.ts" " 26/371"
-dl "src/jobs/recurring-booking.job.ts" " 27/371"
-dl "src/jobs/waitlist-match.job.ts" " 28/371"
-dl "src/lib/apple-calendar.ts" " 29/371"
-dl "src/lib/cloudinary.ts" " 30/371"
-dl "src/lib/google-calendar.ts" " 31/371"
-dl "src/lib/notification-dispatcher.ts" " 32/371"
-dl "src/lib/openai.ts" " 33/371"
-dl "src/lib/outlook-calendar.ts" " 34/371"
-dl "src/lib/pricing-engine.test.ts" " 35/371"
-dl "src/lib/pricing-engine.ts" " 36/371"
-dl "src/lib/prisma.ts" " 37/371"
-dl "src/lib/push-notifications.ts" " 38/371"
-dl "src/lib/redis.ts" " 39/371"
-dl "src/lib/resend.ts" " 40/371"
-dl "src/lib/stripe.ts" " 41/371"
-dl "src/lib/template-renderer.ts" " 42/371"
-dl "src/lib/twilio-sms.ts" " 43/371"
-dl "src/lib/twilio.ts" " 44/371"
-dl "src/middleware/auth.test.ts" " 45/371"
-dl "src/middleware/auth.ts" " 46/371"
-dl "src/middleware/captcha.ts" " 47/371"
-dl "src/middleware/errorHandler.ts" " 48/371"
-dl "src/middleware/requestLogger.ts" " 49/371"
-dl "src/middleware/requireFeature.ts" " 50/371"
-dl "src/middleware/requireLeadAccess.test.ts" " 51/371"
-dl "src/middleware/requireLeadAccess.ts" " 52/371"
-dl "src/middleware/requireRole.ts" " 53/371"
-dl "src/middleware/upload.ts" " 54/371"
-dl "src/middleware/validate.ts" " 55/371"
-dl "src/modules/admin/admin.controller.ts" " 56/371"
-dl "src/modules/admin/admin.routes.ts" " 57/371"
-dl "src/modules/admin/admin.schema.ts" " 58/371"
-dl "src/modules/admin/admin.service.test.ts" " 59/371"
-dl "src/modules/admin/admin.service.ts" " 60/371"
-dl "src/modules/ai/ai.controller.ts" " 61/371"
-dl "src/modules/ai/ai.routes.ts" " 62/371"
-dl "src/modules/ai/ai.schema.ts" " 63/371"
-dl "src/modules/ai/ai.service.test.ts" " 64/371"
-dl "src/modules/ai/ai.service.ts" " 65/371"
-dl "src/modules/alerts/alerts.controller.ts" " 66/371"
-dl "src/modules/alerts/alerts.routes.ts" " 67/371"
-dl "src/modules/alerts/alerts.schema.ts" " 68/371"
-dl "src/modules/alerts/alerts.service.test.ts" " 69/371"
-dl "src/modules/alerts/alerts.service.ts" " 70/371"
-dl "src/modules/alerts/alerts.test.ts" " 71/371"
-dl "src/modules/analytics/analytics.controller.ts" " 72/371"
-dl "src/modules/analytics/analytics.routes.ts" " 73/371"
-dl "src/modules/analytics/analytics.schema.ts" " 74/371"
-dl "src/modules/analytics/analytics.service.test.ts" " 75/371"
-dl "src/modules/analytics/analytics.service.ts" " 76/371"
-dl "src/modules/analytics/analytics.test.ts" " 77/371"
-dl "src/modules/artists/artist-media.controller.ts" " 78/371"
-dl "src/modules/artists/artist-media.service.test.ts" " 79/371"
-dl "src/modules/artists/artist-media.service.ts" " 80/371"
-dl "src/modules/artists/artists.controller.ts" " 81/371"
-dl "src/modules/artists/artists.routes.ts" " 82/371"
-dl "src/modules/artists/artists.schema.ts" " 83/371"
-dl "src/modules/artists/artists.service.ts" " 84/371"
-dl "src/modules/artists/artists.test.ts" " 85/371"
-dl "src/modules/auth/auth.controller.ts" " 86/371"
-dl "src/modules/auth/auth.email.processor.ts" " 87/371"
-dl "src/modules/auth/auth.email.queue.ts" " 88/371"
-dl "src/modules/auth/auth.routes.ts" " 89/371"
-dl "src/modules/auth/auth.schema.ts" " 90/371"
-dl "src/modules/auth/auth.service.test.ts" " 91/371"
-dl "src/modules/auth/auth.service.ts" " 92/371"
-dl "src/modules/auth/auth.test.ts" " 93/371"
-dl "src/modules/availability/availability.controller.ts" " 94/371"
-dl "src/modules/availability/availability.routes.ts" " 95/371"
-dl "src/modules/availability/availability.schema.ts" " 96/371"
-dl "src/modules/availability/availability.service.test.ts" " 97/371"
-dl "src/modules/availability/availability.service.ts" " 98/371"
-dl "src/modules/availability/availability.test.ts" " 99/371"
-dl "src/modules/booking-photos/booking-photos.controller.ts" "100/371"
-dl "src/modules/booking-photos/booking-photos.routes.ts" "101/371"
-dl "src/modules/booking-photos/booking-photos.schema.ts" "102/371"
-dl "src/modules/booking-photos/booking-photos.service.test.ts" "103/371"
-dl "src/modules/booking-photos/booking-photos.service.ts" "104/371"
-dl "src/modules/booking-photos/booking-photos.test.ts" "105/371"
-dl "src/modules/bookings/bookings.controller.ts" "106/371"
-dl "src/modules/bookings/bookings.routes.ts" "107/371"
-dl "src/modules/bookings/bookings.schema.ts" "108/371"
-dl "src/modules/bookings/bookings.service.test.ts" "109/371"
-dl "src/modules/bookings/bookings.service.ts" "110/371"
-dl "src/modules/bookings/bookings.test.ts" "111/371"
-dl "src/modules/calendar/apple-calendar.controller.ts" "112/371"
-dl "src/modules/calendar/apple-calendar.service.test.ts" "113/371"
-dl "src/modules/calendar/apple-calendar.service.ts" "114/371"
-dl "src/modules/calendar/calendar.controller.ts" "115/371"
-dl "src/modules/calendar/calendar.routes.ts" "116/371"
-dl "src/modules/calendar/calendar.schema.ts" "117/371"
-dl "src/modules/calendar/calendar.service.test.ts" "118/371"
-dl "src/modules/calendar/calendar.service.ts" "119/371"
-dl "src/modules/calendar/calendar.test.ts" "120/371"
-dl "src/modules/calendar/outlook-calendar.controller.ts" "121/371"
-dl "src/modules/calendar/outlook-calendar.service.test.ts" "122/371"
-dl "src/modules/calendar/outlook-calendar.service.ts" "123/371"
-dl "src/modules/campaigns/campaigns.controller.ts" "124/371"
-dl "src/modules/campaigns/campaigns.routes.ts" "125/371"
-dl "src/modules/campaigns/campaigns.schema.ts" "126/371"
-dl "src/modules/campaigns/campaigns.service.test.ts" "127/371"
-dl "src/modules/campaigns/campaigns.service.ts" "128/371"
-dl "src/modules/campaigns/campaigns.test.ts" "129/371"
-dl "src/modules/capture/capture.controller.ts" "130/371"
-dl "src/modules/capture/capture.routes.ts" "131/371"
-dl "src/modules/capture/capture.schema.ts" "132/371"
-dl "src/modules/capture/capture.service.test.ts" "133/371"
-dl "src/modules/capture/capture.service.ts" "134/371"
-dl "src/modules/customer-stats/customer-stats.controller.ts" "135/371"
-dl "src/modules/customer-stats/customer-stats.routes.ts" "136/371"
-dl "src/modules/customer-stats/customer-stats.schema.ts" "137/371"
-dl "src/modules/customer-stats/customer-stats.service.test.ts" "138/371"
-dl "src/modules/customer-stats/customer-stats.service.ts" "139/371"
-dl "src/modules/customer-stats/customer-stats.test.ts" "140/371"
-dl "src/modules/customers/customers.controller.ts" "141/371"
-dl "src/modules/customers/customers.routes.ts" "142/371"
-dl "src/modules/customers/customers.schema.ts" "143/371"
-dl "src/modules/customers/customers.service.test.ts" "144/371"
-dl "src/modules/customers/customers.service.ts" "145/371"
-dl "src/modules/email-templates/email-templates.controller.ts" "146/371"
-dl "src/modules/email-templates/email-templates.routes.ts" "147/371"
-dl "src/modules/email-templates/email-templates.schema.ts" "148/371"
-dl "src/modules/email-templates/email-templates.service.test.ts" "149/371"
-dl "src/modules/email-templates/email-templates.service.ts" "150/371"
-dl "src/modules/email-templates/email-templates.test.ts" "151/371"
-dl "src/modules/features/features.test.ts" "152/371"
-dl "src/modules/forms/forms.controller.ts" "153/371"
-dl "src/modules/forms/forms.routes.ts" "154/371"
-dl "src/modules/forms/forms.schema.ts" "155/371"
-dl "src/modules/forms/forms.service.test.ts" "156/371"
-dl "src/modules/forms/forms.service.ts" "157/371"
-dl "src/modules/forms/forms.test.ts" "158/371"
-dl "src/modules/gift-cards/gift-cards.controller.ts" "159/371"
-dl "src/modules/gift-cards/gift-cards.routes.ts" "160/371"
-dl "src/modules/gift-cards/gift-cards.schema.ts" "161/371"
-dl "src/modules/gift-cards/gift-cards.service.test.ts" "162/371"
-dl "src/modules/gift-cards/gift-cards.service.ts" "163/371"
-dl "src/modules/gift-cards/gift-cards.test.ts" "164/371"
-dl "src/modules/health-flags/health-flags.controller.ts" "165/371"
-dl "src/modules/health-flags/health-flags.routes.ts" "166/371"
-dl "src/modules/health-flags/health-flags.schema.ts" "167/371"
-dl "src/modules/health-flags/health-flags.service.test.ts" "168/371"
-dl "src/modules/health-flags/health-flags.service.ts" "169/371"
-dl "src/modules/health-flags/health-flags.test.ts" "170/371"
-dl "src/modules/invoices/invoices.controller.ts" "171/371"
-dl "src/modules/invoices/invoices.routes.ts" "172/371"
-dl "src/modules/invoices/invoices.schema.ts" "173/371"
-dl "src/modules/invoices/invoices.service.test.ts" "174/371"
-dl "src/modules/invoices/invoices.service.ts" "175/371"
-dl "src/modules/invoices/invoices.test.ts" "176/371"
-dl "src/modules/leads/leads.controller.ts" "177/371"
-dl "src/modules/leads/leads.routes.ts" "178/371"
-dl "src/modules/leads/leads.schema.ts" "179/371"
-dl "src/modules/leads/leads.service.test.ts" "180/371"
-dl "src/modules/leads/leads.service.ts" "181/371"
-dl "src/modules/leads/leads.test.ts" "182/371"
-dl "src/modules/locations/locations.controller.ts" "183/371"
-dl "src/modules/locations/locations.routes.ts" "184/371"
-dl "src/modules/locations/locations.schema.ts" "185/371"
-dl "src/modules/locations/locations.service.ts" "186/371"
+dl ".dockerignore" "  1/372"
+dl ".env.example" "  2/372"
+dl ".gitignore" "  3/372"
+dl "Dockerfile" "  4/372"
+dl "jest.setup.ts" "  5/372"
+dl "package.json" "  6/372"
+dl "prisma/migrations/20260414000001_remove_gift_voucher_enabled/migration.sql" "  7/372"
+dl "prisma/migrations/20260414000002_feature_flag_per_tenant_unique/migration.sql" "  8/372"
+dl "prisma/migrations/20260415000001_email_template_tenant_key_unique/migration.sql" "  9/372"
+dl "prisma/schema.prisma" " 10/372"
+dl "src/app.ts" " 11/372"
+dl "src/config/businessType.test.ts" " 12/372"
+dl "src/config/businessType.ts" " 13/372"
+dl "src/config/index.ts" " 14/372"
+dl "src/errors/AppError.ts" " 15/372"
+dl "src/index.ts" " 16/372"
+dl "src/jobs/ai-suggestion.job.test.ts" " 17/372"
+dl "src/jobs/ai-suggestion.job.ts" " 18/372"
+dl "src/jobs/birthday.job.test.ts" " 19/372"
+dl "src/jobs/birthday.job.ts" " 20/372"
+dl "src/jobs/campaign.job.ts" " 21/372"
+dl "src/jobs/index.ts" " 22/372"
+dl "src/jobs/invoice-overdue.job.ts" " 23/372"
+dl "src/jobs/no-show.job.test.ts" " 24/372"
+dl "src/jobs/no-show.job.ts" " 25/372"
+dl "src/jobs/rebook-nudge.job.test.ts" " 26/372"
+dl "src/jobs/rebook-nudge.job.ts" " 27/372"
+dl "src/jobs/recurring-booking.job.ts" " 28/372"
+dl "src/jobs/waitlist-match.job.ts" " 29/372"
+dl "src/lib/apple-calendar.ts" " 30/372"
+dl "src/lib/cloudinary.ts" " 31/372"
+dl "src/lib/google-calendar.ts" " 32/372"
+dl "src/lib/notification-dispatcher.ts" " 33/372"
+dl "src/lib/openai.ts" " 34/372"
+dl "src/lib/outlook-calendar.ts" " 35/372"
+dl "src/lib/pricing-engine.test.ts" " 36/372"
+dl "src/lib/pricing-engine.ts" " 37/372"
+dl "src/lib/prisma.ts" " 38/372"
+dl "src/lib/push-notifications.ts" " 39/372"
+dl "src/lib/redis.ts" " 40/372"
+dl "src/lib/resend.ts" " 41/372"
+dl "src/lib/stripe.ts" " 42/372"
+dl "src/lib/template-renderer.ts" " 43/372"
+dl "src/lib/twilio-sms.ts" " 44/372"
+dl "src/lib/twilio.ts" " 45/372"
+dl "src/middleware/auth.test.ts" " 46/372"
+dl "src/middleware/auth.ts" " 47/372"
+dl "src/middleware/captcha.ts" " 48/372"
+dl "src/middleware/errorHandler.ts" " 49/372"
+dl "src/middleware/requestLogger.ts" " 50/372"
+dl "src/middleware/requireFeature.ts" " 51/372"
+dl "src/middleware/requireLeadAccess.test.ts" " 52/372"
+dl "src/middleware/requireLeadAccess.ts" " 53/372"
+dl "src/middleware/requireRole.ts" " 54/372"
+dl "src/middleware/upload.ts" " 55/372"
+dl "src/middleware/validate.ts" " 56/372"
+dl "src/modules/admin/admin.controller.ts" " 57/372"
+dl "src/modules/admin/admin.routes.ts" " 58/372"
+dl "src/modules/admin/admin.schema.ts" " 59/372"
+dl "src/modules/admin/admin.service.test.ts" " 60/372"
+dl "src/modules/admin/admin.service.ts" " 61/372"
+dl "src/modules/ai/ai.controller.ts" " 62/372"
+dl "src/modules/ai/ai.routes.ts" " 63/372"
+dl "src/modules/ai/ai.schema.ts" " 64/372"
+dl "src/modules/ai/ai.service.test.ts" " 65/372"
+dl "src/modules/ai/ai.service.ts" " 66/372"
+dl "src/modules/alerts/alerts.controller.ts" " 67/372"
+dl "src/modules/alerts/alerts.routes.ts" " 68/372"
+dl "src/modules/alerts/alerts.schema.ts" " 69/372"
+dl "src/modules/alerts/alerts.service.test.ts" " 70/372"
+dl "src/modules/alerts/alerts.service.ts" " 71/372"
+dl "src/modules/alerts/alerts.test.ts" " 72/372"
+dl "src/modules/analytics/analytics.controller.ts" " 73/372"
+dl "src/modules/analytics/analytics.routes.ts" " 74/372"
+dl "src/modules/analytics/analytics.schema.ts" " 75/372"
+dl "src/modules/analytics/analytics.service.test.ts" " 76/372"
+dl "src/modules/analytics/analytics.service.ts" " 77/372"
+dl "src/modules/analytics/analytics.test.ts" " 78/372"
+dl "src/modules/artists/artist-media.controller.ts" " 79/372"
+dl "src/modules/artists/artist-media.service.test.ts" " 80/372"
+dl "src/modules/artists/artist-media.service.ts" " 81/372"
+dl "src/modules/artists/artists.controller.ts" " 82/372"
+dl "src/modules/artists/artists.routes.ts" " 83/372"
+dl "src/modules/artists/artists.schema.ts" " 84/372"
+dl "src/modules/artists/artists.service.ts" " 85/372"
+dl "src/modules/artists/artists.test.ts" " 86/372"
+dl "src/modules/auth/auth.controller.ts" " 87/372"
+dl "src/modules/auth/auth.email.processor.ts" " 88/372"
+dl "src/modules/auth/auth.email.queue.ts" " 89/372"
+dl "src/modules/auth/auth.routes.ts" " 90/372"
+dl "src/modules/auth/auth.schema.ts" " 91/372"
+dl "src/modules/auth/auth.service.test.ts" " 92/372"
+dl "src/modules/auth/auth.service.ts" " 93/372"
+dl "src/modules/auth/auth.test.ts" " 94/372"
+dl "src/modules/availability/availability.controller.ts" " 95/372"
+dl "src/modules/availability/availability.routes.ts" " 96/372"
+dl "src/modules/availability/availability.schema.ts" " 97/372"
+dl "src/modules/availability/availability.service.test.ts" " 98/372"
+dl "src/modules/availability/availability.service.ts" " 99/372"
+dl "src/modules/availability/availability.test.ts" "100/372"
+dl "src/modules/booking-photos/booking-photos.controller.ts" "101/372"
+dl "src/modules/booking-photos/booking-photos.routes.ts" "102/372"
+dl "src/modules/booking-photos/booking-photos.schema.ts" "103/372"
+dl "src/modules/booking-photos/booking-photos.service.test.ts" "104/372"
+dl "src/modules/booking-photos/booking-photos.service.ts" "105/372"
+dl "src/modules/booking-photos/booking-photos.test.ts" "106/372"
+dl "src/modules/bookings/bookings.controller.ts" "107/372"
+dl "src/modules/bookings/bookings.routes.ts" "108/372"
+dl "src/modules/bookings/bookings.schema.ts" "109/372"
+dl "src/modules/bookings/bookings.service.test.ts" "110/372"
+dl "src/modules/bookings/bookings.service.ts" "111/372"
+dl "src/modules/bookings/bookings.test.ts" "112/372"
+dl "src/modules/calendar/apple-calendar.controller.ts" "113/372"
+dl "src/modules/calendar/apple-calendar.service.test.ts" "114/372"
+dl "src/modules/calendar/apple-calendar.service.ts" "115/372"
+dl "src/modules/calendar/calendar.controller.ts" "116/372"
+dl "src/modules/calendar/calendar.routes.ts" "117/372"
+dl "src/modules/calendar/calendar.schema.ts" "118/372"
+dl "src/modules/calendar/calendar.service.test.ts" "119/372"
+dl "src/modules/calendar/calendar.service.ts" "120/372"
+dl "src/modules/calendar/calendar.test.ts" "121/372"
+dl "src/modules/calendar/outlook-calendar.controller.ts" "122/372"
+dl "src/modules/calendar/outlook-calendar.service.test.ts" "123/372"
+dl "src/modules/calendar/outlook-calendar.service.ts" "124/372"
+dl "src/modules/campaigns/campaigns.controller.ts" "125/372"
+dl "src/modules/campaigns/campaigns.routes.ts" "126/372"
+dl "src/modules/campaigns/campaigns.schema.ts" "127/372"
+dl "src/modules/campaigns/campaigns.service.test.ts" "128/372"
+dl "src/modules/campaigns/campaigns.service.ts" "129/372"
+dl "src/modules/campaigns/campaigns.test.ts" "130/372"
+dl "src/modules/capture/capture.controller.ts" "131/372"
+dl "src/modules/capture/capture.routes.ts" "132/372"
+dl "src/modules/capture/capture.schema.ts" "133/372"
+dl "src/modules/capture/capture.service.test.ts" "134/372"
+dl "src/modules/capture/capture.service.ts" "135/372"
+dl "src/modules/customer-stats/customer-stats.controller.ts" "136/372"
+dl "src/modules/customer-stats/customer-stats.routes.ts" "137/372"
+dl "src/modules/customer-stats/customer-stats.schema.ts" "138/372"
+dl "src/modules/customer-stats/customer-stats.service.test.ts" "139/372"
+dl "src/modules/customer-stats/customer-stats.service.ts" "140/372"
+dl "src/modules/customer-stats/customer-stats.test.ts" "141/372"
+dl "src/modules/customers/customers.controller.ts" "142/372"
+dl "src/modules/customers/customers.routes.ts" "143/372"
+dl "src/modules/customers/customers.schema.ts" "144/372"
+dl "src/modules/customers/customers.service.test.ts" "145/372"
+dl "src/modules/customers/customers.service.ts" "146/372"
+dl "src/modules/email-templates/email-templates.controller.ts" "147/372"
+dl "src/modules/email-templates/email-templates.routes.ts" "148/372"
+dl "src/modules/email-templates/email-templates.schema.ts" "149/372"
+dl "src/modules/email-templates/email-templates.service.test.ts" "150/372"
+dl "src/modules/email-templates/email-templates.service.ts" "151/372"
+dl "src/modules/email-templates/email-templates.test.ts" "152/372"
+dl "src/modules/features/features.test.ts" "153/372"
+dl "src/modules/forms/forms.controller.ts" "154/372"
+dl "src/modules/forms/forms.routes.ts" "155/372"
+dl "src/modules/forms/forms.schema.ts" "156/372"
+dl "src/modules/forms/forms.service.test.ts" "157/372"
+dl "src/modules/forms/forms.service.ts" "158/372"
+dl "src/modules/forms/forms.test.ts" "159/372"
+dl "src/modules/gift-cards/gift-cards.controller.ts" "160/372"
+dl "src/modules/gift-cards/gift-cards.routes.ts" "161/372"
+dl "src/modules/gift-cards/gift-cards.schema.ts" "162/372"
+dl "src/modules/gift-cards/gift-cards.service.test.ts" "163/372"
+dl "src/modules/gift-cards/gift-cards.service.ts" "164/372"
+dl "src/modules/gift-cards/gift-cards.test.ts" "165/372"
+dl "src/modules/health-flags/health-flags.controller.ts" "166/372"
+dl "src/modules/health-flags/health-flags.routes.ts" "167/372"
+dl "src/modules/health-flags/health-flags.schema.ts" "168/372"
+dl "src/modules/health-flags/health-flags.service.test.ts" "169/372"
+dl "src/modules/health-flags/health-flags.service.ts" "170/372"
+dl "src/modules/health-flags/health-flags.test.ts" "171/372"
+dl "src/modules/invoices/invoices.controller.ts" "172/372"
+dl "src/modules/invoices/invoices.routes.ts" "173/372"
+dl "src/modules/invoices/invoices.schema.ts" "174/372"
+dl "src/modules/invoices/invoices.service.test.ts" "175/372"
+dl "src/modules/invoices/invoices.service.ts" "176/372"
+dl "src/modules/invoices/invoices.test.ts" "177/372"
+dl "src/modules/leads/leads.controller.ts" "178/372"
+dl "src/modules/leads/leads.routes.ts" "179/372"
+dl "src/modules/leads/leads.schema.ts" "180/372"
+dl "src/modules/leads/leads.service.test.ts" "181/372"
+dl "src/modules/leads/leads.service.ts" "182/372"
+dl "src/modules/leads/leads.test.ts" "183/372"
+dl "src/modules/locations/locations.controller.ts" "184/372"
+dl "src/modules/locations/locations.routes.ts" "185/372"
+dl "src/modules/locations/locations.schema.ts" "186/372"
+dl "src/modules/locations/locations.service.ts" "187/372"
 
-echo "Part 1 download done (186/371)"
+echo "Part 1 download done (187/372)"
 ```
 
-**After running:** You should see `OK` for all 186 lines. If ANY line says `FAILED`, re-run that specific `dl` line.
+**After running:** You should see `OK` for all 187 lines. If ANY line says `FAILED`, re-run that specific `dl` line.
 
 ---
 
-## Step 5 — Download ALL files (Part 2 of 2: files 187–371)
+## Step 5 — Download ALL files (Part 2 of 2: files 188–372)
 
 ```bash
 cd ~/Desktop/Automation/backend
@@ -817,193 +968,193 @@ dl() {
   if [ $? -eq 0 ]; then echo "OK  $2"; else echo "FAILED $2"; fi
 }
 
-dl "src/modules/locations/locations.test.ts" "187/371"
-dl "src/modules/loyalty/loyalty.controller.ts" "188/371"
-dl "src/modules/loyalty/loyalty.routes.ts" "189/371"
-dl "src/modules/loyalty/loyalty.schema.ts" "190/371"
-dl "src/modules/loyalty/loyalty.service.test.ts" "191/371"
-dl "src/modules/loyalty/loyalty.service.ts" "192/371"
-dl "src/modules/loyalty/loyalty.test.ts" "193/371"
-dl "src/modules/memberships/memberships.controller.ts" "194/371"
-dl "src/modules/memberships/memberships.routes.ts" "195/371"
-dl "src/modules/memberships/memberships.schema.ts" "196/371"
-dl "src/modules/memberships/memberships.service.test.ts" "197/371"
-dl "src/modules/memberships/memberships.service.ts" "198/371"
-dl "src/modules/memberships/memberships.test.ts" "199/371"
-dl "src/modules/messages/messages.routes.ts" "200/371"
-dl "src/modules/notifications/notifications.controller.ts" "201/371"
-dl "src/modules/notifications/notifications.routes.ts" "202/371"
-dl "src/modules/notifications/notifications.schema.ts" "203/371"
-dl "src/modules/notifications/notifications.service.test.ts" "204/371"
-dl "src/modules/notifications/notifications.service.ts" "205/371"
-dl "src/modules/packages/packages.controller.ts" "206/371"
-dl "src/modules/packages/packages.routes.ts" "207/371"
-dl "src/modules/packages/packages.schema.ts" "208/371"
-dl "src/modules/packages/packages.service.test.ts" "209/371"
-dl "src/modules/packages/packages.service.ts" "210/371"
-dl "src/modules/packages/packages.test.ts" "211/371"
-dl "src/modules/payments/payments.controller.ts" "212/371"
-dl "src/modules/payments/payments.routes.ts" "213/371"
-dl "src/modules/payments/payments.schema.ts" "214/371"
-dl "src/modules/payments/payments.service.test.ts" "215/371"
-dl "src/modules/payments/payments.service.ts" "216/371"
-dl "src/modules/payments/payments.test.ts" "217/371"
-dl "src/modules/payroll/payroll.controller.ts" "218/371"
-dl "src/modules/payroll/payroll.routes.ts" "219/371"
-dl "src/modules/payroll/payroll.schema.ts" "220/371"
-dl "src/modules/payroll/payroll.service.test.ts" "221/371"
-dl "src/modules/payroll/payroll.service.ts" "222/371"
-dl "src/modules/payroll/payroll.test.ts" "223/371"
-dl "src/modules/pos/pos.controller.ts" "224/371"
-dl "src/modules/pos/pos.routes.ts" "225/371"
-dl "src/modules/pos/pos.schema.ts" "226/371"
-dl "src/modules/pos/pos.service.test.ts" "227/371"
-dl "src/modules/pos/pos.service.ts" "228/371"
-dl "src/modules/pos/pos.test.ts" "229/371"
-dl "src/modules/pricing/pricing.controller.ts" "230/371"
-dl "src/modules/pricing/pricing.routes.ts" "231/371"
-dl "src/modules/pricing/pricing.schema.ts" "232/371"
-dl "src/modules/pricing/pricing.service.ts" "233/371"
-dl "src/modules/pricing/pricing.test.ts" "234/371"
-dl "src/modules/products/products.controller.ts" "235/371"
-dl "src/modules/products/products.routes.ts" "236/371"
-dl "src/modules/products/products.schema.ts" "237/371"
-dl "src/modules/products/products.service.test.ts" "238/371"
-dl "src/modules/products/products.service.ts" "239/371"
-dl "src/modules/products/products.test.ts" "240/371"
-dl "src/modules/public/public.controller.ts" "241/371"
-dl "src/modules/public/public.routes.ts" "242/371"
-dl "src/modules/public/public.schema.ts" "243/371"
-dl "src/modules/public/public.service.test.ts" "244/371"
-dl "src/modules/public/public.service.ts" "245/371"
-dl "src/modules/public/public.test.ts" "246/371"
-dl "src/modules/push/push.routes.ts" "247/371"
-dl "src/modules/push/push.service.test.ts" "248/371"
-dl "src/modules/push/push.service.ts" "249/371"
-dl "src/modules/quotes/quotes.controller.ts" "250/371"
-dl "src/modules/quotes/quotes.routes.ts" "251/371"
-dl "src/modules/quotes/quotes.schema.ts" "252/371"
-dl "src/modules/quotes/quotes.service.test.ts" "253/371"
-dl "src/modules/quotes/quotes.service.ts" "254/371"
-dl "src/modules/quotes/quotes.test.ts" "255/371"
-dl "src/modules/recurring-bookings/recurring-bookings.controller.ts" "256/371"
-dl "src/modules/recurring-bookings/recurring-bookings.routes.ts" "257/371"
-dl "src/modules/recurring-bookings/recurring-bookings.schema.ts" "258/371"
-dl "src/modules/recurring-bookings/recurring-bookings.service.test.ts" "259/371"
-dl "src/modules/recurring-bookings/recurring-bookings.service.ts" "260/371"
-dl "src/modules/recurring-bookings/recurring-bookings.test.ts" "261/371"
-dl "src/modules/referrals/referrals.controller.ts" "262/371"
-dl "src/modules/referrals/referrals.routes.ts" "263/371"
-dl "src/modules/referrals/referrals.schema.ts" "264/371"
-dl "src/modules/referrals/referrals.service.test.ts" "265/371"
-dl "src/modules/referrals/referrals.service.ts" "266/371"
-dl "src/modules/referrals/referrals.test.ts" "267/371"
-dl "src/modules/reminders/reminders.processor.ts" "268/371"
-dl "src/modules/reminders/reminders.queue.test.ts" "269/371"
-dl "src/modules/reminders/reminders.queue.ts" "270/371"
-dl "src/modules/reviews/reviews.processor.ts" "271/371"
-dl "src/modules/reviews/reviews.queue.test.ts" "272/371"
-dl "src/modules/reviews/reviews.queue.ts" "273/371"
-dl "src/modules/roles/roles.controller.ts" "274/371"
-dl "src/modules/roles/roles.routes.ts" "275/371"
-dl "src/modules/roles/roles.schema.ts" "276/371"
-dl "src/modules/roles/roles.service.test.ts" "277/371"
-dl "src/modules/roles/roles.service.ts" "278/371"
-dl "src/modules/roles/roles.test.ts" "279/371"
-dl "src/modules/rota/rota.controller.ts" "280/371"
-dl "src/modules/rota/rota.routes.ts" "281/371"
-dl "src/modules/rota/rota.schema.ts" "282/371"
-dl "src/modules/rota/rota.service.test.ts" "283/371"
-dl "src/modules/rota/rota.service.ts" "284/371"
-dl "src/modules/rota/rota.test.ts" "285/371"
-dl "src/modules/services/services.controller.ts" "286/371"
-dl "src/modules/services/services.routes.ts" "287/371"
-dl "src/modules/services/services.schema.ts" "288/371"
-dl "src/modules/services/services.service.test.ts" "289/371"
-dl "src/modules/services/services.service.ts" "290/371"
-dl "src/modules/services/services.test.ts" "291/371"
-dl "src/modules/sessions/sessions.controller.ts" "292/371"
-dl "src/modules/sessions/sessions.routes.ts" "293/371"
-dl "src/modules/sessions/sessions.schema.ts" "294/371"
-dl "src/modules/sessions/sessions.service.ts" "295/371"
-dl "src/modules/sessions/sessions.test.ts" "296/371"
-dl "src/modules/settings/settings.controller.ts" "297/371"
-dl "src/modules/settings/settings.routes.ts" "298/371"
-dl "src/modules/settings/settings.schema.ts" "299/371"
-dl "src/modules/settings/settings.service.test.ts" "300/371"
-dl "src/modules/settings/settings.service.ts" "301/371"
-dl "src/modules/settings/settings.test.ts" "302/371"
-dl "src/modules/sms-templates/sms-templates.controller.ts" "303/371"
-dl "src/modules/sms-templates/sms-templates.routes.ts" "304/371"
-dl "src/modules/sms-templates/sms-templates.schema.ts" "305/371"
-dl "src/modules/sms-templates/sms-templates.service.test.ts" "306/371"
-dl "src/modules/sms-templates/sms-templates.service.ts" "307/371"
-dl "src/modules/sms-templates/sms-templates.test.ts" "308/371"
-dl "src/modules/sms/sms.queue.ts" "309/371"
-dl "src/modules/social/social.controller.ts" "310/371"
-dl "src/modules/social/social.routes.ts" "311/371"
-dl "src/modules/social/social.schema.ts" "312/371"
-dl "src/modules/social/social.service.test.ts" "313/371"
-dl "src/modules/social/social.service.ts" "314/371"
-dl "src/modules/social/social.test.ts" "315/371"
-dl "src/modules/styles/styles.controller.ts" "316/371"
-dl "src/modules/styles/styles.routes.ts" "317/371"
-dl "src/modules/styles/styles.schema.ts" "318/371"
-dl "src/modules/styles/styles.service.test.ts" "319/371"
-dl "src/modules/styles/styles.service.ts" "320/371"
-dl "src/modules/styles/styles.test.ts" "321/371"
-dl "src/modules/tables/tables.controller.ts" "322/371"
-dl "src/modules/tables/tables.routes.ts" "323/371"
-dl "src/modules/tables/tables.schema.ts" "324/371"
-dl "src/modules/tables/tables.service.test.ts" "325/371"
-dl "src/modules/tables/tables.service.ts" "326/371"
-dl "src/modules/tenants/tenants.controller.ts" "327/371"
-dl "src/modules/tenants/tenants.routes.ts" "328/371"
-dl "src/modules/tenants/tenants.schema.ts" "329/371"
-dl "src/modules/tenants/tenants.service.test.ts" "330/371"
-dl "src/modules/tenants/tenants.service.ts" "331/371"
-dl "src/modules/tenants/tenants.test.ts" "332/371"
-dl "src/modules/uploads/uploads.controller.ts" "333/371"
-dl "src/modules/uploads/uploads.routes.ts" "334/371"
-dl "src/modules/uploads/uploads.service.test.ts" "335/371"
-dl "src/modules/uploads/uploads.service.ts" "336/371"
-dl "src/modules/uploads/uploads.test.ts" "337/371"
-dl "src/modules/waitlist/waitlist.controller.ts" "338/371"
-dl "src/modules/waitlist/waitlist.routes.ts" "339/371"
-dl "src/modules/waitlist/waitlist.schema.ts" "340/371"
-dl "src/modules/waitlist/waitlist.service.test.ts" "341/371"
-dl "src/modules/waitlist/waitlist.service.ts" "342/371"
-dl "src/modules/waitlist/waitlist.test.ts" "343/371"
-dl "src/modules/webhooks/webhooks.controller.ts" "344/371"
-dl "src/modules/webhooks/webhooks.queue.ts" "345/371"
-dl "src/modules/webhooks/webhooks.routes.ts" "346/371"
-dl "src/modules/webhooks/webhooks.schema.ts" "347/371"
-dl "src/modules/webhooks/webhooks.service.test.ts" "348/371"
-dl "src/modules/webhooks/webhooks.service.ts" "349/371"
-dl "src/modules/whatsapp-templates/whatsapp-templates.controller.ts" "350/371"
-dl "src/modules/whatsapp-templates/whatsapp-templates.routes.ts" "351/371"
-dl "src/modules/whatsapp-templates/whatsapp-templates.schema.ts" "352/371"
-dl "src/modules/whatsapp-templates/whatsapp-templates.service.test.ts" "353/371"
-dl "src/modules/whatsapp-templates/whatsapp-templates.service.ts" "354/371"
-dl "src/modules/whatsapp-templates/whatsapp-templates.test.ts" "355/371"
-dl "src/modules/whatsapp/whatsapp.controller.ts" "356/371"
-dl "src/modules/whatsapp/whatsapp.queue.test.ts" "357/371"
-dl "src/modules/whatsapp/whatsapp.queue.ts" "358/371"
-dl "src/modules/whatsapp/whatsapp.routes.ts" "359/371"
-dl "src/modules/whatsapp/whatsapp.schema.ts" "360/371"
-dl "src/modules/whatsapp/whatsapp.service.test.ts" "361/371"
-dl "src/modules/whatsapp/whatsapp.service.ts" "362/371"
-dl "src/scripts/backfill-analyticsEvent-tenantId.ts" "363/371"
-dl "src/scripts/backfill-lead-tenantId.ts" "364/371"
-dl "src/server.ts" "365/371"
-dl "src/types/express.d.ts" "366/371"
-dl "src/utils/apiResponse.ts" "367/371"
-dl "src/utils/extractTenantId.ts" "368/371"
-dl "src/utils/logger.ts" "369/371"
-dl "src/utils/paginate.ts" "370/371"
-dl "tsconfig.json" "371/371"
+dl "src/modules/locations/locations.test.ts" "188/372"
+dl "src/modules/loyalty/loyalty.controller.ts" "189/372"
+dl "src/modules/loyalty/loyalty.routes.ts" "190/372"
+dl "src/modules/loyalty/loyalty.schema.ts" "191/372"
+dl "src/modules/loyalty/loyalty.service.test.ts" "192/372"
+dl "src/modules/loyalty/loyalty.service.ts" "193/372"
+dl "src/modules/loyalty/loyalty.test.ts" "194/372"
+dl "src/modules/memberships/memberships.controller.ts" "195/372"
+dl "src/modules/memberships/memberships.routes.ts" "196/372"
+dl "src/modules/memberships/memberships.schema.ts" "197/372"
+dl "src/modules/memberships/memberships.service.test.ts" "198/372"
+dl "src/modules/memberships/memberships.service.ts" "199/372"
+dl "src/modules/memberships/memberships.test.ts" "200/372"
+dl "src/modules/messages/messages.routes.ts" "201/372"
+dl "src/modules/notifications/notifications.controller.ts" "202/372"
+dl "src/modules/notifications/notifications.routes.ts" "203/372"
+dl "src/modules/notifications/notifications.schema.ts" "204/372"
+dl "src/modules/notifications/notifications.service.test.ts" "205/372"
+dl "src/modules/notifications/notifications.service.ts" "206/372"
+dl "src/modules/packages/packages.controller.ts" "207/372"
+dl "src/modules/packages/packages.routes.ts" "208/372"
+dl "src/modules/packages/packages.schema.ts" "209/372"
+dl "src/modules/packages/packages.service.test.ts" "210/372"
+dl "src/modules/packages/packages.service.ts" "211/372"
+dl "src/modules/packages/packages.test.ts" "212/372"
+dl "src/modules/payments/payments.controller.ts" "213/372"
+dl "src/modules/payments/payments.routes.ts" "214/372"
+dl "src/modules/payments/payments.schema.ts" "215/372"
+dl "src/modules/payments/payments.service.test.ts" "216/372"
+dl "src/modules/payments/payments.service.ts" "217/372"
+dl "src/modules/payments/payments.test.ts" "218/372"
+dl "src/modules/payroll/payroll.controller.ts" "219/372"
+dl "src/modules/payroll/payroll.routes.ts" "220/372"
+dl "src/modules/payroll/payroll.schema.ts" "221/372"
+dl "src/modules/payroll/payroll.service.test.ts" "222/372"
+dl "src/modules/payroll/payroll.service.ts" "223/372"
+dl "src/modules/payroll/payroll.test.ts" "224/372"
+dl "src/modules/pos/pos.controller.ts" "225/372"
+dl "src/modules/pos/pos.routes.ts" "226/372"
+dl "src/modules/pos/pos.schema.ts" "227/372"
+dl "src/modules/pos/pos.service.test.ts" "228/372"
+dl "src/modules/pos/pos.service.ts" "229/372"
+dl "src/modules/pos/pos.test.ts" "230/372"
+dl "src/modules/pricing/pricing.controller.ts" "231/372"
+dl "src/modules/pricing/pricing.routes.ts" "232/372"
+dl "src/modules/pricing/pricing.schema.ts" "233/372"
+dl "src/modules/pricing/pricing.service.ts" "234/372"
+dl "src/modules/pricing/pricing.test.ts" "235/372"
+dl "src/modules/products/products.controller.ts" "236/372"
+dl "src/modules/products/products.routes.ts" "237/372"
+dl "src/modules/products/products.schema.ts" "238/372"
+dl "src/modules/products/products.service.test.ts" "239/372"
+dl "src/modules/products/products.service.ts" "240/372"
+dl "src/modules/products/products.test.ts" "241/372"
+dl "src/modules/public/public.controller.ts" "242/372"
+dl "src/modules/public/public.routes.ts" "243/372"
+dl "src/modules/public/public.schema.ts" "244/372"
+dl "src/modules/public/public.service.test.ts" "245/372"
+dl "src/modules/public/public.service.ts" "246/372"
+dl "src/modules/public/public.test.ts" "247/372"
+dl "src/modules/push/push.routes.ts" "248/372"
+dl "src/modules/push/push.service.test.ts" "249/372"
+dl "src/modules/push/push.service.ts" "250/372"
+dl "src/modules/quotes/quotes.controller.ts" "251/372"
+dl "src/modules/quotes/quotes.routes.ts" "252/372"
+dl "src/modules/quotes/quotes.schema.ts" "253/372"
+dl "src/modules/quotes/quotes.service.test.ts" "254/372"
+dl "src/modules/quotes/quotes.service.ts" "255/372"
+dl "src/modules/quotes/quotes.test.ts" "256/372"
+dl "src/modules/recurring-bookings/recurring-bookings.controller.ts" "257/372"
+dl "src/modules/recurring-bookings/recurring-bookings.routes.ts" "258/372"
+dl "src/modules/recurring-bookings/recurring-bookings.schema.ts" "259/372"
+dl "src/modules/recurring-bookings/recurring-bookings.service.test.ts" "260/372"
+dl "src/modules/recurring-bookings/recurring-bookings.service.ts" "261/372"
+dl "src/modules/recurring-bookings/recurring-bookings.test.ts" "262/372"
+dl "src/modules/referrals/referrals.controller.ts" "263/372"
+dl "src/modules/referrals/referrals.routes.ts" "264/372"
+dl "src/modules/referrals/referrals.schema.ts" "265/372"
+dl "src/modules/referrals/referrals.service.test.ts" "266/372"
+dl "src/modules/referrals/referrals.service.ts" "267/372"
+dl "src/modules/referrals/referrals.test.ts" "268/372"
+dl "src/modules/reminders/reminders.processor.ts" "269/372"
+dl "src/modules/reminders/reminders.queue.test.ts" "270/372"
+dl "src/modules/reminders/reminders.queue.ts" "271/372"
+dl "src/modules/reviews/reviews.processor.ts" "272/372"
+dl "src/modules/reviews/reviews.queue.test.ts" "273/372"
+dl "src/modules/reviews/reviews.queue.ts" "274/372"
+dl "src/modules/roles/roles.controller.ts" "275/372"
+dl "src/modules/roles/roles.routes.ts" "276/372"
+dl "src/modules/roles/roles.schema.ts" "277/372"
+dl "src/modules/roles/roles.service.test.ts" "278/372"
+dl "src/modules/roles/roles.service.ts" "279/372"
+dl "src/modules/roles/roles.test.ts" "280/372"
+dl "src/modules/rota/rota.controller.ts" "281/372"
+dl "src/modules/rota/rota.routes.ts" "282/372"
+dl "src/modules/rota/rota.schema.ts" "283/372"
+dl "src/modules/rota/rota.service.test.ts" "284/372"
+dl "src/modules/rota/rota.service.ts" "285/372"
+dl "src/modules/rota/rota.test.ts" "286/372"
+dl "src/modules/services/services.controller.ts" "287/372"
+dl "src/modules/services/services.routes.ts" "288/372"
+dl "src/modules/services/services.schema.ts" "289/372"
+dl "src/modules/services/services.service.test.ts" "290/372"
+dl "src/modules/services/services.service.ts" "291/372"
+dl "src/modules/services/services.test.ts" "292/372"
+dl "src/modules/sessions/sessions.controller.ts" "293/372"
+dl "src/modules/sessions/sessions.routes.ts" "294/372"
+dl "src/modules/sessions/sessions.schema.ts" "295/372"
+dl "src/modules/sessions/sessions.service.ts" "296/372"
+dl "src/modules/sessions/sessions.test.ts" "297/372"
+dl "src/modules/settings/settings.controller.ts" "298/372"
+dl "src/modules/settings/settings.routes.ts" "299/372"
+dl "src/modules/settings/settings.schema.ts" "300/372"
+dl "src/modules/settings/settings.service.test.ts" "301/372"
+dl "src/modules/settings/settings.service.ts" "302/372"
+dl "src/modules/settings/settings.test.ts" "303/372"
+dl "src/modules/sms-templates/sms-templates.controller.ts" "304/372"
+dl "src/modules/sms-templates/sms-templates.routes.ts" "305/372"
+dl "src/modules/sms-templates/sms-templates.schema.ts" "306/372"
+dl "src/modules/sms-templates/sms-templates.service.test.ts" "307/372"
+dl "src/modules/sms-templates/sms-templates.service.ts" "308/372"
+dl "src/modules/sms-templates/sms-templates.test.ts" "309/372"
+dl "src/modules/sms/sms.queue.ts" "310/372"
+dl "src/modules/social/social.controller.ts" "311/372"
+dl "src/modules/social/social.routes.ts" "312/372"
+dl "src/modules/social/social.schema.ts" "313/372"
+dl "src/modules/social/social.service.test.ts" "314/372"
+dl "src/modules/social/social.service.ts" "315/372"
+dl "src/modules/social/social.test.ts" "316/372"
+dl "src/modules/styles/styles.controller.ts" "317/372"
+dl "src/modules/styles/styles.routes.ts" "318/372"
+dl "src/modules/styles/styles.schema.ts" "319/372"
+dl "src/modules/styles/styles.service.test.ts" "320/372"
+dl "src/modules/styles/styles.service.ts" "321/372"
+dl "src/modules/styles/styles.test.ts" "322/372"
+dl "src/modules/tables/tables.controller.ts" "323/372"
+dl "src/modules/tables/tables.routes.ts" "324/372"
+dl "src/modules/tables/tables.schema.ts" "325/372"
+dl "src/modules/tables/tables.service.test.ts" "326/372"
+dl "src/modules/tables/tables.service.ts" "327/372"
+dl "src/modules/tenants/tenants.controller.ts" "328/372"
+dl "src/modules/tenants/tenants.routes.ts" "329/372"
+dl "src/modules/tenants/tenants.schema.ts" "330/372"
+dl "src/modules/tenants/tenants.service.test.ts" "331/372"
+dl "src/modules/tenants/tenants.service.ts" "332/372"
+dl "src/modules/tenants/tenants.test.ts" "333/372"
+dl "src/modules/uploads/uploads.controller.ts" "334/372"
+dl "src/modules/uploads/uploads.routes.ts" "335/372"
+dl "src/modules/uploads/uploads.service.test.ts" "336/372"
+dl "src/modules/uploads/uploads.service.ts" "337/372"
+dl "src/modules/uploads/uploads.test.ts" "338/372"
+dl "src/modules/waitlist/waitlist.controller.ts" "339/372"
+dl "src/modules/waitlist/waitlist.routes.ts" "340/372"
+dl "src/modules/waitlist/waitlist.schema.ts" "341/372"
+dl "src/modules/waitlist/waitlist.service.test.ts" "342/372"
+dl "src/modules/waitlist/waitlist.service.ts" "343/372"
+dl "src/modules/waitlist/waitlist.test.ts" "344/372"
+dl "src/modules/webhooks/webhooks.controller.ts" "345/372"
+dl "src/modules/webhooks/webhooks.queue.ts" "346/372"
+dl "src/modules/webhooks/webhooks.routes.ts" "347/372"
+dl "src/modules/webhooks/webhooks.schema.ts" "348/372"
+dl "src/modules/webhooks/webhooks.service.test.ts" "349/372"
+dl "src/modules/webhooks/webhooks.service.ts" "350/372"
+dl "src/modules/whatsapp-templates/whatsapp-templates.controller.ts" "351/372"
+dl "src/modules/whatsapp-templates/whatsapp-templates.routes.ts" "352/372"
+dl "src/modules/whatsapp-templates/whatsapp-templates.schema.ts" "353/372"
+dl "src/modules/whatsapp-templates/whatsapp-templates.service.test.ts" "354/372"
+dl "src/modules/whatsapp-templates/whatsapp-templates.service.ts" "355/372"
+dl "src/modules/whatsapp-templates/whatsapp-templates.test.ts" "356/372"
+dl "src/modules/whatsapp/whatsapp.controller.ts" "357/372"
+dl "src/modules/whatsapp/whatsapp.queue.test.ts" "358/372"
+dl "src/modules/whatsapp/whatsapp.queue.ts" "359/372"
+dl "src/modules/whatsapp/whatsapp.routes.ts" "360/372"
+dl "src/modules/whatsapp/whatsapp.schema.ts" "361/372"
+dl "src/modules/whatsapp/whatsapp.service.test.ts" "362/372"
+dl "src/modules/whatsapp/whatsapp.service.ts" "363/372"
+dl "src/scripts/backfill-analyticsEvent-tenantId.ts" "364/372"
+dl "src/scripts/backfill-lead-tenantId.ts" "365/372"
+dl "src/server.ts" "366/372"
+dl "src/types/express.d.ts" "367/372"
+dl "src/utils/apiResponse.ts" "368/372"
+dl "src/utils/extractTenantId.ts" "369/372"
+dl "src/utils/logger.ts" "370/372"
+dl "src/utils/paginate.ts" "371/372"
+dl "tsconfig.json" "372/372"
 
-echo "Part 2 download done (371/371). ALL FILES DOWNLOADED."
+echo "Part 2 download done (372/372). ALL FILES DOWNLOADED."
 ```
 
 **After running:** You should see `OK` for all lines. If ANY line says `FAILED`, re-run that specific `dl` line.
@@ -1046,6 +1197,16 @@ npx prisma migrate dev
 > docker compose up -d
 > ```
 
+> **If you get Prisma error P3006:** see the [Prisma P3006 troubleshooting section](#prisma-migrate-dev-error-p3006--fix-steps) at the top of this guide. The most common fix is:
+> ```bash
+> cd ~/Desktop/Automation
+> docker compose down -v
+> docker compose up -d
+> cd backend
+> rm -rf prisma/migrations/20260416100129_y   # remove stale local migration
+> npx prisma migrate dev
+> ```
+
 ---
 
 ## Step 8 — Run tests
@@ -1074,7 +1235,7 @@ Ran all test suites.
 ```
 
 **Key checkpoints:**
-- **102 suites** — all test files present and compiling
+- **102 suites** — all 372 files present and compiling
 - **1821 tests** — all `it()` test cases passing
 - **0 TypeScript errors** — `npx tsc --noEmit` should exit cleanly
 - If TypeScript compile errors exist, Jest will show `Test suite failed to run` and many suites can fail from a single broken import chain
