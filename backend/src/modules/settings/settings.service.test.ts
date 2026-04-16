@@ -116,7 +116,7 @@ describe('getCachedSettings', () => {
   it('returns cached JSON when Redis has the key — no DB call', async () => {
     mockRedisGet.mockResolvedValue(JSON.stringify(publicSettingsFixture));
 
-    const result = await getCachedSettings();
+    const result = await getCachedSettings(null);
 
     expect(result).toMatchObject({ studioName: 'Test Studio' });
     expect(mockSettingsFindFirst).not.toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe('getCachedSettings', () => {
     mockSettingsFindFirst.mockResolvedValue(publicSettingsFixture);
     mockRedisSet.mockResolvedValue('OK');
 
-    const result = await getCachedSettings();
+    const result = await getCachedSettings(null);
 
     expect(result).toMatchObject({ studioName: 'Test Studio' });
     expect(mockSettingsFindFirst).toHaveBeenCalledTimes(1);
@@ -144,7 +144,7 @@ describe('getCachedSettings', () => {
     mockRedisGet.mockResolvedValue(null);
     mockSettingsFindFirst.mockResolvedValue(null);
 
-    const result = await getCachedSettings();
+    const result = await getCachedSettings(null);
 
     expect(result).toBeNull();
     expect(mockRedisSet).not.toHaveBeenCalled();
@@ -155,7 +155,7 @@ describe('getCachedSettings', () => {
     mockSettingsFindFirst.mockResolvedValue(publicSettingsFixture);
     mockRedisSet.mockResolvedValue('OK');
 
-    const result = await getCachedSettings();
+    const result = await getCachedSettings(null);
 
     expect(result).toMatchObject({ studioName: 'Test Studio' });
     expect(mockSettingsFindFirst).toHaveBeenCalledTimes(1);
@@ -166,7 +166,7 @@ describe('getCachedSettings', () => {
     mockSettingsFindFirst.mockResolvedValue(publicSettingsFixture);
     mockRedisSet.mockRejectedValue(new Error('Redis write error'));
 
-    const result = await getCachedSettings();
+    const result = await getCachedSettings(null);
 
     expect(result).toMatchObject({ studioName: 'Test Studio' });
   });
@@ -175,7 +175,7 @@ describe('getCachedSettings', () => {
     mockRedisGet.mockResolvedValue(null);
     mockSettingsFindFirst.mockResolvedValue(null);
 
-    await getCachedSettings();
+    await getCachedSettings(null);
 
     expect(mockRedisSet).not.toHaveBeenCalled();
   });
@@ -195,7 +195,7 @@ describe('updateSettings', () => {
     mockSettingsUpdate.mockResolvedValue(fullSettingsFixture);
     mockRedisDel.mockResolvedValue(1);
 
-    const result = await updateSettings({ studioName: 'Updated Studio' });
+    const result = await updateSettings(null, { studioName: 'Updated Studio' });
 
     expect(result).toMatchObject({ studioName: 'Test Studio' }); // fixture value
     expect(mockSettingsUpdate).toHaveBeenCalledWith(
@@ -211,7 +211,7 @@ describe('updateSettings', () => {
     mockSettingsUpdate.mockResolvedValue(fullSettingsFixture);
     mockRedisDel.mockResolvedValue(1);
 
-    await updateSettings({ studioName: 'New Name' });
+    await updateSettings(null, { studioName: 'New Name' });
 
     expect(mockRedisDel).toHaveBeenCalledWith('settings:public');
   });
@@ -221,7 +221,7 @@ describe('updateSettings', () => {
     mockSettingsCreate.mockResolvedValue(fullSettingsFixture);
     mockRedisDel.mockResolvedValue(0);
 
-    const result = await updateSettings({
+    const result = await updateSettings(null, {
       studioName:     'Brand New Studio',
       studioTimezone: 'Europe/Paris',
     });
@@ -238,7 +238,7 @@ describe('updateSettings', () => {
     mockSettingsFindFirst.mockResolvedValue(null);
 
     await expect(
-      updateSettings({ currency: 'EUR' }),
+      updateSettings(null, { currency: 'EUR' }),
     ).rejects.toMatchObject({
       statusCode: 400,
       code: 'VALIDATION_ERROR',
@@ -252,7 +252,7 @@ describe('updateSettings', () => {
     mockSettingsUpdate.mockResolvedValue(fullSettingsFixture);
     mockRedisDel.mockResolvedValue(1);
 
-    await updateSettings({ currency: 'USD' });
+    await updateSettings(null, { currency: 'USD' });
 
     expect(mockSettingsUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -268,7 +268,7 @@ describe('updateSettings', () => {
 
     // Should resolve without throwing even though cache invalidation failed
     await expect(
-      updateSettings({ studioName: 'Resilient Studio' }),
+      updateSettings(null, { studioName: 'Resilient Studio' }),
     ).resolves.toBeDefined();
   });
 });

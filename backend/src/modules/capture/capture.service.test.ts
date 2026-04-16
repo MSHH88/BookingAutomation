@@ -397,6 +397,7 @@ describe('captureLeadPublic', () => {
     expect(mockCreateLead).toHaveBeenCalledWith(
       expect.any(Object),
       '203.0.113.10',
+      null,
     );
   });
 

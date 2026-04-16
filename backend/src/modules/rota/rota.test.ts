@@ -15,6 +15,17 @@
 
 const originalBizType = process.env['BUSINESS_TYPE'];
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     shift: {
@@ -218,7 +229,7 @@ describe('PATCH /api/rota/shifts/:id', () => {
 });
 
 describe('DELETE /api/rota/shifts/:id', () => {
-  it('returns 200 on successful delete', async () => {
+  it('returns 204 on successful delete', async () => {
     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(makeShift());
     (prisma.shift.delete as jest.Mock).mockResolvedValue(undefined);
 
@@ -226,8 +237,7 @@ describe('DELETE /api/rota/shifts/:id', () => {
       .delete('/api/rota/shifts/shift-1')
       .set('Authorization', `Bearer ${makeToken('ADMIN')}`);
 
-    expect(res.status).toBe(200);
-    expect(res.body.data.deleted).toBe(true);
+    expect(res.status).toBe(204);
   });
 });
 

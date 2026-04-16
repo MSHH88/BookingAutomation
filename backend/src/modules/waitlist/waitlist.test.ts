@@ -39,6 +39,17 @@ jest.mock('../notifications/notifications.service', () => ({
   getTemplate:    jest.fn(),
 }));
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     user:           { findUnique: jest.fn() },

@@ -26,6 +26,18 @@ const mockRuleUpdate    = jest.fn();
 const mockRuleDelete    = jest.fn();
 const mockRuleFindUnique = jest.fn();
 const mockServiceFindUnique = jest.fn();
+const mockFeatureFlagFindFirst = jest.fn().mockResolvedValue({ key: 'DYNAMIC_PRICING_ENABLED', isEnabled: true, tenantId: null });
+
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -38,6 +50,9 @@ jest.mock('../../lib/prisma', () => ({
     },
     service: {
       findUnique: (...a: unknown[]) => mockServiceFindUnique(...a),
+    },
+    featureFlag: {
+      findFirst: (...a: unknown[]) => mockFeatureFlagFindFirst(...a),
     },
   },
 }));
@@ -106,12 +121,7 @@ beforeEach(() => {
 
 describe('Feature flag gate', () => {
   it('returns 503 when DYNAMIC_PRICING_ENABLED is false', async () => {
-    // Temporarily remove our override so getDefaultFlags returns the real defaults
-    // (all business types have DYNAMIC_PRICING_ENABLED: false by default)
-    jest.spyOn(businessType, 'getDefaultFlags').mockReturnValueOnce({
-      ...businessType.getDefaultFlags('tattoo_studio'),
-      DYNAMIC_PRICING_ENABLED: false,
-    });
+    mockFeatureFlagFindFirst.mockResolvedValueOnce({ key: 'DYNAMIC_PRICING_ENABLED', isEnabled: false, tenantId: null });
 
     const res = await request(app)
       .get('/api/pricing-rules')

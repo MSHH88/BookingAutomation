@@ -38,6 +38,13 @@ const mockArtistUpdate     = jest.fn();
 const mockBookingFindUnique = jest.fn();
 const mockBookingUpdate     = jest.fn();
 
+const mockIsFeatureEnabled = jest.fn().mockResolvedValue(true);
+
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: (...a: unknown[]) => mockIsFeatureEnabled(...a),
+  requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     artist: {

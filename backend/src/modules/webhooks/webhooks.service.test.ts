@@ -117,7 +117,7 @@ describe('listWebhooks', () => {
     mockWebhookCount.mockResolvedValue(1);
     mockWebhookFindMany.mockResolvedValue([WEBHOOK_PUBLIC]);
 
-    const result = await svc.listWebhooks({ page: 1, limit: 20, isActive: undefined });
+    const result = await svc.listWebhooks(null, { page: 1, limit: 20, isActive: undefined });
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0].id).toBe('wh_1');
@@ -128,7 +128,7 @@ describe('listWebhooks', () => {
     mockWebhookCount.mockResolvedValue(0);
     mockWebhookFindMany.mockResolvedValue([]);
 
-    const result = await svc.listWebhooks({ page: 1, limit: 20, isActive: true });
+    const result = await svc.listWebhooks(null, { page: 1, limit: 20, isActive: true });
 
     expect(mockWebhookCount).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isActive: true }) }),
@@ -140,7 +140,7 @@ describe('listWebhooks', () => {
     mockWebhookCount.mockResolvedValue(0);
     mockWebhookFindMany.mockResolvedValue([]);
 
-    const result = await svc.listWebhooks({ page: 1, limit: 20, isActive: undefined });
+    const result = await svc.listWebhooks(null, { page: 1, limit: 20, isActive: undefined });
 
     expect(result.data).toHaveLength(0);
     expect(result.meta.total).toBe(0);
@@ -155,7 +155,7 @@ describe('getWebhookById', () => {
   it('returns webhook without secret', async () => {
     mockWebhookFindUnique.mockResolvedValue(WEBHOOK_PUBLIC);
 
-    const result = await svc.getWebhookById('wh_1');
+    const result = await svc.getWebhookById(null, 'wh_1');
 
     expect(result.id).toBe('wh_1');
     expect((result as Record<string, unknown>)['secret']).toBeUndefined();
@@ -164,7 +164,7 @@ describe('getWebhookById', () => {
   it('throws 404 when webhook not found', async () => {
     mockWebhookFindUnique.mockResolvedValue(null);
 
-    await expect(svc.getWebhookById('wh_missing')).rejects.toMatchObject({
+    await expect(svc.getWebhookById(null, 'wh_missing')).rejects.toMatchObject({
       statusCode: 404,
       code:       'WEBHOOK_NOT_FOUND',
     });
@@ -179,7 +179,7 @@ describe('createWebhook', () => {
   it('creates webhook and returns secret', async () => {
     mockWebhookCreate.mockResolvedValue(WEBHOOK_WITH_SECRET);
 
-    const result = await svc.createWebhook({
+    const result = await svc.createWebhook(null, {
       url:      'https://example.com/hook',
       events:   ['booking.created'],
       isActive: true,
@@ -203,7 +203,7 @@ describe('createWebhook', () => {
       secret: args.data.secret,
     }));
 
-    const result = await svc.createWebhook({
+    const result = await svc.createWebhook(null, {
       url:    'https://example.com/hook',
       events: ['lead.created'],
     });
@@ -214,7 +214,7 @@ describe('createWebhook', () => {
   it('stores description when provided', async () => {
     mockWebhookCreate.mockResolvedValue({ ...WEBHOOK_WITH_SECRET, description: 'My hook' });
 
-    await svc.createWebhook({
+    await svc.createWebhook(null, {
       url:         'https://example.com/hook',
       events:      ['booking.confirmed'],
       description: 'My hook',
@@ -237,7 +237,7 @@ describe('updateWebhook', () => {
     mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
     mockWebhookUpdate.mockResolvedValue({ ...WEBHOOK_PUBLIC, url: 'https://new.example.com/hook' });
 
-    const result = await svc.updateWebhook('wh_1', { url: 'https://new.example.com/hook' });
+    const result = await svc.updateWebhook(null, 'wh_1', { url: 'https://new.example.com/hook' });
 
     expect(result.url).toBe('https://new.example.com/hook');
   });
@@ -249,7 +249,7 @@ describe('updateWebhook', () => {
       events: ['payment.succeeded'],
     });
 
-    const result = await svc.updateWebhook('wh_1', { events: ['payment.succeeded'] });
+    const result = await svc.updateWebhook(null, 'wh_1', { events: ['payment.succeeded'] });
 
     expect(result.events).toEqual(['payment.succeeded']);
   });
@@ -258,7 +258,7 @@ describe('updateWebhook', () => {
     mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
     mockWebhookUpdate.mockResolvedValue({ ...WEBHOOK_PUBLIC, isActive: false });
 
-    const result = await svc.updateWebhook('wh_1', { isActive: false });
+    const result = await svc.updateWebhook(null, 'wh_1', { isActive: false });
 
     expect(result.isActive).toBe(false);
   });
@@ -267,7 +267,7 @@ describe('updateWebhook', () => {
     mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
     mockWebhookUpdate.mockResolvedValue({ ...WEBHOOK_PUBLIC, description: null });
 
-    const result = await svc.updateWebhook('wh_1', { description: null });
+    const result = await svc.updateWebhook(null, 'wh_1', { description: null });
 
     expect(result.description).toBeNull();
   });
@@ -275,7 +275,7 @@ describe('updateWebhook', () => {
   it('throws 404 when webhook not found', async () => {
     mockWebhookFindUnique.mockResolvedValue(null);
 
-    await expect(svc.updateWebhook('wh_missing', { isActive: false })).rejects.toMatchObject({
+    await expect(svc.updateWebhook(null, 'wh_missing', { isActive: false })).rejects.toMatchObject({
       statusCode: 404,
       code:       'WEBHOOK_NOT_FOUND',
     });
@@ -300,14 +300,14 @@ describe('deleteWebhook', () => {
     mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
     mockWebhookDelete.mockResolvedValue({});
 
-    await expect(svc.deleteWebhook('wh_1')).resolves.toBeUndefined();
+    await expect(svc.deleteWebhook(null, 'wh_1')).resolves.toBeUndefined();
     expect(mockWebhookDelete).toHaveBeenCalledWith({ where: { id: 'wh_1' } });
   });
 
   it('throws 404 when webhook not found', async () => {
     mockWebhookFindUnique.mockResolvedValue(null);
 
-    await expect(svc.deleteWebhook('wh_missing')).rejects.toMatchObject({
+    await expect(svc.deleteWebhook(null, 'wh_missing')).rejects.toMatchObject({
       statusCode: 404,
       code:       'WEBHOOK_NOT_FOUND',
     });
@@ -324,7 +324,7 @@ describe('listWebhookDeliveries', () => {
     mockDeliveryCount.mockResolvedValue(1);
     mockDeliveryFindMany.mockResolvedValue([DELIVERY_ROW]);
 
-    const result = await svc.listWebhookDeliveries('wh_1', {
+    const result = await svc.listWebhookDeliveries(null, 'wh_1', {
       page:    1,
       limit:   20,
       success: undefined,
@@ -340,7 +340,7 @@ describe('listWebhookDeliveries', () => {
     mockDeliveryCount.mockResolvedValue(0);
     mockDeliveryFindMany.mockResolvedValue([]);
 
-    await svc.listWebhookDeliveries('wh_1', { page: 1, limit: 20, success: false });
+    await svc.listWebhookDeliveries(null, 'wh_1', { page: 1, limit: 20, success: false });
 
     expect(mockDeliveryCount).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -353,7 +353,7 @@ describe('listWebhookDeliveries', () => {
     mockWebhookFindUnique.mockResolvedValue(null);
 
     await expect(
-      svc.listWebhookDeliveries('wh_missing', { page: 1, limit: 20, success: undefined }),
+      svc.listWebhookDeliveries(null, 'wh_missing', { page: 1, limit: 20, success: undefined }),
     ).rejects.toMatchObject({
       statusCode: 404,
       code:       'WEBHOOK_NOT_FOUND',
@@ -369,7 +369,7 @@ describe('testWebhook', () => {
   it('enqueues test event for active webhook', async () => {
     mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', isActive: true });
 
-    const result = await svc.testWebhook('wh_1');
+    const result = await svc.testWebhook(null, 'wh_1');
 
     expect(result).toEqual({ queued: true });
     expect(enqueueWebhookEvent).toHaveBeenCalledWith(
@@ -382,7 +382,7 @@ describe('testWebhook', () => {
   it('throws 422 when webhook is inactive', async () => {
     mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', isActive: false });
 
-    await expect(svc.testWebhook('wh_1')).rejects.toMatchObject({
+    await expect(svc.testWebhook(null, 'wh_1')).rejects.toMatchObject({
       statusCode: 422,
       code:       'WEBHOOK_INACTIVE',
     });
@@ -391,7 +391,7 @@ describe('testWebhook', () => {
   it('throws 404 when webhook not found', async () => {
     mockWebhookFindUnique.mockResolvedValue(null);
 
-    await expect(svc.testWebhook('wh_missing')).rejects.toMatchObject({
+    await expect(svc.testWebhook(null, 'wh_missing')).rejects.toMatchObject({
       statusCode: 404,
       code:       'WEBHOOK_NOT_FOUND',
     });

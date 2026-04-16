@@ -49,6 +49,13 @@ const mockArtistUpdate     = jest.fn();
 const mockBookingFindUnique = jest.fn();
 const mockBookingUpdate     = jest.fn();
 
+const mockIsFeatureEnabled = jest.fn().mockResolvedValue(true);
+
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: (...a: unknown[]) => mockIsFeatureEnabled(...a),
+  requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     artist: {
@@ -392,10 +399,7 @@ describe('syncCreateEvent', () => {
   });
 
   it('skips when CALENDAR_ENABLED flag is off', async () => {
-    jest.spyOn(businessType, 'getDefaultFlags').mockReturnValueOnce({
-      ...businessType.getDefaultFlags(),
-      CALENDAR_ENABLED: false,
-    });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
     await svc.syncCreateEvent(bookingId);
     expect(mockCreateCalendarEvent).not.toHaveBeenCalled();
     expect(mockBookingFindUnique).not.toHaveBeenCalled();
@@ -466,10 +470,7 @@ describe('syncUpdateEvent', () => {
   });
 
   it('skips when CALENDAR_ENABLED flag is off', async () => {
-    jest.spyOn(businessType, 'getDefaultFlags').mockReturnValueOnce({
-      ...businessType.getDefaultFlags(),
-      CALENDAR_ENABLED: false,
-    });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
     await svc.syncUpdateEvent(bookingId);
     expect(mockUpdateCalendarEvent).not.toHaveBeenCalled();
   });
@@ -523,10 +524,7 @@ describe('syncDeleteEvent', () => {
   });
 
   it('skips when CALENDAR_ENABLED flag is off', async () => {
-    jest.spyOn(businessType, 'getDefaultFlags').mockReturnValueOnce({
-      ...businessType.getDefaultFlags(),
-      CALENDAR_ENABLED: false,
-    });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
     await svc.syncDeleteEvent(bookingId);
     expect(mockDeleteCalendarEvent).not.toHaveBeenCalled();
   });

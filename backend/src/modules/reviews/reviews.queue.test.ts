@@ -46,6 +46,23 @@ process.env['JWT_REFRESH_SECRET'] = 'b'.repeat(32);
 const mockQueueAdd  = jest.fn().mockResolvedValue({ id: 'job_review_001' });
 const mockWorkerOn  = jest.fn();
 const mockWorkerClose = jest.fn();
+const mockIsFeatureEnabled = jest.fn().mockResolvedValue(true);
+
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: (...a: unknown[]) => mockIsFeatureEnabled(...a),
+  requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
+}));
+
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
 
 jest.mock('bullmq', () => ({
   Queue: jest.fn().mockImplementation(() => ({
@@ -183,18 +200,10 @@ describe('enqueueReviewRequest', () => {
   });
 
   it('skips enqueueing when REVIEW_REQUEST_ENABLED flag is OFF', async () => {
-    process.env['BUSINESS_TYPE'] = 'tattoo_studio';
-    // Temporarily force REVIEW_REQUEST_ENABLED to false by using a mock
-    // business type that doesn't have it — we spy on getDefaultFlags instead.
-    const businessType = await import('../../config/businessType');
-    const spy = jest
-      .spyOn(businessType, 'getDefaultFlags')
-      .mockReturnValueOnce({ ...businessType.getDefaultFlags(), REVIEW_REQUEST_ENABLED: false });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
 
     await enqueueReviewRequest(baseParams);
     expect(mockQueueAdd).not.toHaveBeenCalled();
-
-    spy.mockRestore();
   });
 
   it('skips enqueueing when customerEmail is empty string', async () => {

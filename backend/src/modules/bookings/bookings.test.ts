@@ -30,6 +30,17 @@ jest.mock('../reminders/reminders.queue', () => ({
   cancelBookingReminder:  jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     user:    { findUnique: jest.fn() },
@@ -173,6 +184,14 @@ describe('PATCH /api/bookings/:id/confirm', () => {
     (prisma.booking.findUnique as jest.Mock).mockResolvedValue(baseBooking);
     (prisma.booking.findFirst  as jest.Mock).mockResolvedValue(null); // no conflict
     (prisma.booking.update     as jest.Mock).mockResolvedValue(confirmedBooking);
+    (prisma.$transaction as jest.Mock).mockImplementation(async (fn: Function) =>
+      fn({
+        booking: {
+          findFirst: jest.fn().mockResolvedValue(null),
+          update:    jest.fn().mockResolvedValue(confirmedBooking),
+        },
+      }),
+    );
 
     const res = await request(app)
       .patch('/api/bookings/b_1/confirm')
@@ -238,6 +257,14 @@ describe('PATCH /api/bookings/:id/reschedule', () => {
     (prisma.booking.findUnique as jest.Mock).mockResolvedValue(confirmedBooking);
     (prisma.booking.findFirst  as jest.Mock).mockResolvedValue(null); // no conflict
     (prisma.booking.update     as jest.Mock).mockResolvedValue({ ...confirmedBooking, startAt: newDate, endAt: newEndDate, status: 'RESCHEDULED' });
+    (prisma.$transaction as jest.Mock).mockImplementation(async (fn: Function) =>
+      fn({
+        booking: {
+          findFirst: jest.fn().mockResolvedValue(null),
+          update:    jest.fn().mockResolvedValue({ ...confirmedBooking, startAt: newDate, endAt: newEndDate, status: 'RESCHEDULED' }),
+        },
+      }),
+    );
 
     const res = await request(app)
       .patch('/api/bookings/b_1/reschedule')

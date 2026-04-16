@@ -25,6 +25,18 @@ const mockLocationFindUnique = jest.fn();
 const mockLocationCreate    = jest.fn();
 const mockLocationUpdate    = jest.fn();
 const mockLocationDelete    = jest.fn();
+const mockFeatureFlagFindFirst = jest.fn().mockResolvedValue({ key: 'MULTI_LOCATION_ENABLED', isEnabled: true, tenantId: null });
+
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -34,6 +46,9 @@ jest.mock('../../lib/prisma', () => ({
       create:     (...a: unknown[]) => mockLocationCreate(...a),
       update:     (...a: unknown[]) => mockLocationUpdate(...a),
       delete:     (...a: unknown[]) => mockLocationDelete(...a),
+    },
+    featureFlag: {
+      findFirst: (...a: unknown[]) => mockFeatureFlagFindFirst(...a),
     },
   },
 }));
@@ -85,11 +100,7 @@ const locationFixture = {
 
 describe('Feature flag guard', () => {
   it('returns 503 when MULTI_LOCATION_ENABLED is false', async () => {
-    jest.spyOn(businessType, 'getDefaultFlags').mockReturnValueOnce({
-      ...businessType.getDefaultFlags('tattoo_studio'),
-      MULTI_LOCATION_ENABLED: false,
-      GROUP_BOOKING_ENABLED:  false,
-    });
+    mockFeatureFlagFindFirst.mockResolvedValueOnce({ key: 'MULTI_LOCATION_ENABLED', isEnabled: false, tenantId: null });
 
     const res = await request(app)
       .get('/api/locations')

@@ -18,6 +18,17 @@ jest.mock('bcryptjs', () => ({
   compare: jest.fn(async () => true),
 }));
 
+jest.mock('../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../lib/prisma', () => ({
   prisma: {
     user: { findUnique: jest.fn(), create: jest.fn() },
@@ -81,7 +92,7 @@ describe('requireAuth', () => {
     const res = mockRes();
     const next = jest.fn();
 
-    requireAuth(req as Request, res, next);
+    await requireAuth(req as Request, res, next);
 
     expect(next).toHaveBeenCalledWith(); // called with no error
     expect((req as unknown as { user: unknown }).user).toMatchObject({
@@ -94,12 +105,12 @@ describe('requireAuth', () => {
     });
   });
 
-  it('calls next(AppError 401) when Authorization header is missing', () => {
+  it('calls next(AppError 401) when Authorization header is missing', async () => {
     const req = mockReq({ headers: {} });
     const res = mockRes();
     const next = jest.fn();
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(AppError));
     const err = (next as jest.Mock).mock.calls[0][0] as AppError;
@@ -107,24 +118,24 @@ describe('requireAuth', () => {
     expect(err.code).toBe('UNAUTHORIZED');
   });
 
-  it('calls next(AppError 401) when Bearer is missing from header', () => {
+  it('calls next(AppError 401) when Bearer is missing from header', async () => {
     const req = mockReq({ headers: { authorization: 'Basic abc' } });
     const res = mockRes();
     const next = jest.fn();
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(AppError));
   });
 
-  it('calls next(AppError 401) for an invalid/tampered token', () => {
+  it('calls next(AppError 401) for an invalid/tampered token', async () => {
     const req = mockReq({
       headers: { authorization: 'Bearer this.is.not.valid' },
     });
     const res = mockRes();
     const next = jest.fn();
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(AppError));
     const err = (next as jest.Mock).mock.calls[0][0] as AppError;

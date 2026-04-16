@@ -361,6 +361,7 @@ describe('PATCH /api/sessions/:id', () => {
     const updateCall = mockSessionUpdate.mock.calls[0][0];
     expect(updateCall.data.status).toBe('OPEN');
   });
+});
 
 // ── DELETE /api/sessions/:id ──────────────────────────────────────────────────
 

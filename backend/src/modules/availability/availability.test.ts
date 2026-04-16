@@ -29,6 +29,17 @@ jest.mock('../reminders/reminders.queue', () => ({
   cancelBookingReminder:  jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockRejectedValue(new Error('mock')),
+    setex: jest.fn().mockRejectedValue(new Error('mock')),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => false),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     user:    { findUnique: jest.fn() },
@@ -178,7 +189,7 @@ describe('POST /api/availability/blocks', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('DELETE /api/availability/blocks/:id', () => {
-  it('200 — ARTIST deletes own block', async () => {
+  it('204 — ARTIST deletes own block', async () => {
     (prisma.artist.findFirst             as jest.Mock).mockResolvedValue(baseArtist);
     // deleteBlock selects artist.userId to verify ownership — must include it in the mock
     (prisma.availabilityBlock.findUnique as jest.Mock).mockResolvedValue({
@@ -191,7 +202,7 @@ describe('DELETE /api/availability/blocks/:id', () => {
       .delete('/api/availability/blocks/blk_1')
       .set('Authorization', makeToken('ARTIST'));
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(204);
   });
 
   it('401 — unauthenticated', async () => {
