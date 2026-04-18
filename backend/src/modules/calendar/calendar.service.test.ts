@@ -89,10 +89,6 @@ jest.mock('../../lib/google-calendar', () => ({
   deleteCalendarEvent:        (...a: unknown[]) => mockDeleteCalendarEvent(...a),
 }));
 
-// ─── Mock businessType getDefaultFlags ───────────────────────────────────────
-
-import * as businessType from '../../config/businessType';
-
 // ─── Import service under test (after mocks) ─────────────────────────────────
 
 import * as svc from './calendar.service';

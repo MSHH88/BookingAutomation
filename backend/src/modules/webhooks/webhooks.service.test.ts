@@ -75,6 +75,7 @@ import { updateWebhookSchema } from './webhooks.schema';
 
 const WEBHOOK_PUBLIC = {
   id:          'wh_1',
+  tenantId:    null,
   url:         'https://example.com/hook',
   events:      ['booking.created', 'booking.confirmed'],
   description: 'Test hook',
@@ -234,7 +235,7 @@ describe('updateWebhook', () => {
   beforeEach(resetMocks);
 
   it('updates url', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockWebhookUpdate.mockResolvedValue({ ...WEBHOOK_PUBLIC, url: 'https://new.example.com/hook' });
 
     const result = await svc.updateWebhook(null, 'wh_1', { url: 'https://new.example.com/hook' });
@@ -243,7 +244,7 @@ describe('updateWebhook', () => {
   });
 
   it('updates events list', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockWebhookUpdate.mockResolvedValue({
       ...WEBHOOK_PUBLIC,
       events: ['payment.succeeded'],
@@ -255,7 +256,7 @@ describe('updateWebhook', () => {
   });
 
   it('deactivates webhook with isActive=false', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockWebhookUpdate.mockResolvedValue({ ...WEBHOOK_PUBLIC, isActive: false });
 
     const result = await svc.updateWebhook(null, 'wh_1', { isActive: false });
@@ -264,7 +265,7 @@ describe('updateWebhook', () => {
   });
 
   it('clears description with null', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockWebhookUpdate.mockResolvedValue({ ...WEBHOOK_PUBLIC, description: null });
 
     const result = await svc.updateWebhook(null, 'wh_1', { description: null });
@@ -297,7 +298,7 @@ describe('deleteWebhook', () => {
   beforeEach(resetMocks);
 
   it('deletes webhook', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockWebhookDelete.mockResolvedValue({});
 
     await expect(svc.deleteWebhook(null, 'wh_1')).resolves.toBeUndefined();
@@ -320,7 +321,7 @@ describe('listWebhookDeliveries', () => {
   beforeEach(resetMocks);
 
   it('returns paginated delivery history', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockDeliveryCount.mockResolvedValue(1);
     mockDeliveryFindMany.mockResolvedValue([DELIVERY_ROW]);
 
@@ -336,7 +337,7 @@ describe('listWebhookDeliveries', () => {
   });
 
   it('filters by success=false', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1' });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null });
     mockDeliveryCount.mockResolvedValue(0);
     mockDeliveryFindMany.mockResolvedValue([]);
 
@@ -367,7 +368,7 @@ describe('testWebhook', () => {
   beforeEach(resetMocks);
 
   it('enqueues test event for active webhook', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', isActive: true });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null, isActive: true });
 
     const result = await svc.testWebhook(null, 'wh_1');
 
@@ -380,7 +381,7 @@ describe('testWebhook', () => {
   });
 
   it('throws 422 when webhook is inactive', async () => {
-    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', isActive: false });
+    mockWebhookFindUnique.mockResolvedValue({ id: 'wh_1', tenantId: null, isActive: false });
 
     await expect(svc.testWebhook(null, 'wh_1')).rejects.toMatchObject({
       statusCode: 422,

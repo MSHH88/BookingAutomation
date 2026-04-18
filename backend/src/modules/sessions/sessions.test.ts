@@ -24,11 +24,13 @@ process.env['JWT_REFRESH_SECRET'] = 'b'.repeat(32);
 // ─── Mock prisma ──────────────────────────────────────────────────────────────
 
 const mockSessionFindMany    = jest.fn();
+const mockSessionCount       = jest.fn();
 const mockSessionFindUnique  = jest.fn();
 const mockSessionCreate      = jest.fn();
 const mockSessionUpdate      = jest.fn();
 const mockSessionDelete      = jest.fn();
 const mockSessionBookingFindUnique = jest.fn();
+const mockSessionBookingCount      = jest.fn();
 const mockSessionBookingCreate     = jest.fn();
 const mockSessionBookingUpdate     = jest.fn();
 const mockSessionBookingFindMany   = jest.fn();
@@ -38,10 +40,22 @@ const mockLocationFindUnique = jest.fn();
 const mockUserFindUnique     = jest.fn();
 const mockTransaction        = jest.fn();
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockResolvedValue(null),
+    setex: jest.fn().mockResolvedValue('OK'),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => null),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     session: {
       findMany:   (...a: unknown[]) => mockSessionFindMany(...a),
+      count:      (...a: unknown[]) => mockSessionCount(...a),
       findUnique: (...a: unknown[]) => mockSessionFindUnique(...a),
       create:     (...a: unknown[]) => mockSessionCreate(...a),
       update:     (...a: unknown[]) => mockSessionUpdate(...a),
@@ -49,6 +63,7 @@ jest.mock('../../lib/prisma', () => ({
     },
     sessionBooking: {
       findUnique: (...a: unknown[]) => mockSessionBookingFindUnique(...a),
+      count:      (...a: unknown[]) => mockSessionBookingCount(...a),
       create:     (...a: unknown[]) => mockSessionBookingCreate(...a),
       update:     (...a: unknown[]) => mockSessionBookingUpdate(...a),
       findMany:   (...a: unknown[]) => mockSessionBookingFindMany(...a),
@@ -64,6 +79,9 @@ jest.mock('../../lib/prisma', () => ({
     },
     user: {
       findUnique: (...a: unknown[]) => mockUserFindUnique(...a),
+    },
+    featureFlag: {
+      findFirst: jest.fn().mockResolvedValue(null),
     },
     $transaction: (...a: unknown[]) => mockTransaction(...a),
   },
@@ -141,10 +159,13 @@ describe('Feature flag guard', () => {
   });
 });
 
+beforeEach(() => jest.clearAllMocks());
+
 // ── GET /api/sessions ─────────────────────────────────────────────────────────
 
 describe('GET /api/sessions', () => {
   it('returns empty list when no sessions', async () => {
+    mockSessionCount.mockResolvedValue(0);
     mockSessionFindMany.mockResolvedValue([]);
 
     const res = await request(app)
@@ -156,6 +177,7 @@ describe('GET /api/sessions', () => {
   });
 
   it('returns list of sessions', async () => {
+    mockSessionCount.mockResolvedValue(1);
     mockSessionFindMany.mockResolvedValue([sessionFixture]);
 
     const res = await request(app)
@@ -547,6 +569,7 @@ describe('POST /api/sessions/:id/book', () => {
 describe('GET /api/sessions/:id/bookings', () => {
   it('lists all bookings for a session', async () => {
     mockSessionFindUnique.mockResolvedValue(sessionFixture);
+    mockSessionBookingCount.mockResolvedValue(1);
     mockSessionBookingFindMany.mockResolvedValue([sessionBookingFixture]);
 
     const res = await request(app)

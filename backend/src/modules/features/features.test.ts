@@ -42,7 +42,7 @@ jest.mock('../../lib/redis', () => ({
     setex: jest.fn().mockRejectedValue(new Error('mock')),
     incr:  jest.fn().mockResolvedValue(1),
   })),
-  isRedisHealthy: jest.fn(() => false),
+  isRedisHealthy: jest.fn(() => null),
   pingRedis:      jest.fn().mockResolvedValue(undefined),
   disconnectRedis: jest.fn().mockResolvedValue(undefined),
 }));

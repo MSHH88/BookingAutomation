@@ -113,11 +113,15 @@ const baseBooking = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function mockFlags(overrides: Partial<ReturnType<typeof businessType.getDefaultFlags>> = {}) {
-  jest.spyOn(businessType, 'getDefaultFlags').mockReturnValue({
+  const flags = {
     ...businessType.getDefaultFlags('tattoo_studio'),
     OUTLOOK_CALENDAR_ENABLED: true,
     ...overrides,
-  });
+  };
+  jest.spyOn(businessType, 'getDefaultFlags').mockReturnValue(flags);
+  mockIsFeatureEnabled.mockImplementation(async (flag: string) =>
+    (flags as Record<string, boolean>)[flag] ?? true,
+  );
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
