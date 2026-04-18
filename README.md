@@ -1,4 +1,3 @@
-
 found 0 vulnerabilities
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
