@@ -18,50 +18,50 @@
 
 ---
 
-## Files to delete then re-download (6 files only)
+## Step 1: Navigate to your backend folder
 
 ```bash
-# ── Step 1: Delete the 6 old test files ──────────────────────────────────────
-rm backend/src/modules/calendar/calendar.service.test.ts
-rm backend/src/modules/calendar/apple-calendar.service.test.ts
-rm backend/src/modules/calendar/outlook-calendar.service.test.ts
-rm backend/src/modules/webhooks/webhooks.service.test.ts
-rm backend/src/modules/features/features.test.ts
-rm backend/src/modules/sessions/sessions.test.ts
-```
-
-```bash
-# ── Step 2: Download the 6 fixed test files ───────────────────────────────────
-
-BRANCH="copilot/create-detailed-automation-plan"
-REPO="MSHH88/BookingAutomation"
-RAW="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
-
-curl -fsSL "${RAW}/backend/src/modules/calendar/calendar.service.test.ts" \
-  -o backend/src/modules/calendar/calendar.service.test.ts
-
-curl -fsSL "${RAW}/backend/src/modules/calendar/apple-calendar.service.test.ts" \
-  -o backend/src/modules/calendar/apple-calendar.service.test.ts
-
-curl -fsSL "${RAW}/backend/src/modules/calendar/outlook-calendar.service.test.ts" \
-  -o backend/src/modules/calendar/outlook-calendar.service.test.ts
-
-curl -fsSL "${RAW}/backend/src/modules/webhooks/webhooks.service.test.ts" \
-  -o backend/src/modules/webhooks/webhooks.service.test.ts
-
-curl -fsSL "${RAW}/backend/src/modules/features/features.test.ts" \
-  -o backend/src/modules/features/features.test.ts
-
-curl -fsSL "${RAW}/backend/src/modules/sessions/sessions.test.ts" \
-  -o backend/src/modules/sessions/sessions.test.ts
+cd ~/Desktop/Automation/backend
 ```
 
 ---
 
-## Step 3: Verify
+## Step 2: Delete the 6 old test files
 
 ```bash
-cd backend
+rm -f \
+  src/modules/calendar/calendar.service.test.ts \
+  src/modules/calendar/apple-calendar.service.test.ts \
+  src/modules/calendar/outlook-calendar.service.test.ts \
+  src/modules/webhooks/webhooks.service.test.ts \
+  src/modules/features/features.test.ts \
+  src/modules/sessions/sessions.test.ts \
+  && echo "ALL OLD FILES DELETED"
+```
+
+---
+
+## Step 3: Download the 6 fixed test files
+
+```bash
+curl -sfL -o src/modules/calendar/calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.test.ts" && echo "OK 1/6 calendar.service.test.ts" || echo "FAILED: calendar.service.test.ts"
+
+curl -sfL -o src/modules/calendar/apple-calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/apple-calendar.service.test.ts" && echo "OK 2/6 apple-calendar.service.test.ts" || echo "FAILED: apple-calendar.service.test.ts"
+
+curl -sfL -o src/modules/calendar/outlook-calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/outlook-calendar.service.test.ts" && echo "OK 3/6 outlook-calendar.service.test.ts" || echo "FAILED: outlook-calendar.service.test.ts"
+
+curl -sfL -o src/modules/webhooks/webhooks.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.test.ts" && echo "OK 4/6 webhooks.service.test.ts" || echo "FAILED: webhooks.service.test.ts"
+
+curl -sfL -o src/modules/features/features.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/features/features.test.ts" && echo "OK 5/6 features.test.ts" || echo "FAILED: features.test.ts"
+
+curl -sfL -o src/modules/sessions/sessions.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/sessions/sessions.test.ts" && echo "OK 6/6 sessions.test.ts" || echo "FAILED: sessions.test.ts"
+```
+
+---
+
+## Step 4: Verify
+
+```bash
 npm test -- --no-coverage --forceExit
 ```
 
