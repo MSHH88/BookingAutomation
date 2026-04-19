@@ -807,3 +807,293 @@ If a tenant disables `AI_SUGGESTIONS_ENABLED` via a per-tenant override in the C
 | **BUG 13** | **Low** | **Feature Flags** | **AI suggestion job global-only flag check ignores per-tenant overrides** | **NEW** |
 
 **Post-fix status: 10/11 bugs fixed. 2 new findings (1 Medium, 1 Low). System is substantially improved — all High-severity tenant isolation bugs resolved.**
+
+---
+
+# Comprehensive Backend Audit — Round 3
+
+- **Audit Date:** 2026-04-19
+- **Branch:** `copilot/create-detailed-automation-plan`
+- **Commit:** `bda8e14`
+- **Statement:** Full-system audit pass 3. BUG 12 and BUG 13 verified fixed. Four new findings documented below (BUG 14–17).
+
+---
+
+### BUG 12 — Status Update: ✅ FIXED
+
+Verified in current codebase (`notifications.service.ts:285–304`): `sendEmail()` now accepts an optional `tenantId` parameter and does a tenant-aware lookup. `dispatchEmail()` in `notification-dispatcher.ts:157` now passes `payload.tenantId`. The `EmailTemplate` schema also updated to support per-tenant overrides via `@@unique([tenantId, key])`.
+
+---
+
+### BUG 13 — Status Update: ✅ FIXED
+
+Verified in current codebase (`ai-suggestion.job.ts:70–71,104`): `enqueueAISuggestion` now accepts `tenantId` parameter and passes it to `isFeatureEnabled`. `processAISuggestionJob` now uses `booking.tenantId` in the flag check.
+
+---
+
+### BUG 14 — Availability Service: ADMIN Can Modify Any Tenant's Artist Schedule Cross-Tenant
+
+**Severity:** High
+
+**Files:**
+- `backend/src/modules/availability/availability.service.ts:104–116` (`resolveTargetArtistId`)
+- `backend/src/modules/availability/availability.service.ts:168–197` (`upsertSchedule`)
+- `backend/src/modules/availability/availability.service.ts:148–159` (`listSchedule`)
+- `backend/src/modules/availability/availability.service.ts:217–245` (`listBlocks`)
+- `backend/src/modules/availability/availability.service.ts:251–280` (`createBlock`)
+- `backend/src/modules/availability/availability.service.ts:288–307` (`deleteBlock`)
+- `backend/src/modules/availability/availability.controller.ts` (no tenantId passed to service)
+
+**Issue:**
+`resolveTargetArtistId()` is the shared helper that resolves which artist ID to operate on. For `ARTIST` role callers it correctly auto-resolves the caller's own artist ID. For `ADMIN` role callers it simply returns the supplied `artistId` parameter with **no tenant validation**:
+
+```ts
+async function resolveTargetArtistId(
+  supplied:  string | undefined,
+  actorId:   string,
+  actorRole: ActorRole,
+): Promise<string> {
+  if (actorRole === 'ARTIST') {
+    return resolveOwnArtistId(actorId);   // ✅ always own artist
+  }
+  if (!supplied) {
+    throw new AppError(400, 'MISSING_ARTIST_ID', '...');
+  }
+  return supplied;   // ❌ no tenantId check — accepts any artistId
+}
+```
+
+All five write/read operations call this helper and then proceed without adding a `tenantId` guard:
+- `upsertSchedule`: deletes and recreates the artist's full weekly schedule.
+- `listSchedule`: reads the full weekly schedule of any artist.
+- `listBlocks`: lists all availability blocks for any artist.
+- `createBlock`: creates an availability block (holiday, vacation, etc.) for any artist.
+- `deleteBlock`: deletes a block; the guard `if (actorRole === 'ARTIST' && ...)` is **not evaluated** for ADMIN — any block can be deleted.
+
+None of the service functions accept a `tenantId` parameter, and the controller (`availability.controller.ts`) does not extract `tenantId` from the request before calling the service.
+
+The availability routes use `requireRole('ARTIST')` which — per the hierarchy — also allows ADMIN and SUPER_ADMIN access. This means an ADMIN from Tenant A can supply any `artistId` from Tenant B in the request body/query params and modify that artist's schedule.
+
+**Impact:**
+- Cross-tenant schedule modification: an ADMIN from any tenant can wipe or overwrite any artist's weekly availability schedule.
+- Cross-tenant block injection: an ADMIN from any tenant can create vacation/holiday blocks for any artist, effectively blocking them from receiving bookings.
+- Cross-tenant schedule read: an ADMIN from any tenant can read any artist's full schedule.
+- This is the same vulnerability class as BUG 9 (calendar `resolveArtistId` for ADMIN) which was already fixed.
+
+**Evidence:**
+- `availability.service.ts:104–116`: `resolveTargetArtistId` returns `supplied` for ADMIN without tenant check.
+- `availability.service.ts:176–178`: `prisma.artist.findUnique({ where: { id: artistId } })` — no `tenantId` in WHERE clause.
+- `availability.service.ts:259–261`: `prisma.artist.findUnique({ where: { id: artistId } })` — no `tenantId` in WHERE clause.
+- `availability.service.ts:302`: `if (actorRole === 'ARTIST' && ...)` — ADMIN skips the ownership guard entirely.
+- `availability.controller.ts`: no `extractTenantId(req)` call; no tenantId passed to service.
+- Compare fix in BUG 9: `calendar.service.ts` now validates `artist.tenantId !== tenantId` for ADMIN.
+
+**Recommended Fix:**
+1. Add `tenantId: string | null` parameter to `resolveTargetArtistId`, `listSchedule`, `upsertSchedule`, `listBlocks`, `createBlock`, `deleteBlock`.
+2. In `resolveTargetArtistId` for ADMIN: after validating the artist exists, check `if (tenantId && artist.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', 'Artist not found in your tenant')`.
+3. In `availability.controller.ts`: extract `tenantId` via `extractTenantId(req)` and pass it through to all service calls.
+
+---
+
+### BUG 15 — `createPublicBooking` Checks `DEPOSIT_REQUIRED` Without Tenant Context
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/public/public.service.ts:339`
+
+**Issue:**
+Inside `createPublicBooking(slug, body)`, the deposit enforcement check on line 339 calls `isFeatureEnabled('DEPOSIT_REQUIRED')` **without passing the resolved tenant ID**:
+
+```ts
+// Line 276: tenant was already resolved ✅
+const tenant = await resolveTenant(slug);
+
+// ...
+
+// Line 339: ❌ tenantId not passed — uses global default only
+const depositRequired = await isFeatureEnabled('DEPOSIT_REQUIRED');
+const initialStatus = depositRequired ? 'AWAITING_DEPOSIT' : 'PENDING';
+```
+
+By line 339, `tenant.id` is already available. Not passing it means `isFeatureEnabled` falls back to the global default flag row (or static default) instead of performing the tenant-aware lookup path: `per-tenant override → global default → static default`.
+
+The feature flag system's three-level resolution (tenant-specific → global → static) is bypassed for this particular check, so a tenant's per-tenant override of `DEPOSIT_REQUIRED` is silently ignored for all public bookings.
+
+**Impact:**
+- A tenant that disables `DEPOSIT_REQUIRED` (expecting public bookings to go straight to `PENDING`) may still have bookings created as `AWAITING_DEPOSIT` if the global flag is ON.
+- Conversely, a tenant that enables `DEPOSIT_REQUIRED` while the global flag is OFF will not have deposit enforcement on public bookings.
+- This is a feature flag correctness bug: all other per-tenant feature flag checks in the service use `isFeatureEnabled(flag, tenantId)` — only this one is missing the tenantId.
+
+**Evidence:**
+- `public.service.ts:276`: `const tenant = await resolveTenant(slug);` — `tenant.id` available.
+- `public.service.ts:339`: `await isFeatureEnabled('DEPOSIT_REQUIRED')` — no tenantId argument.
+- Compare `payments.service.ts:158`: `isFeatureEnabled('TIPS_ENABLED', tenantId)` — tenantId passed correctly.
+- Compare `customers.service.ts:260`: `isFeatureEnabled('CANCELLATION_FEE_ENABLED', booking.tenantId)` — tenantId passed correctly.
+
+**Recommended Fix:**
+Change line 339 to:
+```ts
+const depositRequired = await isFeatureEnabled('DEPOSIT_REQUIRED', tenant.id);
+```
+
+---
+
+### BUG 16 — `createArtist` Does Not Set `tenantId` on Artist or User Records
+
+**Severity:** High
+
+**Files:**
+- `backend/src/modules/artists/artists.service.ts:105–151` (`createArtist`)
+- `backend/src/modules/artists/artists.controller.ts:77–82` (controller does not pass tenantId to service)
+
+**Issue:**
+`createArtist(input: CreateArtistBody)` creates both a `User` record (role `ARTIST`) and an `Artist` profile record inside a `$transaction`. Neither record receives a `tenantId`:
+
+```ts
+// User creation — no tenantId
+const user = await tx.user.create({
+  data: {
+    email:        input.email.toLowerCase(),
+    name:         input.name.trim(),
+    phone:        input.phone ?? null,
+    passwordHash,
+    role:         'ARTIST',
+    // ❌ tenantId missing
+  },
+});
+
+// Artist profile — no tenantId
+return tx.artist.create({
+  data: {
+    userId:          user.id,
+    slug:            input.slug,
+    bio:             input.bio ?? null,
+    profileImageUrl: input.profileImageUrl ?? null,
+    portfolioImages: input.portfolioImages ?? [],
+    bufferMinutes:   input.bufferMinutes ?? 30,
+    slotDuration:    input.slotDuration ?? 90,
+    commissionRate:  input.commissionRate ?? null,
+    commissionType:  input.commissionType ?? null,
+    // ❌ tenantId missing
+  },
+  select: artistDetailSelect,
+});
+```
+
+The controller calls `artistsService.createArtist(body)` without extracting or passing `tenantId`:
+
+```ts
+export async function createArtist(req, res, next) {
+  const body = req.body as CreateArtistBody;
+  const artist = await artistsService.createArtist(body);   // ❌ no extractTenantId(req)
+  ...
+}
+```
+
+**Impact:**
+1. **Data integrity:** Every artist created via `POST /api/artists` has `tenantId = null` on both the `User` and `Artist` rows. These records are effectively "orphaned" from any tenant.
+2. **Auth token mismatch:** When this artist logs in, `signAccessToken` reads `user.tenantId`, which is `null`. Their JWT contains no tenant context, so `extractTenantId()` returns `null` for all their requests.
+3. **Feature flag bypass:** `requireFeature` middleware resolves the tenant from `req.user.tenantId`. With `null`, all per-tenant feature flag checks fall back to global defaults — the artist is not governed by any tenant's flag settings.
+4. **Session booking failure:** `sessions.service.ts` validates `artist.tenantId !== tenantId` — an artist with `tenantId = null` will fail this check for any non-null session tenant, preventing any session booking.
+5. **Analytics gap:** Bookings and events for this artist will have no tenant context, polluting global analytics.
+
+**Evidence:**
+- `artists.service.ts:125–148`: Neither `tx.user.create` nor `tx.artist.create` include `tenantId`.
+- `artists.controller.ts:77–82`: `artistsService.createArtist(body)` — no `extractTenantId(req)` call.
+- `artists.routes.ts:84–91`: `POST /api/artists` requires `requireRole('ADMIN')` — the ADMIN user has a tenantId that should be propagated.
+- `sessions.service.ts:93–111`: artist and service are validated against `tenantId` — a `null`-tenanted artist would be rejected.
+- Compare `sessions.service.ts:88–142`: `createSession` correctly validates all IDs against `tenantId`.
+
+**Recommended Fix:**
+1. Add `tenantId: string | null` parameter to `createArtist(input, tenantId)`.
+2. In the `tx.user.create` data: add `tenantId`.
+3. In the `tx.artist.create` data: add `tenantId`.
+4. In `artists.controller.ts`: `const artist = await artistsService.createArtist(body, extractTenantId(req));`.
+
+---
+
+### BUG 17 — Artists Service: ADMIN Can Update/Delete/Modify Artists From Any Tenant
+
+**Severity:** High
+
+**Files:**
+- `backend/src/modules/artists/artists.service.ts:158–206` (`updateArtist`, `deleteArtist`)
+- `backend/src/modules/artists/artists.service.ts:212–260` (`assignStyles`)
+- `backend/src/modules/artists/artists.controller.ts:89–155` (no tenantId passed to update/delete/assignStyles)
+
+**Issue:**
+Three artist mutation functions have no tenant validation for ADMIN callers:
+
+**`updateArtist(id, input, requestingUserId, isAdmin)`:**
+- Fetches the artist by `id` without a tenantId guard.
+- Non-admin callers are checked: `if (!isAdmin && artist.userId !== requestingUserId)` — but this check is **skipped for ADMIN**.
+- An ADMIN from Tenant A can supply any artist's UUID and update their bio, commission rate, active status, etc.
+
+**`deleteArtist(id)`:**
+- Performs `prisma.artist.findUnique({ where: { id } })` with no tenantId filter.
+- No ownership or tenant check at all — anyone with ADMIN role can deactivate any artist.
+
+**`assignStyles(artistId, input, requestingUserId, isAdmin)`:**
+- Same pattern as `updateArtist`: non-admin check `if (!isAdmin && artist.userId !== requestingUserId)` is skipped for ADMIN.
+- An ADMIN from Tenant A can replace the style tags of any artist from Tenant B.
+
+The controller passes `isAdmin(req)` (checks `req.user?.role === 'ADMIN'`) but never passes `extractTenantId(req)` to any of these calls:
+
+```ts
+// artists.controller.ts
+const artist = await artistsService.updateArtist(
+  id,
+  body,
+  req.user!.id,
+  isAdmin(req),        // ✅ role passed
+  // ❌ no tenantId
+);
+
+await artistsService.deleteArtist(id);  // ❌ no tenantId at all
+```
+
+**Impact:**
+- An ADMIN from any tenant can deactivate, commission-rate-change, or reassign style tags for artists they do not own.
+- This is identical in pattern to BUG 9 (calendar) and BUG 14 (availability) — both fixed by adding tenantId validation — but the artists module was not updated.
+- Combined with BUG 16 (artists created without tenantId), a malicious admin could also "adopt" orphaned artists by modifying them after creation.
+
+**Evidence:**
+- `artists.service.ts:163–170`: `updateArtist` — `!isAdmin` check skipped for ADMIN, no tenantId guard.
+- `artists.service.ts:198–206`: `deleteArtist` — no ownership check, no tenantId check.
+- `artists.service.ts:218–222`: `assignStyles` — `!isAdmin` check skipped, no tenantId guard.
+- `artists.controller.ts:95–103`: `updateArtist` call — no `extractTenantId(req)`.
+- `artists.controller.ts:113–121`: `deleteArtist` call — no `extractTenantId(req)`.
+- `artists.controller.ts:129–142`: `assignStyles` call — no `extractTenantId(req)`.
+- Compare fix in BUG 9: `calendar.service.ts` now validates `artist.tenantId !== tenantId` for ADMIN.
+
+**Recommended Fix:**
+1. Add `tenantId: string | null` parameter to `updateArtist`, `deleteArtist`, `assignStyles`.
+2. After loading the artist, add: `if (tenantId !== null && artist.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', 'Artist not found in your tenant');`.
+3. In `artists.controller.ts`: extract `tenantId` via `extractTenantId(req)` and pass it to all three functions.
+
+---
+
+### Updated Final Summary
+
+| Bug | Severity | Category | One-Line Summary | Status |
+|-----|----------|----------|------------------|--------|
+| BUG 1 | Low | Testing | 2 tests missing vs baseline (1754 vs 1756) | ✅ **FIXED** (now 1821/1821) |
+| BUG 2 | Medium | Feature Flags | SMS_ENABLED flag defined but never enforced at runtime | ✅ **FIXED** |
+| BUG 3 | Medium | CRM/Notifications | WhatsApp processor uses hardcoded messages, ignores editable templates | ✅ **FIXED** |
+| BUG 4 | High | Security/Tenant | Booking single-record endpoints lack tenant isolation for ADMIN users | ✅ **FIXED** |
+| BUG 5 | Low | Automations | Invoice overdue job has global-only flag check, no per-tenant support | ✅ **FIXED** |
+| BUG 6 | High | Security/Tenant | Waitlist admin endpoints have zero tenant isolation | ✅ **FIXED** |
+| BUG 7 | High | Security/Tenant | Invoice single-record endpoints missing tenant isolation | ✅ **FIXED** |
+| BUG 8 | High | Security/Tenant | Quote updateQuote and sendQuote missing tenant isolation | ✅ **FIXED** |
+| BUG 9 | Medium | Security/Tenant | Calendar endpoints allow ADMIN cross-tenant artist access | ✅ **FIXED** |
+| BUG 10 | Medium | Security/Tenant | sendTestEmail bypasses tenant isolation on template lookup | ✅ **FIXED** |
+| BUG 11 | Medium | Data Integrity | joinWaitlist never populates tenantId, breaking smart-match flow | ✅ **FIXED** |
+| BUG 12 | Medium | CRM/Tenant | EmailTemplate `key @unique` prevents per-tenant overrides; `sendEmail()` not tenant-scoped | ✅ **FIXED** |
+| BUG 13 | Low | Feature Flags | AI suggestion job global-only flag check ignores per-tenant overrides | ✅ **FIXED** |
+| **BUG 14** | **High** | **Security/Tenant** | **Availability ADMIN can read/modify any tenant's artist schedule/blocks (no tenant guard)** | **NEW** |
+| **BUG 15** | **Medium** | **Feature Flags** | **`createPublicBooking` checks DEPOSIT_REQUIRED without tenant.id — per-tenant override ignored** | **NEW** |
+| **BUG 16** | **High** | **Data Integrity** | **`createArtist` omits `tenantId` on both User and Artist records — all new artists orphaned** | **NEW** |
+| **BUG 17** | **High** | **Security/Tenant** | **Artists `updateArtist`/`deleteArtist`/`assignStyles` have no tenant guard for ADMIN callers** | **NEW** |
+
+**Post-fix status (Round 3): 13/13 original bugs fixed. 4 new findings (3 High, 1 Medium). Three of the new bugs (14, 16, 17) follow the same cross-tenant pattern as the previously fixed BUG 9.**
