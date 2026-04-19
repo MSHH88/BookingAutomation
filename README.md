@@ -1,1 +1,13858 @@
+backend % rm -f \
+  src/modules/calendar/calendar.service.test.ts \
+  src/modules/calendar/apple-calendar.service.test.ts \
+  src/modules/calendar/outlook-calendar.service.test.ts \
+  src/modules/webhooks/webhooks.service.test.ts \
+  src/modules/features/features.test.ts \
+  src/modules/sessions/sessions.test.ts \
+  && echo "ALL OLD FILES DELETED"
+ALL OLD FILES DELETED
+neilapacesaite@Neilas-MacBook-Pro backend % >....                               
+6 apple-calendar.service.test.ts" || echo "FAILED: apple-calendar.service.test.ts"
 
+curl -sfL -o src/modules/calendar/outlook-calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/outlook-calendar.service.test.ts" && echo "OK 3/6 outlook-calendar.service.test.ts" || echo "FAILED: outlook-calendar.service.test.ts"
+
+curl -sfL -o src/modules/webhooks/webhooks.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.test.ts" && echo "OK 4/6 webhooks.service.test.ts" || echo "FAILED: webhooks.service.test.ts"
+
+curl -sfL -o src/modules/features/features.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/features/features.test.ts" && echo "OK 5/6 features.test.ts" || echo "FAILED: features.test.ts"
+
+curl -sfL -o src/modules/sessions/sessions.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/sessions/sessions.test.ts" && echo "OK 6/6 sessions.test.ts" || echo "FAILED: sessions.test.ts"
+OK 1/6 calendar.service.test.ts
+OK 2/6 apple-calendar.service.test.ts
+OK 3/6 outlook-calendar.service.test.ts
+OK 4/6 webhooks.service.test.ts
+OK 5/6 features.test.ts
+OK 6/6 sessions.test.ts
+neilapacesaite@Neilas-MacBook-Pro backend % npm test -- --no-coverage --forceExit
+
+> automation-backend@1.0.0 test
+> jest --clearCache --silent && jest --passWithNoTests --no-coverage --forceExit
+
+Cleared /private/var/folders/lv/nzz8ww495y957l52cl56gs3r0000gn/T/jest_dx
+ PASS  src/modules/waitlist/waitlist.service.test.ts (89.215 s)
+ PASS  src/modules/quotes/quotes.service.test.ts (95.123 s)
+ PASS  src/modules/notifications/notifications.service.test.ts (95.802 s)
+ PASS  src/modules/analytics/analytics.service.test.ts (96.844 s)
+ PASS  src/modules/services/services.service.test.ts (98.691 s)
+ PASS  src/modules/bookings/bookings.service.test.ts (99.825 s)
+ PASS  src/modules/availability/availability.service.test.ts (6.29 s)
+ PASS  src/modules/calendar/calendar.service.test.ts
+ PASS  src/modules/leads/leads.service.test.ts (11.596 s)
+ PASS  src/modules/invoices/invoices.service.test.ts (6.923 s)
+ PASS  src/modules/admin/admin.service.test.ts (9.195 s)
+ PASS  src/modules/reminders/reminders.queue.test.ts
+ PASS  src/modules/auth/auth.service.test.ts
+ FAIL  src/modules/capture/capture.service.test.ts
+  ● captureLeadPublic › forwards ipAddress to createLead
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: Any<Object>, "203.0.113.10"
+    Received: {"artistId": undefined, "colorPreference": "Black & grey", "country": "GB", "description": "Looking for a sleeve tattoo", "deviceType": undefined, "email": "alice@example.com", "marketingConsent": false, "name": "Alice Ink", "pageVisited": "/contact", "phone": "+441234567890", "placement": {"area": "left_arm"}, "preferWhatsApp": false, "preferredDates": null, "referenceImages": [], "serviceId": undefined, "sessionId": undefined, "size": "Large", "source": "instagram", "styleId": undefined, "utmCampaign": undefined, "utmMedium": undefined, "utmSource": undefined, "website": undefined}, "203.0.113.10", null
+
+    Number of calls: 1
+
+      395 |   it('forwards ipAddress to createLead', async () => {
+      396 |     await captureLeadPublic(baseBody, '203.0.113.10');
+    > 397 |     expect(mockCreateLead).toHaveBeenCalledWith(
+          |                            ^
+      398 |       expect.any(Object),
+      399 |       '203.0.113.10',
+      400 |     );
+
+      at Object.<anonymous> (src/modules/capture/capture.service.test.ts:397:28)
+
+ PASS  src/modules/email-templates/email-templates.service.test.ts (5.101 s)
+ PASS  src/modules/sms-templates/sms-templates.service.test.ts
+ PASS  src/modules/calendar/outlook-calendar.service.test.ts
+ PASS  src/modules/whatsapp-templates/whatsapp-templates.service.test.ts
+ PASS  src/modules/customer-stats/customer-stats.service.test.ts
+ PASS  src/modules/public/public.service.test.ts
+ PASS  src/modules/calendar/apple-calendar.service.test.ts (6.692 s)
+ PASS  src/modules/webhooks/webhooks.service.test.ts (9.939 s)
+ PASS  src/modules/uploads/uploads.service.test.ts (39.857 s)
+ FAIL  src/modules/customers/customers.service.test.ts (76.96 s)
+  ● cancelMyBooking › allows cancellation inside window when CANCELLATION_FEE_ENABLED is false
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      310 |   });
+      311 |
+    > 312 |   it('allows cancellation inside window when CANCELLATION_FEE_ENABLED is false', async () => {
+          |   ^
+      313 |     // Default flag mock (CANCELLATION_FEE_ENABLED: false) set in beforeEach
+      314 |     const booking = makeBooking({ status: 'CONFIRMED', startAt: FUTURE_NEAR });
+      315 |     mockBookingFindUnique.mockResolvedValue(booking);
+
+      at src/modules/customers/customers.service.test.ts:312:3
+      at Object.<anonymous> (src/modules/customers/customers.service.test.ts:263:1)
+
+  ● cancelMyBooking › cancels inside window and logs fee stub when CANCELLATION_FEE_ENABLED is true
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      323 |   });
+      324 |
+    > 325 |   it('cancels inside window and logs fee stub when CANCELLATION_FEE_ENABLED is true', async () => {
+          |   ^
+      326 |     // Arrange: CANCELLATION_FEE_ENABLED true + booking inside the 24h window
+      327 |     mockGetDefaultFlags.mockReturnValue({ CANCELLATION_FEE_ENABLED: true });
+      328 |     const booking = makeBooking({ status: 'CONFIRMED', startAt: FUTURE_NEAR });
+
+      at src/modules/customers/customers.service.test.ts:325:3
+      at Object.<anonymous> (src/modules/customers/customers.service.test.ts:263:1)
+
+ PASS  src/modules/tables/tables.service.test.ts (15.138 s)
+ PASS  src/modules/products/products.service.test.ts
+ PASS  src/lib/pricing-engine.test.ts
+ PASS  src/modules/forms/forms.service.test.ts (5.061 s)
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Error: Unhandled error. (Error: connect ETIMEDOUT
+        at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
+        at Object.onceWrapper (node:events:622:28)
+        at Socket.emit (node:events:508:28)
+        at Socket._onTimeout (node:net:604:8)
+        at listOnTimeout (node:internal/timers:605:17)
+        at processTimers (node:internal/timers:541:7) {
+      errorno: 'ETIMEDOUT',
+      code: 'ETIMEDOUT',
+      syscall: 'connect'
+    })
+        at Queue.emit (node:events:497:17)
+        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+        at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+        at RedisConnection.emit (node:events:508:28)
+        at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+        at EventEmitter.emit (node:events:508:28)
+        at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
+        at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
+        at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
+        at Object.onceWrapper (node:events:622:28)
+        at Socket.emit (node:events:508:28)
+        at Socket._onTimeout (node:net:604:8)
+        at listOnTimeout (node:internal/timers:605:17)
+        at processTimers (node:internal/timers:541:7) {
+      code: 'ERR_UNHANDLED_ERROR',
+      context: Error: connect ETIMEDOUT
+          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
+          at Object.onceWrapper (node:events:622:28)
+          at Socket.emit (node:events:508:28)
+          at Socket._onTimeout (node:net:604:8)
+          at listOnTimeout (node:internal/timers:605:17)
+          at processTimers (node:internal/timers:541:7) {
+        errorno: 'ETIMEDOUT',
+        code: 'ETIMEDOUT',
+        syscall: 'connect'
+      }
+    }".
+
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
+      at processTimers (node:internal/timers:541:7) {
+        errorno: 'ETIMEDOUT',
+        code: 'ETIMEDOUT',
+        syscall: 'connect'
+      })
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at node_modules/ioredis/built/redis/event_handler.js:221:14
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
+      at processTimers (node:internal/timers:541:7) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: connect ETIMEDOUT
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
+      at processTimers (node:internal/timers:541:7) {
+          errorno: 'ETIMEDOUT',
+          code: 'ETIMEDOUT',
+          syscall: 'connect'
+        }
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at node_modules/ioredis/built/redis/event_handler.js:221:14
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Error: Unhandled error. (Error: Connection is closed.
+        at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+        at Object.onceWrapper (node:events:623:26)
+        at EventEmitter.emit (node:events:520:35)
+        at processTicksAndRejections (node:internal/process/task_queues:85:11))
+        at Queue.emit (node:events:497:17)
+        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+        at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+        at RedisConnection.emit (node:events:508:28)
+        at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+        at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+      code: 'ERR_UNHANDLED_ERROR',
+      context: Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11)
+    }".
+
+      at EventEmitter.connectionCloseHandler (node_modules/ioredis/built/Redis.js:208:28)
+      at processTicksAndRejections (node:internal/process/task_queues:85:11))
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+      at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+      at EventEmitter.connectionCloseHandler (node_modules/ioredis/built/Redis.js:208:28)
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+ at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
+      at processTimers (node:internal/timers:541:7) {
+        errorno: 'ETIMEDOUT',
+        code: 'ETIMEDOUT',
+        syscall: 'connect'
+      })
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at node_modules/ioredis/built/redis/event_handler.js:221:14
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
+      at processTimers (node:internal/timers:541:7) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: connect ETIMEDOUT
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
+      at processTimers (node:internal/timers:541:7) {
+          errorno: 'ETIMEDOUT',
+          code: 'ETIMEDOUT',
+          syscall: 'connect'
+        }
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at node_modules/ioredis/built/redis/event_handler.js:221:14
+      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Error: Unhandled error. (Error: Connection is closed.
+        at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+        at Object.onceWrapper (node:events:623:26)
+        at EventEmitter.emit (node:events:520:35)
+        at processTicksAndRejections (node:internal/process/task_queues:85:11))
+        at Queue.emit (node:events:497:17)
+        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+        at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+        at RedisConnection.emit (node:events:508:28)
+        at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+        at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+      code: 'ERR_UNHANDLED_ERROR',
+      context: Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11)
+    }".
+
+      at EventEmitter.connectionCloseHandler (node_modules/ioredis/built/Redis.js:208:28)
+      at processTicksAndRejections (node:internal/process/task_queues:85:11))
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+      at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+      at EventEmitter.connectionCloseHandler (node_modules/ioredis/built/Redis.js:208:28)
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/modules/sessions/sessions.test.ts (201.856 s)
+  ● Console
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/modules/campaigns/campaigns.service.test.ts (8.56 s)
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [
+        Error: connect ETIMEDOUT ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+            at listOnTimeout (node:internal/timers:607:11)
+            at processTimers (node:internal/timers:541:7) {
+          errno: -60,
+          code: 'ETIMEDOUT',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+      at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+     ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ FAIL  src/modules/products/products.test.ts (361.366 s)
+  ● Console
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+  ● /api/products › GET /api/products › 200 — returns paginated products (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      101 |
+      102 |   describe('GET /api/products', () => {
+    > 103 |     it('200 — returns paginated products (ADMIN)', async () => {
+          |     ^
+      104 |       (prisma.product.findMany as jest.Mock).mockResolvedValue([makeProduct()]);
+      105 |       (prisma.product.count as jest.Mock).mockResolvedValue(1);
+      106 |
+
+      at src/modules/products/products.test.ts:103:5
+      at src/modules/products/products.test.ts:102:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      113 |     });
+      114 |
+    > 115 |     it('401 — unauthenticated', async () => {
+          |     ^
+      116 |       const res = await request(app).get('/api/products');
+      117 |       expect(res.status).toBe(401);
+      118 |     });
+
+      at src/modules/products/products.test.ts:115:5
+      at src/modules/products/products.test.ts:102:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products › 403 — CUSTOMER cannot access products
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      118 |     });
+      119 |
+    > 120 |     it('403 — CUSTOMER cannot access products', async () => {
+          |     ^
+      121 |       const res = await request(app)
+      122 |         .get('/api/products')
+      123 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`);
+
+      at src/modules/products/products.test.ts:120:5
+      at src/modules/products/products.test.ts:102:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products/:id › 200 — returns product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      129 |
+      130 |   describe('GET /api/products/:id', () => {
+    > 131 |     it('200 — returns product (ADMIN)', async () => {
+          |     ^
+      132 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct());
+      133 |
+      134 |       const res = await request(app)
+
+      at src/modules/products/products.test.ts:131:5
+      at src/modules/products/products.test.ts:130:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products/:id › 404 — product not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      140 |     });
+      141 |
+    > 142 |     it('404 — product not found', async () => {
+          |     ^
+      143 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
+      144 |
+      145 |       const res = await request(app)
+
+      at src/modules/products/products.test.ts:142:5
+      at src/modules/products/products.test.ts:130:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › POST /api/products › 201 — creates product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      154 |
+      155 |   describe('POST /api/products', () => {
+    > 156 |     it('201 — creates product (ADMIN)', async () => {
+          |     ^
+      157 |       (prisma.product.create as jest.Mock).mockResolvedValue(makeProduct({ stockLevel: 0 }));
+      158 |       (prisma.stockMovement.create as jest.Mock).mockResolvedValue({});
+      159 |
+
+      at src/modules/products/products.test.ts:156:5
+      at src/modules/products/products.test.ts:155:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › POST /api/products › 400 — validation error when name is missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      167 |     });
+      168 |
+    > 169 |     it('400 — validation error when name is missing', async () => {
+          |     ^
+      170 |       const res = await request(app)
+      171 |         .post('/api/products')
+      172 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/products/products.test.ts:169:5
+      at src/modules/products/products.test.ts:155:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id › 200 — updates product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      180 |
+      181 |   describe('PATCH /api/products/:id', () => {
+    > 182 |     it('200 — updates product (ADMIN)', async () => {
+          |     ^
+      183 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct());
+      184 |       (prisma.product.update as jest.Mock).mockResolvedValue(makeProduct({ name: 'Red Ink' }));
+      185 |
+
+      at src/modules/products/products.test.ts:182:5
+      at src/modules/products/products.test.ts:181:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id › 404 — product not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      192 |     });
+      193 |
+    > 194 |     it('404 — product not found', async () => {
+          |     ^
+      195 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
+      196 |
+      197 |       const res = await request(app)
+
+      at src/modules/products/products.test.ts:194:5
+      at src/modules/products/products.test.ts:181:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › DELETE /api/products/:id › 200 — soft-deletes product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      207 |
+      208 |   describe('DELETE /api/products/:id', () => {
+    > 209 |     it('200 — soft-deletes product (ADMIN)', async () => {
+          |     ^
+      210 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct());
+      211 |       (prisma.product.update as jest.Mock).mockResolvedValue({});
+      212 |
+
+      at src/modules/products/products.test.ts:209:5
+      at src/modules/products/products.test.ts:208:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id/stock › 200 — adjusts stock successfully (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      223 |
+      224 |   describe('PATCH /api/products/:id/stock', () => {
+    > 225 |     it('200 — adjusts stock successfully (ADMIN)', async () => {
+          |     ^
+      226 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct({ stockLevel: 10 }));
+      227 |       (prisma.product.update as jest.Mock).mockResolvedValue(makeProduct({ stockLevel: 60 }));
+      228 |       (prisma.stockMovement.create as jest.Mock).mockResolvedValue({});
+
+      at src/modules/products/products.test.ts:225:5
+      at src/modules/products/products.test.ts:224:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id/stock › 400 — invalid reason enum
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      237 |     });
+      238 |
+    > 239 |     it('400 — invalid reason enum', async () => {
+          |     ^
+      240 |       const res = await request(app)
+      241 |         .patch('/api/products/prod-1/stock')
+      242 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/products/products.test.ts:239:5
+      at src/modules/products/products.test.ts:224:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+
+  ● GET /api/locations › returns list of locations
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      114 |   });
+      115 |
+    > 116 |   it('returns list of locations', async () => {
+          |   ^
+      117 |     mockLocationFindMany.mockResolvedValue([locationFixture]);
+      118 |
+      119 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:116:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:104:1)
+
+  ● GET /api/locations › filters by isActive=true
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      126 |   });
+      127 |
+    > 128 |   it('filters by isActive=true', async () => {
+          |   ^
+      129 |     mockLocationFindMany.mockResolvedValue([locationFixture]);
+      130 |
+      131 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:128:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:104:1)
+
+  ● POST /api/locations › creates location successfully
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      149 |   };
+      150 |
+    > 151 |   it('creates location successfully', async () => {
+          |   ^
+      152 |     mockLocationCreate.mockResolvedValue(locationFixture);
+      153 |
+      154 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:151:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:144:1)
+
+  ● POST /api/locations › returns 400 when name is missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      161 |   });
+      162 |
+    > 163 |   it('returns 400 when name is missing', async () => {
+          |   ^
+      164 |     const res = await request(app)
+      165 |       .post('/api/locations')
+      166 |       .set('Authorization', `Bearer ${adminToken}`)
+
+      at src/modules/locations/locations.test.ts:163:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:144:1)
+
+  ● GET /api/locations/:id › returns location by id
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      174 |
+      175 | describe('GET /api/locations/:id', () => {
+    > 176 |   it('returns location by id', async () => {
+          |   ^
+      177 |     mockLocationFindUnique.mockResolvedValue(locationFixture);
+      178 |
+      179 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:176:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:175:1)
+
+  ● GET /api/locations/:id › returns 404 when location not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      185 |   });
+      186 |
+    > 187 |   it('returns 404 when location not found', async () => {
+          |   ^
+      188 |     mockLocationFindUnique.mockResolvedValue(null);
+      189 |
+      190 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:187:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:175:1)
+
+  ● GET /api/locations/:id › returns 403 when location belongs to different tenant
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      195 |   });
+      196 |
+    > 197 |   it('returns 403 when location belongs to different tenant', async () => {
+          |   ^
+      198 |     mockLocationFindUnique.mockResolvedValue({ ...locationFixture, tenantId: 'other_tenant' });
+      199 |
+      200 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:197:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:175:1)
+
+  ● PATCH /api/locations/:id › updates location successfully
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      209 |
+      210 | describe('PATCH /api/locations/:id', () => {
+    > 211 |   it('updates location successfully', async () => {
+          |   ^
+      212 |     mockLocationFindUnique.mockResolvedValue({ id: 'loc_1', tenantId: 'tenant_1' });
+      213 |     mockLocationUpdate.mockResolvedValue({ ...locationFixture, name: 'Updated Studio' });
+      214 |
+
+      at src/modules/locations/locations.test.ts:211:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:210:1)
+
+  ● PATCH /api/locations/:id › returns 404 when location not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      222 |   });
+      223 |
+    > 224 |   it('returns 404 when location not found', async () => {
+          |   ^
+      225 |     mockLocationFindUnique.mockResolvedValue(null);
+      226 |
+      227 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:224:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:210:1)
+
+  ● PATCH /api/locations/:id › returns 403 when location belongs to different tenant
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      233 |   });
+      234 |
+    > 235 |   it('returns 403 when location belongs to different tenant', async () => {
+          |   ^
+      236 |     mockLocationFindUnique.mockResolvedValue({ id: 'loc_1', tenantId: 'other_tenant' });
+      237 |
+      238 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:235:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:210:1)
+
+  ● DELETE /api/locations/:id › deletes location successfully
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      248 |
+      249 | describe('DELETE /api/locations/:id', () => {
+    > 250 |   it('deletes location successfully', async () => {
+          |   ^
+      251 |     mockLocationFindUnique.mockResolvedValue({ id: 'loc_1', tenantId: 'tenant_1' });
+      252 |     mockLocationDelete.mockResolvedValue({});
+      253 |
+
+      at src/modules/locations/locations.test.ts:250:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:249:1)
+
+  ● DELETE /api/locations/:id › returns 404 when location not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      259 |   });
+      260 |
+    > 261 |   it('returns 404 when location not found', async () => {
+          |   ^
+      262 |     mockLocationFindUnique.mockResolvedValue(null);
+      263 |
+      264 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:261:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:249:1)
+
+  ● DELETE /api/locations/:id › returns 403 when location belongs to different tenant
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      269 |   });
+      270 |
+    > 271 |   it('returns 403 when location belongs to different tenant', async () => {
+          |   ^
+      272 |     mockLocationFindUnique.mockResolvedValue({ id: 'loc_1', tenantId: 'other_tenant' });
+      273 |
+      274 |     const res = await request(app)
+
+      at src/modules/locations/locations.test.ts:271:3
+      at Object.<anonymous> (src/modules/locations/locations.test.ts:249:1)
+
+ FAIL  src/modules/analytics/analytics.test.ts (362.125 s)
+  ● POST /api/analytics/events › 201 — public visitor can track an event without auth
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      100 | // ─────────────────────────────────────────────────────────────────────────────
+      101 | describe('POST /api/analytics/events', () => {
+    > 102 |   it('201 — public visitor can track an event without auth', async () => {
+          |   ^
+      103 |     (prisma.analyticsEvent.create as jest.Mock).mockResolvedValue({ id: 'ae_1' });
+      104 |     (prisma.lead.findUnique as jest.Mock).mockResolvedValue(null);
+      105 |
+
+      at src/modules/analytics/analytics.test.ts:102:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:101:1)
+
+  ● POST /api/analytics/events › 201 — event with optional leadId (lead found)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      112 |   });
+      113 |
+    > 114 |   it('201 — event with optional leadId (lead found)', async () => {
+          |   ^
+      115 |     (prisma.analyticsEvent.create as jest.Mock).mockResolvedValue({ id: 'ae_1' });
+      116 |     (prisma.lead.findUnique as jest.Mock).mockResolvedValue({ id: 'clhjgz3c40000fkiufwsxc58c' });
+      117 |
+
+      at src/modules/analytics/analytics.test.ts:114:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:101:1)
+
+  ● POST /api/analytics/events › 400 — missing eventType
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      123 |   });
+      124 |
+    > 125 |   it('400 — missing eventType', async () => {
+          |   ^
+      126 |     const res = await request(app)
+      127 |       .post('/api/analytics/events')
+      128 |       .send({});
+
+      at src/modules/analytics/analytics.test.ts:125:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:101:1)
+
+  ● GET /api/analytics/overview › 200 — ADMIN retrieves KPI overview
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      134 | // ─────────────────────────────────────────────────────────────────────────────
+      135 | describe('GET /api/analytics/overview', () => {
+    > 136 |   it('200 — ADMIN retrieves KPI overview', async () => {
+          |   ^
+      137 |     mockOverviewDefaults();
+      138 |
+      139 |     const res = await request(app)
+
+      at src/modules/analytics/analytics.test.ts:136:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:135:1)
+
+  ● GET /api/analytics/overview › 401 — unauthenticated request rejected
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      147 |   });
+      148 |
+    > 149 |   it('401 — unauthenticated request rejected', async () => {
+          |   ^
+      150 |     const res = await request(app).get('/api/analytics/overview');
+      151 |     expect(res.status).toBe(401);
+      152 |   });
+
+      at src/modules/analytics/analytics.test.ts:149:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:135:1)
+
+  ● GET /api/analytics/overview › 403 — ARTIST cannot access analytics
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      152 |   });
+      153 |
+    > 154 |   it('403 — ARTIST cannot access analytics', async () => {
+          |   ^
+      155 |     const res = await request(app)
+      156 |       .get('/api/analytics/overview')
+      157 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/analytics/analytics.test.ts:154:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:135:1)
+
+  ● GET /api/analytics/leads › 200 — ADMIN retrieves lead funnel
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      163 | // ─────────────────────────────────────────────────────────────────────────────
+      164 | describe('GET /api/analytics/leads', () => {
+    > 165 |   it('200 — ADMIN retrieves lead funnel', async () => {
+          |   ^
+      166 |     mockLeadsDefaults();
+      167 |
+      168 |     const res = await request(app)
+
+      at src/modules/analytics/analytics.test.ts:165:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:164:1)
+
+  ● GET /api/analytics/leads › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      175 |   });
+      176 |
+    > 177 |   it('401 — unauthenticated', async () => {
+          |   ^
+      178 |     const res = await request(app).get('/api/analytics/leads');
+      179 |     expect(res.status).toBe(401);
+      180 |   });
+
+      at src/modules/analytics/analytics.test.ts:177:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:164:1)
+
+  ● GET /api/analytics/bookings › 200 — ADMIN retrieves booking breakdown
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      183 | // ─────────────────────────────────────────────────────────────────────────────
+      184 | describe('GET /api/analytics/bookings', () => {
+    > 185 |   it('200 — ADMIN retrieves booking breakdown', async () => {
+          |   ^
+      186 |     mockBookingsDefaults();
+      187 |
+      188 |     const res = await request(app)
+
+      at src/modules/analytics/analytics.test.ts:185:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:184:1)
+
+  ● GET /api/analytics/revenue › 200 — ADMIN retrieves revenue metrics
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      198 | // ─────────────────────────────────────────────────────────────────────────────
+      199 | describe('GET /api/analytics/revenue', () => {
+    > 200 |   it('200 — ADMIN retrieves revenue metrics', async () => {
+          |   ^
+      201 |     mockRevenueDefaults();
+      202 |
+      203 |     const res = await request(app)
+
+      at src/modules/analytics/analytics.test.ts:200:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:199:1)
+
+  ● GET /api/analytics/events › 200 — ADMIN retrieves paginated event log
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      213 | // ─────────────────────────────────────────────────────────────────────────────
+      214 | describe('GET /api/analytics/events', () => {
+    > 215 |   it('200 — ADMIN retrieves paginated event log', async () => {
+          |   ^
+      216 |     (prisma.analyticsEvent.findMany as jest.Mock).mockResolvedValue([]);
+      217 |     (prisma.analyticsEvent.count    as jest.Mock).mockResolvedValue(0);
+      218 |
+
+      at src/modules/analytics/analytics.test.ts:215:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:214:1)
+
+  ● GET /api/analytics/events › 200 — filter by eventType query param
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      226 |   });
+      227 |
+    > 228 |   it('200 — filter by eventType query param', async () => {
+          |   ^
+      229 |     (prisma.analyticsEvent.findMany as jest.Mock).mockResolvedValue([]);
+      230 |     (prisma.analyticsEvent.count    as jest.Mock).mockResolvedValue(0);
+      231 |
+
+      at src/modules/analytics/analytics.test.ts:228:3
+      at Object.<anonymous> (src/modules/analytics/analytics.test.ts:214:1)
+
+ FAIL  src/modules/referrals/referrals.test.ts (365.242 s)
+  ● /api/referrals › GET /api/referrals/lookup/:code › 200 — returns referrer info (no auth required)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      86 |
+      87 |   describe('GET /api/referrals/lookup/:code', () => {
+    > 88 |     it('200 — returns referrer info (no auth required)', async () => {
+         |     ^
+      89 |       (prisma.user.findFirst as jest.Mock).mockResolvedValue({
+      90 |         id: 'u-1', name: 'Jane Doe',
+      91 |       });
+
+      at src/modules/referrals/referrals.test.ts:88:5
+      at src/modules/referrals/referrals.test.ts:87:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › GET /api/referrals/lookup/:code › 404 — unknown referral code
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       97 |     });
+       98 |
+    >  99 |     it('404 — unknown referral code', async () => {
+          |     ^
+      100 |       (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+      101 |
+      102 |       const res = await request(app).get('/api/referrals/lookup/REF-BAD');
+
+      at src/modules/referrals/referrals.test.ts:99:5
+      at src/modules/referrals/referrals.test.ts:87:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › GET /api/referrals › 200 — returns paginated referrals (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      109 |
+      110 |   describe('GET /api/referrals', () => {
+    > 111 |     it('200 — returns paginated referrals (ADMIN)', async () => {
+          |     ^
+      112 |       (prisma.referral.findMany as jest.Mock).mockResolvedValue([
+      113 |         { id: 'ref-1', tenantId: 'tenant-1', referrerId: 'u-1', refereeId: 'u-2', referralCode: 'REF-ABCD1234', rewardIssued: false },
+      114 |       ]);
+
+      at src/modules/referrals/referrals.test.ts:111:5
+      at src/modules/referrals/referrals.test.ts:110:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › GET /api/referrals › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      124 |     });
+      125 |
+    > 126 |     it('401 — unauthenticated', async () => {
+          |     ^
+      127 |       const res = await request(app).get('/api/referrals');
+      128 |       expect(res.status).toBe(401);
+      129 |     });
+
+      at src/modules/referrals/referrals.test.ts:126:5
+      at src/modules/referrals/referrals.test.ts:110:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › GET /api/referrals › 403 — CUSTOMER cannot list referrals
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      129 |     });
+      130 |
+    > 131 |     it('403 — CUSTOMER cannot list referrals', async () => {
+          |     ^
+      132 |       const res = await request(app)
+      133 |         .get('/api/referrals')
+      134 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`);
+
+      at src/modules/referrals/referrals.test.ts:131:5
+      at src/modules/referrals/referrals.test.ts:110:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › GET /api/referrals/:id › 200 — returns referral details (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      141 |
+      142 |   describe('GET /api/referrals/:id', () => {
+    > 143 |     it('200 — returns referral details (ADMIN)', async () => {
+          |     ^
+      144 |       (prisma.referral.findUnique as jest.Mock).mockResolvedValue({
+      145 |         id: 'ref-1', tenantId: 'tenant-1', referrerId: 'u-1', refereeId: 'u-2',
+      146 |       });
+
+      at src/modules/referrals/referrals.test.ts:143:5
+      at src/modules/referrals/referrals.test.ts:142:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › GET /api/referrals/:id › 404 — referral not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      154 |     });
+      155 |
+    > 156 |     it('404 — referral not found', async () => {
+          |     ^
+      157 |       (prisma.referral.findUnique as jest.Mock).mockResolvedValue(null);
+      158 |
+      159 |       const res = await request(app)
+
+      at src/modules/referrals/referrals.test.ts:156:5
+      at src/modules/referrals/referrals.test.ts:142:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › POST /api/referrals/generate-code › 200 — generates referral code for CUSTOMER
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      168 |
+      169 |   describe('POST /api/referrals/generate-code', () => {
+    > 170 |     it('200 — generates referral code for CUSTOMER', async () => {
+          |     ^
+      171 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      172 |         id: 'u_1', referralCode: null,
+      173 |       });
+
+      at src/modules/referrals/referrals.test.ts:170:5
+      at src/modules/referrals/referrals.test.ts:169:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › POST /api/referrals/link › 201 — links referee to referrer (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      186 |
+      187 |   describe('POST /api/referrals/link', () => {
+    > 188 |     it('201 — links referee to referrer (ADMIN)', async () => {
+          |     ^
+      189 |       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'u-1' });
+      190 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'u-2' });
+      191 |       (prisma.referral.findFirst as jest.Mock).mockResolvedValue(null);
+
+      at src/modules/referrals/referrals.test.ts:188:5
+      at src/modules/referrals/referrals.test.ts:187:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › POST /api/referrals/link › 404 — unknown referrer code
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      204 |     });
+      205 |
+    > 206 |     it('404 — unknown referrer code', async () => {
+          |     ^
+      207 |       (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+      208 |
+      209 |       const res = await request(app)
+
+      at src/modules/referrals/referrals.test.ts:206:5
+      at src/modules/referrals/referrals.test.ts:187:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › POST /api/referrals/:id/process-reward › 200 — processes reward (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      219 |
+      220 |   describe('POST /api/referrals/:id/process-reward', () => {
+    > 221 |     it('200 — processes reward (ADMIN)', async () => {
+          |     ^
+      222 |       (prisma.referral.findUnique as jest.Mock).mockResolvedValue({
+      223 |         id: 'ref-1', tenantId: 'tenant-1', referrerId: 'u-1', rewardIssued: false,
+      224 |       });
+
+      at src/modules/referrals/referrals.test.ts:221:5
+      at src/modules/referrals/referrals.test.ts:220:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+  ● /api/referrals › POST /api/referrals/:id/process-reward › 409 — reward already issued
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      237 |     });
+      238 |
+    > 239 |     it('409 — reward already issued', async () => {
+          |     ^
+      240 |       (prisma.referral.findUnique as jest.Mock).mockResolvedValue({
+      241 |         id: 'ref-1', tenantId: 'tenant-1', referrerId: 'u-1', rewardIssued: true,
+      242 |       });
+
+      at src/modules/referrals/referrals.test.ts:239:5
+      at src/modules/referrals/referrals.test.ts:220:3
+      at Object.<anonymous> (src/modules/referrals/referrals.test.ts:75:1)
+
+ FAIL  src/modules/availability/availability.test.ts (392.349 s)
+  ● GET /api/availability/slots › 200 — returns available slots for a public visitor (no auth)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      90 | // ─────────────────────────────────────────────────────────────────────────────
+      91 | describe('GET /api/availability/slots', () => {
+    > 92 |   it('200 — returns available slots for a public visitor (no auth)', async () => {
+         |   ^
+      93 |     (prisma.artist.findUnique as jest.Mock).mockResolvedValue(baseArtist);
+      94 |     (prisma.artistAvailability.findUnique as jest.Mock).mockResolvedValue(baseSchedule);
+      95 |     (prisma.availabilityBlock.findMany   as jest.Mock).mockResolvedValue([]);
+
+      at src/modules/availability/availability.test.ts:92:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:91:1)
+
+  ● GET /api/availability/slots › 404 — unknown artistId
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      105 |   });
+      106 |
+    > 107 |   it('404 — unknown artistId', async () => {
+          |   ^
+      108 |     (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
+      109 |
+      110 |     const res = await request(app)
+
+      at src/modules/availability/availability.test.ts:107:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:91:1)
+
+  ● GET /api/availability/slots › 400 — missing required query params
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      115 |   });
+      116 |
+    > 117 |   it('400 — missing required query params', async () => {
+          |   ^
+      118 |     const res = await request(app).get('/api/availability/slots');
+      119 |     expect(res.status).toBe(400);
+      120 |   });
+
+      at src/modules/availability/availability.test.ts:117:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:91:1)
+
+  ● GET /api/availability/blocks › 200 — ARTIST lists own blocks
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      123 | // ─────────────────────────────────────────────────────────────────────────────
+      124 | describe('GET /api/availability/blocks', () => {
+    > 125 |   it('200 — ARTIST lists own blocks', async () => {
+          |   ^
+      126 |     // resolveOwnArtistId uses artist.findUnique (not findFirst)
+      127 |     (prisma.artist.findUnique             as jest.Mock).mockResolvedValue({ id: baseArtist.id });
+      128 |     (prisma.availabilityBlock.findMany    as jest.Mock).mockResolvedValue([baseBlock]);
+
+      at src/modules/availability/availability.test.ts:125:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:124:1)
+
+  ● GET /api/availability/blocks › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      136 |   });
+      137 |
+    > 138 |   it('401 — unauthenticated', async () => {
+          |   ^
+      139 |     const res = await request(app).get('/api/availability/blocks');
+      140 |     expect(res.status).toBe(401);
+      141 |   });
+
+      at src/modules/availability/availability.test.ts:138:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:124:1)
+
+  ● POST /api/availability/blocks › 201 — ARTIST creates a block
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      150 |   };
+      151 |
+    > 152 |   it('201 — ARTIST creates a block', async () => {
+          |   ^
+      153 |     (prisma.artist.findUnique          as jest.Mock).mockResolvedValue(baseArtist);
+      154 |     (prisma.availabilityBlock.create   as jest.Mock).mockResolvedValue(baseBlock);
+      155 |
+
+      at src/modules/availability/availability.test.ts:152:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:145:1)
+
+  ● POST /api/availability/blocks › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      162 |   });
+      163 |
+    > 164 |   it('401 — unauthenticated', async () => {
+          |   ^
+      165 |     const res = await request(app).post('/api/availability/blocks').send(validBlock);
+      166 |     expect(res.status).toBe(401);
+      167 |   });
+
+      at src/modules/availability/availability.test.ts:164:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:145:1)
+
+  ● POST /api/availability/blocks › 400 — missing startAt / endAt
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      167 |   });
+      168 |
+    > 169 |   it('400 — missing startAt / endAt', async () => {
+          |   ^
+      170 |     const res = await request(app)
+      171 |       .post('/api/availability/blocks')
+      172 |       .set('Authorization', makeToken('ARTIST'))
+
+      at src/modules/availability/availability.test.ts:169:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:145:1)
+
+  ● DELETE /api/availability/blocks/:id › 200 — ARTIST deletes own block
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      179 | // ─────────────────────────────────────────────────────────────────────────────
+      180 | describe('DELETE /api/availability/blocks/:id', () => {
+    > 181 |   it('200 — ARTIST deletes own block', async () => {
+          |   ^
+      182 |     (prisma.artist.findFirst             as jest.Mock).mockResolvedValue(baseArtist);
+      183 |     // deleteBlock selects artist.userId to verify ownership — must include it in the mock
+      184 |     (prisma.availabilityBlock.findUnique as jest.Mock).mockResolvedValue({
+
+      at src/modules/availability/availability.test.ts:181:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:180:1)
+
+  ● DELETE /api/availability/blocks/:id › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      195 |   });
+      196 |
+    > 197 |   it('401 — unauthenticated', async () => {
+          |   ^
+      198 |     const res = await request(app).delete('/api/availability/blocks/blk_1');
+      199 |     expect(res.status).toBe(401);
+      200 |   });
+
+      at src/modules/availability/availability.test.ts:197:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:180:1)
+
+  ● GET /api/availability (weekly schedule) › 200 — ARTIST retrieves own schedule
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      203 | // ─────────────────────────────────────────────────────────────────────────────
+      204 | describe('GET /api/availability (weekly schedule)', () => {
+    > 205 |   it('200 — ARTIST retrieves own schedule', async () => {
+          |   ^
+      206 |     (prisma.artist.findFirst              as jest.Mock).mockResolvedValue(baseArtist);
+      207 |     (prisma.artistAvailability.findMany   as jest.Mock).mockResolvedValue([baseSchedule]);
+      208 |
+
+      at src/modules/availability/availability.test.ts:205:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:204:1)
+
+  ● PUT /api/availability (upsert schedule) › 200 — ARTIST sets weekly schedule
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      218 | // ─────────────────────────────────────────────────────────────────────────────
+      219 | describe('PUT /api/availability (upsert schedule)', () => {
+    > 220 |   it('200 — ARTIST sets weekly schedule', async () => {
+          |   ^
+      221 |     (prisma.artist.findUnique           as jest.Mock).mockResolvedValue(baseArtist);
+      222 |     (prisma.$transaction                as jest.Mock).mockResolvedValue([]);
+      223 |     (prisma.artistAvailability.findMany as jest.Mock).mockResolvedValue([baseSchedule]);
+
+      at src/modules/availability/availability.test.ts:220:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:219:1)
+
+  ● PUT /api/availability (upsert schedule) › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      235 |   });
+      236 |
+    > 237 |   it('401 — unauthenticated', async () => {
+          |   ^
+      238 |     const res = await request(app)
+      239 |       .put('/api/availability')
+      240 |       .send({ schedule: [] });
+
+      at src/modules/availability/availability.test.ts:237:3
+      at Object.<anonymous> (src/modules/availability/availability.test.ts:219:1)
+
+ FAIL  src/modules/services/services.test.ts (361.133 s)
+  ● GET /api/services › returns 200 with list (public)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      124 |
+      125 | describe('GET /api/services', () => {
+    > 126 |   it('returns 200 with list (public)', async () => {
+          |   ^
+      127 |     (prisma.service.findMany as jest.Mock).mockResolvedValue([makeService()]);
+      128 |     (prisma.service.count   as jest.Mock).mockResolvedValue(1);
+      129 |
+
+      at src/modules/services/services.test.ts:126:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:125:1)
+
+  ● GET /api/services/categories › returns 200 (public)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      137 |
+      138 | describe('GET /api/services/categories', () => {
+    > 139 |   it('returns 200 (public)', async () => {
+          |   ^
+      140 |     (prisma.serviceCategory.findMany as jest.Mock).mockResolvedValue([makeCategory()]);
+      141 |
+      142 |     const res = await request(app).get('/api/services/categories');
+
+      at src/modules/services/services.test.ts:139:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:138:1)
+
+  ● POST /api/services/categories › returns 201 for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      148 |
+      149 | describe('POST /api/services/categories', () => {
+    > 150 |   it('returns 201 for ADMIN', async () => {
+          |   ^
+      151 |     (prisma.serviceCategory.create as jest.Mock).mockResolvedValue(makeCategory());
+      152 |
+      153 |     const res = await request(app)
+
+      at src/modules/services/services.test.ts:150:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:149:1)
+
+  ● POST /api/services/categories › returns 401 when unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      159 |   });
+      160 |
+    > 161 |   it('returns 401 when unauthenticated', async () => {
+          |   ^
+      162 |     const res = await request(app)
+      163 |       .post('/api/services/categories')
+      164 |       .send({ name: 'Test' });
+
+      at src/modules/services/services.test.ts:161:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:149:1)
+
+  ● GET /api/services/:id › returns 200 with service (public)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      171 |
+      172 | describe('GET /api/services/:id', () => {
+    > 173 |   it('returns 200 with service (public)', async () => {
+          |   ^
+      174 |     (prisma.service.findUnique as jest.Mock).mockResolvedValue(makeService());
+      175 |
+      176 |     const res = await request(app).get('/api/services/svc-1');
+
+      at src/modules/services/services.test.ts:173:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:172:1)
+
+  ● GET /api/services/:id › returns 404 when not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      179 |   });
+      180 |
+    > 181 |   it('returns 404 when not found', async () => {
+          |   ^
+      182 |     (prisma.service.findUnique as jest.Mock).mockResolvedValue(null);
+      183 |
+      184 |     const res = await request(app).get('/api/services/missing');
+
+      at src/modules/services/services.test.ts:181:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:172:1)
+
+  ● POST /api/services › returns 201 for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      196 |   };
+      197 |
+    > 198 |   it('returns 201 for ADMIN', async () => {
+          |   ^
+      199 |     (prisma.serviceCategory.findUnique as jest.Mock).mockResolvedValue(makeCategory());
+      200 |     (prisma.service.create as jest.Mock).mockResolvedValue(makeService());
+      201 |
+
+      at src/modules/services/services.test.ts:198:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:191:1)
+
+  ● POST /api/services › returns 400 for missing required fields
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      208 |   });
+      209 |
+    > 210 |   it('returns 400 for missing required fields', async () => {
+          |   ^
+      211 |     const res = await request(app)
+      212 |       .post('/api/services')
+      213 |       .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/services/services.test.ts:210:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:191:1)
+
+  ● POST /api/services › returns 401 when unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      217 |   });
+      218 |
+    > 219 |   it('returns 401 when unauthenticated', async () => {
+          |   ^
+      220 |     const res = await request(app).post('/api/services').send(validBody);
+      221 |     expect(res.status).toBe(401);
+      222 |   });
+
+      at src/modules/services/services.test.ts:219:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:191:1)
+
+  ● PATCH /api/services/:id › returns 200 on update (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      226 |
+      227 | describe('PATCH /api/services/:id', () => {
+    > 228 |   it('returns 200 on update (ADMIN)', async () => {
+          |   ^
+      229 |     (prisma.service.findUnique as jest.Mock).mockResolvedValue(makeService());
+      230 |     (prisma.service.update as jest.Mock).mockResolvedValue(
+      231 |       makeService({ name: 'Updated' }),
+
+      at src/modules/services/services.test.ts:228:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:227:1)
+
+  ● PATCH /api/services/:id › returns 404 when service not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      240 |   });
+      241 |
+    > 242 |   it('returns 404 when service not found', async () => {
+          |   ^
+      243 |     (prisma.service.findUnique as jest.Mock).mockResolvedValue(null);
+      244 |
+      245 |     const res = await request(app)
+
+      at src/modules/services/services.test.ts:242:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:227:1)
+
+  ● DELETE /api/services/:id › returns 204 on soft-delete (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      255 |
+      256 | describe('DELETE /api/services/:id', () => {
+    > 257 |   it('returns 204 on soft-delete (ADMIN)', async () => {
+          |   ^
+      258 |     (prisma.service.findUnique as jest.Mock).mockResolvedValue(makeService());
+      259 |     (prisma.service.update as jest.Mock).mockResolvedValue(
+      260 |       makeService({ isActive: false }),
+
+      at src/modules/services/services.test.ts:257:3
+      at Object.<anonymous> (src/modules/services/services.test.ts:256:1)
+
+ FAIL  src/modules/recurring-bookings/recurring-bookings.test.ts (332.591 s)
+  ● GET /api/recurring-bookings › 200 — ADMIN lists recurring bookings
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      86 | // ─────────────────────────────────────────────────────────────────────────────
+      87 | describe('GET /api/recurring-bookings', () => {
+    > 88 |   it('200 — ADMIN lists recurring bookings', async () => {
+         |   ^
+      89 |     (prisma.recurringBooking.findMany as jest.Mock).mockResolvedValue([baseRecord]);
+      90 |     (prisma.recurringBooking.count    as jest.Mock).mockResolvedValue(1);
+      91 |
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:88:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:87:1)
+
+  ● GET /api/recurring-bookings › 403 — ARTIST cannot list recurring bookings
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      103 |   });
+      104 |
+    > 105 |   it('403 — ARTIST cannot list recurring bookings', async () => {
+          |   ^
+      106 |     const res = await request(app)
+      107 |       .get('/api/recurring-bookings')
+      108 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:105:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:87:1)
+
+  ● GET /api/recurring-bookings/:id › 200 — ADMIN gets recurring booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      114 | // ─────────────────────────────────────────────────────────────────────────────
+      115 | describe('GET /api/recurring-bookings/:id', () => {
+    > 116 |   it('200 — ADMIN gets recurring booking', async () => {
+          |   ^
+      117 |     (prisma.recurringBooking.findFirst as jest.Mock).mockResolvedValue(baseRecord);
+      118 |
+      119 |     const res = await request(app)
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:116:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:115:1)
+
+  ● GET /api/recurring-bookings/:id › 404 — unknown recurring booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      125 |   });
+      126 |
+    > 127 |   it('404 — unknown recurring booking', async () => {
+          |   ^
+      128 |     (prisma.recurringBooking.findFirst as jest.Mock).mockResolvedValue(null);
+      129 |
+      130 |     const res = await request(app)
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:127:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:115:1)
+
+  ● POST /api/recurring-bookings › 201 — ADMIN creates recurring booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      138 | // ─────────────────────────────────────────────────────────────────────────────
+      139 | describe('POST /api/recurring-bookings', () => {
+    > 140 |   it('201 — ADMIN creates recurring booking', async () => {
+          |   ^
+      141 |     (prisma.recurringBooking.create as jest.Mock).mockResolvedValue(baseRecord);
+      142 |
+      143 |     const res = await request(app)
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:140:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:139:1)
+
+  ● POST /api/recurring-bookings › 400 — validation error (missing customerId)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      156 |   });
+      157 |
+    > 158 |   it('400 — validation error (missing customerId)', async () => {
+          |   ^
+      159 |     const res = await request(app)
+      160 |       .post('/api/recurring-bookings')
+      161 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:158:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:139:1)
+
+  ● POST /api/recurring-bookings › 400 — validation error (intervalDays out of range)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      165 |   });
+      166 |
+    > 167 |   it('400 — validation error (intervalDays out of range)', async () => {
+          |   ^
+      168 |     const res = await request(app)
+      169 |       .post('/api/recurring-bookings')
+      170 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:167:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:139:1)
+
+  ● PATCH /api/recurring-bookings/:id › 200 — ADMIN updates recurring booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      181 | // ─────────────────────────────────────────────────────────────────────────────
+      182 | describe('PATCH /api/recurring-bookings/:id', () => {
+    > 183 |   it('200 — ADMIN updates recurring booking', async () => {
+          |   ^
+      184 |     (prisma.recurringBooking.findFirst as jest.Mock).mockResolvedValue(baseRecord);
+      185 |     (prisma.recurringBooking.update    as jest.Mock).mockResolvedValue({ ...baseRecord, intervalDays: 60 });
+      186 |
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:183:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:182:1)
+
+  ● PATCH /api/recurring-bookings/:id › 400 — empty body rejected
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      194 |   });
+      195 |
+    > 196 |   it('400 — empty body rejected', async () => {
+          |   ^
+      197 |     const res = await request(app)
+      198 |       .patch('/api/recurring-bookings/rb_1')
+      199 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:196:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:182:1)
+
+  ● DELETE /api/recurring-bookings/:id › 200 — ADMIN deactivates recurring booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      206 | // ─────────────────────────────────────────────────────────────────────────────
+      207 | describe('DELETE /api/recurring-bookings/:id', () => {
+    > 208 |   it('200 — ADMIN deactivates recurring booking', async () => {
+          |   ^
+      209 |     (prisma.recurringBooking.findFirst as jest.Mock).mockResolvedValue(baseRecord);
+      210 |     (prisma.recurringBooking.update    as jest.Mock).mockResolvedValue({ ...baseRecord, isActive: false });
+      211 |
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:208:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:207:1)
+
+  ● Feature flag gating › 503 — when RECURRING_BOOKINGS_ENABLED is false
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      221 | // ─────────────────────────────────────────────────────────────────────────────
+      222 | describe('Feature flag gating', () => {
+    > 223 |   it('503 — when RECURRING_BOOKINGS_ENABLED is false', async () => {
+          |   ^
+      224 |     const orig = process.env['BUSINESS_TYPE'];
+      225 |     process.env['BUSINESS_TYPE'] = 'restaurant';
+      226 |
+
+      at src/modules/recurring-bookings/recurring-bookings.test.ts:223:3
+      at Object.<anonymous> (src/modules/recurring-bookings/recurring-bookings.test.ts:222:1)
+
+ FAIL  src/modules/products/products.test.ts (361.366 s)
+  ● /api/products › GET /api/products › 200 — returns paginated products (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      101 |
+      102 |   describe('GET /api/products', () => {
+    > 103 |     it('200 — returns paginated products (ADMIN)', async () => {
+          |     ^
+      104 |       (prisma.product.findMany as jest.Mock).mockResolvedValue([makeProduct()]);
+      105 |       (prisma.product.count as jest.Mock).mockResolvedValue(1);
+      106 |
+
+      at src/modules/products/products.test.ts:103:5
+      at src/modules/products/products.test.ts:102:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      113 |     });
+      114 |
+    > 115 |     it('401 — unauthenticated', async () => {
+          |     ^
+      116 |       const res = await request(app).get('/api/products');
+      117 |       expect(res.status).toBe(401);
+      118 |     });
+
+      at src/modules/products/products.test.ts:115:5
+      at src/modules/products/products.test.ts:102:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products › 403 — CUSTOMER cannot access products
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      118 |     });
+      119 |
+    > 120 |     it('403 — CUSTOMER cannot access products', async () => {
+          |     ^
+      121 |       const res = await request(app)
+      122 |         .get('/api/products')
+      123 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`);
+
+      at src/modules/products/products.test.ts:120:5
+      at src/modules/products/products.test.ts:102:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products/:id › 200 — returns product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      129 |
+      130 |   describe('GET /api/products/:id', () => {
+    > 131 |     it('200 — returns product (ADMIN)', async () => {
+          |     ^
+      132 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct());
+      133 |
+      134 |       const res = await request(app)
+
+      at src/modules/products/products.test.ts:131:5
+      at src/modules/products/products.test.ts:130:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › GET /api/products/:id › 404 — product not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      140 |     });
+      141 |
+    > 142 |     it('404 — product not found', async () => {
+          |     ^
+      143 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
+      144 |
+      145 |       const res = await request(app)
+
+      at src/modules/products/products.test.ts:142:5
+      at src/modules/products/products.test.ts:130:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › POST /api/products › 201 — creates product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      154 |
+      155 |   describe('POST /api/products', () => {
+    > 156 |     it('201 — creates product (ADMIN)', async () => {
+          |     ^
+      157 |       (prisma.product.create as jest.Mock).mockResolvedValue(makeProduct({ stockLevel: 0 }));
+      158 |       (prisma.stockMovement.create as jest.Mock).mockResolvedValue({});
+      159 |
+
+      at src/modules/products/products.test.ts:156:5
+      at src/modules/products/products.test.ts:155:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › POST /api/products › 400 — validation error when name is missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      167 |     });
+      168 |
+    > 169 |     it('400 — validation error when name is missing', async () => {
+          |     ^
+      170 |       const res = await request(app)
+      171 |         .post('/api/products')
+      172 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/products/products.test.ts:169:5
+      at src/modules/products/products.test.ts:155:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id › 200 — updates product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      180 |
+      181 |   describe('PATCH /api/products/:id', () => {
+    > 182 |     it('200 — updates product (ADMIN)', async () => {
+          |     ^
+      183 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct());
+      184 |       (prisma.product.update as jest.Mock).mockResolvedValue(makeProduct({ name: 'Red Ink' }));
+      185 |
+
+      at src/modules/products/products.test.ts:182:5
+      at src/modules/products/products.test.ts:181:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id › 404 — product not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      192 |     });
+      193 |
+    > 194 |     it('404 — product not found', async () => {
+          |     ^
+      195 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
+      196 |
+      197 |       const res = await request(app)
+
+      at src/modules/products/products.test.ts:194:5
+      at src/modules/products/products.test.ts:181:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › DELETE /api/products/:id › 200 — soft-deletes product (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      207 |
+      208 |   describe('DELETE /api/products/:id', () => {
+    > 209 |     it('200 — soft-deletes product (ADMIN)', async () => {
+          |     ^
+      210 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct());
+      211 |       (prisma.product.update as jest.Mock).mockResolvedValue({});
+      212 |
+
+      at src/modules/products/products.test.ts:209:5
+      at src/modules/products/products.test.ts:208:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id/stock › 200 — adjusts stock successfully (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      223 |
+      224 |   describe('PATCH /api/products/:id/stock', () => {
+    > 225 |     it('200 — adjusts stock successfully (ADMIN)', async () => {
+          |     ^
+      226 |       (prisma.product.findUnique as jest.Mock).mockResolvedValue(makeProduct({ stockLevel: 10 }));
+      227 |       (prisma.product.update as jest.Mock).mockResolvedValue(makeProduct({ stockLevel: 60 }));
+      228 |       (prisma.stockMovement.create as jest.Mock).mockResolvedValue({});
+
+      at src/modules/products/products.test.ts:225:5
+      at src/modules/products/products.test.ts:224:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+  ● /api/products › PATCH /api/products/:id/stock › 400 — invalid reason enum
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      237 |     });
+      238 |
+    > 239 |     it('400 — invalid reason enum', async () => {
+          |     ^
+      240 |       const res = await request(app)
+      241 |         .patch('/api/products/prod-1/stock')
+      242 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/products/products.test.ts:239:5
+      at src/modules/products/products.test.ts:224:3
+      at Object.<anonymous> (src/modules/products/products.test.ts:90:1)
+
+ FAIL  src/modules/booking-photos/booking-photos.test.ts (211.353 s)
+  ● /api/booking-photos › POST /api/booking-photos/:bookingId › 201 — creates a photo record
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      81 |
+      82 |   describe('POST /api/booking-photos/:bookingId', () => {
+    > 83 |     it('201 — creates a photo record', async () => {
+         |     ^
+      84 |       (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+      85 |         id: 'b-1', tenantId: 'tenant-1',
+      86 |       });
+
+      at src/modules/booking-photos/booking-photos.test.ts:83:5
+      at src/modules/booking-photos/booking-photos.test.ts:82:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+  ● /api/booking-photos › POST /api/booking-photos/:bookingId › 404 — booking not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      101 |     });
+      102 |
+    > 103 |     it('404 — booking not found', async () => {
+          |     ^
+      104 |       (prisma.booking.findUnique as jest.Mock).mockResolvedValue(null);
+      105 |
+      106 |       const res = await request(app)
+
+      at src/modules/booking-photos/booking-photos.test.ts:103:5
+      at src/modules/booking-photos/booking-photos.test.ts:82:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+  ● /api/booking-photos › GET /api/booking-photos/:bookingId › 200 — returns photos for booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      124 |
+      125 |   describe('GET /api/booking-photos/:bookingId', () => {
+    > 126 |     it('200 — returns photos for booking', async () => {
+          |     ^
+      127 |       (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+      128 |         id: 'b-1', tenantId: 'tenant-1',
+      129 |       });
+
+      at src/modules/booking-photos/booking-photos.test.ts:126:5
+      at src/modules/booking-photos/booking-photos.test.ts:125:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+  ● /api/booking-photos › GET /api/booking-photos/:bookingId › 404 — booking not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      142 |     });
+      143 |
+    > 144 |     it('404 — booking not found', async () => {
+          |     ^
+      145 |       (prisma.booking.findUnique as jest.Mock).mockResolvedValue(null);
+      146 |
+      147 |       const res = await request(app)
+
+      at src/modules/booking-photos/booking-photos.test.ts:144:5
+      at src/modules/booking-photos/booking-photos.test.ts:125:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+  ● /api/booking-photos › DELETE /api/booking-photos/:photoId › 200 — deletes photo
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      156 |
+      157 |   describe('DELETE /api/booking-photos/:photoId', () => {
+    > 158 |     it('200 — deletes photo', async () => {
+          |     ^
+      159 |       (prisma.bookingPhoto.findUnique as jest.Mock).mockResolvedValue({
+      160 |         id: 'p-1', tenantId: 'tenant-1',
+      161 |       });
+
+      at src/modules/booking-photos/booking-photos.test.ts:158:5
+      at src/modules/booking-photos/booking-photos.test.ts:157:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+  ● /api/booking-photos › DELETE /api/booking-photos/:photoId › 404 — photo not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      170 |     });
+      171 |
+    > 172 |     it('404 — photo not found', async () => {
+          |     ^
+      173 |       (prisma.bookingPhoto.findUnique as jest.Mock).mockResolvedValue(null);
+      174 |
+      175 |       const res = await request(app)
+
+      at src/modules/booking-photos/booking-photos.test.ts:172:5
+      at src/modules/booking-photos/booking-photos.test.ts:157:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+  ● /api/booking-photos › Role enforcement › 403 — CUSTOMER cannot upload photos
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      202 |
+      203 |   describe('Role enforcement', () => {
+    > 204 |     it('403 — CUSTOMER cannot upload photos', async () => {
+          |     ^
+      205 |       const res = await request(app)
+      206 |         .post('/api/booking-photos/b-1')
+      207 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`)
+
+      at src/modules/booking-photos/booking-photos.test.ts:204:5
+      at src/modules/booking-photos/booking-photos.test.ts:203:3
+      at Object.<anonymous> (src/modules/booking-photos/booking-photos.test.ts:70:1)
+
+ FAIL  src/modules/campaigns/campaigns.test.ts (300.928 s)
+  ● GET /api/campaigns › 200 — ADMIN lists campaigns
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      93 | // ─────────────────────────────────────────────────────────────────────────────
+      94 | describe('GET /api/campaigns', () => {
+    > 95 |   it('200 — ADMIN lists campaigns', async () => {
+         |   ^
+      96 |     (prisma.campaign.findMany as jest.Mock).mockResolvedValue([baseCampaign]);
+      97 |     (prisma.campaign.count    as jest.Mock).mockResolvedValue(1);
+      98 |
+
+      at src/modules/campaigns/campaigns.test.ts:95:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:94:1)
+
+  ● GET /api/campaigns › 403 — ARTIST cannot list campaigns
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      110 |   });
+      111 |
+    > 112 |   it('403 — ARTIST cannot list campaigns', async () => {
+          |   ^
+      113 |     const res = await request(app)
+      114 |       .get('/api/campaigns')
+      115 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/campaigns/campaigns.test.ts:112:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:94:1)
+
+  ● GET /api/campaigns/:id › 200 — ADMIN gets campaign
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      121 | // ─────────────────────────────────────────────────────────────────────────────
+      122 | describe('GET /api/campaigns/:id', () => {
+    > 123 |   it('200 — ADMIN gets campaign', async () => {
+          |   ^
+      124 |     (prisma.campaign.findFirst as jest.Mock).mockResolvedValue(baseCampaign);
+      125 |
+      126 |     const res = await request(app)
+
+      at src/modules/campaigns/campaigns.test.ts:123:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:122:1)
+
+  ● GET /api/campaigns/:id › 404 — unknown campaign
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      132 |   });
+      133 |
+    > 134 |   it('404 — unknown campaign', async () => {
+          |   ^
+      135 |     (prisma.campaign.findFirst as jest.Mock).mockResolvedValue(null);
+      136 |
+      137 |     const res = await request(app)
+
+      at src/modules/campaigns/campaigns.test.ts:134:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:122:1)
+
+  ● GET /api/campaigns/:id/stats › 200 — ADMIN gets campaign stats
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      145 | // ─────────────────────────────────────────────────────────────────────────────
+      146 | describe('GET /api/campaigns/:id/stats', () => {
+    > 147 |   it('200 — ADMIN gets campaign stats', async () => {
+          |   ^
+      148 |     (prisma.campaign.findFirst as jest.Mock).mockResolvedValue(baseCampaign);
+      149 |
+      150 |     const res = await request(app)
+
+      at src/modules/campaigns/campaigns.test.ts:147:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:146:1)
+
+  ● POST /api/campaigns › 201 — ADMIN creates campaign
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      159 | // ─────────────────────────────────────────────────────────────────────────────
+      160 | describe('POST /api/campaigns', () => {
+    > 161 |   it('201 — ADMIN creates campaign', async () => {
+          |   ^
+      162 |     (prisma.campaign.create as jest.Mock).mockResolvedValue(baseCampaign);
+      163 |
+      164 |     const res = await request(app)
+
+      at src/modules/campaigns/campaigns.test.ts:161:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:160:1)
+
+  ● POST /api/campaigns › 400 — validation error (missing name)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      175 |   });
+      176 |
+    > 177 |   it('400 — validation error (missing name)', async () => {
+          |   ^
+      178 |     const res = await request(app)
+      179 |       .post('/api/campaigns')
+      180 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/campaigns/campaigns.test.ts:177:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:160:1)
+
+  ● PATCH /api/campaigns/:id › 200 — ADMIN updates campaign
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      187 | // ─────────────────────────────────────────────────────────────────────────────
+      188 | describe('PATCH /api/campaigns/:id', () => {
+    > 189 |   it('200 — ADMIN updates campaign', async () => {
+          |   ^
+      190 |     (prisma.campaign.findFirst as jest.Mock).mockResolvedValue(baseCampaign);
+      191 |     (prisma.campaign.update    as jest.Mock).mockResolvedValue({ ...baseCampaign, name: 'Summer Promo' });
+      192 |
+
+      at src/modules/campaigns/campaigns.test.ts:189:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:188:1)
+
+  ● PATCH /api/campaigns/:id › 400 — empty body rejected
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      200 |   });
+      201 |
+    > 202 |   it('400 — empty body rejected', async () => {
+          |   ^
+      203 |     const res = await request(app)
+      204 |       .patch('/api/campaigns/camp_1')
+      205 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/campaigns/campaigns.test.ts:202:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:188:1)
+
+  ● Feature flag gating › 503 — when CAMPAIGNS_ENABLED is false
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      212 | // ─────────────────────────────────────────────────────────────────────────────
+      213 | describe('Feature flag gating', () => {
+    > 214 |   it('503 — when CAMPAIGNS_ENABLED is false', async () => {
+          |   ^
+      215 |     const orig = process.env['BUSINESS_TYPE'];
+      216 |     process.env['BUSINESS_TYPE'] = 'restaurant';
+      217 |
+
+      at src/modules/campaigns/campaigns.test.ts:214:3
+      at Object.<anonymous> (src/modules/campaigns/campaigns.test.ts:213:1)
+
+ FAIL  src/modules/invoices/invoices.test.ts (272.85 s)
+  ● GET /api/invoices › 200 — ADMIN lists invoices
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      80 | // ─────────────────────────────────────────────────────────────────────────────
+      81 | describe('GET /api/invoices', () => {
+    > 82 |   it('200 — ADMIN lists invoices', async () => {
+         |   ^
+      83 |     (prisma.invoice.findMany as jest.Mock).mockResolvedValue([baseInvoice]);
+      84 |     (prisma.invoice.count    as jest.Mock).mockResolvedValue(1);
+      85 |
+
+      at src/modules/invoices/invoices.test.ts:82:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:81:1)
+
+  ● GET /api/invoices › 403 — ARTIST cannot list all invoices
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       97 |   });
+       98 |
+    >  99 |   it('403 — ARTIST cannot list all invoices', async () => {
+          |   ^
+      100 |     const res = await request(app)
+      101 |       .get('/api/invoices')
+      102 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/invoices/invoices.test.ts:99:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:81:1)
+
+  ● GET /api/invoices/:id › 200 — ADMIN gets any invoice
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      108 | // ─────────────────────────────────────────────────────────────────────────────
+      109 | describe('GET /api/invoices/:id', () => {
+    > 110 |   it('200 — ADMIN gets any invoice', async () => {
+          |   ^
+      111 |     (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(baseInvoice);
+      112 |
+      113 |     const res = await request(app)
+
+      at src/modules/invoices/invoices.test.ts:110:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:109:1)
+
+  ● GET /api/invoices/:id › 200 — ARTIST gets own invoice
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      119 |   });
+      120 |
+    > 121 |   it('200 — ARTIST gets own invoice', async () => {
+          |   ^
+      122 |     (prisma.artist.findFirst   as jest.Mock).mockResolvedValue(baseArtist);
+      123 |     (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(baseInvoice);
+      124 |
+
+      at src/modules/invoices/invoices.test.ts:121:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:109:1)
+
+  ● GET /api/invoices/:id › 404 — unknown invoice
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      130 |   });
+      131 |
+    > 132 |   it('404 — unknown invoice', async () => {
+          |   ^
+      133 |     (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(null);
+      134 |
+      135 |     const res = await request(app)
+
+      at src/modules/invoices/invoices.test.ts:132:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:109:1)
+
+  ● PATCH /api/invoices/:id/send › 200 — ARTIST sends invoice email
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      143 | // ─────────────────────────────────────────────────────────────────────────────
+      144 | describe('PATCH /api/invoices/:id/send', () => {
+    > 145 |   it('200 — ARTIST sends invoice email', async () => {
+          |   ^
+      146 |     (prisma.artist.findFirst   as jest.Mock).mockResolvedValue(baseArtist);
+      147 |     (prisma.invoice.findUnique as jest.Mock)
+      148 |       .mockResolvedValueOnce(baseInvoice)  // initial lookup
+
+      at src/modules/invoices/invoices.test.ts:145:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:144:1)
+
+  ● PATCH /api/invoices/:id/mark-paid › 200 — ADMIN marks invoice as PAID
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      161 | // ─────────────────────────────────────────────────────────────────────────────
+      162 | describe('PATCH /api/invoices/:id/mark-paid', () => {
+    > 163 |   it('200 — ADMIN marks invoice as PAID', async () => {
+          |   ^
+      164 |     (prisma.invoice.findUnique as jest.Mock)
+      165 |       .mockResolvedValueOnce(baseInvoice)
+      166 |       .mockResolvedValueOnce(paidInvoice);
+
+      at src/modules/invoices/invoices.test.ts:163:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:162:1)
+
+  ● PATCH /api/invoices/:id/mark-paid › 403 — ARTIST cannot mark invoice as paid
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      175 |   });
+      176 |
+    > 177 |   it('403 — ARTIST cannot mark invoice as paid', async () => {
+          |   ^
+      178 |     const res = await request(app)
+      179 |       .patch('/api/invoices/inv_1/mark-paid')
+      180 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/invoices/invoices.test.ts:177:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:162:1)
+
+  ● PATCH /api/invoices/:id/void › 200 — ADMIN voids UNPAID invoice
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      186 | // ─────────────────────────────────────────────────────────────────────────────
+      187 | describe('PATCH /api/invoices/:id/void', () => {
+    > 188 |   it('200 — ADMIN voids UNPAID invoice', async () => {
+          |   ^
+      189 |     const voidedInvoice = { ...baseInvoice, status: 'VOID' as const };
+      190 |
+      191 |     (prisma.invoice.findUnique as jest.Mock)
+
+      at src/modules/invoices/invoices.test.ts:188:3
+      at Object.<anonymous> (src/modules/invoices/invoices.test.ts:187:1)
+
+ FAIL  src/modules/styles/styles.test.ts (182.347 s)
+  ● POST /api/styles › 201 — ADMIN creates style
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      106 |   const validBody = { name: 'Neo Traditional', description: 'Colorful bold lines' };
+      107 |
+    > 108 |   it('201 — ADMIN creates style', async () => {
+          |   ^
+      109 |     (prisma.tattooStyle.findUnique as jest.Mock).mockResolvedValue(null); // no duplicate
+      110 |     (prisma.tattooStyle.create     as jest.Mock).mockResolvedValue(baseStyle);
+      111 |
+
+      at src/modules/styles/styles.test.ts:108:3
+      at Object.<anonymous> (src/modules/styles/styles.test.ts:105:1)
+
+  ● POST /api/styles › 403 — CUSTOMER cannot create style
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      124 |   });
+      125 |
+    > 126 |   it('403 — CUSTOMER cannot create style', async () => {
+          |   ^
+      127 |     const res = await request(app)
+      128 |       .post('/api/styles')
+      129 |       .set('Authorization', makeToken('CUSTOMER'))
+
+      at src/modules/styles/styles.test.ts:126:3
+      at Object.<anonymous> (src/modules/styles/styles.test.ts:105:1)
+
+  ● POST /api/styles › 400 — missing name
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      133 |   });
+      134 |
+    > 135 |   it('400 — missing name', async () => {
+          |   ^
+      136 |     const res = await request(app)
+      137 |       .post('/api/styles')
+      138 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/styles/styles.test.ts:135:3
+      at Object.<anonymous> (src/modules/styles/styles.test.ts:105:1)
+
+  ● PATCH /api/styles/:id › 200 — ADMIN updates style
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      145 | // ─────────────────────────────────────────────────────────────────────────────
+      146 | describe('PATCH /api/styles/:id', () => {
+    > 147 |   it('200 — ADMIN updates style', async () => {
+          |   ^
+      148 |     (prisma.tattooStyle.findUnique as jest.Mock)
+      149 |       .mockResolvedValueOnce(baseStyle)  // style existence check
+      150 |       .mockResolvedValueOnce(null);      // name uniqueness check — no clash
+
+      at src/modules/styles/styles.test.ts:147:3
+      at Object.<anonymous> (src/modules/styles/styles.test.ts:146:1)
+
+  ● DELETE /api/styles/:id › 204 — ADMIN soft-deletes style
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      168 | // ─────────────────────────────────────────────────────────────────────────────
+      169 | describe('DELETE /api/styles/:id', () => {
+    > 170 |   it('204 — ADMIN soft-deletes style', async () => {
+          |   ^
+      171 |     (prisma.tattooStyle.findUnique as jest.Mock).mockResolvedValue(baseStyle);
+      172 |     (prisma.tattooStyle.update     as jest.Mock).mockResolvedValue({ ...baseStyle, isActive: false });
+      173 |
+
+      at src/modules/styles/styles.test.ts:170:3
+      at Object.<anonymous> (src/modules/styles/styles.test.ts:169:1)
+
+  ● DELETE /api/styles/:id › 403 — ARTIST cannot delete style
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      179 |   });
+      180 |
+    > 181 |   it('403 — ARTIST cannot delete style', async () => {
+          |   ^
+      182 |     const res = await request(app)
+      183 |       .delete('/api/styles/s_1')
+      184 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/styles/styles.test.ts:181:3
+      at Object.<anonymous> (src/modules/styles/styles.test.ts:169:1)
+
+ FAIL  src/middleware/auth.test.ts (31.386 s)
+  ● requireAuth › calls next() and sets req.user for a valid Bearer token
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      53 |
+      54 | describe('requireAuth', () => {
+    > 55 |   it('calls next() and sets req.user for a valid Bearer token', async () => {
+         |   ^
+      56 |     const baseUser = {
+      57 |       id: 'u1',
+      58 |       email: 'test@example.com',
+
+      at src/middleware/auth.test.ts:55:3
+      at Object.<anonymous> (src/middleware/auth.test.ts:54:1)
+
+  ● requireAuth › calls next(AppError 401) for an invalid/tampered token
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: Any<AppError>
+
+    Number of calls: 0
+
+      127 |     requireAuth(req, res, next);
+      128 |
+    > 129 |     expect(next).toHaveBeenCalledWith(expect.any(AppError));
+          |                  ^
+      130 |     const err = (next as jest.Mock).mock.calls[0][0] as AppError;
+      131 |     expect(err.statusCode).toBe(401);
+      132 |   });
+
+      at Object.<anonymous> (src/middleware/auth.test.ts:129:18)
+
+ FAIL  src/modules/rota/rota.test.ts (332.343 s)
+  ● GET /api/rota/week › returns 200 with rota grid for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       97 |
+       98 | describe('GET /api/rota/week', () => {
+    >  99 |   it('returns 200 with rota grid for ADMIN', async () => {
+          |   ^
+      100 |     (prisma.shift.findMany as jest.Mock).mockResolvedValue([makeShift()]);
+      101 |
+      102 |     const res = await request(app)
+
+      at src/modules/rota/rota.test.ts:99:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:98:1)
+
+  ● GET /api/rota/week › returns 400 when from param is missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      108 |   });
+      109 |
+    > 110 |   it('returns 400 when from param is missing', async () => {
+          |   ^
+      111 |     const res = await request(app)
+      112 |       .get('/api/rota/week')
+      113 |       .set('Authorization', `Bearer ${makeToken('ADMIN')}`);
+
+      at src/modules/rota/rota.test.ts:110:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:98:1)
+
+  ● GET /api/rota/shifts › returns 200 list for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      123 |
+      124 | describe('GET /api/rota/shifts', () => {
+    > 125 |   it('returns 200 list for ADMIN', async () => {
+          |   ^
+      126 |     (prisma.shift.findMany as jest.Mock).mockResolvedValue([makeShift()]);
+      127 |
+      128 |     const res = await request(app)
+
+      at src/modules/rota/rota.test.ts:125:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:124:1)
+
+  ● POST /api/rota/shifts › returns 201 for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      149 |   };
+      150 |
+    > 151 |   it('returns 201 for ADMIN', async () => {
+          |   ^
+      152 |     (prisma.artist.findUnique as jest.Mock).mockResolvedValue({
+      153 |       id: 'artist-1', tenantId: 'tenant-1',
+      154 |     });
+
+      at src/modules/rota/rota.test.ts:151:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:142:1)
+
+  ● POST /api/rota/shifts › returns 400 for invalid body (endTime before startTime)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      164 |   });
+      165 |
+    > 166 |   it('returns 400 for invalid body (endTime before startTime)', async () => {
+          |   ^
+      167 |     const res = await request(app)
+      168 |       .post('/api/rota/shifts')
+      169 |       .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/rota/rota.test.ts:166:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:142:1)
+
+  ● GET /api/rota/shifts/:id › returns 200 with shift
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      180 |
+      181 | describe('GET /api/rota/shifts/:id', () => {
+    > 182 |   it('returns 200 with shift', async () => {
+          |   ^
+      183 |     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(makeShift());
+      184 |
+      185 |     const res = await request(app)
+
+      at src/modules/rota/rota.test.ts:182:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:181:1)
+
+  ● GET /api/rota/shifts/:id › returns 404 when shift not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      191 |   });
+      192 |
+    > 193 |   it('returns 404 when shift not found', async () => {
+          |   ^
+      194 |     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(null);
+      195 |
+      196 |     const res = await request(app)
+
+      at src/modules/rota/rota.test.ts:193:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:181:1)
+
+  ● PATCH /api/rota/shifts/:id › returns 200 on successful update
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      203 |
+      204 | describe('PATCH /api/rota/shifts/:id', () => {
+    > 205 |   it('returns 200 on successful update', async () => {
+          |   ^
+      206 |     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(
+      207 |       makeShift({ startTime: '09:00', endTime: '17:00' }),
+      208 |     );
+
+      at src/modules/rota/rota.test.ts:205:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:204:1)
+
+  ● DELETE /api/rota/shifts/:id › returns 200 on successful delete
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      219 |
+      220 | describe('DELETE /api/rota/shifts/:id', () => {
+    > 221 |   it('returns 200 on successful delete', async () => {
+          |   ^
+      222 |     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(makeShift());
+      223 |     (prisma.shift.delete as jest.Mock).mockResolvedValue(undefined);
+      224 |
+
+      at src/modules/rota/rota.test.ts:221:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:220:1)
+
+  ● POST /api/rota/shifts/:id/override › returns 201 on successful override
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      233 |
+      234 | describe('POST /api/rota/shifts/:id/override', () => {
+    > 235 |   it('returns 201 on successful override', async () => {
+          |   ^
+      236 |     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(makeShift());
+      237 |     (prisma.shiftOverride.upsert as jest.Mock).mockResolvedValue({
+      238 |       id:        'override-1',
+
+      at src/modules/rota/rota.test.ts:235:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:234:1)
+
+  ● POST /api/rota/shifts/:id/override › returns 404 when shift not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      254 |   });
+      255 |
+    > 256 |   it('returns 404 when shift not found', async () => {
+          |   ^
+      257 |     (prisma.shift.findUnique as jest.Mock).mockResolvedValue(null);
+      258 |
+      259 |     const res = await request(app)
+
+      at src/modules/rota/rota.test.ts:256:3
+      at Object.<anonymous> (src/modules/rota/rota.test.ts:234:1)
+
+ FAIL  src/modules/gift-cards/gift-cards.test.ts (332.341 s)
+  ● /api/gift-cards › GET /api/gift-cards/:code › 200 — returns balance info (no auth required)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       95 |
+       96 |   describe('GET /api/gift-cards/:code', () => {
+    >  97 |     it('200 — returns balance info (no auth required)', async () => {
+          |     ^
+       98 |       (prisma.giftCard.findUnique as jest.Mock).mockResolvedValue(makeCard());
+       99 |
+      100 |       const res = await request(app).get('/api/gift-cards/ABCDEF123456');
+
+      at src/modules/gift-cards/gift-cards.test.ts:97:5
+      at src/modules/gift-cards/gift-cards.test.ts:96:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › GET /api/gift-cards/:code › 404 — unknown gift card code
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      105 |     });
+      106 |
+    > 107 |     it('404 — unknown gift card code', async () => {
+          |     ^
+      108 |       (prisma.giftCard.findUnique as jest.Mock).mockResolvedValue(null);
+      109 |
+      110 |       const res = await request(app).get('/api/gift-cards/BADCODE');
+
+      at src/modules/gift-cards/gift-cards.test.ts:107:5
+      at src/modules/gift-cards/gift-cards.test.ts:96:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › GET /api/gift-cards/:code › 410 — expired gift card
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      113 |     });
+      114 |
+    > 115 |     it('410 — expired gift card', async () => {
+          |     ^
+      116 |       (prisma.giftCard.findUnique as jest.Mock).mockResolvedValue(
+      117 |         makeCard({ expiresAt: new Date('2020-01-01') }),
+      118 |       );
+
+      at src/modules/gift-cards/gift-cards.test.ts:115:5
+      at src/modules/gift-cards/gift-cards.test.ts:96:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › GET /api/gift-cards › 200 — returns paginated list (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      127 |
+      128 |   describe('GET /api/gift-cards', () => {
+    > 129 |     it('200 — returns paginated list (ADMIN)', async () => {
+          |     ^
+      130 |       (prisma.giftCard.findMany as jest.Mock).mockResolvedValue([makeCard()]);
+      131 |       (prisma.giftCard.count as jest.Mock).mockResolvedValue(1);
+      132 |
+
+      at src/modules/gift-cards/gift-cards.test.ts:129:5
+      at src/modules/gift-cards/gift-cards.test.ts:128:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › GET /api/gift-cards › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      140 |     });
+      141 |
+    > 142 |     it('401 — unauthenticated', async () => {
+          |     ^
+      143 |       const res = await request(app).get('/api/gift-cards');
+      144 |       expect(res.status).toBe(401);
+      145 |     });
+
+      at src/modules/gift-cards/gift-cards.test.ts:142:5
+      at src/modules/gift-cards/gift-cards.test.ts:128:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › GET /api/gift-cards › 403 — CUSTOMER cannot list gift cards
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      145 |     });
+      146 |
+    > 147 |     it('403 — CUSTOMER cannot list gift cards', async () => {
+          |     ^
+      148 |       const res = await request(app)
+      149 |         .get('/api/gift-cards')
+      150 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`);
+
+      at src/modules/gift-cards/gift-cards.test.ts:147:5
+      at src/modules/gift-cards/gift-cards.test.ts:128:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › POST /api/gift-cards › 201 — creates gift card (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      157 |
+      158 |   describe('POST /api/gift-cards', () => {
+    > 159 |     it('201 — creates gift card (ADMIN)', async () => {
+          |     ^
+      160 |       (prisma.giftCard.create as jest.Mock).mockResolvedValue(makeCard());
+      161 |
+      162 |       const res = await request(app)
+
+      at src/modules/gift-cards/gift-cards.test.ts:159:5
+      at src/modules/gift-cards/gift-cards.test.ts:158:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › POST /api/gift-cards › 400 — validation error when originalValue missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      169 |     });
+      170 |
+    > 171 |     it('400 — validation error when originalValue missing', async () => {
+          |     ^
+      172 |       const res = await request(app)
+      173 |         .post('/api/gift-cards')
+      174 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/gift-cards/gift-cards.test.ts:171:5
+      at src/modules/gift-cards/gift-cards.test.ts:158:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › POST /api/gift-cards › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      178 |     });
+      179 |
+    > 180 |     it('401 — unauthenticated', async () => {
+          |     ^
+      181 |       const res = await request(app)
+      182 |         .post('/api/gift-cards')
+      183 |         .send({ originalValue: 50 });
+
+      at src/modules/gift-cards/gift-cards.test.ts:180:5
+      at src/modules/gift-cards/gift-cards.test.ts:158:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › POST /api/gift-cards/:code/redeem › 200 — redeems partial amount (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      190 |
+      191 |   describe('POST /api/gift-cards/:code/redeem', () => {
+    > 192 |     it('200 — redeems partial amount (ADMIN)', async () => {
+          |     ^
+      193 |       (prisma.giftCard.findUnique as jest.Mock).mockResolvedValue(makeCard({ currentBalance: 50 }));
+      194 |       (prisma.giftCard.update as jest.Mock).mockResolvedValue(
+      195 |         makeCard({ currentBalance: 30, isRedeemed: false }),
+
+      at src/modules/gift-cards/gift-cards.test.ts:192:5
+      at src/modules/gift-cards/gift-cards.test.ts:191:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+  ● /api/gift-cards › POST /api/gift-cards/:code/redeem › 409 — already fully redeemed
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      206 |     });
+      207 |
+    > 208 |     it('409 — already fully redeemed', async () => {
+          |     ^
+      209 |       (prisma.giftCard.findUnique as jest.Mock).mockResolvedValue(makeCard({ isRedeemed: true }));
+      210 |
+      211 |       const res = await request(app)
+
+      at src/modules/gift-cards/gift-cards.test.ts:208:5
+      at src/modules/gift-cards/gift-cards.test.ts:191:3
+      at Object.<anonymous> (src/modules/gift-cards/gift-cards.test.ts:84:1)
+
+ FAIL  src/modules/payroll/payroll.test.ts (242.606 s)
+  ● /api/payroll › POST /api/payroll/generate › 201 — generates payroll report (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      105 |
+      106 |   describe('POST /api/payroll/generate', () => {
+    > 107 |     it('201 — generates payroll report (ADMIN)', async () => {
+          |     ^
+      108 |       (prisma.artist.findUnique as jest.Mock).mockResolvedValue(makeArtist());
+      109 |       (prisma.booking.findMany as jest.Mock).mockResolvedValue([{ id: 'book-1' }]);
+      110 |       (prisma.payment.findMany as jest.Mock).mockResolvedValue([{ amount: 500, tipAmount: 20 }]);
+
+      at src/modules/payroll/payroll.test.ts:107:5
+      at src/modules/payroll/payroll.test.ts:106:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › POST /api/payroll/generate › 400 — validation error when periodStart is missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      125 |     });
+      126 |
+    > 127 |     it('400 — validation error when periodStart is missing', async () => {
+          |     ^
+      128 |       const res = await request(app)
+      129 |         .post('/api/payroll/generate')
+      130 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/payroll/payroll.test.ts:127:5
+      at src/modules/payroll/payroll.test.ts:106:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › POST /api/payroll/generate › 403 — forbidden for non-ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      142 |     });
+      143 |
+    > 144 |     it('403 — forbidden for non-ADMIN', async () => {
+          |     ^
+      145 |       const res = await request(app)
+      146 |         .post('/api/payroll/generate')
+      147 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`)
+
+      at src/modules/payroll/payroll.test.ts:144:5
+      at src/modules/payroll/payroll.test.ts:106:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › GET /api/payroll/reports › 200 — returns paginated reports (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      153 |
+      154 |   describe('GET /api/payroll/reports', () => {
+    > 155 |     it('200 — returns paginated reports (ADMIN)', async () => {
+          |     ^
+      156 |       (prisma.payrollReport.findMany as jest.Mock).mockResolvedValue([makeReport()]);
+      157 |       (prisma.payrollReport.count as jest.Mock).mockResolvedValue(1);
+      158 |
+
+      at src/modules/payroll/payroll.test.ts:155:5
+      at src/modules/payroll/payroll.test.ts:154:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › GET /api/payroll/reports/:id › 200 — returns single report (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      172 |
+      173 |   describe('GET /api/payroll/reports/:id', () => {
+    > 174 |     it('200 — returns single report (ADMIN)', async () => {
+          |     ^
+      175 |       (prisma.payrollReport.findUnique as jest.Mock).mockResolvedValue(makeReport());
+      176 |
+      177 |       const res = await request(app)
+
+      at src/modules/payroll/payroll.test.ts:174:5
+      at src/modules/payroll/payroll.test.ts:173:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › GET /api/payroll/reports/:id › 404 — report not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      188 |     });
+      189 |
+    > 190 |     it('404 — report not found', async () => {
+          |     ^
+      191 |       (prisma.payrollReport.findUnique as jest.Mock).mockResolvedValue(null);
+      192 |
+      193 |       const res = await request(app)
+
+      at src/modules/payroll/payroll.test.ts:190:5
+      at src/modules/payroll/payroll.test.ts:173:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › GET /api/payroll/my-earnings › 200 — returns earnings for authenticated ARTIST
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      200 |
+      201 |   describe('GET /api/payroll/my-earnings', () => {
+    > 202 |     it('200 — returns earnings for authenticated ARTIST', async () => {
+          |     ^
+      203 |       (prisma.artist.findUnique as jest.Mock).mockResolvedValue({ id: 'artist-1' });
+      204 |       (prisma.payrollReport.findMany as jest.Mock).mockResolvedValue([makeReport()]);
+      205 |       (prisma.payrollReport.count as jest.Mock).mockResolvedValue(1);
+
+      at src/modules/payroll/payroll.test.ts:202:5
+      at src/modules/payroll/payroll.test.ts:201:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+  ● /api/payroll › GET /api/payroll/my-earnings › 404 — artist profile not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      218 |     });
+      219 |
+    > 220 |     it('404 — artist profile not found', async () => {
+          |     ^
+      221 |       (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
+      222 |
+      223 |       const res = await request(app)
+
+      at src/modules/payroll/payroll.test.ts:220:5
+      at src/modules/payroll/payroll.test.ts:201:3
+      at Object.<anonymous> (src/modules/payroll/payroll.test.ts:96:1)
+
+ FAIL  src/modules/packages/packages.test.ts (241.855 s)
+  ● /api/packages › GET /api/packages › returns 200 for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      101 |
+      102 |   describe('GET /api/packages', () => {
+    > 103 |     it('returns 200 for ADMIN', async () => {
+          |     ^
+      104 |       (prisma.package.findMany as jest.Mock).mockResolvedValue([makePackage()]);
+      105 |       (prisma.package.count as jest.Mock).mockResolvedValue(1);
+      106 |
+
+      at src/modules/packages/packages.test.ts:103:5
+      at src/modules/packages/packages.test.ts:102:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › GET /api/packages › returns 403 when ARTIST
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      118 |     });
+      119 |
+    > 120 |     it('returns 403 when ARTIST', async () => {
+          |     ^
+      121 |       const res = await request(app)
+      122 |         .get('/api/packages')
+      123 |         .set('Authorization', `Bearer ${makeToken('ARTIST')}`);
+
+      at src/modules/packages/packages.test.ts:120:5
+      at src/modules/packages/packages.test.ts:102:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › POST /api/packages › returns 201 for ADMIN with valid body
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      129 |
+      130 |   describe('POST /api/packages', () => {
+    > 131 |     it('returns 201 for ADMIN with valid body', async () => {
+          |     ^
+      132 |       (prisma.package.create as jest.Mock).mockResolvedValue(makePackage());
+      133 |
+      134 |       const res = await request(app)
+
+      at src/modules/packages/packages.test.ts:131:5
+      at src/modules/packages/packages.test.ts:130:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › POST /api/packages › returns 400 with missing required field
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      144 |     });
+      145 |
+    > 146 |     it('returns 400 with missing required field', async () => {
+          |     ^
+      147 |       const res = await request(app)
+      148 |         .post('/api/packages')
+      149 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/packages/packages.test.ts:146:5
+      at src/modules/packages/packages.test.ts:130:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › GET /api/packages/:id › returns 200 for existing package
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      157 |
+      158 |   describe('GET /api/packages/:id', () => {
+    > 159 |     it('returns 200 for existing package', async () => {
+          |     ^
+      160 |       (prisma.package.findUnique as jest.Mock).mockResolvedValue(makePackage());
+      161 |
+      162 |       const res = await request(app)
+
+      at src/modules/packages/packages.test.ts:159:5
+      at src/modules/packages/packages.test.ts:158:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › GET /api/packages/:id › returns 404 for unknown package
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      167 |     });
+      168 |
+    > 169 |     it('returns 404 for unknown package', async () => {
+          |     ^
+      170 |       (prisma.package.findUnique as jest.Mock).mockResolvedValue(null);
+      171 |
+      172 |       const res = await request(app)
+
+      at src/modules/packages/packages.test.ts:169:5
+      at src/modules/packages/packages.test.ts:158:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › PUT /api/packages/:id › returns 200 for ADMIN with valid update
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      181 |
+      182 |   describe('PUT /api/packages/:id', () => {
+    > 183 |     it('returns 200 for ADMIN with valid update', async () => {
+          |     ^
+      184 |       (prisma.package.findUnique as jest.Mock).mockResolvedValue(makePackage());
+      185 |       (prisma.package.update as jest.Mock).mockResolvedValue(
+      186 |         makePackage({ name: 'Updated Bundle' }),
+
+      at src/modules/packages/packages.test.ts:183:5
+      at src/modules/packages/packages.test.ts:182:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+  ● /api/packages › DELETE /api/packages/:id › returns 200 and soft-deletes the package
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      199 |
+      200 |   describe('DELETE /api/packages/:id', () => {
+    > 201 |     it('returns 200 and soft-deletes the package', async () => {
+          |     ^
+      202 |       (prisma.package.findUnique as jest.Mock).mockResolvedValue(makePackage());
+      203 |       (prisma.package.update as jest.Mock).mockResolvedValue(makePackage({ isActive: false }));
+      204 |
+
+      at src/modules/packages/packages.test.ts:201:5
+      at src/modules/packages/packages.test.ts:200:3
+      at Object.<anonymous> (src/modules/packages/packages.test.ts:91:1)
+
+ FAIL  src/modules/uploads/uploads.test.ts (185.343 s)
+  ● POST /api/uploads/images › 201 — authenticated user uploads a valid JPEG
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      94 | // ─────────────────────────────────────────────────────────────────────────────
+      95 | describe('POST /api/uploads/images', () => {
+    > 96 |   it('201 — authenticated user uploads a valid JPEG', async () => {
+         |   ^
+      97 |     const res = await request(app)
+      98 |       .post('/api/uploads/images')
+      99 |       .set('Authorization', makeToken('ARTIST'))
+
+      at src/modules/uploads/uploads.test.ts:96:3
+      at Object.<anonymous> (src/modules/uploads/uploads.test.ts:95:1)
+
+  ● POST /api/uploads/images › 400 — no files attached
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      115 |   });
+      116 |
+    > 117 |   it('400 — no files attached', async () => {
+          |   ^
+      118 |     const res = await request(app)
+      119 |       .post('/api/uploads/images')
+      120 |       .set('Authorization', makeToken('ARTIST'));
+
+      at src/modules/uploads/uploads.test.ts:117:3
+      at Object.<anonymous> (src/modules/uploads/uploads.test.ts:95:1)
+
+  ● POST /api/uploads/images › 400 — wrong field name is rejected by Multer
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      125 |   });
+      126 |
+    > 127 |   it('400 — wrong field name is rejected by Multer', async () => {
+          |   ^
+      128 |     const res = await request(app)
+      129 |       .post('/api/uploads/images')
+      130 |       .set('Authorization', makeToken('ARTIST'))
+
+      at src/modules/uploads/uploads.test.ts:127:3
+      at Object.<anonymous> (src/modules/uploads/uploads.test.ts:95:1)
+
+  ● POST /api/uploads/images › 400 — non-image MIME type rejected
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      134 |   });
+      135 |
+    > 136 |   it('400 — non-image MIME type rejected', async () => {
+          |   ^
+      137 |     const pdfBuffer = Buffer.from('%PDF-1.4 fake pdf content here');
+      138 |
+      139 |     const res = await request(app)
+
+      at src/modules/uploads/uploads.test.ts:136:3
+      at Object.<anonymous> (src/modules/uploads/uploads.test.ts:95:1)
+
+  ● POST /api/uploads/images › 502 — Cloudinary upload failure returns 502
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      145 |   });
+      146 |
+    > 147 |   it('502 — Cloudinary upload failure returns 502', async () => {
+          |   ^
+      148 |     (cloudinary.uploader.upload_stream as jest.Mock).mockImplementation(
+      149 |       (_opts: unknown, callback: (error: Error | null, result: unknown) => void) => {
+      150 |         const stream = new PassThrough();
+
+      at src/modules/uploads/uploads.test.ts:147:3
+      at Object.<anonymous> (src/modules/uploads/uploads.test.ts:95:1)
+
+  ● POST /api/uploads/images › 201 — ADMIN can also upload images
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      163 |   });
+      164 |
+    > 165 |   it('201 — ADMIN can also upload images', async () => {
+          |   ^
+      166 |     const res = await request(app)
+      167 |       .post('/api/uploads/images')
+      168 |       .set('Authorization', makeToken('ADMIN'))
+
+      at src/modules/uploads/uploads.test.ts:165:3
+      at Object.<anonymous> (src/modules/uploads/uploads.test.ts:95:1)
+
+ FAIL  src/modules/pos/pos.test.ts (243.493 s)
+  ● /api/pos › POST /api/pos/checkout › 201 — creates booking and payment (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      92 |
+      93 |   describe('POST /api/pos/checkout', () => {
+    > 94 |     it('201 — creates booking and payment (ADMIN)', async () => {
+         |     ^
+      95 |       (prisma.artist.findUnique as jest.Mock).mockResolvedValue({ id: 'artist-1' });
+      96 |       (prisma.booking.create as jest.Mock).mockResolvedValue({
+      97 |         id:          'book-1',
+
+      at src/modules/pos/pos.test.ts:94:5
+      at src/modules/pos/pos.test.ts:93:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › POST /api/pos/checkout › 400 — validation error when amount is missing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      125 |     });
+      126 |
+    > 127 |     it('400 — validation error when amount is missing', async () => {
+          |     ^
+      128 |       const res = await request(app)
+      129 |         .post('/api/pos/checkout')
+      130 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/pos/pos.test.ts:127:5
+      at src/modules/pos/pos.test.ts:93:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › POST /api/pos/checkout › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      134 |     });
+      135 |
+    > 136 |     it('401 — unauthenticated', async () => {
+          |     ^
+      137 |       const res = await request(app)
+      138 |         .post('/api/pos/checkout')
+      139 |         .send({ artistId: 'artist-1', customerName: 'Walk-in', amount: 45 });
+
+      at src/modules/pos/pos.test.ts:136:5
+      at src/modules/pos/pos.test.ts:93:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › POST /api/pos/checkout › 404 — artist not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      142 |     });
+      143 |
+    > 144 |     it('404 — artist not found', async () => {
+          |     ^
+      145 |       (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
+      146 |
+      147 |       const res = await request(app)
+
+      at src/modules/pos/pos.test.ts:144:5
+      at src/modules/pos/pos.test.ts:93:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › GET /api/pos/transactions › 200 — returns paginated transactions (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      157 |
+      158 |   describe('GET /api/pos/transactions', () => {
+    > 159 |     it('200 — returns paginated transactions (ADMIN)', async () => {
+          |     ^
+      160 |       (prisma.payment.findMany as jest.Mock).mockResolvedValue([
+      161 |         { id: 'pay-1', amount: 45, status: 'SUCCEEDED', method: 'CARD', booking: {} },
+      162 |       ]);
+
+      at src/modules/pos/pos.test.ts:159:5
+      at src/modules/pos/pos.test.ts:158:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › GET /api/pos/transactions › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      172 |     });
+      173 |
+    > 174 |     it('401 — unauthenticated', async () => {
+          |     ^
+      175 |       const res = await request(app).get('/api/pos/transactions');
+      176 |       expect(res.status).toBe(401);
+      177 |     });
+
+      at src/modules/pos/pos.test.ts:174:5
+      at src/modules/pos/pos.test.ts:158:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › GET /api/pos/summary › 200 — returns daily summary (ADMIN)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      181 |
+      182 |   describe('GET /api/pos/summary', () => {
+    > 183 |     it('200 — returns daily summary (ADMIN)', async () => {
+          |     ^
+      184 |       (prisma.payment.findMany as jest.Mock).mockResolvedValue([
+      185 |         { amount: 45, tipAmount: 5, method: 'CARD' },
+      186 |         { amount: 30, tipAmount: null, method: 'CASH' },
+
+      at src/modules/pos/pos.test.ts:183:5
+      at src/modules/pos/pos.test.ts:182:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+  ● /api/pos › GET /api/pos/summary › 401 — unauthenticated
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      197 |     });
+      198 |
+    > 199 |     it('401 — unauthenticated', async () => {
+          |     ^
+      200 |       const res = await request(app).get('/api/pos/summary');
+      201 |       expect(res.status).toBe(401);
+      202 |     });
+
+      at src/modules/pos/pos.test.ts:199:5
+      at src/modules/pos/pos.test.ts:182:3
+      at Object.<anonymous> (src/modules/pos/pos.test.ts:81:1)
+
+ FAIL  src/modules/social/social.test.ts (126.218 s)
+  ● /api/social › GET /api/social/booking-link › 200 — ADMIN gets booking link
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      113 |
+      114 |   describe('GET /api/social/booking-link', () => {
+    > 115 |     it('200 — ADMIN gets booking link', async () => {
+          |     ^
+      116 |       (prisma.tenant.findUnique as jest.Mock).mockResolvedValue({ slug: 'test-studio', name: 'Test' });
+      117 |       (prisma.studioSettings.findUnique as jest.Mock).mockResolvedValue(null);
+      118 |
+
+      at src/modules/social/social.test.ts:115:5
+      at src/modules/social/social.test.ts:114:3
+      at Object.<anonymous> (src/modules/social/social.test.ts:101:1)
+
+  ● /api/social › GET /api/social/booking-link › 403 — CUSTOMER role rejected
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      130 |     });
+      131 |
+    > 132 |     it('403 — CUSTOMER role rejected', async () => {
+          |     ^
+      133 |       const res = await request(app)
+      134 |         .get('/api/social/booking-link')
+      135 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`);
+
+      at src/modules/social/social.test.ts:132:5
+      at src/modules/social/social.test.ts:114:3
+      at Object.<anonymous> (src/modules/social/social.test.ts:101:1)
+
+  ● /api/social › GET /api/social/sources › 200 — returns source statistics
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      142 |
+      143 |   describe('GET /api/social/sources', () => {
+    > 144 |     it('200 — returns source statistics', async () => {
+          |     ^
+      145 |       (prisma.booking.groupBy as jest.Mock).mockResolvedValue([
+      146 |         { source: 'WIDGET', _count: { id: 10 } },
+      147 |       ]);
+
+      at src/modules/social/social.test.ts:144:5
+      at src/modules/social/social.test.ts:143:3
+      at Object.<anonymous> (src/modules/social/social.test.ts:101:1)
+
+  ● /api/social › SOCIAL_BOOKING_ENABLED=false › 503 — feature disabled
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      159 |
+      160 |   describe('SOCIAL_BOOKING_ENABLED=false', () => {
+    > 161 |     it('503 — feature disabled', async () => {
+          |     ^
+      162 |       mockGetDefaultFlags.mockReturnValue({
+      163 |         ...allEnabledFlags,
+      164 |         SOCIAL_BOOKING_ENABLED: false,
+
+      at src/modules/social/social.test.ts:161:5
+      at src/modules/social/social.test.ts:160:3
+      at Object.<anonymous> (src/modules/social/social.test.ts:101:1)
+
+ FAIL  src/modules/health-flags/health-flags.test.ts (218.106 s)
+  ● /api/health-flags › GET /api/health-flags/:customerId › 200 — returns health flags for customer
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      79 |
+      80 |   describe('GET /api/health-flags/:customerId', () => {
+    > 81 |     it('200 — returns health flags for customer', async () => {
+         |     ^
+      82 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      83 |         id: 'cust-1', tenantId: 'tenant-1',
+      84 |       });
+
+      at src/modules/health-flags/health-flags.test.ts:81:5
+      at src/modules/health-flags/health-flags.test.ts:80:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+  ● /api/health-flags › GET /api/health-flags/:customerId › 404 — customer not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       96 |     });
+       97 |
+    >  98 |     it('404 — customer not found', async () => {
+          |     ^
+       99 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      100 |
+      101 |       const res = await request(app)
+
+      at src/modules/health-flags/health-flags.test.ts:98:5
+      at src/modules/health-flags/health-flags.test.ts:80:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+  ● /api/health-flags › POST /api/health-flags/:customerId › 201 — creates a health flag
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      115 |
+      116 |   describe('POST /api/health-flags/:customerId', () => {
+    > 117 |     it('201 — creates a health flag', async () => {
+          |     ^
+      118 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      119 |         id: 'cust-1', tenantId: 'tenant-1',
+      120 |       });
+
+      at src/modules/health-flags/health-flags.test.ts:117:5
+      at src/modules/health-flags/health-flags.test.ts:116:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+  ● /api/health-flags › POST /api/health-flags/:customerId › 404 — customer not found on create
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      135 |     });
+      136 |
+    > 137 |     it('404 — customer not found on create', async () => {
+          |     ^
+      138 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      139 |
+      140 |       const res = await request(app)
+
+      at src/modules/health-flags/health-flags.test.ts:137:5
+      at src/modules/health-flags/health-flags.test.ts:116:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+  ● /api/health-flags › DELETE /api/health-flags/:customerId/:flagId › 200 — deletes a health flag
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      150 |
+      151 |   describe('DELETE /api/health-flags/:customerId/:flagId', () => {
+    > 152 |     it('200 — deletes a health flag', async () => {
+          |     ^
+      153 |       (prisma.healthFlag.findUnique as jest.Mock).mockResolvedValue({
+      154 |         id: 'hf-1', customerId: 'cust-1', tenantId: 'tenant-1',
+      155 |       });
+
+      at src/modules/health-flags/health-flags.test.ts:152:5
+      at src/modules/health-flags/health-flags.test.ts:151:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+  ● /api/health-flags › DELETE /api/health-flags/:customerId/:flagId › 404 — flag not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      164 |     });
+      165 |
+    > 166 |     it('404 — flag not found', async () => {
+          |     ^
+      167 |       (prisma.healthFlag.findUnique as jest.Mock).mockResolvedValue(null);
+      168 |
+      169 |       const res = await request(app)
+
+      at src/modules/health-flags/health-flags.test.ts:166:5
+      at src/modules/health-flags/health-flags.test.ts:151:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+  ● /api/health-flags › DELETE /api/health-flags/:customerId/:flagId › 403 — CUSTOMER role cannot delete
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      174 |     });
+      175 |
+    > 176 |     it('403 — CUSTOMER role cannot delete', async () => {
+          |     ^
+      177 |       const res = await request(app)
+      178 |         .delete('/api/health-flags/cust-1/hf-1')
+      179 |         .set('Authorization', `Bearer ${makeToken('CUSTOMER')}`);
+
+      at src/modules/health-flags/health-flags.test.ts:176:5
+      at src/modules/health-flags/health-flags.test.ts:151:3
+      at Object.<anonymous> (src/modules/health-flags/health-flags.test.ts:68:1)
+
+ FAIL  src/modules/memberships/memberships.test.ts (245.841 s)
+  ● /api/memberships › GET /api/memberships › returns 200 for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      101 |
+      102 |   describe('GET /api/memberships', () => {
+    > 103 |     it('returns 200 for ADMIN', async () => {
+          |     ^
+      104 |       (prisma.membership.findMany as jest.Mock).mockResolvedValue([makePlan()]);
+      105 |       (prisma.membership.count as jest.Mock).mockResolvedValue(1);
+      106 |
+
+      at src/modules/memberships/memberships.test.ts:103:5
+      at src/modules/memberships/memberships.test.ts:102:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › GET /api/memberships › returns 403 for ARTIST
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      117 |     });
+      118 |
+    > 119 |     it('returns 403 for ARTIST', async () => {
+          |     ^
+      120 |       const res = await request(app)
+      121 |         .get('/api/memberships')
+      122 |         .set('Authorization', `Bearer ${makeToken('ARTIST')}`);
+
+      at src/modules/memberships/memberships.test.ts:119:5
+      at src/modules/memberships/memberships.test.ts:102:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › POST /api/memberships › returns 201 for ADMIN with valid body
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      126 |
+      127 |   describe('POST /api/memberships', () => {
+    > 128 |     it('returns 201 for ADMIN with valid body', async () => {
+          |     ^
+      129 |       (prisma.membership.create as jest.Mock).mockResolvedValue(makePlan());
+      130 |
+      131 |       const res = await request(app)
+
+      at src/modules/memberships/memberships.test.ts:128:5
+      at src/modules/memberships/memberships.test.ts:127:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › POST /api/memberships › returns 400 with missing required field
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      137 |     });
+      138 |
+    > 139 |     it('returns 400 with missing required field', async () => {
+          |     ^
+      140 |       const res = await request(app)
+      141 |         .post('/api/memberships')
+      142 |         .set('Authorization', `Bearer ${makeToken('ADMIN')}`)
+
+      at src/modules/memberships/memberships.test.ts:139:5
+      at src/modules/memberships/memberships.test.ts:127:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › GET /api/memberships/:id › returns 200 for existing plan
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      148 |
+      149 |   describe('GET /api/memberships/:id', () => {
+    > 150 |     it('returns 200 for existing plan', async () => {
+          |     ^
+      151 |       (prisma.membership.findUnique as jest.Mock).mockResolvedValue(makePlan());
+      152 |
+      153 |       const res = await request(app)
+
+      at src/modules/memberships/memberships.test.ts:150:5
+      at src/modules/memberships/memberships.test.ts:149:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › GET /api/memberships/:id › returns 404 for unknown plan
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      158 |     });
+      159 |
+    > 160 |     it('returns 404 for unknown plan', async () => {
+          |     ^
+      161 |       (prisma.membership.findUnique as jest.Mock).mockResolvedValue(null);
+      162 |
+      163 |       const res = await request(app)
+
+      at src/modules/memberships/memberships.test.ts:160:5
+      at src/modules/memberships/memberships.test.ts:149:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › DELETE /api/memberships/:id › returns 200 and soft-deletes the plan
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      170 |
+      171 |   describe('DELETE /api/memberships/:id', () => {
+    > 172 |     it('returns 200 and soft-deletes the plan', async () => {
+          |     ^
+      173 |       (prisma.membership.findUnique as jest.Mock).mockResolvedValue(makePlan());
+      174 |       (prisma.membership.update as jest.Mock).mockResolvedValue(makePlan({ isActive: false }));
+      175 |
+
+      at src/modules/memberships/memberships.test.ts:172:5
+      at src/modules/memberships/memberships.test.ts:171:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+  ● /api/memberships › POST /api/memberships/:id/subscribe › returns 201 for ADMIN with valid body
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      183 |
+      184 |   describe('POST /api/memberships/:id/subscribe', () => {
+    > 185 |     it('returns 201 for ADMIN with valid body', async () => {
+          |     ^
+      186 |       (prisma.membership.findUnique as jest.Mock).mockResolvedValue(makePlan());
+      187 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1', tenantId: 'tenant-1' });
+      188 |       (prisma.customerMembership.findFirst as jest.Mock).mockResolvedValue(null);
+
+      at src/modules/memberships/memberships.test.ts:185:5
+      at src/modules/memberships/memberships.test.ts:184:3
+      at Object.<anonymous> (src/modules/memberships/memberships.test.ts:93:1)
+
+ FAIL  src/modules/alerts/alerts.test.ts (181.741 s)
+  ● /api/alerts › GET /api/alerts/booking/:id › 200 — returns alerts for booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      87 |
+      88 |   describe('GET /api/alerts/booking/:id', () => {
+    > 89 |     it('200 — returns alerts for booking', async () => {
+         |     ^
+      90 |       (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+      91 |         id: 'b-1', status: 'AWAITING_DEPOSIT', startAt: new Date('2030-01-01'),
+      92 |         tenantId: 'tenant-1', depositAmount: 50, depositPaidAt: null, invoice: null,
+
+      at src/modules/alerts/alerts.test.ts:89:5
+      at src/modules/alerts/alerts.test.ts:88:3
+      at Object.<anonymous> (src/modules/alerts/alerts.test.ts:76:1)
+
+  ● /api/alerts › GET /api/alerts/booking/:id › 404 — booking not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      102 |     });
+      103 |
+    > 104 |     it('404 — booking not found', async () => {
+          |     ^
+      105 |       (prisma.booking.findUnique as jest.Mock).mockResolvedValue(null);
+      106 |
+      107 |       const res = await request(app)
+
+      at src/modules/alerts/alerts.test.ts:104:5
+      at src/modules/alerts/alerts.test.ts:88:3
+      at Object.<anonymous> (src/modules/alerts/alerts.test.ts:76:1)
+
+  ● /api/alerts › GET /api/alerts/customer/:id › 200 — returns alerts for customer
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      121 |
+      122 |   describe('GET /api/alerts/customer/:id', () => {
+    > 123 |     it('200 — returns alerts for customer', async () => {
+          |     ^
+      124 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      125 |         id: 'cust-1', name: 'Jane', tenantId: 'tenant-1',
+      126 |         dateOfBirth: null, stripeCustomerId: null,
+
+      at src/modules/alerts/alerts.test.ts:123:5
+      at src/modules/alerts/alerts.test.ts:122:3
+      at Object.<anonymous> (src/modules/alerts/alerts.test.ts:76:1)
+
+  ● /api/alerts › GET /api/alerts/customer/:id › 404 — customer not found
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      137 |     });
+      138 |
+    > 139 |     it('404 — customer not found', async () => {
+          |     ^
+      140 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      141 |
+      142 |       const res = await request(app)
+
+      at src/modules/alerts/alerts.test.ts:139:5
+      at src/modules/alerts/alerts.test.ts:122:3
+      at Object.<anonymous> (src/modules/alerts/alerts.test.ts:76:1)
+
+  ● /api/alerts › GET /api/alerts/dashboard › 200 — returns dashboard alerts
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      151 |
+      152 |   describe('GET /api/alerts/dashboard', () => {
+    > 153 |     it('200 — returns dashboard alerts', async () => {
+          |     ^
+      154 |       (prisma.invoice.count as jest.Mock).mockResolvedValue(2);
+      155 |       (prisma.booking.count as jest.Mock).mockResolvedValue(0);
+      156 |       (prisma.waitlistEntry.count as jest.Mock).mockResolvedValue(0);
+
+      at src/modules/alerts/alerts.test.ts:153:5
+      at src/modules/alerts/alerts.test.ts:152:3
+      at Object.<anonymous> (src/modules/alerts/alerts.test.ts:76:1)
+
+  ● /api/alerts › GET /api/alerts/dashboard › 403 — ARTIST cannot access dashboard
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      164 |     });
+      165 |
+    > 166 |     it('403 — ARTIST cannot access dashboard', async () => {
+          |     ^
+      167 |       const res = await request(app)
+      168 |         .get('/api/alerts/dashboard')
+      169 |         .set('Authorization', `Bearer ${makeToken('ARTIST')}`);
+
+      at src/modules/alerts/alerts.test.ts:166:5
+      at src/modules/alerts/alerts.test.ts:152:3
+      at Object.<anonymous> (src/modules/alerts/alerts.test.ts:76:1)
+
+ FAIL  src/modules/loyalty/loyalty.test.ts (152.952 s)
+  ● /api/loyalty › GET /api/loyalty/me › returns 200 for authenticated user
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      92 |
+      93 |   describe('GET /api/loyalty/me', () => {
+    > 94 |     it('returns 200 for authenticated user', async () => {
+         |     ^
+      95 |       (prisma.loyaltyAccount.findFirst as jest.Mock).mockResolvedValue(makeAccount());
+      96 |
+      97 |       const res = await request(app)
+
+      at src/modules/loyalty/loyalty.test.ts:94:5
+      at src/modules/loyalty/loyalty.test.ts:93:3
+      at Object.<anonymous> (src/modules/loyalty/loyalty.test.ts:82:1)
+
+  ● /api/loyalty › GET /api/loyalty/customers/:customerId › returns 200 for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      112 |
+      113 |   describe('GET /api/loyalty/customers/:customerId', () => {
+    > 114 |     it('returns 200 for ADMIN', async () => {
+          |     ^
+      115 |       (prisma.loyaltyAccount.findFirst as jest.Mock).mockResolvedValue(makeAccount());
+      116 |
+      117 |       const res = await request(app)
+
+      at src/modules/loyalty/loyalty.test.ts:114:5
+      at src/modules/loyalty/loyalty.test.ts:113:3
+      at Object.<anonymous> (src/modules/loyalty/loyalty.test.ts:82:1)
+
+  ● /api/loyalty › GET /api/loyalty/customers/:customerId › returns 403 for ARTIST
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      122 |     });
+      123 |
+    > 124 |     it('returns 403 for ARTIST', async () => {
+          |     ^
+      125 |       const res = await request(app)
+      126 |         .get('/api/loyalty/customers/user-1')
+      127 |         .set('Authorization', `Bearer ${makeToken('ARTIST')}`);
+
+      at src/modules/loyalty/loyalty.test.ts:124:5
+      at src/modules/loyalty/loyalty.test.ts:113:3
+      at Object.<anonymous> (src/modules/loyalty/loyalty.test.ts:82:1)
+
+  ● /api/loyalty › POST /api/loyalty/redeem › returns 200 with discount amount for ADMIN
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      133 |
+      134 |   describe('POST /api/loyalty/redeem', () => {
+    > 135 |     it('returns 200 with discount amount for ADMIN', async () => {
+          |     ^
+      136 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1', tenantId: 'tenant-1' });
+      137 |       (prisma.loyaltyAccount.findFirst as jest.Mock).mockResolvedValue(
+      138 |         makeAccount({ id: 'la-1', points: 200 }),
+
+      at src/modules/loyalty/loyalty.test.ts:135:5
+      at src/modules/loyalty/loyalty.test.ts:134:3
+      at Object.<anonymous> (src/modules/loyalty/loyalty.test.ts:82:1)
+
+  ● /api/loyalty › POST /api/loyalty/redeem › returns 400 for insufficient points
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      149 |     });
+      150 |
+    > 151 |     it('returns 400 for insufficient points', async () => {
+          |     ^
+      152 |       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1', tenantId: 'tenant-1' });
+      153 |       (prisma.loyaltyAccount.findFirst as jest.Mock).mockResolvedValue(
+      154 |         makeAccount({ points: 10 }),
+
+      at src/modules/loyalty/loyalty.test.ts:151:5
+      at src/modules/loyalty/loyalty.test.ts:134:3
+      at Object.<anonymous> (src/modules/loyalty/loyalty.test.ts:82:1)
+
+
+Test Suites: 40 failed, 62 passed, 102 total
+Tests:       372 failed, 1437 passed, 1809 total
+Snapshots:   0 total
+Time:        1930.563 s
+Ran all test suites.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
