@@ -38,7 +38,7 @@ jest.mock('../../lib/prisma', () => ({
     artist:             { findMany: jest.fn(), findFirst: jest.fn() },
     artistAvailability: { findUnique: jest.fn() },
     artistService:      { findFirst: jest.fn() },
-    booking:            { findMany: jest.fn(), create: jest.fn(), findUnique: jest.fn() },
+    booking:            { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), findUnique: jest.fn() },
     availabilityBlock:  { findMany: jest.fn() },
     user:               { findFirst: jest.fn(), create: jest.fn(), findUnique: jest.fn() },
     // Also mock non-public models used by other routes to prevent import errors
@@ -206,6 +206,7 @@ describe('/api/public', () => {
   describe('POST /api/public/businesses/:slug/bookings', () => {
     it('201 — creates booking', async () => {
       (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
+      (prisma.$transaction as jest.Mock).mockImplementation((cb: (tx: typeof prisma) => Promise<unknown>) => cb(prisma));
       (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'a-1' });
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 's-1', durationMinutes: 120, priceFrom: 100 });
       (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });

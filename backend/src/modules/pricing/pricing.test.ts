@@ -25,6 +25,7 @@ const mockRuleCreate    = jest.fn();
 const mockRuleUpdate    = jest.fn();
 const mockRuleDelete    = jest.fn();
 const mockRuleFindUnique = jest.fn();
+const mockRuleCount     = jest.fn();
 const mockServiceFindUnique = jest.fn();
 const mockFeatureFlagFindFirst = jest.fn().mockResolvedValue({ key: 'DYNAMIC_PRICING_ENABLED', isEnabled: true, tenantId: null });
 
@@ -42,6 +43,7 @@ jest.mock('../../lib/redis', () => ({
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     pricingRule: {
+      count:      (...a: unknown[]) => mockRuleCount(...a),
       findMany:   (...a: unknown[]) => mockRuleFindMany(...a),
       create:     (...a: unknown[]) => mockRuleCreate(...a),
       update:     (...a: unknown[]) => mockRuleUpdate(...a),
@@ -135,6 +137,7 @@ describe('Feature flag gate', () => {
 
 describe('GET /api/pricing-rules', () => {
   it('returns empty list when no rules', async () => {
+    mockRuleCount.mockResolvedValue(0);
     mockRuleFindMany.mockResolvedValue([]);
 
     const res = await request(app)
@@ -146,6 +149,7 @@ describe('GET /api/pricing-rules', () => {
   });
 
   it('returns list of rules', async () => {
+    mockRuleCount.mockResolvedValue(1);
     mockRuleFindMany.mockResolvedValue([ruleFixture]);
 
     const res = await request(app)

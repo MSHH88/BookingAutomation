@@ -25,6 +25,7 @@ const mockLocationFindUnique = jest.fn();
 const mockLocationCreate    = jest.fn();
 const mockLocationUpdate    = jest.fn();
 const mockLocationDelete    = jest.fn();
+const mockLocationCount     = jest.fn();
 const mockFeatureFlagFindFirst = jest.fn().mockResolvedValue({ key: 'MULTI_LOCATION_ENABLED', isEnabled: true, tenantId: null });
 
 jest.mock('../../lib/redis', () => ({
@@ -41,6 +42,7 @@ jest.mock('../../lib/redis', () => ({
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     location: {
+      count:      (...a: unknown[]) => mockLocationCount(...a),
       findMany:   (...a: unknown[]) => mockLocationFindMany(...a),
       findUnique: (...a: unknown[]) => mockLocationFindUnique(...a),
       create:     (...a: unknown[]) => mockLocationCreate(...a),
@@ -114,6 +116,7 @@ describe('Feature flag guard', () => {
 
 describe('GET /api/locations', () => {
   it('returns empty list when no locations', async () => {
+    mockLocationCount.mockResolvedValue(0);
     mockLocationFindMany.mockResolvedValue([]);
 
     const res = await request(app)
@@ -125,6 +128,7 @@ describe('GET /api/locations', () => {
   });
 
   it('returns list of locations', async () => {
+    mockLocationCount.mockResolvedValue(1);
     mockLocationFindMany.mockResolvedValue([locationFixture]);
 
     const res = await request(app)
@@ -137,6 +141,7 @@ describe('GET /api/locations', () => {
   });
 
   it('filters by isActive=true', async () => {
+    mockLocationCount.mockResolvedValue(1);
     mockLocationFindMany.mockResolvedValue([locationFixture]);
 
     const res = await request(app)
