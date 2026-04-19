@@ -136,6 +136,17 @@ jest.mock('../../lib/prisma', () => ({
   },
 }));
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockResolvedValue(null),
+    setex: jest.fn().mockResolvedValue('OK'),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => null),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as paymentsService from './payments.service';

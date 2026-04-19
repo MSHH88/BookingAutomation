@@ -79,6 +79,17 @@ jest.mock('bcryptjs', () => ({
   compare:  jest.fn().mockResolvedValue(true),
 }));
 
+jest.mock('../../lib/redis', () => ({
+  getRedis: jest.fn(() => ({
+    get:   jest.fn().mockResolvedValue(null),
+    setex: jest.fn().mockResolvedValue('OK'),
+    incr:  jest.fn().mockResolvedValue(1),
+  })),
+  isRedisHealthy: jest.fn(() => null),
+  pingRedis:      jest.fn().mockResolvedValue(undefined),
+  disconnectRedis: jest.fn().mockResolvedValue(undefined),
+}));
+
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
