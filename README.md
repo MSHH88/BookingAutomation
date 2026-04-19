@@ -1,1280 +1,717 @@
+Last login: Sun Apr 19 14:22:21 on ttys000
+neilapacesaite@Neilas-MacBook-Pro ~ % cd ~/Desktop/Automation/backend && \
+rm -f \
+  src/modules/pricing/pricing.test.ts \
+  src/modules/locations/locations.test.ts \
+  src/modules/public/public.test.ts \
+&& echo "3 OLD TEST FILES DELETED"
+3 OLD TEST FILES DELETED
+neilapacesaite@Neilas-MacBook-Pro backend % mkdir -p \
+  src/modules/pricing \
+  src/modules/locations \
+  src/modules/public
+neilapacesaite@Neilas-MacBook-Pro backend % BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
+
+curl -fsSL --create-dirs -o src/modules/pricing/pricing.test.ts   "$BASE/src/modules/pricing/pricing.test.ts"   && echo "OK 1/3 pricing.test.ts"   || echo "FAIL 1/3 pricing.test.ts"
+curl -fsSL --create-dirs -o src/modules/locations/locations.test.ts "$BASE/src/modules/locations/locations.test.ts" && echo "OK 2/3 locations.test.ts" || echo "FAIL 2/3 locations.test.ts"
+curl -fsSL --create-dirs -o src/modules/public/public.test.ts      "$BASE/src/modules/public/public.test.ts"      && echo "OK 3/3 public.test.ts"    || echo "FAIL 3/3 public.test.ts"
+OK 1/3 pricing.test.ts
+OK 2/3 locations.test.ts
+OK 3/3 public.test.ts
+neilapacesaite@Neilas-MacBook-Pro backend % npm test -- --no-coverage --forceExit
+
+> automation-backend@1.0.0 test
+> jest --clearCache --silent && jest --passWithNoTests --no-coverage --forceExit
+
 Cleared /private/var/folders/lv/nzz8ww495y957l52cl56gs3r0000gn/T/jest_dx
- PASS  src/modules/quotes/quotes.service.test.ts (137.598 s)
- PASS  src/modules/payments/payments.service.test.ts (144.532 s)
- PASS  src/modules/notifications/notifications.service.test.ts (144.521 s)
- PASS  src/modules/services/services.service.test.ts (144.534 s)
- PASS  src/modules/waitlist/waitlist.service.test.ts (145.596 s)
- PASS  src/modules/analytics/analytics.service.test.ts (149.138 s)
- PASS  src/modules/bookings/bookings.service.test.ts (156.012 s)
- PASS  src/modules/calendar/calendar.service.test.ts (16.547 s)
- PASS  src/modules/invoices/invoices.service.test.ts (19.442 s)
- PASS  src/modules/leads/leads.service.test.ts (26.501 s)
- PASS  src/modules/availability/availability.service.test.ts (21.26 s)
- PASS  src/modules/admin/admin.service.test.ts (25.512 s)
- PASS  src/modules/reminders/reminders.queue.test.ts (7.19 s)
- PASS  src/modules/customers/customers.service.test.ts (22.348 s)
- PASS  src/modules/whatsapp/whatsapp.service.test.ts (11.556 s)
-  ● Console
-
-    console.log
-      prisma:error 
-      Invalid `prisma.featureFlag.findFirst()` invocation in
-      /Users/neilapacesaite/Desktop/Automation/backend/src/middleware/requireFeature.ts:74:38
-      
-        71 
-        72 // Fall back to global row if no tenant-specific override was found
-        73 if (row === null) {
-      → 74   row = await prisma.featureFlag.findFirst(
-      Can't reach database server at `test:5432`
-      
-      Please make sure your database server is running at `test:5432`.
-
-      at Object.mc (node_modules/@prisma/client/runtime/library.js:21:432)
-
- PASS  src/modules/auth/auth.service.test.ts (9.216 s)
- PASS  src/modules/capture/capture.service.test.ts (12.44 s)
- PASS  src/modules/calendar/outlook-calendar.service.test.ts
- PASS  src/modules/whatsapp-templates/whatsapp-templates.service.test.ts (5.782 s)
- PASS  src/modules/email-templates/email-templates.service.test.ts (9.012 s)
- PASS  src/modules/sms-templates/sms-templates.service.test.ts (11.025 s)
- PASS  src/modules/reviews/reviews.queue.test.ts (5.948 s)
- PASS  src/modules/calendar/apple-calendar.service.test.ts (6.018 s)
- PASS  src/modules/public/public.service.test.ts (11.027 s)
- PASS  src/modules/customer-stats/customer-stats.service.test.ts (11.063 s)
- PASS  src/modules/webhooks/webhooks.service.test.ts (12.749 s)
- PASS  src/modules/uploads/uploads.service.test.ts (7.908 s)
- PASS  src/modules/tables/tables.service.test.ts (18.03 s)
- PASS  src/modules/forms/forms.service.test.ts (30.248 s)
- PASS  src/lib/pricing-engine.test.ts (60.249 s)
- PASS  src/modules/products/products.service.test.ts (66.862 s)
- PASS  src/modules/campaigns/campaigns.service.test.ts (14.78 s)
- PASS  src/modules/sessions/sessions.test.ts (362.114 s)
- PASS  src/modules/waitlist/waitlist.test.ts (273.157 s)
- PASS  src/modules/auth/auth.test.ts (348.736 s)
- PASS  src/modules/leads/leads.test.ts (329.399 s)
- FAIL  src/modules/public/public.test.ts (253.242 s)
-  ● /api/public › POST /api/public/businesses/:slug/bookings › 201 — creates booking
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 201
-    Received: 500
-
-      226 |         });
-      227 |
-    > 228 |       expect(res.status).toBe(201);
-          |                          ^
-      229 |       expect(res.body.data.publicToken).toBe('d4e5f6a7-b8c9-0123-def0-123456789abc');
-      230 |     });
-      231 |
-
-      at Object.<anonymous> (src/modules/public/public.test.ts:228:26)
-
- PASS  src/modules/calendar/calendar.test.ts (268.679 s)
- PASS  src/modules/artists/artists.test.ts (357.103 s)
- PASS  src/modules/recurring-bookings/recurring-bookings.service.test.ts (59.946 s)
- PASS  src/modules/referrals/referrals.service.test.ts (103.111 s)
- PASS  src/modules/bookings/bookings.test.ts (127.646 s)
- PASS  src/modules/payments/payments.test.ts (142.375 s)
- PASS  src/modules/whatsapp-templates/whatsapp-templates.test.ts (149.848 s)
- PASS  src/modules/pos/pos.service.test.ts (50.608 s)
- PASS  src/modules/email-templates/email-templates.test.ts (153.339 s)
- FAIL  src/modules/pricing/pricing.test.ts (143.939 s)
-  ● GET /api/pricing-rules › returns empty list when no rules
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      142 |       .set('Authorization', `Bearer ${adminToken}`);
-      143 |
-    > 144 |     expect(res.status).toBe(200);
-          |                        ^
-      145 |     expect(res.body.data).toEqual([]);
-      146 |   });
-      147 |
-
-      at Object.<anonymous> (src/modules/pricing/pricing.test.ts:144:24)
-
-  ● GET /api/pricing-rules › returns list of rules
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      153 |       .set('Authorization', `Bearer ${adminToken}`);
-      154 |
-    > 155 |     expect(res.status).toBe(200);
-          |                        ^
-      156 |     expect(res.body.data).toHaveLength(1);
-      157 |     expect(res.body.data[0].id).toBe('rule_1');
-      158 |   });
-
-      at Object.<anonymous> (src/modules/pricing/pricing.test.ts:155:24)
-
- PASS  src/config/businessType.test.ts (13.191 s)
- PASS  src/modules/sms-templates/sms-templates.test.ts (124.473 s)
- PASS  src/modules/memberships/memberships.service.test.ts (21.894 s)
- PASS  src/modules/packages/packages.service.test.ts (27.82 s)
- PASS  src/modules/settings/settings.service.test.ts (13.948 s)
- PASS  src/modules/alerts/alerts.service.test.ts (76.092 s)
- PASS  src/modules/forms/forms.test.ts (64.046 s)
- PASS  src/modules/gift-cards/gift-cards.service.test.ts (37.084 s)
- PASS  src/modules/tenants/tenants.test.ts (55.777 s)
- PASS  src/modules/analytics/analytics.test.ts (73.153 s)
- FAIL  src/modules/locations/locations.test.ts (78.128 s)
-  ● GET /api/locations › returns empty list when no locations
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      121 |       .set('Authorization', `Bearer ${adminToken}`);
-      122 |
-    > 123 |     expect(res.status).toBe(200);
-          |                        ^
-      124 |     expect(res.body.data).toEqual([]);
-      125 |   });
-      126 |
-
-      at Object.<anonymous> (src/modules/locations/locations.test.ts:123:24)
-
-  ● GET /api/locations › returns list of locations
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      132 |       .set('Authorization', `Bearer ${adminToken}`);
-      133 |
-    > 134 |     expect(res.status).toBe(200);
-          |                        ^
-      135 |     expect(res.body.data).toHaveLength(1);
-      136 |     expect(res.body.data[0].id).toBe('loc_1');
-      137 |   });
-
-      at Object.<anonymous> (src/modules/locations/locations.test.ts:134:24)
-
-  ● GET /api/locations › filters by isActive=true
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-      144 |       .set('Authorization', `Bearer ${adminToken}`);
-      145 |
-    > 146 |     expect(res.status).toBe(200);
-          |                        ^
-      147 |     expect(mockLocationFindMany).toHaveBeenCalledWith(
-      148 |       expect.objectContaining({ where: expect.objectContaining({ isActive: true }) }),
-      149 |     );
-
-      at Object.<anonymous> (src/modules/locations/locations.test.ts:146:24)
-
- PASS  src/modules/quotes/quotes.test.ts (161.763 s)
- PASS  src/modules/availability/availability.test.ts (168.019 s)
- PASS  src/modules/tenants/tenants.service.test.ts (142.392 s)
- PASS  src/modules/ai/ai.service.test.ts (133.589 s)
- PASS  src/modules/styles/styles.service.test.ts (126.303 s)
- PASS  src/modules/referrals/referrals.test.ts (133.673 s)
- PASS  src/modules/settings/settings.test.ts (154.752 s)
- PASS  src/modules/roles/roles.service.test.ts (45.601 s)
- PASS  src/modules/features/features.test.ts (85.73 s)
- PASS  src/modules/recurring-bookings/recurring-bookings.test.ts (83.754 s)
- PASS  src/modules/products/products.test.ts (75.132 s)
- PASS  src/modules/services/services.test.ts (166.823 s)
- PASS  src/modules/booking-photos/booking-photos.service.test.ts (50.496 s)
- PASS  src/modules/health-flags/health-flags.service.test.ts (120.626 s)
- PASS  src/modules/roles/roles.test.ts (59.536 s)
- PASS  src/modules/rota/rota.service.test.ts (71.168 s)
- PASS  src/modules/campaigns/campaigns.test.ts (66.901 s)
- PASS  src/modules/rota/rota.test.ts (65.763 s)
- PASS  src/modules/booking-photos/booking-photos.test.ts (65.843 s)
- PASS  src/modules/invoices/invoices.test.ts (76.281 s)
-  ● Console
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
- PASS  src/modules/payroll/payroll.service.test.ts (45.229 s)
- PASS  src/modules/styles/styles.test.ts (49.104 s)
- PASS  src/modules/gift-cards/gift-cards.test.ts (69.92 s)
- PASS  src/modules/loyalty/loyalty.service.test.ts (48.5 s)
- PASS  src/jobs/birthday.job.test.ts (52.887 s)
- PASS  src/modules/packages/packages.test.ts (93.839 s)
- PASS  src/modules/payroll/payroll.test.ts (104.538 s)
-  ● Console
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
- PASS  src/middleware/auth.test.ts (112.209 s)
- PASS  src/modules/health-flags/health-flags.test.ts (135.402 s)
-  ● Console
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-          at EventEmitter.emit (node:events:508:28)
-          at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-            at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-            at Object.onceWrapper (node:events:622:28)
-            at Socket.emit (node:events:508:28)
-            at Socket._onTimeout (node:net:604:8)
-            at listOnTimeout (node:internal/timers:605:17)
-            at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
-    console.error
-      Error: Unhandled error. (Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11))
-          at Queue.emit (node:events:497:17)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-          at RedisConnection.emit (node:events:508:28)
-          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-            at Object.onceWrapper (node:events:623:26)
-            at EventEmitter.emit (node:events:520:35)
-            at processTicksAndRejections (node:internal/process/task_queues:85:11)
-      }
-
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
- PASS  src/jobs/rebook-nudge.job.test.ts (73.212 s)
-
-  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
-    Attempted to log "Error: Unhandled error. (Error: connect ETIMEDOUT
-        at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-        at Object.onceWrapper (node:events:622:28)
-        at Socket.emit (node:events:508:28)
-        at Socket._onTimeout (node:net:604:8)
-        at listOnTimeout (node:internal/timers:605:17)
-        at processTimers (node:internal/timers:541:7) {
-      errorno: 'ETIMEDOUT',
-      code: 'ETIMEDOUT',
-      syscall: 'connect'
-    })
-        at Queue.emit (node:events:497:17)
-        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-        at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-        at RedisConnection.emit (node:events:508:28)
-        at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-        at EventEmitter.emit (node:events:508:28)
-        at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-        at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-        at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-        at Object.onceWrapper (node:events:622:28)
-        at Socket.emit (node:events:508:28)
-        at Socket._onTimeout (node:net:604:8)
-        at listOnTimeout (node:internal/timers:605:17)
-        at processTimers (node:internal/timers:541:7) {
-      code: 'ERR_UNHANDLED_ERROR',
-      context: Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      }
-    }".
-
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
-      at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-      at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
-      at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }".
-      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
- PASS  src/modules/pos/pos.test.ts (174.458 s)
- PASS  src/modules/memberships/memberships.test.ts (173.96 s)
- PASS  src/modules/whatsapp/whatsapp.queue.test.ts (25.79 s)
-
-  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
-    Attempted to log "Error: Unhandled error. (Error: Connection is closed.
-        at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-        at Object.onceWrapper (node:events:623:26)
-        at EventEmitter.emit (node:events:520:35)
-        at processTicksAndRejections (node:internal/process/task_queues:85:11))
-        at Queue.emit (node:events:497:17)
-        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-        at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-        at RedisConnection.emit (node:events:508:28)
-        at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
-        at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-      code: 'ERR_UNHANDLED_ERROR',
-      context: Error: Connection is closed.
-          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
-          at Object.onceWrapper (node:events:623:26)
-          at EventEmitter.emit (node:events:520:35)
-          at processTicksAndRejections (node:internal/process/task_queues:85:11)
-    }".
-
-      at EventEmitter.connectionCloseHandler (node_modules/ioredis/built/Redis.js:208:28)
-      at processTicksAndRejections (node:internal/process/task_queues:85:11))
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-      at processTicksAndRejections (node:internal/process/task_queues:104:5) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: Connection is closed.
-      at EventEmitter.connectionCloseHandler (node_modules/ioredis/built/Redis.js:208:28)
-      }".
-      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
-
- PASS  src/modules/uploads/uploads.test.ts (140.186 s)
- PASS  src/modules/artists/artist-media.service.test.ts (12.66 s)
-
-  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
-    Attempted to log "Error: Unhandled error. (Error: connect ETIMEDOUT
-        at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-        at Object.onceWrapper (node:events:622:28)
-        at Socket.emit (node:events:508:28)
-        at Socket._onTimeout (node:net:604:8)
-        at listOnTimeout (node:internal/timers:605:17)
-        at processTimers (node:internal/timers:541:7) {
-      errorno: 'ETIMEDOUT',
-      code: 'ETIMEDOUT',
-      syscall: 'connect'
-    })
-        at Queue.emit (node:events:497:17)
-        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
-        at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
-        at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
-        at RedisConnection.emit (node:events:508:28)
-        at EventEmitter.RedisConnection.handleClientError (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-        at EventEmitter.emit (node:events:508:28)
-        at EventEmitter.silentEmit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:529:30)
-        at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/redis/event_handler.js:221:14
-        at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:178:61)
-        at Object.onceWrapper (node:events:622:28)
-        at Socket.emit (node:events:508:28)
-        at Socket._onTimeout (node:net:604:8)
-        at listOnTimeout (node:internal/timers:605:17)
-        at processTimers (node:internal/timers:541:7) {
-      code: 'ERR_UNHANDLED_ERROR',
-      context: Error: connect ETIMEDOUT
-          at Socket.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:171:41)
-          at Object.onceWrapper (node:events:622:28)
-          at Socket.emit (node:events:508:28)
-          at Socket._onTimeout (node:net:604:8)
-          at listOnTimeout (node:internal/timers:605:17)
-          at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      }
-    }".
-
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
-      at processTimers (node:internal/timers:541:7) {
-        errorno: 'ETIMEDOUT',
-        code: 'ETIMEDOUT',
-        syscall: 'connect'
-      })
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:131:20)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-      at processTimers (node:internal/timers:541:7) {
-        code: 'ERR_UNHANDLED_ERROR',
-        context: Error: connect ETIMEDOUT
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:171:41)
-      at processTimers (node:internal/timers:541:7) {
-          errorno: 'ETIMEDOUT',
-          code: 'ETIMEDOUT',
-          syscall: 'connect'
-        }
-      }".
-      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
-      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
-      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
-      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
-      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
-      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
-      at node_modules/ioredis/built/redis/event_handler.js:221:14
-      at Socket.<anonymous> (node_modules/ioredis/built/Redis.js:178:61)
-
- PASS  src/modules/social/social.test.ts (153.642 s)
- PASS  src/modules/push/push.service.test.ts (22.065 s)
- PASS  src/jobs/ai-suggestion.job.test.ts (19.364 s)
- PASS  src/modules/alerts/alerts.test.ts (167.554 s)
- PASS  src/modules/loyalty/loyalty.test.ts (64.586 s)
- PASS  src/modules/social/social.service.test.ts (36.288 s)
- PASS  src/middleware/requireLeadAccess.test.ts (33.503 s)
- PASS  src/jobs/no-show.job.test.ts (34.11 s)
- PASS  src/modules/customer-stats/customer-stats.test.ts (93.44 s)
+ PASS  src/modules/quotes/quotes.service.test.ts (77.261 s)
+ PASS  src/modules/waitlist/waitlist.service.test.ts (121.807 s)
+ PASS  src/modules/services/services.service.test.ts (148.426 s)
+ PASS  src/modules/notifications/notifications.service.test.ts (164.302 s)
+ PASS  src/modules/payments/payments.service.test.ts (177.685 s)
+ PASS  src/modules/analytics/analytics.service.test.ts (178.866 s)
+ PASS  src/modules/leads/leads.service.test.ts (97.648 s)
+ PASS  src/modules/admin/admin.service.test.ts (34.412 s)
+ PASS  src/modules/availability/availability.service.test.ts (55.421 s)
+ PASS  src/modules/bookings/bookings.service.test.ts (189.844 s)
+ PASS  src/modules/invoices/invoices.service.test.ts (32.988 s)
+ PASS  src/modules/customers/customers.service.test.ts (21.637 s)
+ PASS  src/modules/calendar/calendar.service.test.ts (24.953 s)
+ PASS  src/modules/reminders/reminders.queue.test.ts (17.101 s)
+ PASS  src/modules/capture/capture.service.test.ts (21.362 s)
+ PASS  src/modules/email-templates/email-templates.service.test.ts (13.119 s)
+ PASS  src/modules/sms-templates/sms-templates.service.test.ts (13.115 s)
+ PASS  src/modules/calendar/outlook-calendar.service.test.ts (6.934 s)
+ PASS  src/modules/whatsapp-templates/whatsapp-templates.service.test.ts (14.429 s)
+ PASS  src/modules/customer-stats/customer-stats.service.test.ts (15.123 s)
+ PASS  src/modules/public/public.service.test.ts (21.78 s)
+ PASS  src/modules/auth/auth.service.test.ts (44.744 s)
+ PASS  src/modules/reviews/reviews.queue.test.ts (46.191 s)
+ PASS  src/modules/uploads/uploads.service.test.ts (19.685 s)
+ PASS  src/modules/calendar/apple-calendar.service.test.ts (54.756 s)
+ PASS  src/modules/webhooks/webhooks.service.test.ts (73.36 s)
+ PASS  src/modules/tables/tables.service.test.ts (26.839 s)
+ PASS  src/lib/pricing-engine.test.ts (14.698 s)
+ PASS  src/modules/products/products.service.test.ts (42.577 s)
+ PASS  src/modules/forms/forms.service.test.ts (51.176 s)
+ PASS  src/modules/calendar/calendar.test.ts (55.115 s)
+ PASS  src/modules/leads/leads.test.ts (131.787 s)
+ PASS  src/modules/artists/artists.test.ts (202.772 s)
+ PASS  src/modules/waitlist/waitlist.test.ts (115.654 s)
+ PASS  src/modules/sessions/sessions.test.ts (276.084 s)
+ PASS  src/modules/campaigns/campaigns.service.test.ts (12.682 s)
+ PASS  src/modules/referrals/referrals.service.test.ts (18.203 s)
+ FAIL  src/modules/auth/auth.test.ts (283.053 s)
+  ● POST /api/auth/forgot-password › 200 — known email creates reset token silently
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      294 |   });
+      295 |
+    > 296 |   it('200 — known email creates reset token silently', async () => {
+          |   ^
+      297 |     (prisma.user.findUnique as jest.Mock).mockResolvedValue(baseUser);
+      298 |     (prisma.passwordResetToken.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+      299 |     (prisma.passwordResetToken.create    as jest.Mock).mockResolvedValue({
+
+      at src/modules/auth/auth.test.ts:296:3
+      at Object.<anonymous> (src/modules/auth/auth.test.ts:283:1)
+
+ PASS  src/modules/public/public.test.ts (47.682 s)
+ PASS  src/modules/payments/payments.test.ts (47.433 s)
+ PASS  src/modules/recurring-bookings/recurring-bookings.service.test.ts (69.054 s)
+ PASS  src/modules/bookings/bookings.test.ts (81.399 s)
+ PASS  src/modules/pricing/pricing.test.ts (59.008 s)
+ PASS  src/modules/pos/pos.service.test.ts (24.411 s)
+ PASS  src/modules/whatsapp-templates/whatsapp-templates.test.ts (54.146 s)
+ PASS  src/modules/sms-templates/sms-templates.test.ts (60.421 s)
+ PASS  src/modules/alerts/alerts.service.test.ts (20.213 s)
+ PASS  src/config/businessType.test.ts (11.451 s)
+ PASS  src/modules/email-templates/email-templates.test.ts (82.928 s)
+ PASS  src/modules/memberships/memberships.service.test.ts (8.268 s)
+ PASS  src/modules/settings/settings.service.test.ts (7.208 s)
+ PASS  src/modules/packages/packages.service.test.ts (6.838 s)
+ PASS  src/modules/gift-cards/gift-cards.service.test.ts (14.554 s)
+ PASS  src/modules/locations/locations.test.ts (27.557 s)
+ PASS  src/modules/forms/forms.test.ts (39.965 s)
+ PASS  src/modules/analytics/analytics.test.ts (39.426 s)
+ PASS  src/modules/quotes/quotes.test.ts (86.807 s)
+ PASS  src/modules/styles/styles.service.test.ts (33.124 s)
+ PASS  src/modules/tenants/tenants.service.test.ts (73.999 s)
+ PASS  src/modules/ai/ai.service.test.ts (72.651 s)
+ PASS  src/modules/tenants/tenants.test.ts (78.006 s)
+ PASS  src/modules/referrals/referrals.test.ts (67.617 s)
+ PASS  src/modules/availability/availability.test.ts (99.531 s)
+ PASS  src/modules/services/services.test.ts (23.282 s)
+ PASS  src/modules/features/features.test.ts (21.708 s)
+ PASS  src/modules/settings/settings.test.ts (24.907 s)
+ PASS  src/modules/roles/roles.service.test.ts (11.795 s)
+ PASS  src/modules/recurring-bookings/recurring-bookings.test.ts (24.062 s)
+ PASS  src/modules/products/products.test.ts (23.343 s)
+ PASS  src/modules/health-flags/health-flags.service.test.ts (20.648 s)
+ PASS  src/modules/booking-photos/booking-photos.service.test.ts (29.151 s)
+ PASS  src/modules/roles/roles.test.ts (34.001 s)
+ PASS  src/modules/campaigns/campaigns.test.ts (41.949 s)
+ FAIL  src/modules/whatsapp/whatsapp.service.test.ts (561.604 s)
+  ● enqueueLeadInquiry › enqueues lead-inquiry job with correct data when opt-in is set
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      297 |   };
+      298 |
+    > 299 |   it('enqueues lead-inquiry job with correct data when opt-in is set', async () => {
+          |   ^
+      300 |     await enqueueLeadInquiry(baseParams);
+      301 |     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+      302 |     const [jobName, jobData] = mockQueueAdd.mock.calls[0] as [string, Record<string, unknown>];
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:299:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:290:1)
+
+  ● enqueueLeadInquiry › handles queue.add failure gracefully without throwing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      319 |   });
+      320 |
+    > 321 |   it('handles queue.add failure gracefully without throwing', async () => {
+          |   ^
+      322 |     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
+      323 |     await expect(enqueueLeadInquiry(baseParams)).resolves.toBeUndefined();
+      324 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:321:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:290:1)
+
+  ● enqueueBookingConfirmed › enqueues booking-confirmed immediately (no delay option)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      340 |   };
+      341 |
+    > 342 |   it('enqueues booking-confirmed immediately (no delay option)', async () => {
+          |   ^
+      343 |     await enqueueBookingConfirmed(baseParams);
+      344 |     const confirmCall = (mockQueueAdd.mock.calls as [string, unknown, unknown?][])
+      345 |       .find(([name]) => name === 'booking-confirmed');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:342:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueueBookingConfirmed › enqueues appointment-reminder with positive delay for far-future startAt
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      348 |   });
+      349 |
+    > 350 |   it('enqueues appointment-reminder with positive delay for far-future startAt', async () => {
+          |   ^
+      351 |     await enqueueBookingConfirmed(baseParams);
+      352 |     const reminderCall = (mockQueueAdd.mock.calls as [string, unknown, { delay: number }?][])
+      353 |       .find(([name]) => name === 'appointment-reminder');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:350:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueueBookingConfirmed › appointment-reminder delay equals startAt - 24h - now (approx)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      356 |   });
+      357 |
+    > 358 |   it('appointment-reminder delay equals startAt - 24h - now (approx)', async () => {
+          |   ^
+      359 |     await enqueueBookingConfirmed(baseParams);
+      360 |     const reminderCall = (mockQueueAdd.mock.calls as [string, unknown, { delay: number }?][])
+      361 |       .find(([name]) => name === 'appointment-reminder');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:358:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueueBookingConfirmed › skips appointment-reminder when startAt is < 24 h from now
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      367 |   });
+      368 |
+    > 369 |   it('skips appointment-reminder when startAt is < 24 h from now', async () => {
+          |   ^
+      370 |     await enqueueBookingConfirmed({ ...baseParams, startAt: FUTURE_2H });
+      371 |     const reminderCalls = (mockQueueAdd.mock.calls as [string][])
+      372 |       .filter(([name]) => name === 'appointment-reminder');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:369:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueueBookingConfirmed › still enqueues booking-confirmed when the reminder is skipped
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      374 |   });
+      375 |
+    > 376 |   it('still enqueues booking-confirmed when the reminder is skipped', async () => {
+          |   ^
+      377 |     await enqueueBookingConfirmed({ ...baseParams, startAt: FUTURE_2H });
+      378 |     const confirmCalls = (mockQueueAdd.mock.calls as [string][])
+      379 |       .filter(([name]) => name === 'booking-confirmed');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:376:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueueBookingConfirmed › handles queue.add failure gracefully without throwing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      391 |   });
+      392 |
+    > 393 |   it('handles queue.add failure gracefully without throwing', async () => {
+          |   ^
+      394 |     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
+      395 |     await expect(enqueueBookingConfirmed(baseParams)).resolves.toBeUndefined();
+      396 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:393:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueuePostVisitReview › enqueues post-visit-review with a 2-hour delay (7 200 000 ms)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      411 |   };
+      412 |
+    > 413 |   it('enqueues post-visit-review with a 2-hour delay (7 200 000 ms)', async () => {
+          |   ^
+      414 |     await enqueuePostVisitReview(baseParams);
+      415 |     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+      416 |     const opts = mockQueueAdd.mock.calls[0][2] as { delay: number };
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:413:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › includes googleReviewUrl in the job data
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      418 |   });
+      419 |
+    > 420 |   it('includes googleReviewUrl in the job data', async () => {
+          |   ^
+      421 |     await enqueuePostVisitReview(baseParams);
+      422 |     const data = mockQueueAdd.mock.calls[0][1] as { googleReviewUrl: string };
+      423 |     expect(data.googleReviewUrl).toBe('https://g.page/r/ABC/review');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:420:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › includes jobName=post-visit-review in the job data
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      424 |   });
+      425 |
+    > 426 |   it('includes jobName=post-visit-review in the job data', async () => {
+          |   ^
+      427 |     await enqueuePostVisitReview(baseParams);
+      428 |     const data = mockQueueAdd.mock.calls[0][1] as { jobName: string };
+      429 |     expect(data.jobName).toBe('post-visit-review');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:426:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › handles queue.add failure gracefully without throwing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      440 |   });
+      441 |
+    > 442 |   it('handles queue.add failure gracefully without throwing', async () => {
+          |   ^
+      443 |     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
+      444 |     await expect(enqueuePostVisitReview(baseParams)).resolves.toBeUndefined();
+      445 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:442:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › does not enqueue when googleReviewUrl is empty (avoids broken link in message)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      445 |   });
+      446 |
+    > 447 |   it('does not enqueue when googleReviewUrl is empty (avoids broken link in message)', async () => {
+          |   ^
+      448 |     await enqueuePostVisitReview({ ...baseParams, googleReviewUrl: '' });
+      449 |     expect(mockQueueAdd).not.toHaveBeenCalled();
+      450 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:447:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueueRestaurantReminder › enqueues restaurant-reminder with correct delay (startAt − 2 h − now)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      466 |   };
+      467 |
+    > 468 |   it('enqueues restaurant-reminder with correct delay (startAt − 2 h − now)', async () => {
+          |   ^
+      469 |     await enqueueRestaurantReminder(baseParams);
+      470 |     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+      471 |     const opts = mockQueueAdd.mock.calls[0][2] as { delay: number };
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:468:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+  ● enqueueRestaurantReminder › includes partySize in the job data
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      475 |   });
+      476 |
+    > 477 |   it('includes partySize in the job data', async () => {
+          |   ^
+      478 |     await enqueueRestaurantReminder(baseParams);
+      479 |     const data = mockQueueAdd.mock.calls[0][1] as { partySize: number };
+      480 |     expect(data.partySize).toBe(4);
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:477:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+  ● enqueueRestaurantReminder › skips when startAt is in the past (delay ≤ 0)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      481 |   });
+      482 |
+    > 483 |   it('skips when startAt is in the past (delay ≤ 0)', async () => {
+          |   ^
+      484 |     await enqueueRestaurantReminder({ ...baseParams, startAt: PAST_ISO });
+      485 |     expect(mockQueueAdd).not.toHaveBeenCalled();
+      486 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:483:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+  ● enqueueRestaurantReminder › skips when startAt is < 2 h from now
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      486 |   });
+      487 |
+    > 488 |   it('skips when startAt is < 2 h from now', async () => {
+          |   ^
+      489 |     const nearFuture = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 h
+      490 |     await enqueueRestaurantReminder({ ...baseParams, startAt: nearFuture });
+      491 |     expect(mockQueueAdd).not.toHaveBeenCalled();
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:488:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+ PASS  src/modules/rota/rota.test.ts (52.292 s)
+ PASS  src/modules/invoices/invoices.test.ts (46.497 s)
+ PASS  src/modules/rota/rota.service.test.ts (63.613 s)
+ PASS  src/modules/payroll/payroll.service.test.ts (31.969 s)
+ PASS  src/modules/booking-photos/booking-photos.test.ts (63.976 s)
+ PASS  src/modules/gift-cards/gift-cards.test.ts (63.525 s)
+ PASS  src/modules/loyalty/loyalty.service.test.ts (46.434 s)
+ PASS  src/modules/styles/styles.test.ts (74.661 s)
+ PASS  src/middleware/auth.test.ts (85.059 s)
+ PASS  src/jobs/birthday.job.test.ts (85.522 s)
+ PASS  src/modules/memberships/memberships.test.ts (64.164 s)
+ PASS  src/modules/payroll/payroll.test.ts (123.564 s)
+ PASS  src/modules/packages/packages.test.ts (122.222 s)
+ PASS  src/modules/health-flags/health-flags.test.ts (61.986 s)
+ PASS  src/modules/uploads/uploads.test.ts (20.659 s)
+ PASS  src/modules/pos/pos.test.ts (109.59 s)
+ PASS  src/modules/whatsapp/whatsapp.queue.test.ts (8.267 s)
+ PASS  src/jobs/rebook-nudge.job.test.ts (16.574 s)
+ PASS  src/jobs/ai-suggestion.job.test.ts
+ PASS  src/modules/artists/artist-media.service.test.ts (5.643 s)
+ PASS  src/modules/social/social.test.ts (26.539 s)
+ PASS  src/modules/alerts/alerts.test.ts (23.312 s)
+ PASS  src/middleware/requireLeadAccess.test.ts
+ PASS  src/modules/social/social.service.test.ts (5.386 s)
+ PASS  src/modules/customer-stats/customer-stats.test.ts (24.461 s)
+ PASS  src/modules/push/push.service.test.ts (11.576 s)
+ PASS  src/modules/loyalty/loyalty.test.ts (21.884 s)
+ PASS  src/jobs/no-show.job.test.ts (12.846 s)
 A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
 
 Summary of all failing tests
- FAIL  src/modules/public/public.test.ts (253.242 s)
-  ● /api/public › POST /api/public/businesses/:slug/bookings › 201 — creates booking
+ FAIL  src/modules/auth/auth.test.ts (283.053 s)
+  ● POST /api/auth/forgot-password › 200 — known email creates reset token silently
 
-    expect(received).toBe(expected) // Object.is equality
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-    Expected: 201
-    Received: 500
+      294 |   });
+      295 |
+    > 296 |   it('200 — known email creates reset token silently', async () => {
+          |   ^
+      297 |     (prisma.user.findUnique as jest.Mock).mockResolvedValue(baseUser);
+      298 |     (prisma.passwordResetToken.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+      299 |     (prisma.passwordResetToken.create    as jest.Mock).mockResolvedValue({
 
-      226 |         });
-      227 |
-    > 228 |       expect(res.status).toBe(201);
-          |                          ^
-      229 |       expect(res.body.data.publicToken).toBe('d4e5f6a7-b8c9-0123-def0-123456789abc');
-      230 |     });
-      231 |
+      at src/modules/auth/auth.test.ts:296:3
+      at Object.<anonymous> (src/modules/auth/auth.test.ts:283:1)
 
-      at Object.<anonymous> (src/modules/public/public.test.ts:228:26)
+ FAIL  src/modules/whatsapp/whatsapp.service.test.ts (561.604 s)
+  ● enqueueLeadInquiry › enqueues lead-inquiry job with correct data when opt-in is set
 
- FAIL  src/modules/pricing/pricing.test.ts (143.939 s)
-  ● GET /api/pricing-rules › returns empty list when no rules
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-    expect(received).toBe(expected) // Object.is equality
+      297 |   };
+      298 |
+    > 299 |   it('enqueues lead-inquiry job with correct data when opt-in is set', async () => {
+          |   ^
+      300 |     await enqueueLeadInquiry(baseParams);
+      301 |     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+      302 |     const [jobName, jobData] = mockQueueAdd.mock.calls[0] as [string, Record<string, unknown>];
 
-    Expected: 200
-    Received: 500
+      at src/modules/whatsapp/whatsapp.service.test.ts:299:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:290:1)
 
-      142 |       .set('Authorization', `Bearer ${adminToken}`);
-      143 |
-    > 144 |     expect(res.status).toBe(200);
-          |                        ^
-      145 |     expect(res.body.data).toEqual([]);
-      146 |   });
-      147 |
+  ● enqueueLeadInquiry › handles queue.add failure gracefully without throwing
 
-      at Object.<anonymous> (src/modules/pricing/pricing.test.ts:144:24)
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-  ● GET /api/pricing-rules › returns list of rules
+      319 |   });
+      320 |
+    > 321 |   it('handles queue.add failure gracefully without throwing', async () => {
+          |   ^
+      322 |     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
+      323 |     await expect(enqueueLeadInquiry(baseParams)).resolves.toBeUndefined();
+      324 |   });
 
-    expect(received).toBe(expected) // Object.is equality
+      at src/modules/whatsapp/whatsapp.service.test.ts:321:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:290:1)
 
-    Expected: 200
-    Received: 500
+  ● enqueueBookingConfirmed › enqueues booking-confirmed immediately (no delay option)
 
-      153 |       .set('Authorization', `Bearer ${adminToken}`);
-      154 |
-    > 155 |     expect(res.status).toBe(200);
-          |                        ^
-      156 |     expect(res.body.data).toHaveLength(1);
-      157 |     expect(res.body.data[0].id).toBe('rule_1');
-      158 |   });
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-      at Object.<anonymous> (src/modules/pricing/pricing.test.ts:155:24)
+      340 |   };
+      341 |
+    > 342 |   it('enqueues booking-confirmed immediately (no delay option)', async () => {
+          |   ^
+      343 |     await enqueueBookingConfirmed(baseParams);
+      344 |     const confirmCall = (mockQueueAdd.mock.calls as [string, unknown, unknown?][])
+      345 |       .find(([name]) => name === 'booking-confirmed');
 
- FAIL  src/modules/locations/locations.test.ts (78.128 s)
-  ● GET /api/locations › returns empty list when no locations
+      at src/modules/whatsapp/whatsapp.service.test.ts:342:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
 
-    expect(received).toBe(expected) // Object.is equality
+  ● enqueueBookingConfirmed › enqueues appointment-reminder with positive delay for far-future startAt
 
-    Expected: 200
-    Received: 500
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-      121 |       .set('Authorization', `Bearer ${adminToken}`);
-      122 |
-    > 123 |     expect(res.status).toBe(200);
-          |                        ^
-      124 |     expect(res.body.data).toEqual([]);
-      125 |   });
-      126 |
+      348 |   });
+      349 |
+    > 350 |   it('enqueues appointment-reminder with positive delay for far-future startAt', async () => {
+          |   ^
+      351 |     await enqueueBookingConfirmed(baseParams);
+      352 |     const reminderCall = (mockQueueAdd.mock.calls as [string, unknown, { delay: number }?][])
+      353 |       .find(([name]) => name === 'appointment-reminder');
 
-      at Object.<anonymous> (src/modules/locations/locations.test.ts:123:24)
+      at src/modules/whatsapp/whatsapp.service.test.ts:350:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
 
-  ● GET /api/locations › returns list of locations
+  ● enqueueBookingConfirmed › appointment-reminder delay equals startAt - 24h - now (approx)
 
-    expect(received).toBe(expected) // Object.is equality
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-    Expected: 200
-    Received: 500
+      356 |   });
+      357 |
+    > 358 |   it('appointment-reminder delay equals startAt - 24h - now (approx)', async () => {
+          |   ^
+      359 |     await enqueueBookingConfirmed(baseParams);
+      360 |     const reminderCall = (mockQueueAdd.mock.calls as [string, unknown, { delay: number }?][])
+      361 |       .find(([name]) => name === 'appointment-reminder');
 
-      132 |       .set('Authorization', `Bearer ${adminToken}`);
-      133 |
-    > 134 |     expect(res.status).toBe(200);
-          |                        ^
-      135 |     expect(res.body.data).toHaveLength(1);
-      136 |     expect(res.body.data[0].id).toBe('loc_1');
-      137 |   });
+      at src/modules/whatsapp/whatsapp.service.test.ts:358:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
 
-      at Object.<anonymous> (src/modules/locations/locations.test.ts:134:24)
+  ● enqueueBookingConfirmed › skips appointment-reminder when startAt is < 24 h from now
 
-  ● GET /api/locations › filters by isActive=true
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
 
-    expect(received).toBe(expected) // Object.is equality
+      367 |   });
+      368 |
+    > 369 |   it('skips appointment-reminder when startAt is < 24 h from now', async () => {
+          |   ^
+      370 |     await enqueueBookingConfirmed({ ...baseParams, startAt: FUTURE_2H });
+      371 |     const reminderCalls = (mockQueueAdd.mock.calls as [string][])
+      372 |       .filter(([name]) => name === 'appointment-reminder');
 
-    Expected: 200
-    Received: 500
+      at src/modules/whatsapp/whatsapp.service.test.ts:369:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
 
-      144 |       .set('Authorization', `Bearer ${adminToken}`);
-      145 |
-    > 146 |     expect(res.status).toBe(200);
-          |                        ^
-      147 |     expect(mockLocationFindMany).toHaveBeenCalledWith(
-      148 |       expect.objectContaining({ where: expect.objectContaining({ isActive: true }) }),
-      149 |     );
+  ● enqueueBookingConfirmed › still enqueues booking-confirmed when the reminder is skipped
 
-      at Object.<anonymous> (src/modules/locations/locations.test.ts:146:24)
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      374 |   });
+      375 |
+    > 376 |   it('still enqueues booking-confirmed when the reminder is skipped', async () => {
+          |   ^
+      377 |     await enqueueBookingConfirmed({ ...baseParams, startAt: FUTURE_2H });
+      378 |     const confirmCalls = (mockQueueAdd.mock.calls as [string][])
+      379 |       .filter(([name]) => name === 'booking-confirmed');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:376:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueueBookingConfirmed › handles queue.add failure gracefully without throwing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      391 |   });
+      392 |
+    > 393 |   it('handles queue.add failure gracefully without throwing', async () => {
+          |   ^
+      394 |     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
+      395 |     await expect(enqueueBookingConfirmed(baseParams)).resolves.toBeUndefined();
+      396 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:393:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:331:1)
+
+  ● enqueuePostVisitReview › enqueues post-visit-review with a 2-hour delay (7 200 000 ms)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      411 |   };
+      412 |
+    > 413 |   it('enqueues post-visit-review with a 2-hour delay (7 200 000 ms)', async () => {
+          |   ^
+      414 |     await enqueuePostVisitReview(baseParams);
+      415 |     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+      416 |     const opts = mockQueueAdd.mock.calls[0][2] as { delay: number };
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:413:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › includes googleReviewUrl in the job data
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      418 |   });
+      419 |
+    > 420 |   it('includes googleReviewUrl in the job data', async () => {
+          |   ^
+      421 |     await enqueuePostVisitReview(baseParams);
+      422 |     const data = mockQueueAdd.mock.calls[0][1] as { googleReviewUrl: string };
+      423 |     expect(data.googleReviewUrl).toBe('https://g.page/r/ABC/review');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:420:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › includes jobName=post-visit-review in the job data
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      424 |   });
+      425 |
+    > 426 |   it('includes jobName=post-visit-review in the job data', async () => {
+          |   ^
+      427 |     await enqueuePostVisitReview(baseParams);
+      428 |     const data = mockQueueAdd.mock.calls[0][1] as { jobName: string };
+      429 |     expect(data.jobName).toBe('post-visit-review');
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:426:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › handles queue.add failure gracefully without throwing
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      440 |   });
+      441 |
+    > 442 |   it('handles queue.add failure gracefully without throwing', async () => {
+          |   ^
+      443 |     mockQueueAdd.mockRejectedValueOnce(new Error('Redis unavailable'));
+      444 |     await expect(enqueuePostVisitReview(baseParams)).resolves.toBeUndefined();
+      445 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:442:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueuePostVisitReview › does not enqueue when googleReviewUrl is empty (avoids broken link in message)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      445 |   });
+      446 |
+    > 447 |   it('does not enqueue when googleReviewUrl is empty (avoids broken link in message)', async () => {
+          |   ^
+      448 |     await enqueuePostVisitReview({ ...baseParams, googleReviewUrl: '' });
+      449 |     expect(mockQueueAdd).not.toHaveBeenCalled();
+      450 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:447:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:403:1)
+
+  ● enqueueRestaurantReminder › enqueues restaurant-reminder with correct delay (startAt − 2 h − now)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      466 |   };
+      467 |
+    > 468 |   it('enqueues restaurant-reminder with correct delay (startAt − 2 h − now)', async () => {
+          |   ^
+      469 |     await enqueueRestaurantReminder(baseParams);
+      470 |     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+      471 |     const opts = mockQueueAdd.mock.calls[0][2] as { delay: number };
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:468:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+  ● enqueueRestaurantReminder › includes partySize in the job data
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      475 |   });
+      476 |
+    > 477 |   it('includes partySize in the job data', async () => {
+          |   ^
+      478 |     await enqueueRestaurantReminder(baseParams);
+      479 |     const data = mockQueueAdd.mock.calls[0][1] as { partySize: number };
+      480 |     expect(data.partySize).toBe(4);
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:477:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+  ● enqueueRestaurantReminder › skips when startAt is in the past (delay ≤ 0)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      481 |   });
+      482 |
+    > 483 |   it('skips when startAt is in the past (delay ≤ 0)', async () => {
+          |   ^
+      484 |     await enqueueRestaurantReminder({ ...baseParams, startAt: PAST_ISO });
+      485 |     expect(mockQueueAdd).not.toHaveBeenCalled();
+      486 |   });
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:483:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
+
+  ● enqueueRestaurantReminder › skips when startAt is < 2 h from now
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      486 |   });
+      487 |
+    > 488 |   it('skips when startAt is < 2 h from now', async () => {
+          |   ^
+      489 |     const nearFuture = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 h
+      490 |     await enqueueRestaurantReminder({ ...baseParams, startAt: nearFuture });
+      491 |     expect(mockQueueAdd).not.toHaveBeenCalled();
+
+      at src/modules/whatsapp/whatsapp.service.test.ts:488:3
+      at Object.<anonymous> (src/modules/whatsapp/whatsapp.service.test.ts:457:1)
 
 
-Test Suites: 3 failed, 99 passed, 102 total
-Tests:       6 failed, 1815 passed, 1821 total
+Test Suites: 2 failed, 100 passed, 102 total
+Tests:       18 failed, 1803 passed, 1821 total
 Snapshots:   0 total
-Time:        1347.099 s
+Time:        914.018 s
 Ran all test suites.
 Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+neilapacesaite@Neilas-MacBook-Pro backend % 
