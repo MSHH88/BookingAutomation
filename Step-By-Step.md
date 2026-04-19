@@ -20,8 +20,20 @@
 
 ## Step 1: Navigate to your backend folder
 
+> ⚠️ **You MUST run this first.** Every command below uses paths relative to the `backend/` directory.
+> If your repo is cloned elsewhere, replace `~/Desktop/Automation` with the actual path.
+
 ```bash
 cd ~/Desktop/Automation/backend
+```
+
+Confirm you are in the right place:
+
+```bash
+pwd
+# expected output ends with: .../BookingAutomation/backend
+ls package.json
+# expected output: package.json
 ```
 
 ---
@@ -41,25 +53,57 @@ rm -f \
 
 ---
 
-## Step 3: Download the 6 fixed test files
+## Step 3: Ensure target directories exist
 
 ```bash
-curl -sfL -o src/modules/calendar/calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.test.ts" && echo "OK 1/6 calendar.service.test.ts" || echo "FAILED: calendar.service.test.ts"
-
-curl -sfL -o src/modules/calendar/apple-calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/apple-calendar.service.test.ts" && echo "OK 2/6 apple-calendar.service.test.ts" || echo "FAILED: apple-calendar.service.test.ts"
-
-curl -sfL -o src/modules/calendar/outlook-calendar.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/outlook-calendar.service.test.ts" && echo "OK 3/6 outlook-calendar.service.test.ts" || echo "FAILED: outlook-calendar.service.test.ts"
-
-curl -sfL -o src/modules/webhooks/webhooks.service.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.test.ts" && echo "OK 4/6 webhooks.service.test.ts" || echo "FAILED: webhooks.service.test.ts"
-
-curl -sfL -o src/modules/features/features.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/features/features.test.ts" && echo "OK 5/6 features.test.ts" || echo "FAILED: features.test.ts"
-
-curl -sfL -o src/modules/sessions/sessions.test.ts "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/sessions/sessions.test.ts" && echo "OK 6/6 sessions.test.ts" || echo "FAILED: sessions.test.ts"
+mkdir -p \
+  src/modules/calendar \
+  src/modules/webhooks \
+  src/modules/features \
+  src/modules/sessions
 ```
 
 ---
 
-## Step 4: Verify
+## Step 4: Download the 6 fixed test files
+
+> Each `curl` uses `--create-dirs` so the output directory is created automatically even if it is missing.
+
+```bash
+curl -fsSL --create-dirs \
+  -o src/modules/calendar/calendar.service.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/calendar.service.test.ts" \
+  && echo "OK 1/6 calendar.service.test.ts" || echo "FAILED: calendar.service.test.ts"
+
+curl -fsSL --create-dirs \
+  -o src/modules/calendar/apple-calendar.service.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/apple-calendar.service.test.ts" \
+  && echo "OK 2/6 apple-calendar.service.test.ts" || echo "FAILED: apple-calendar.service.test.ts"
+
+curl -fsSL --create-dirs \
+  -o src/modules/calendar/outlook-calendar.service.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/calendar/outlook-calendar.service.test.ts" \
+  && echo "OK 3/6 outlook-calendar.service.test.ts" || echo "FAILED: outlook-calendar.service.test.ts"
+
+curl -fsSL --create-dirs \
+  -o src/modules/webhooks/webhooks.service.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/webhooks/webhooks.service.test.ts" \
+  && echo "OK 4/6 webhooks.service.test.ts" || echo "FAILED: webhooks.service.test.ts"
+
+curl -fsSL --create-dirs \
+  -o src/modules/features/features.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/features/features.test.ts" \
+  && echo "OK 5/6 features.test.ts" || echo "FAILED: features.test.ts"
+
+curl -fsSL --create-dirs \
+  -o src/modules/sessions/sessions.test.ts \
+  "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/src/modules/sessions/sessions.test.ts" \
+  && echo "OK 6/6 sessions.test.ts" || echo "FAILED: sessions.test.ts"
+```
+
+---
+
+## Step 5: Verify
 
 ```bash
 npm test -- --no-coverage --forceExit
