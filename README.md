@@ -13856,3 +13856,20162 @@ Snapshots:   0 total
 Time:        1930.563 s
 Ran all test suites.
 Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+
+
+
+
+After test now -
+ ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/lib/pricing-engine.test.ts (10.327 s)
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/modules/forms/forms.service.test.ts (12.51 s)
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/modules/sessions/sessions.test.ts (173.92 s)
+  ● Console
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ETIMEDOUT',
+        [errors]: [
+          Error: connect ETIMEDOUT ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at Timeout.internalConnectMultipleTimeout (node:net:1745:38)
+              at listOnTimeout (node:internal/timers:607:11)
+              at processTimers (node:internal/timers:541:7) {
+            errno: -60,
+            code: 'ETIMEDOUT',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      Error: Unhandled error. (Error: Connection is closed.
+          at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+          at Object.onceWrapper (node:events:623:26)
+          at EventEmitter.emit (node:events:520:35)
+          at processTicksAndRejections (node:internal/process/task_queues:85:11))
+          at Queue.emit (node:events:497:17)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:131:20)
+          at Queue.emit (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue.ts:193:18)
+          at RedisConnection.<anonymous> (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/queue-base.ts:76:56)
+          at RedisConnection.emit (node:events:508:28)
+          at /Users/neilapacesaite/Desktop/Automation/backend/node_modules/bullmq/src/classes/redis-connection.ts:135:41
+          at processTicksAndRejections (node:internal/process/task_queues:104:5) {
+        code: 'ERR_UNHANDLED_ERROR',
+        context: Error: Connection is closed.
+            at EventEmitter.connectionCloseHandler (/Users/neilapacesaite/Desktop/Automation/backend/node_modules/ioredis/built/Redis.js:208:28)
+            at Object.onceWrapper (node:events:623:26)
+            at EventEmitter.emit (node:events:520:35)
+            at processTicksAndRejections (node:internal/process/task_queues:85:11)
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at node_modules/bullmq/src/classes/redis-connection.ts:135:41
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+    console.error
+      AggregateError: 
+          at internalConnectMultiple (node:net:1142:49)
+          at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+              at createConnectionError (node:net:1686:14)
+              at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }
+
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/modules/campaigns/campaigns.service.test.ts (24.969 s)
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ FAIL  src/modules/payments/payments.service.test.ts (382.505 s)
+  ● createPaymentIntent › uses booking.depositAmount when explicitly set
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      192 |
+      193 | describe('createPaymentIntent', () => {
+    > 194 |   it('uses booking.depositAmount when explicitly set', async () => {
+          |   ^
+      195 |     mockBookingFindUnique.mockResolvedValue(makeBooking());
+      196 |
+      197 |     const result = await paymentsService.createPaymentIntent({
+
+      at src/modules/payments/payments.service.test.ts:194:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › uses StudioSettings depositPercentage × totalAmount when no depositAmount
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      208 |   });
+      209 |
+    > 210 |   it('uses StudioSettings depositPercentage × totalAmount when no depositAmount', async () => {
+          |   ^
+      211 |     mockBookingFindUnique.mockResolvedValue(
+      212 |       makeBooking({ depositAmount: null, totalAmount: '500.00' }),
+      213 |     );
+
+      at src/modules/payments/payments.service.test.ts:210:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › defaults to 20% when StudioSettings row does not exist
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      224 |   });
+      225 |
+    > 226 |   it('defaults to 20% when StudioSettings row does not exist', async () => {
+          |   ^
+      227 |     mockBookingFindUnique.mockResolvedValue(
+      228 |       makeBooking({ depositAmount: null, totalAmount: '200.00' }),
+      229 |     );
+
+      at src/modules/payments/payments.service.test.ts:226:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › creates a new Stripe customer when none found by email
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      240 |   });
+      241 |
+    > 242 |   it('creates a new Stripe customer when none found by email', async () => {
+          |   ^
+      243 |     mockBookingFindUnique.mockResolvedValue(makeBooking());
+      244 |     mockListCustomers.mockResolvedValue({ data: [] });
+      245 |     mockCreateCustomer.mockResolvedValue({ id: CUSTOMER_ID });
+
+      at src/modules/payments/payments.service.test.ts:242:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › reuses existing Stripe customer found by email
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      255 |   });
+      256 |
+    > 257 |   it('reuses existing Stripe customer found by email', async () => {
+          |   ^
+      258 |     mockBookingFindUnique.mockResolvedValue(makeBooking());
+      259 |     mockListCustomers.mockResolvedValue({ data: [{ id: CUSTOMER_ID }] });
+      260 |
+
+      at src/modules/payments/payments.service.test.ts:257:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › skips customer lookup when booking has no customer or lead email
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      267 |   });
+      268 |
+    > 269 |   it('skips customer lookup when booking has no customer or lead email', async () => {
+          |   ^
+      270 |     mockBookingFindUnique.mockResolvedValue(
+      271 |       makeBooking({ customerId: null, customer: null, lead: null }),
+      272 |     );
+
+      at src/modules/payments/payments.service.test.ts:269:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › sets setup_future_usage when saveCard is true
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      278 |   });
+      279 |
+    > 280 |   it('sets setup_future_usage when saveCard is true', async () => {
+          |   ^
+      281 |     mockBookingFindUnique.mockResolvedValue(makeBooking());
+      282 |
+      283 |     await paymentsService.createPaymentIntent({ bookingId: BOOKING_ID, currency: 'GBP', saveCard: true });
+
+      at src/modules/payments/payments.service.test.ts:280:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › persists stripePaymentIntentId on the booking
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      288 |   });
+      289 |
+    > 290 |   it('persists stripePaymentIntentId on the booking', async () => {
+          |   ^
+      291 |     mockBookingFindUnique.mockResolvedValue(makeBooking());
+      292 |
+      293 |     await paymentsService.createPaymentIntent({ bookingId: BOOKING_ID, currency: 'GBP', saveCard: false });
+
+      at src/modules/payments/payments.service.test.ts:290:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+  ● createPaymentIntent › creates a new PaymentIntent when existing one is not reusable (cancelled)
+
+    thrown: "Exceeded timeout of 30000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      321 |   });
+      322 |
+    > 323 |   it('creates a new PaymentIntent when existing one is not reusable (cancelled)', async () => {
+          |   ^
+      324 |     const NEW_PI_ID = 'pi_new_999';
+      325 |     mockBookingFindUnique.mockResolvedValue(
+      326 |       makeBooking({ stripePaymentIntentId: PI_ID }),
+
+      at src/modules/payments/payments.service.test.ts:323:3
+      at Object.<anonymous> (src/modules/payments/payments.service.test.ts:193:1)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+ PASS  src/modules/recurring-bookings/recurring-bookings.service.test.ts
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '::1',
+          port: 6379
+        },
+        Error: connect ECONNREFUSED 127.0.0.1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '127.0.0.1',
+          port: 6379
+        }
+      ]
+    }".
+
+      at afterConnectMultiple (node:net:1723:7) {
+        code: 'ECONNREFUSED',
+        [errors]: [
+          Error: connect ECONNREFUSED ::1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '::1',
+            port: 6379
+          },
+          Error: connect ECONNREFUSED 127.0.0.1:6379
+      at afterConnectMultiple (node:net:1716:16) {
+            errno: -61,
+            code: 'ECONNREFUSED',
+            syscall: 'connect',
+            address: '127.0.0.1',
+            port: 6379
+          }
+        ]
+      }".
+      at console.error (node_modules/@jest/console/build/BufferedConsole.js:127:10)
+      at Queue.emit (node_modules/bullmq/src/classes/queue-base.ts:137:17)
+      at Queue.emit (node_modules/bullmq/src/classes/queue.ts:193:18)
+      at RedisConnection.<anonymous> (node_modules/bullmq/src/classes/queue-base.ts:76:56)
+      at EventEmitter.RedisConnection.handleClientError (node_modules/bullmq/src/classes/redis-connection.ts:123:12)
+      at EventEmitter.silentEmit (node_modules/ioredis/built/Redis.js:529:30)
+      at Socket.<anonymous> (node_modules/ioredis/built/redis/event_handler.js:221:14)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "AggregateError: 
+        at internalConnectMultiple (node:net:1142:49)
+        at afterConnectMultiple (node:net:1723:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED ::1:6379
+            at createConnectionError (node:net:1686:14)
+            at afterConnectMultiple (node:net:1716:16) {
+          errno: -61,
+          code: 'EC
+
+
+
+          Still same error and issues all fails!!!!!
