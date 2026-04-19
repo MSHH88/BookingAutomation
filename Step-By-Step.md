@@ -1,6 +1,6 @@
 # Step-By-Step Guide — Full Test Sync
 
-> **Guide hotfix: delete-all + download-all 102 test files (2026-04-19)**
+> **Guide hotfix: single-command delete + single-curl download for all 102 test files (2026-04-19)**
 >
 > **Branch:** `copilot/create-detailed-automation-plan`
 > **Owner/Repo:** `MSHH88/BookingAutomation`
@@ -13,6 +13,38 @@
 The previous guide only replaced 6 test files, leaving older copies of the remaining 96 on your machine.  
 Running those older copies produced **1809 tests / 40 failures** instead of the expected **1821 tests / 0 failures**.  
 This guide replaces every single test file, closing the gap.
+
+---
+
+## ⚡ Quick method — 2 commands (run from inside `backend/`)
+
+> Use these two commands if you just want to nuke and re-download everything in one go.  
+> Detailed steps with explanations follow below.
+
+**Command 1 — Delete all 102 old test files:**
+
+```bash
+cd ~/Desktop/Automation/backend && \
+find src -name "*.test.ts" -delete && \
+echo "ALL 102 OLD TEST FILES DELETED"
+```
+
+**Command 2 — Download all 102 fresh from the repo (single curl):**
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend/scripts/download-tests.sh" | bash
+```
+
+> Each file prints `OK  N/102  <path>` on success or `FAIL` on error.  
+> When done you should see: `✅  All 102 test files downloaded.`
+
+Then run:
+
+```bash
+npm test -- --no-coverage --forceExit
+```
+
+Expected: **102 suites / 1821 tests / 0 failures**.
 
 ---
 
