@@ -1,5 +1,76 @@
 # Step-By-Step Guide — Full Test Sync
 
+---
+
+## 🔧 Latest fix — PR: fix(tests): restore green + fix step-by-step guide completeness (2026-04-19)
+
+### What was failing (6 tests across 3 suites)
+
+| Suite | Test | Root Cause |
+|---|---|---|
+| `pricing.test.ts` | GET /api/pricing-rules — returns empty list | `pricingRule.count` not mocked; `paginate()` calls `.count()` + `.findMany()` → TypeError |
+| `pricing.test.ts` | GET /api/pricing-rules — returns list of rules | same as above |
+| `locations.test.ts` | GET /api/locations — returns empty list | `location.count` not mocked; same `paginate()` issue |
+| `locations.test.ts` | GET /api/locations — returns list of locations | same as above |
+| `locations.test.ts` | GET /api/locations — filters by isActive=true | same as above |
+| `public.test.ts` | POST /api/public/businesses/:slug/bookings — 201 creates booking | `$transaction` mock returned `undefined`; service accessed `booking.id` → TypeError |
+
+### What was fixed
+
+- **`pricing.test.ts`** — added `mockRuleCount = jest.fn()` + `count` entry in prisma mock; added `mockRuleCount.mockResolvedValue(N)` in each GET list test
+- **`locations.test.ts`** — added `mockLocationCount = jest.fn()` + `count` entry in prisma mock; added `mockLocationCount.mockResolvedValue(N)` in each GET list test  
+- **`public.test.ts`** — added `booking.findFirst` to mock (needed inside `$transaction` callback for conflict check); wired `$transaction` to call its callback: `mockImplementation((cb) => cb(prisma))`
+
+### Commit SHA
+
+`4f4c3f0` — fix(tests): fix 6 failing tests across 3 suites
+
+---
+
+## ⚡ Quick fix — download only the 3 modified test files
+
+> Use this if you previously ran the full guide and just need to apply the latest test fixes.
+
+**Step A — Delete the 3 old test files:**
+
+```bash
+cd ~/Desktop/Automation/backend && \
+rm -f \
+  src/modules/pricing/pricing.test.ts \
+  src/modules/locations/locations.test.ts \
+  src/modules/public/public.test.ts \
+&& echo "3 OLD TEST FILES DELETED"
+```
+
+**Step B — Ensure target directories exist:**
+
+```bash
+mkdir -p \
+  src/modules/pricing \
+  src/modules/locations \
+  src/modules/public
+```
+
+**Step C — Download the 3 fixed test files:**
+
+```bash
+BASE="https://raw.githubusercontent.com/MSHH88/BookingAutomation/copilot/create-detailed-automation-plan/backend"
+
+curl -fsSL --create-dirs -o src/modules/pricing/pricing.test.ts   "$BASE/src/modules/pricing/pricing.test.ts"   && echo "OK 1/3 pricing.test.ts"   || echo "FAIL 1/3 pricing.test.ts"
+curl -fsSL --create-dirs -o src/modules/locations/locations.test.ts "$BASE/src/modules/locations/locations.test.ts" && echo "OK 2/3 locations.test.ts" || echo "FAIL 2/3 locations.test.ts"
+curl -fsSL --create-dirs -o src/modules/public/public.test.ts      "$BASE/src/modules/public/public.test.ts"      && echo "OK 3/3 public.test.ts"    || echo "FAIL 3/3 public.test.ts"
+```
+
+**Step D — Run tests:**
+
+```bash
+npm test -- --no-coverage --forceExit
+```
+
+Expected: **102 suites / 1821 tests / 0 failures**.
+
+---
+
 > **Guide hotfix: single-command delete + single-curl download for all 102 test files (2026-04-19)**
 >
 > **Branch:** `copilot/create-detailed-automation-plan`
