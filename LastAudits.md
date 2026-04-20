@@ -1540,9 +1540,12 @@ This section answers three questions about the `SUPER_ADMIN` ("Super Creator") r
 
 **Answer: NO — and this applies to all roles, including SUPER_ADMIN.**
 
-Only `SUPER_ADMIN` has access to the user-management endpoints (`GET /api/admin/users`,
-`PATCH /api/admin/users/:id`). A regular `ADMIN` also calls these routes but is
-tenant-scoped. Neither role can ever see a password hash through any API response.
+Both `SUPER_ADMIN` and per-tenant `ADMIN` can call the user-management endpoints
+(`GET /api/admin/users`, `PATCH /api/admin/users/:id`) — both routes use
+`requireRole('ADMIN')` which admits ADMIN and SUPER_ADMIN alike.  However,
+**only SUPER_ADMIN should perform sensitive operations such as deactivation or
+force-logout** (see BUG 27 for the current gap where ADMIN can also deactivate).
+Neither role can ever see a password hash through any API response.
 
 Evidence:
 - `admin.service.ts` uses an explicit `userListSelect` Prisma select shape that lists
@@ -1559,18 +1562,18 @@ never reaches any API response body.
 
 ### Q2 — Can SUPER_ADMIN force logout / revoke access?
 
-**Partially — SUPER_ADMIN only, with an up-to-15-minute gap (BUG 23).**
+**Partially — SUPER_ADMIN only (intended), with an up-to-15-minute gap (BUG 23) and a
+missing SUPER_ADMIN-only guard on the deactivation endpoint (BUG 27).**
 
-> A regular per-tenant `ADMIN` **cannot** force-logout users from other tenants. Within
-> their own tenant they can deactivate users via `PATCH /api/admin/users/:id`, but this
-> carries the same 15-minute gap described below. Cross-tenant or platform-wide revocation
-> is **SUPER_ADMIN only**.
+> Only **SUPER_ADMIN** should be able to force-logout users (deactivate their account or
+> bump rbacVersion).  A per-tenant `ADMIN` **must not** perform force-logout — this is a
+> privileged, platform-level operation.  However, the current implementation allows any
+> ADMIN to call `PATCH /api/admin/users/:id` with `{ isActive: false }` (see **BUG 27**).
 
 What SUPER_ADMIN can do today:
 1. **Deactivate user** (`PATCH /api/admin/users/:id` with `{ isActive: false }`) — blocks
    the next `POST /api/auth/refresh` because `refresh()` checks `stored.user.isActive`.
-   *(This route accepts ADMIN too, but ADMIN is tenant-scoped; only SUPER_ADMIN can target
-   a user from any tenant.)*
+   *(Intended as **SUPER_ADMIN only**, but the route currently admits any ADMIN — see BUG 27.)*
 2. **Bump rbacVersion** — by changing a user's `role` via `PATCH /api/roles/users/:id`:
    `verifyAccessToken` compares the token's embedded `rbacVersion` against the Redis
    counter and rejects stale tokens **immediately**.
@@ -1589,8 +1592,10 @@ The gap:
 
 **No — SUPER_ADMIN has no direct bypass. Only the self-service email flow exists.**
 
-> A regular `ADMIN` has **even fewer** capabilities here: there is no admin-initiated
-> password reset of any kind for any role. The mechanism below is user-self-service only.
+> Only **SUPER_ADMIN** should be able to trigger a password reset on behalf of a user.
+> A regular `ADMIN` has no password-reset capability whatsoever. The planned fix
+> (see **BUG 24**) adds a `POST /api/admin/users/:id/send-reset-link` endpoint that
+> is **SUPER_ADMIN only**.
 
 Available flows:
 - `POST /api/auth/forgot-password` — sends a one-time reset link to the user's own email.
@@ -1612,7 +1617,8 @@ no recovery path available to the platform operator. See **BUG 24**.
 | Goal | Who can do it | Current mechanism | Gap |
 |------|--------------|------------------|-----|
 | Prevent login immediately (cross-tenant) | **SUPER_ADMIN only** | Deactivate user (`isActive = false`) + change `role` (triggers rbacVersion bump) | Two-step workaround; up to 15 min window even for SUPER_ADMIN |
-| Prevent login (own-tenant users) | ADMIN or SUPER_ADMIN | `PATCH /api/admin/users/:id` `{ isActive: false }` | Same 15-min gap (BUG 23) |
+| Prevent login (own-tenant users) | **SUPER_ADMIN only** (BUG 27: ADMIN currently also can) | `PATCH /api/admin/users/:id` `{ isActive: false }` | Same 15-min gap (BUG 23); ADMIN gate missing (BUG 27) |
+| Send password-reset link on behalf of user | **SUPER_ADMIN only** (endpoint not yet implemented — BUG 24) | No mechanism today | No admin bypass for any role |
 | Reset a forgotten password | No admin role | `POST /api/auth/forgot-password` — user-initiated only | No admin bypass for any role |
 | View user account details | ADMIN (own tenant) or SUPER_ADMIN (any tenant) | `GET /api/admin/users` | No password hash exposure |
 | Toggle feature flags globally | **SUPER_ADMIN only** | `PATCH /api/admin/feature-flags/:key` | Not available to regular ADMIN |
@@ -1631,12 +1637,16 @@ no recovery path available to the platform operator. See **BUG 24**.
 `updateUser` in the admin service calls `bumpRbacVersion(id)` only when `body.role` is
 changed, but not when `body.isActive` is set to `false`.  The `verifyAccessToken`
 middleware checks `rbacVersion` but does **not** look up `isActive` from the database.
-Result: after an admin disables an account, the user's existing access token remains
+Result: after a SUPER_ADMIN disables an account, the user's existing access token remains
 valid until its natural expiry (up to 15 minutes, controlled by `JWT_ACCESS_EXPIRY`).
+
+Note: deactivating a user (`isActive = false`) is a **SUPER_ADMIN-only** privileged
+operation (see also **BUG 27** which documents the current gap where any ADMIN can call
+this endpoint).
 
 **Impact:**
 - A compromised or terminated user has a 15-minute window to continue accessing
-  protected endpoints despite being deactivated.
+  protected endpoints despite being deactivated — even after SUPER_ADMIN intervenes.
 - The `isActive` guard only fires on the next `POST /api/auth/refresh`, not on
   every request.
 
@@ -1678,9 +1688,12 @@ This immediately invalidates all outstanding access tokens for the deactivated u
 **Issue:**
 The only password-reset mechanism is the self-service email flow
 (`POST /api/auth/forgot-password` → token email → `POST /api/auth/reset-password`).
-There is no SUPER_ADMIN-only endpoint to:
+There is no **SUPER_ADMIN-only** endpoint to:
 - directly set a new password for a user, or
 - trigger a password-reset email on behalf of a user without that user having to initiate it.
+
+Note: a regular `ADMIN` has **even fewer** capabilities here — no admin-initiated password
+reset exists for any role.  The planned endpoint must be **SUPER_ADMIN only**.
 
 **Impact:**
 - If a user's email account is compromised or inaccessible, the platform operator has no
@@ -1761,3 +1774,160 @@ This ensures `passwordHash` is never loaded into process memory during a token r
 | **BUG 25** | **Low** | **Security/Memory** | **`refresh()` loads full user row (incl. `passwordHash`) via `include: { user: true }`** | **NEW** |
 
 **Post-fix status (Round 5): BUG 14–22 all fixed (102 suites / 1862 tests pass, 0 failures). 3 new findings (BUG 23–25). BUG 23 and BUG 24 are Medium severity and should be addressed before production launch.**
+
+---
+
+## Audit pass: 2026-04-20 — BUG 26+ (new findings after BUG 25)
+
+---
+
+## BUG 26 — `GET /api/tables` and `GET /api/tables/availability` — Public Endpoints Return All-Tenant Table Data
+
+- **Severity: High**
+- **Category: Cross-Tenant Data Leak / IDOR**
+- **Files:**
+  - `backend/src/modules/tables/tables.routes.ts` (lines ~44–72: public GET routes have no `requireAuth`)
+  - `backend/src/modules/tables/tables.controller.ts` (lines ~30, ~49: `req.user?.tenantId ?? null`)
+  - `backend/src/modules/tables/tables.service.ts` (lines ~66–70 `listTables`, ~97–100 `getTableAvailability`)
+
+**Issue:**
+`GET /api/tables` and `GET /api/tables/availability` are registered as public routes — no
+`requireAuth` middleware is applied.  The controller reads `tenantId` from the authenticated
+user (`req.user?.tenantId ?? null`).  For unauthenticated callers `req.user` is `undefined`,
+so `tenantId = null`.  Both service functions skip the tenant filter when `tenantId` is
+`null`:
+
+```ts
+// tables.service.ts ~line 66
+const where: Prisma.TableWhereInput = { isActive };
+if (tenantId !== null) where.tenantId = tenantId;  // ← skipped when null
+```
+
+There is no `?slug=` or `?tenantId=` query parameter accepted by these endpoints to identify
+which tenant's tables should be returned.  The result is that ALL active tables from ALL
+tenants in the database are exposed to any anonymous HTTP caller.
+
+Unlike the public booking flow (`/api/public/businesses/:slug/*`) which resolves a specific
+tenant via its slug before serving data, the tables routes have no equivalent tenant
+resolution mechanism.
+
+**Impact:**
+- Any anonymous attacker can enumerate the floor plans, table capacities, and location
+  details of every tenant in the system.
+- This discloses business-sensitive layout information that should be private to each tenant.
+- Severity is High because no authentication is required and all tenant data is affected.
+
+**Evidence:**
+```ts
+// tables.routes.ts — public GET routes (no requireAuth)
+router.get('/',             validate(listTablesSchema),          ctrl.listTables);
+router.get('/availability', validate(listTableAvailabilitySchema), ctrl.getTableAvailability);
+
+// tables.controller.ts ~line 30
+const tenantId = req.user?.tenantId ?? null;   // null for unauthenticated callers
+const tables   = await tablesService.listTables(req.query as ListTablesQuery, tenantId);
+
+// tables.service.ts ~line 66-70
+const where: Prisma.TableWhereInput = { isActive };
+if (tenantId !== null) where.tenantId = tenantId;
+// → when tenantId is null, all tenants' tables are returned
+return prisma.table.findMany({ where, select: tableSelect, orderBy: { name: 'asc' } });
+```
+
+**Recommended Fix:**
+Add a required `?slug=` query parameter to the public GET routes (matching the convention
+used by `/api/public/businesses/:slug`) so the correct tenant is resolved before querying.
+In `listTables` and `getTableAvailability`, resolve the slug to a `tenantId` early and
+always apply the tenant filter.  If the tables API is only ever called from an authenticated
+context, remove the public route registrations and add `requireAuth` to all routes.
+
+Minimal fix (slug-based tenant resolution):
+```ts
+// tables.schema.ts — add slug to list + availability query schemas
+query: z.object({
+  slug: z.string().min(1),  // required tenant identifier
+  ...
+})
+
+// tables.service.ts — resolve slug → tenantId before filtering
+const tenant = await prisma.tenant.findUnique({ where: { slug }, select: { id: true } });
+if (!tenant) throw new AppError(404, 'TENANT_NOT_FOUND', 'Tenant not found');
+where.tenantId = tenant.id;  // always applied, no more null bypass
+```
+
+---
+
+## BUG 27 — `PATCH /api/admin/users/:id` Allows Any ADMIN to Deactivate Users — Must Be SUPER_ADMIN Only
+
+- **Severity: Medium**
+- **Category: Access Control / Privilege Escalation**
+- **Files:**
+  - `backend/src/modules/admin/admin.routes.ts` (line ~82: `requireRole('ADMIN')` on `PATCH /api/admin/users/:id`)
+  - `backend/src/modules/admin/admin.service.ts` (lines ~311–320: `updateUser` — no SUPER_ADMIN check for `isActive` changes)
+
+**Issue:**
+`PATCH /api/admin/users/:id` is guarded only by `requireRole('ADMIN')`, which admits both
+`ADMIN` and `SUPER_ADMIN` roles.  The service layer (`updateUser`) correctly restricts
+**role changes** to callers who are `SUPER_ADMIN` or hold `canAssignRoles`, but places **no
+equivalent restriction on `isActive` changes**:
+
+```ts
+// admin.service.ts ~line 311
+// Guard: role changes require SUPER_ADMIN or canAssignRoles permission
+if (body.role !== undefined && callerRole !== 'SUPER_ADMIN' && !callerCanAssignRoles) {
+  throw new AppError(403, 'FORBIDDEN', 'Missing permission: canAssignRoles');
+}
+// ↑ isActive changes have no parallel guard — any ADMIN can pass { isActive: false }
+```
+
+Setting `{ isActive: false }` is the mechanism by which a user is force-logged out
+(deactivated), a privileged, platform-level operation that the system's security model
+(and the new requirement) reserves for **SUPER_ADMIN only**.  A regular per-tenant `ADMIN`
+can currently call this endpoint to deactivate any user within their tenant without any
+SUPER_ADMIN-level check.
+
+**Impact:**
+- A per-tenant `ADMIN` can force-deactivate (effectively force-logout) any user in
+  their tenant, including other ADMINs, without SUPER_ADMIN involvement.
+- This undermines the principle that only SUPER_ADMIN controls privileged lifecycle
+  operations (deactivation, force-logout).
+- Combined with BUG 23 (deactivation does not bump rbacVersion), the gap is:
+  - ADMIN can deactivate a user → active JWTs still work for up to 15 min.
+  - SUPER_ADMIN should be the only role able to trigger deactivation.
+
+**Evidence (`admin.routes.ts` + `admin.service.ts`):**
+```ts
+// admin.routes.ts ~line 79-87
+router.patch(
+  '/users/:id',
+  requireRole('ADMIN'),      // ← admits ADMIN + SUPER_ADMIN
+  validate(updateUserSchema),
+  ctrl.patchUser,
+);
+
+// admin.service.ts ~line 317
+if (body.isActive !== undefined) data.isActive = body.isActive;  // ← no role check
+```
+
+**Recommended Fix:**
+Add a SUPER_ADMIN guard for `isActive` changes in `admin.service.ts`, mirroring the
+existing role-change guard:
+```ts
+// admin.service.ts — updateUser()
+if (body.isActive !== undefined && callerRole !== 'SUPER_ADMIN') {
+  throw new AppError(403, 'FORBIDDEN', 'Only SUPER_ADMIN can deactivate users');
+}
+```
+Alternatively, split `PATCH /api/admin/users/:id` into two endpoints — one for
+name/profile updates (ADMIN+) and one for `isActive`/`role` changes (SUPER_ADMIN only).
+
+---
+
+### BUG 26–27 Summary Table
+
+| BUG | Severity | Category | Title | Status |
+|-----|----------|----------|-------|--------|
+| **BUG 26** | **High** | **Cross-Tenant/Data Leak** | **`GET /api/tables` and `/api/tables/availability` return all-tenant table data to anonymous callers** | **NEW** |
+| **BUG 27** | **Medium** | **Access Control** | **`PATCH /api/admin/users/:id` allows any ADMIN to deactivate users — must be SUPER_ADMIN only** | **NEW** |
+
+**Post-fix status (Round 6): BUG 14–22 all fixed (102 suites / 1862 tests pass, 0 failures). BUG 23–25 documented (no fixes). BUG 26–27 newly discovered. BUG 26 is High severity and should be prioritised. BUG 27 is Medium severity and tightens the ADMIN/SUPER_ADMIN boundary for force-logout.**
