@@ -96,11 +96,13 @@ export async function updateArtist(
   try {
     const { id } = req.params as { id: string };
     const body = req.body as UpdateArtistBody;
+    const tenantId = extractTenantId(req);
     const artist = await artistsService.updateArtist(
       id,
       body,
       req.user!.id,
       isAdmin(req),
+      tenantId,
     );
     res.json(success(artist));
   } catch (err) {
@@ -119,7 +121,8 @@ export async function deleteArtist(
 ): Promise<void> {
   try {
     const { id } = req.params as { id: string };
-    await artistsService.deleteArtist(id);
+    const tenantId = extractTenantId(req);
+    await artistsService.deleteArtist(id, tenantId);
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -138,7 +141,8 @@ export async function assignStyles(
   try {
     const { id } = req.params as { id: string };
     const body = req.body as AssignStylesBody;
-    await artistsService.assignStyles(id, body, req.user!.id, isAdmin(req));
+    const tenantId = extractTenantId(req);
+    await artistsService.assignStyles(id, body, req.user!.id, isAdmin(req), tenantId);
     res.json(success({ message: 'Styles updated successfully' }));
   } catch (err) {
     next(err);

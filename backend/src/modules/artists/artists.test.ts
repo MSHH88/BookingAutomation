@@ -378,3 +378,100 @@ describe('PUT /api/artists/:id/services', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUG 17 — tenant isolation for ADMIN mutations
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('BUG 17 — PATCH /api/artists/:id cross-tenant isolation', () => {
+  const artistInTenantB = { ...baseArtist, tenantId: 'tenant_B' };
+
+  it('403 — Tenant A ADMIN cannot update Tenant B artist', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantB);
+
+    const res = await request(app)
+      .patch('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'))
+      .send({ bio: 'Hacked bio' });
+
+    expect(res.status).toBe(403);
+  });
+
+  it('200 — Tenant A ADMIN can update Tenant A artist', async () => {
+    const artistInTenantA = { ...baseArtist, tenantId: 'tenant_A' };
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantA);
+    (prisma.artist.update as jest.Mock).mockResolvedValue({ ...artistInTenantA, bio: 'Updated' });
+
+    const res = await request(app)
+      .patch('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'))
+      .send({ bio: 'Updated' });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('200 — SUPER_ADMIN (tenantId null) can update any artist cross-tenant', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantB);
+    (prisma.artist.update as jest.Mock).mockResolvedValue({ ...artistInTenantB, bio: 'Updated' });
+
+    const res = await request(app)
+      .patch('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN', 'u_super'))
+      .send({ bio: 'Updated' });
+
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('BUG 17 — DELETE /api/artists/:id cross-tenant isolation', () => {
+  const artistInTenantB = { ...baseArtist, tenantId: 'tenant_B' };
+
+  it('403 — Tenant A ADMIN cannot delete Tenant B artist', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantB);
+
+    const res = await request(app)
+      .delete('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'));
+
+    expect(res.status).toBe(403);
+  });
+
+  it('204 — Tenant A ADMIN can delete Tenant A artist', async () => {
+    const artistInTenantA = { ...baseArtist, tenantId: 'tenant_A' };
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantA);
+    (prisma.artist.update as jest.Mock).mockResolvedValue({ ...artistInTenantA, isActive: false });
+
+    const res = await request(app)
+      .delete('/api/artists/a_1')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'));
+
+    expect(res.status).toBe(204);
+  });
+});
+
+describe('BUG 17 — POST /api/artists/:id/styles cross-tenant isolation', () => {
+  const artistInTenantB = { ...baseArtist, tenantId: 'tenant_B', userId: 'u_other' };
+
+  it('403 — Tenant A ADMIN cannot assign styles for Tenant B artist', async () => {
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantB);
+
+    const res = await request(app)
+      .post('/api/artists/a_1/styles')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'))
+      .send({ styleIds: [] });
+
+    expect(res.status).toBe(403);
+  });
+
+  it('200 — Tenant A ADMIN can assign styles for Tenant A artist', async () => {
+    const artistInTenantA = { ...baseArtist, tenantId: 'tenant_A', userId: 'u_other' };
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(artistInTenantA);
+
+    const res = await request(app)
+      .post('/api/artists/a_1/styles')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'))
+      .send({ styleIds: [] });
+
+    expect(res.status).toBe(200);
+  });
+});

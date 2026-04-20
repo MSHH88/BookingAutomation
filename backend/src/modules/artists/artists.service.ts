@@ -156,16 +156,23 @@ export async function createArtist(input: CreateArtistBody, tenantId: string | n
 
 /**
  * Update an artist profile.
- * An ARTIST may only update their own profile; ADMIN can update any.
+ * An ARTIST may only update their own profile; ADMIN can update any profile
+ * within the same tenant (tenantId enforced for cross-tenant safety).
  */
 export async function updateArtist(
   id: string,
   input: UpdateArtistBody,
   requestingUserId: string,
   isAdmin: boolean,
+  tenantId: string | null,
 ) {
   const artist = await prisma.artist.findUnique({ where: { id } });
   if (!artist) throw new AppError(404, 'NOT_FOUND', 'Artist not found');
+
+  // Tenant isolation — block cross-tenant access even for ADMIN
+  if (tenantId !== null && artist.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Artist not found in your tenant');
+  }
 
   // Ownership check — artists can only edit their own profile
   if (!isAdmin && artist.userId !== requestingUserId) {
@@ -196,11 +203,16 @@ export async function updateArtist(
 
 /**
  * Soft-delete an artist (isActive = false).
- * Only ADMIN can delete.
+ * Only ADMIN can delete. tenantId enforces cross-tenant isolation.
  */
-export async function deleteArtist(id: string) {
+export async function deleteArtist(id: string, tenantId: string | null) {
   const artist = await prisma.artist.findUnique({ where: { id } });
   if (!artist) throw new AppError(404, 'NOT_FOUND', 'Artist not found');
+
+  // Tenant isolation — block cross-tenant delete even for ADMIN
+  if (tenantId !== null && artist.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Artist not found in your tenant');
+  }
 
   await prisma.artist.update({
     where: { id },
@@ -211,15 +223,22 @@ export async function deleteArtist(id: string) {
 /**
  * Assign / replace style tags for an artist.
  * Deletes all existing ArtistStyle rows and inserts the new set atomically.
+ * tenantId enforces cross-tenant isolation for ADMIN callers.
  */
 export async function assignStyles(
   artistId: string,
   input: AssignStylesBody,
   requestingUserId: string,
   isAdmin: boolean,
+  tenantId: string | null,
 ) {
   const artist = await prisma.artist.findUnique({ where: { id: artistId } });
   if (!artist) throw new AppError(404, 'NOT_FOUND', 'Artist not found');
+
+  // Tenant isolation — block cross-tenant access even for ADMIN
+  if (tenantId !== null && artist.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Artist not found in your tenant');
+  }
 
   if (!isAdmin && artist.userId !== requestingUserId) {
     throw new AppError(403, 'FORBIDDEN', 'You can only update your own styles');
