@@ -80,6 +80,15 @@ jest.mock('bullmq', () => ({
   })),
 }));
 
+// ─── Mock isFeatureEnabled ────────────────────────────────────────────────────
+
+const mockIsFeatureEnabled = jest.fn().mockResolvedValue(true);
+
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: (...a: unknown[]) => mockIsFeatureEnabled(...a),
+  requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
+}));
+
 // ─── Mock Twilio Messaging API ────────────────────────────────────────────────
 
 const mockMessagesCreate = jest.fn().mockResolvedValue({ sid: 'SM_test_sid_001' });
@@ -121,6 +130,7 @@ const ARTIST_NAME   = 'Alex Ink';
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockIsFeatureEnabled.mockResolvedValue(true);
   // Restore Twilio env to configured state
   process.env['TWILIO_ACCOUNT_SID']   = 'AC_test_sid';
   process.env['TWILIO_AUTH_TOKEN']    = 'test_auth_token';
@@ -509,5 +519,79 @@ describe('AppError import', () => {
     const err = new AppError(400, 'TEST', 'test error');
     expect(err.statusCode).toBe(400);
     expect(err.code).toBe('TEST');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUG 21 — tenant-scoped WHATSAPP_CONTACT_ENABLED
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('BUG 21 — tenant-scoped WHATSAPP_CONTACT_ENABLED', () => {
+  const baseLeadParams = {
+    phone:          PHONE,
+    customerName:   CUSTOMER_NAME,
+    preferWhatsApp: true,
+    studioName:     STUDIO_NAME,
+    leadId:         'lead_1',
+    tenantId:       'tenant_A',
+  };
+
+  const baseBookingParams = {
+    phone:          PHONE,
+    customerName:   CUSTOMER_NAME,
+    preferWhatsApp: true,
+    studioName:     STUDIO_NAME,
+    artistName:     ARTIST_NAME,
+    startAt:        FUTURE_48H,
+    bookingId:      'booking_1',
+    tenantId:       'tenant_A',
+  };
+
+  it('enqueueLeadInquiry: passes tenantId to isFeatureEnabled', async () => {
+    await enqueueLeadInquiry(baseLeadParams);
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('WHATSAPP_CONTACT_ENABLED', 'tenant_A');
+  });
+
+  it('enqueueLeadInquiry: tenant override OFF → does not enqueue', async () => {
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
+    await enqueueLeadInquiry(baseLeadParams);
+    expect(mockQueueAdd).not.toHaveBeenCalled();
+  });
+
+  it('enqueueBookingConfirmed: passes tenantId to isFeatureEnabled', async () => {
+    await enqueueBookingConfirmed(baseBookingParams);
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('WHATSAPP_CONTACT_ENABLED', 'tenant_A');
+  });
+
+  it('enqueueBookingConfirmed: tenant override OFF → does not enqueue', async () => {
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
+    await enqueueBookingConfirmed(baseBookingParams);
+    expect(mockQueueAdd).not.toHaveBeenCalled();
+  });
+
+  it('enqueuePostVisitReview: passes tenantId to isFeatureEnabled', async () => {
+    await enqueuePostVisitReview({
+      phone:           PHONE,
+      customerName:    CUSTOMER_NAME,
+      preferWhatsApp:  true,
+      studioName:      STUDIO_NAME,
+      googleReviewUrl: 'https://g.page/r/ABC/review',
+      bookingId:       'booking_1',
+      tenantId:        'tenant_A',
+    });
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('WHATSAPP_CONTACT_ENABLED', 'tenant_A');
+  });
+
+  it('enqueueRestaurantReminder: passes tenantId to isFeatureEnabled', async () => {
+    await enqueueRestaurantReminder({
+      phone:          PHONE,
+      customerName:   CUSTOMER_NAME,
+      preferWhatsApp: true,
+      studioName:     STUDIO_NAME,
+      startAt:        FUTURE_48H,
+      bookingId:      'booking_1',
+      tenantId:       'tenant_A',
+    });
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('WHATSAPP_CONTACT_ENABLED', 'tenant_A');
   });
 });

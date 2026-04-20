@@ -53,6 +53,7 @@ export interface LeadInquiryParams {
   leadId: string;
   /** Optional artist ID for structured logging. */
   artistId?: string;
+  tenantId?: string | null;
 }
 
 export interface BookingConfirmedParams {
@@ -66,6 +67,7 @@ export interface BookingConfirmedParams {
   bookingId: string;
   /** e.g. "tattoo session", "haircut". Defaults to "appointment". */
   service?: string;
+  tenantId?: string | null;
 }
 
 export interface PostVisitReviewParams {
@@ -75,6 +77,7 @@ export interface PostVisitReviewParams {
   studioName: string;
   googleReviewUrl: string;
   bookingId: string;
+  tenantId?: string | null;
 }
 
 export interface RestaurantReminderParams {
@@ -86,6 +89,7 @@ export interface RestaurantReminderParams {
   startAt: string;
   partySize?: number;
   bookingId: string;
+  tenantId?: string | null;
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
@@ -97,10 +101,10 @@ export interface RestaurantReminderParams {
  *
  * Async because the flag check is DB-backed (with Redis caching).
  */
-async function canSend(preferWhatsApp: boolean, phone: string | null): Promise<boolean> {
+async function canSend(preferWhatsApp: boolean, phone: string | null, tenantId?: string | null): Promise<boolean> {
   if (!preferWhatsApp) return false;
   if (!phone)          return false;
-  return isFeatureEnabled('WHATSAPP_CONTACT_ENABLED');
+  return isFeatureEnabled('WHATSAPP_CONTACT_ENABLED', tenantId ?? undefined);
 }
 
 /**
@@ -139,7 +143,7 @@ async function safeEnqueue(
  * Called from: leads.service.ts → createLead side-effect
  */
 export async function enqueueLeadInquiry(params: LeadInquiryParams): Promise<void> {
-  if (!await canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone, params.tenantId)) return;
 
   await safeEnqueue('lead-inquiry', {
     to:           params.phone as string,
@@ -161,7 +165,7 @@ export async function enqueueLeadInquiry(params: LeadInquiryParams): Promise<voi
  * Called from: bookings.service.ts → confirmBooking side-effect
  */
 export async function enqueueBookingConfirmed(params: BookingConfirmedParams): Promise<void> {
-  if (!await canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone, params.tenantId)) return;
 
   const commonData = {
     to:           params.phone as string,
@@ -195,7 +199,7 @@ export async function enqueueBookingConfirmed(params: BookingConfirmedParams): P
  * Called from: bookings.service.ts → completeBooking side-effect
  */
 export async function enqueuePostVisitReview(params: PostVisitReviewParams): Promise<void> {
-  if (!await canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone, params.tenantId)) return;
   if (!params.googleReviewUrl) return; // skip — broken message if URL is empty
 
   const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
@@ -225,7 +229,7 @@ export async function enqueuePostVisitReview(params: PostVisitReviewParams): Pro
  * Called from: bookings.service.ts → confirmBooking side-effect (restaurant only)
  */
 export async function enqueueRestaurantReminder(params: RestaurantReminderParams): Promise<void> {
-  if (!await canSend(params.preferWhatsApp, params.phone)) return;
+  if (!await canSend(params.preferWhatsApp, params.phone, params.tenantId)) return;
 
   const reminderDelay = new Date(params.startAt).getTime() - Date.now() - 2 * 60 * 60 * 1000;
   if (reminderDelay <= 0) return; // reservation is too close or already past

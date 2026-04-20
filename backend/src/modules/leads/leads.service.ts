@@ -310,7 +310,7 @@ export async function createLead(
 
       // 4. WhatsApp (opt-in + feature flag) — real BullMQ enqueue (Step 1.17)
       if (created.preferWhatsApp) {
-        void isFeatureEnabled('WHATSAPP_CONTACT_ENABLED').then((enabled) => {
+        void isFeatureEnabled('WHATSAPP_CONTACT_ENABLED', resolvedTenantId ?? undefined).then((enabled) => {
           if (enabled) {
             void enqueueLeadInquiry({
               phone:          created.phone,
@@ -319,6 +319,7 @@ export async function createLead(
               studioName:     config.STUDIO_NAME,
               leadId:         created.id,
               artistId:       created.artistId ?? undefined,
+              tenantId:       resolvedTenantId,
             }).catch((err) => logger.warn('enqueueLeadInquiry failed', { err, leadId: created.id }));
           }
         }).catch((err) => logger.warn('isFeatureEnabled check failed', { err }));
