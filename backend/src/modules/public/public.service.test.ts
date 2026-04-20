@@ -249,7 +249,7 @@ describe('public.service', () => {
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
       (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
-      (isFeatureEnabled as jest.Mock).mockResolvedValue(false); // DEPOSIT_REQUIRED = false
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(false); // DEPOSIT_REQUIRED = false (tenant override)
       (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null); // no conflict
       (prisma.booking.create as jest.Mock).mockResolvedValue({
         id: 'booking-1', status: 'PENDING', publicToken: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', startAt: new Date(), endAt: new Date(),
@@ -262,6 +262,8 @@ describe('public.service', () => {
 
       expect(result.status).toBe('PENDING');
       expect(result.depositRequired).toBe(false);
+      // Verify tenant-scoped feature flag check
+      expect(isFeatureEnabled).toHaveBeenCalledWith('DEPOSIT_REQUIRED', mockTenant.id);
     });
 
     it('should create booking with AWAITING_DEPOSIT when deposit required', async () => {
@@ -270,7 +272,7 @@ describe('public.service', () => {
       (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
       (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
       (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
-      (isFeatureEnabled as jest.Mock).mockResolvedValue(true); // DEPOSIT_REQUIRED = true
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(true); // DEPOSIT_REQUIRED = true (tenant override)
       (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null); // no conflict
       (prisma.booking.create as jest.Mock).mockResolvedValue({
         id: 'booking-1', status: 'AWAITING_DEPOSIT', publicToken: 'b2c3d4e5-f6a7-8901-bcde-f12345678901', startAt: new Date(), endAt: new Date(),
@@ -283,6 +285,8 @@ describe('public.service', () => {
 
       expect(result.status).toBe('AWAITING_DEPOSIT');
       expect(result.depositRequired).toBe(true);
+      // Verify tenant-scoped feature flag check
+      expect(isFeatureEnabled).toHaveBeenCalledWith('DEPOSIT_REQUIRED', mockTenant.id);
     });
 
     it('should create customer if not found', async () => {

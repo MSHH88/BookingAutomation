@@ -100,17 +100,34 @@ async function resolveOwnArtistId(userId: string): Promise<string> {
  *
  *   ARTIST — resolves own profile; supplied artistId is ignored.
  *   ADMIN  — uses supplied artistId; throws 400 when not supplied.
+ *            When tenantId is non-null, verifies the artist belongs to that
+ *            tenant (throws 403 otherwise). SUPER_ADMIN callers pass null and
+ *            are allowed cross-tenant access.
  */
 async function resolveTargetArtistId(
   supplied:  string | undefined,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<string> {
   if (actorRole === 'ARTIST') {
     return resolveOwnArtistId(actorId);
   }
   if (!supplied) {
     throw new AppError(400, 'MISSING_ARTIST_ID', 'artistId is required for ADMIN requests');
+  }
+  if (tenantId !== null) {
+    const artist = await prisma.artist.findUnique({
+      where:  { id: supplied },
+      select: { id: true, tenantId: true },
+    });
+    if (!artist) {
+      throw new AppError(404, 'ARTIST_NOT_FOUND', `Artist '${supplied}' not found`);
+    }
+    if (artist.tenantId !== tenantId) {
+      throw new AppError(403, 'FORBIDDEN', 'Artist not found in your tenant');
+    }
+    return artist.id;
   }
   return supplied;
 }
@@ -149,8 +166,9 @@ export async function listSchedule(
   query:     ListScheduleQuery,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<ScheduleDay[]> {
-  const artistId = await resolveTargetArtistId(query.artistId, actorId, actorRole);
+  const artistId = await resolveTargetArtistId(query.artistId, actorId, actorRole, tenantId);
 
   return prisma.artistAvailability.findMany({
     where:   { artistId },
@@ -169,8 +187,9 @@ export async function upsertSchedule(
   body:      UpsertScheduleBody,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<ScheduleDay[]> {
-  const artistId = await resolveTargetArtistId(body.artistId, actorId, actorRole);
+  const artistId = await resolveTargetArtistId(body.artistId, actorId, actorRole, tenantId);
 
   // Confirm the artist record exists before modifying the schedule.
   const artist = await prisma.artist.findUnique({
@@ -216,8 +235,9 @@ export async function listBlocks(
   query:     ListBlocksQuery,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<PaginatedResult<AvailabilityBlockItem>> {
-  const artistId = await resolveTargetArtistId(query.artistId, actorId, actorRole);
+  const artistId = await resolveTargetArtistId(query.artistId, actorId, actorRole, tenantId);
 
   const where: Prisma.AvailabilityBlockWhereInput = { artistId };
 
@@ -252,8 +272,9 @@ export async function createBlock(
   body:      CreateBlockBody,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<AvailabilityBlockItem> {
-  const artistId = await resolveTargetArtistId(body.artistId, actorId, actorRole);
+  const artistId = await resolveTargetArtistId(body.artistId, actorId, actorRole, tenantId);
 
   // Confirm the artist record exists.
   const artist = await prisma.artist.findUnique({
@@ -289,10 +310,11 @@ export async function deleteBlock(
   blockId:   string,
   actorId:   string,
   actorRole: ActorRole,
+  tenantId:  string | null,
 ): Promise<void> {
   const block = await prisma.availabilityBlock.findUnique({
     where:  { id: blockId },
-    select: { id: true, artistId: true, artist: { select: { userId: true } } },
+    select: { id: true, artistId: true, artist: { select: { userId: true, tenantId: true } } },
   });
 
   if (!block) {
@@ -301,6 +323,10 @@ export async function deleteBlock(
 
   if (actorRole === 'ARTIST' && block.artist.userId !== actorId) {
     throw new AppError(403, 'FORBIDDEN', 'You can only delete your own availability blocks');
+  }
+
+  if (actorRole !== 'ARTIST' && tenantId !== null && block.artist.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'You cannot delete blocks for artists outside your tenant');
   }
 
   await prisma.availabilityBlock.delete({ where: { id: blockId } });

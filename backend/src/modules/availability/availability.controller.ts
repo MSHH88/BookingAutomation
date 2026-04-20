@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as availabilityService from './availability.service';
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   ListScheduleQuery,
   UpsertScheduleBody,
@@ -37,8 +38,9 @@ export async function listSchedule(
     const query     = req.query as ListScheduleQuery;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
+    const tenantId  = extractTenantId(req);
 
-    const data = await availabilityService.listSchedule(query, actorId, actorRole);
+    const data = await availabilityService.listSchedule(query, actorId, actorRole, tenantId);
     res.json(success(data));
   } catch (err) {
     next(err);
@@ -62,8 +64,9 @@ export async function upsertSchedule(
     const body      = req.body as UpsertScheduleBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
+    const tenantId  = extractTenantId(req);
 
-    const data = await availabilityService.upsertSchedule(body, actorId, actorRole);
+    const data = await availabilityService.upsertSchedule(body, actorId, actorRole, tenantId);
     res.json(success(data));
   } catch (err) {
     next(err);
@@ -87,8 +90,9 @@ export async function listBlocks(
     const query     = req.query as ListBlocksQuery;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
+    const tenantId  = extractTenantId(req);
 
-    const result = await availabilityService.listBlocks(query, actorId, actorRole);
+    const result = await availabilityService.listBlocks(query, actorId, actorRole, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -110,8 +114,9 @@ export async function createBlock(
     const body      = req.body as CreateBlockBody;
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
+    const tenantId  = extractTenantId(req);
 
-    const data = await availabilityService.createBlock(body, actorId, actorRole);
+    const data = await availabilityService.createBlock(body, actorId, actorRole, tenantId);
     res.status(201).json(success(data));
   } catch (err) {
     next(err);
@@ -133,8 +138,9 @@ export async function deleteBlock(
     const { id }    = req.params as { id: string };
     const actorId   = req.user!.id;
     const actorRole = req.user!.role as 'ADMIN' | 'ARTIST';
+    const tenantId  = extractTenantId(req);
 
-    await availabilityService.deleteBlock(id, actorId, actorRole);
+    await availabilityService.deleteBlock(id, actorId, actorRole, tenantId);
     res.status(204).send();
   } catch (err) {
     next(err);

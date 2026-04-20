@@ -121,7 +121,7 @@ describe('listSchedule', () => {
   it('ADMIN: returns schedule for the supplied artistId', async () => {
     mockAvailFindMany.mockResolvedValue([baseScheduleRow]);
 
-    const result = await svc.listSchedule({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN');
+    const result = await svc.listSchedule({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN', null);
 
     expect(result).toEqual([baseScheduleRow]);
     expect(mockAvailFindMany).toHaveBeenCalledWith(
@@ -130,7 +130,7 @@ describe('listSchedule', () => {
   });
 
   it('ADMIN: throws 400 when artistId is missing', async () => {
-    await expect(svc.listSchedule({}, ADMIN_ACTOR.id, 'ADMIN')).rejects.toMatchObject({
+    await expect(svc.listSchedule({}, ADMIN_ACTOR.id, 'ADMIN', null)).rejects.toMatchObject({
       statusCode: 400,
       code:       'MISSING_ARTIST_ID',
     });
@@ -140,7 +140,7 @@ describe('listSchedule', () => {
     mockArtistFindUnique.mockResolvedValue({ id: 'artist_1' });
     mockAvailFindMany.mockResolvedValue([baseScheduleRow]);
 
-    const result = await svc.listSchedule({}, ARTIST_ACTOR.id, 'ARTIST');
+    const result = await svc.listSchedule({}, ARTIST_ACTOR.id, 'ARTIST', null);
 
     expect(mockArtistFindUnique).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: ARTIST_ACTOR.id } }),
@@ -151,7 +151,7 @@ describe('listSchedule', () => {
   it('ARTIST: throws 404 when artist profile not found', async () => {
     mockArtistFindUnique.mockResolvedValue(null);
 
-    await expect(svc.listSchedule({}, ARTIST_ACTOR.id, 'ARTIST')).rejects.toMatchObject({
+    await expect(svc.listSchedule({}, ARTIST_ACTOR.id, 'ARTIST', null)).rejects.toMatchObject({
       statusCode: 404,
       code:       'ARTIST_NOT_FOUND',
     });
@@ -160,8 +160,33 @@ describe('listSchedule', () => {
   it('returns an empty array when the artist has no schedule', async () => {
     mockAvailFindMany.mockResolvedValue([]);
 
-    const result = await svc.listSchedule({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN');
+    const result = await svc.listSchedule({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN', null);
     expect(result).toEqual([]);
+  });
+
+  it('ADMIN: throws 403 when artistId belongs to a different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_other', tenantId: 'tenant_b' });
+
+    await expect(
+      svc.listSchedule({ artistId: 'artist_other' }, ADMIN_ACTOR.id, 'ADMIN', 'tenant_a'),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+
+  it('ADMIN: succeeds when artistId belongs to the same tenant', async () => {
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_1', tenantId: 'tenant_a' });
+    mockAvailFindMany.mockResolvedValue([baseScheduleRow]);
+
+    const result = await svc.listSchedule({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN', 'tenant_a');
+    expect(result).toEqual([baseScheduleRow]);
+  });
+
+  it('SUPER_ADMIN: can access any tenant (tenantId null bypasses tenant check)', async () => {
+    mockAvailFindMany.mockResolvedValue([baseScheduleRow]);
+
+    const result = await svc.listSchedule({ artistId: 'artist_any' }, ADMIN_ACTOR.id, 'ADMIN', null);
+    expect(result).toEqual([baseScheduleRow]);
+    // resolveTargetArtistId skips findUnique when tenantId is null
+    expect(mockArtistFindUnique).not.toHaveBeenCalled();
   });
 });
 
@@ -195,6 +220,7 @@ describe('upsertSchedule', () => {
       { artistId: 'artist_1', schedule: weekSchedule },
       ADMIN_ACTOR.id,
       'ADMIN',
+      null,
     );
 
     expect(mockTransaction).toHaveBeenCalled();
@@ -220,6 +246,7 @@ describe('upsertSchedule', () => {
       { artistId: 'artist_other', schedule: weekSchedule },
       ARTIST_ACTOR.id,
       'ARTIST',
+      null,
     );
 
     // resolveOwnArtistId was called with the actor's userId, not 'artist_other'
@@ -230,7 +257,7 @@ describe('upsertSchedule', () => {
 
   it('ADMIN: throws 400 when artistId is missing', async () => {
     await expect(
-      svc.upsertSchedule({ schedule: weekSchedule }, ADMIN_ACTOR.id, 'ADMIN'),
+      svc.upsertSchedule({ schedule: weekSchedule }, ADMIN_ACTOR.id, 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 400, code: 'MISSING_ARTIST_ID' });
   });
 
@@ -238,7 +265,7 @@ describe('upsertSchedule', () => {
     mockArtistFindUnique.mockResolvedValue(null);
 
     await expect(
-      svc.upsertSchedule({ schedule: weekSchedule }, ARTIST_ACTOR.id, 'ARTIST'),
+      svc.upsertSchedule({ schedule: weekSchedule }, ARTIST_ACTOR.id, 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'ARTIST_NOT_FOUND' });
   });
 
@@ -246,8 +273,21 @@ describe('upsertSchedule', () => {
     mockArtistFindUnique.mockResolvedValue(null); // artist by id not found
 
     await expect(
-      svc.upsertSchedule({ artistId: 'ghost', schedule: weekSchedule }, ADMIN_ACTOR.id, 'ADMIN'),
+      svc.upsertSchedule({ artistId: 'ghost', schedule: weekSchedule }, ADMIN_ACTOR.id, 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'ARTIST_NOT_FOUND' });
+  });
+
+  it('ADMIN: throws 403 when artistId belongs to a different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_other', tenantId: 'tenant_b' });
+
+    await expect(
+      svc.upsertSchedule(
+        { artistId: 'artist_other', schedule: weekSchedule },
+        ADMIN_ACTOR.id,
+        'ADMIN',
+        'tenant_a',
+      ),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });
 
@@ -258,7 +298,7 @@ describe('listBlocks', () => {
     mockBlockCount.mockResolvedValue(1);
     mockBlockFindMany.mockResolvedValue([baseBlock]);
 
-    const result = await svc.listBlocks({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN');
+    const result = await svc.listBlocks({ artistId: 'artist_1' }, ADMIN_ACTOR.id, 'ADMIN', null);
 
     expect(result.data).toEqual([baseBlock]);
     expect(result.meta.total).toBe(1);
@@ -272,6 +312,7 @@ describe('listBlocks', () => {
       { artistId: 'artist_1', from: '2026-06-01', to: '2026-06-30' },
       ADMIN_ACTOR.id,
       'ADMIN',
+      null,
     );
 
     const callArg = mockBlockCount.mock.calls[0][0] as { where: { startAt?: { gte?: Date; lte?: Date } } };
@@ -284,7 +325,7 @@ describe('listBlocks', () => {
     mockBlockCount.mockResolvedValue(1);
     mockBlockFindMany.mockResolvedValue([baseBlock]);
 
-    const result = await svc.listBlocks({}, ARTIST_ACTOR.id, 'ARTIST');
+    const result = await svc.listBlocks({}, ARTIST_ACTOR.id, 'ARTIST', null);
 
     expect(result.data).toEqual([baseBlock]);
   });
@@ -293,8 +334,16 @@ describe('listBlocks', () => {
     mockArtistFindUnique.mockResolvedValue(null);
 
     await expect(
-      svc.listBlocks({}, ARTIST_ACTOR.id, 'ARTIST'),
+      svc.listBlocks({}, ARTIST_ACTOR.id, 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'ARTIST_NOT_FOUND' });
+  });
+
+  it('ADMIN: throws 403 when artistId belongs to a different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_other', tenantId: 'tenant_b' });
+
+    await expect(
+      svc.listBlocks({ artistId: 'artist_other' }, ADMIN_ACTOR.id, 'ADMIN', 'tenant_a'),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });
 
@@ -315,6 +364,7 @@ describe('createBlock', () => {
       { ...blockBody, artistId: 'artist_1' },
       ADMIN_ACTOR.id,
       'ADMIN',
+      null,
     );
 
     expect(result).toEqual(baseBlock);
@@ -335,6 +385,7 @@ describe('createBlock', () => {
       { ...blockBody, artistId: 'ignored' },
       ARTIST_ACTOR.id,
       'ARTIST',
+      null,
     );
 
     expect(mockArtistFindUnique).toHaveBeenCalledWith(
@@ -344,7 +395,7 @@ describe('createBlock', () => {
 
   it('ADMIN: throws 400 when artistId is missing', async () => {
     await expect(
-      svc.createBlock(blockBody, ADMIN_ACTOR.id, 'ADMIN'),
+      svc.createBlock(blockBody, ADMIN_ACTOR.id, 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 400, code: 'MISSING_ARTIST_ID' });
   });
 
@@ -352,8 +403,21 @@ describe('createBlock', () => {
     mockArtistFindUnique.mockResolvedValue(null);
 
     await expect(
-      svc.createBlock({ ...blockBody, artistId: 'ghost' }, ADMIN_ACTOR.id, 'ADMIN'),
+      svc.createBlock({ ...blockBody, artistId: 'ghost' }, ADMIN_ACTOR.id, 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'ARTIST_NOT_FOUND' });
+  });
+
+  it('ADMIN: throws 403 when artistId belongs to a different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist_other', tenantId: 'tenant_b' });
+
+    await expect(
+      svc.createBlock(
+        { ...blockBody, artistId: 'artist_other' },
+        ADMIN_ACTOR.id,
+        'ADMIN',
+        'tenant_a',
+      ),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
   });
 });
 
@@ -364,12 +428,12 @@ describe('deleteBlock', () => {
     mockBlockFindUnique.mockResolvedValue({
       id:       'block_1',
       artistId: 'artist_1',
-      artist:   { userId: ARTIST_ACTOR.id },
+      artist:   { userId: ARTIST_ACTOR.id, tenantId: 'tenant_a' },
     });
     mockBlockDelete.mockResolvedValue({});
 
     await expect(
-      svc.deleteBlock('block_1', ARTIST_ACTOR.id, 'ARTIST'),
+      svc.deleteBlock('block_1', ARTIST_ACTOR.id, 'ARTIST', null),
     ).resolves.toBeUndefined();
     expect(mockBlockDelete).toHaveBeenCalledWith({ where: { id: 'block_1' } });
   });
@@ -378,25 +442,25 @@ describe('deleteBlock', () => {
     mockBlockFindUnique.mockResolvedValue({
       id:       'block_1',
       artistId: 'artist_other',
-      artist:   { userId: 'other_user' },
+      artist:   { userId: 'other_user', tenantId: 'tenant_a' },
     });
 
     await expect(
-      svc.deleteBlock('block_1', ARTIST_ACTOR.id, 'ARTIST'),
+      svc.deleteBlock('block_1', ARTIST_ACTOR.id, 'ARTIST', null),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
     expect(mockBlockDelete).not.toHaveBeenCalled();
   });
 
-  it('ADMIN: can delete any block regardless of ownership', async () => {
+  it('ADMIN: can delete any block regardless of ownership (SUPER_ADMIN, tenantId null)', async () => {
     mockBlockFindUnique.mockResolvedValue({
       id:       'block_1',
       artistId: 'artist_other',
-      artist:   { userId: 'other_user' },
+      artist:   { userId: 'other_user', tenantId: 'tenant_b' },
     });
     mockBlockDelete.mockResolvedValue({});
 
     await expect(
-      svc.deleteBlock('block_1', ADMIN_ACTOR.id, 'ADMIN'),
+      svc.deleteBlock('block_1', ADMIN_ACTOR.id, 'ADMIN', null),
     ).resolves.toBeUndefined();
     expect(mockBlockDelete).toHaveBeenCalled();
   });
@@ -405,8 +469,35 @@ describe('deleteBlock', () => {
     mockBlockFindUnique.mockResolvedValue(null);
 
     await expect(
-      svc.deleteBlock('ghost', ADMIN_ACTOR.id, 'ADMIN'),
+      svc.deleteBlock('ghost', ADMIN_ACTOR.id, 'ADMIN', null),
     ).rejects.toMatchObject({ statusCode: 404, code: 'BLOCK_NOT_FOUND' });
+  });
+
+  it('ADMIN: throws 403 when block artist belongs to a different tenant', async () => {
+    mockBlockFindUnique.mockResolvedValue({
+      id:       'block_1',
+      artistId: 'artist_other',
+      artist:   { userId: 'other_user', tenantId: 'tenant_b' },
+    });
+
+    await expect(
+      svc.deleteBlock('block_1', ADMIN_ACTOR.id, 'ADMIN', 'tenant_a'),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+    expect(mockBlockDelete).not.toHaveBeenCalled();
+  });
+
+  it('ADMIN: deletes block when it belongs to the same tenant', async () => {
+    mockBlockFindUnique.mockResolvedValue({
+      id:       'block_1',
+      artistId: 'artist_1',
+      artist:   { userId: 'artist_user', tenantId: 'tenant_a' },
+    });
+    mockBlockDelete.mockResolvedValue({});
+
+    await expect(
+      svc.deleteBlock('block_1', ADMIN_ACTOR.id, 'ADMIN', 'tenant_a'),
+    ).resolves.toBeUndefined();
+    expect(mockBlockDelete).toHaveBeenCalled();
   });
 });
 

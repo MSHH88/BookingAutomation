@@ -335,8 +335,8 @@ export async function createPublicBooking(slug: string, body: CreatePublicBookin
     });
   }
 
-  // Check deposit enforcement
-  const depositRequired = await isFeatureEnabled('DEPOSIT_REQUIRED');
+  // Check deposit enforcement (tenant-scoped)
+  const depositRequired = await isFeatureEnabled('DEPOSIT_REQUIRED', tenant.id);
   const initialStatus = depositRequired ? 'AWAITING_DEPOSIT' : 'PENDING';
 
   // Generate public token for self-service lookup
