@@ -489,7 +489,8 @@ describe('updateUser', () => {
     const deactivated = stubUser({ isActive: false });
     mockUserUpdate.mockResolvedValue(deactivated);
 
-    const result = await service.updateUser('user-1', { isActive: false }, null);
+    // BUG 27: isActive changes require SUPER_ADMIN.
+    const result = await service.updateUser('user-1', { isActive: false }, null, 'SUPER_ADMIN');
 
     expect(result.isActive).toBe(false);
     expect(mockUserUpdate).toHaveBeenCalledWith(
@@ -600,7 +601,8 @@ describe('updateUser', () => {
     mockUserUpdate.mockResolvedValue(stubUser({ isActive: false }));
     mockBumpRbacVersion.mockClear();
 
-    await service.updateUser('user-1', { isActive: false }, null);
+    // BUG 27: isActive change requires SUPER_ADMIN.
+    await service.updateUser('user-1', { isActive: false }, null, 'SUPER_ADMIN');
 
     expect(mockBumpRbacVersion).toHaveBeenCalledWith('user-1');
   });
@@ -623,6 +625,51 @@ describe('updateUser', () => {
     await service.updateUser('user-1', { name: 'Bob' }, null);
 
     expect(mockBumpRbacVersion).not.toHaveBeenCalled();
+  });
+
+  // ── BUG 27: deactivating a user is SUPER_ADMIN-only ────────────────────────
+  it('BUG 27: ADMIN attempting isActive=false is rejected with 403', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser({ tenantId: 'tenant1' }));
+    mockBumpRbacVersion.mockClear();
+
+    await expect(
+      service.updateUser('user-1', { isActive: false }, 'tenant1', 'ADMIN', false),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+    expect(mockBumpRbacVersion).not.toHaveBeenCalled();
+  });
+
+  it('BUG 27: ADMIN with canAssignRoles still cannot deactivate', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser({ tenantId: 'tenant1' }));
+
+    await expect(
+      service.updateUser('user-1', { isActive: false }, 'tenant1', 'ADMIN', true),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  it('BUG 27: SUPER_ADMIN can deactivate a user (200)', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser());
+    mockUserUpdate.mockResolvedValue(stubUser({ isActive: false }));
+
+    const result = await service.updateUser('user-1', { isActive: false }, null, 'SUPER_ADMIN');
+
+    expect(result.isActive).toBe(false);
+    expect(mockUserUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { isActive: false } }),
+    );
+  });
+
+  it('BUG 27: ADMIN can still update non-isActive fields (e.g. name)', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser({ tenantId: 'tenant1' }));
+    mockUserUpdate.mockResolvedValue(stubUser({ name: 'Renamed', tenantId: 'tenant1' }));
+
+    const result = await service.updateUser('user-1', { name: 'Renamed' }, 'tenant1', 'ADMIN', false);
+
+    expect(result.name).toBe('Renamed');
+    expect(mockUserUpdate).toHaveBeenCalled();
   });
 });
 

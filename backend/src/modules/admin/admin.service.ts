@@ -312,6 +312,13 @@ export async function updateUser(
     throw new AppError(403, 'FORBIDDEN', 'Missing permission: canAssignRoles');
   }
 
+  // BUG 27: deactivating a user is SUPER_ADMIN-only — an ADMIN must not be
+  // able to force-logout (or lock out) other users in their tenant. Activating
+  // a user (isActive=true) is also restricted by the same guard for symmetry.
+  if (body.isActive !== undefined && callerRole !== 'SUPER_ADMIN') {
+    throw new AppError(403, 'FORBIDDEN', 'Only SUPER_ADMIN can deactivate users');
+  }
+
   const data: Prisma.UserUpdateInput = {};
   if (body.role     !== undefined) data.role     = body.role;
   if (body.isActive !== undefined) data.isActive = body.isActive;
