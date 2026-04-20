@@ -1497,3 +1497,224 @@ Compare: `rota.service.ts:createShift()` correctly checks `artist.tenantId !== t
 | **BUG 22** | **Medium** | **Security/Tenant** | **POS checkout does not validate artist belongs to operator's tenant** | **NEW** |
 
 **Post-fix status (Round 4): 13/17 original bugs fixed; 4 still open (BUG 14–17). 5 new findings (2 Medium, 2 Low, 1 Medium): all are feature-flag tenant-context omissions or a tenant isolation gap in POS checkout. No new High-severity findings.**
+
+---
+
+## Super Creator Access / Security Capabilities Review (as of 2026-04-20)
+
+This section answers three questions about the `SUPER_ADMIN` ("Super Creator") role.
+
+### Role model
+
+| Role | Numeric level | Tenant scope |
+|------|--------------|--------------|
+| `SUPER_ADMIN` | 5 | `tenantId = null` — cross-tenant / platform owner |
+| `ADMIN` | 3 | Scoped to one tenant |
+| `ARTIST` | 2 | Scoped to one tenant |
+| `CUSTOMER` | 1 | Scoped to one tenant |
+
+SUPER_ADMIN is the only role whose JWT carries `tenantId = null`.  It bypasses all
+tenant-isolation guards that check `if (tenantId !== null && …)`.
+
+---
+
+### Q1 — Can SUPER_ADMIN view user passwords or password hashes?
+
+**Answer: NO.**
+
+Evidence:
+- `admin.service.ts` uses an explicit `userListSelect` Prisma select shape that lists every field returned by admin endpoints. `passwordHash` is **not** in that shape.
+- `auth.service.ts` provides a `toSafeUser()` helper that constructs response objects explicitly — `passwordHash` is excluded.
+- No module outside `auth.service.ts` references `passwordHash` in a response context.
+- The `roles.service.ts` `roleUserSelect` shape also excludes `passwordHash`.
+
+The only unavoidable in-memory exposure is in `refresh()` (see **BUG 25** below), but it never reaches any API response.
+
+---
+
+### Q2 — Can SUPER_ADMIN force logout / revoke access?
+
+**Partial — with an up-to-15-minute gap (BUG 23).**
+
+What works today:
+1. **Deactivate user** (`PATCH /api/admin/users/:id` with `isActive: false`): blocks the next
+   `POST /api/auth/refresh` call because `refresh()` checks `stored.user.isActive`.
+2. **Bump rbacVersion** (implicit when SUPER_ADMIN changes a user's `role` via
+   `PATCH /api/roles/users/:id`): `verifyAccessToken` compares the token's embedded
+   `rbacVersion` against the Redis counter and rejects stale tokens immediately.
+
+The gap:
+- Setting `isActive = false` via `PATCH /api/admin/users/:id` does **NOT** call
+  `bumpRbacVersion(id)`.  The user's current access token (valid up to 15 minutes)
+  continues to pass `verifyAccessToken` until it naturally expires.  See **BUG 23**.
+- There is no dedicated "revoke all sessions for user X" endpoint.
+
+---
+
+### Q3 — Can SUPER_ADMIN reset / change a user's password?
+
+**No direct admin bypass exists — only the self-service email flow.**
+
+Available flows:
+- `POST /api/auth/forgot-password` — sends a one-time reset link to the user's email.
+  This is the only password reset mechanism, and it targets the user's inbox, not an admin UI.
+- No endpoint allows SUPER_ADMIN to directly set a password for another user.
+- No endpoint allows SUPER_ADMIN to generate a reset link on behalf of a user.
+
+Gap: if the user's email is compromised, inaccessible, or the SMTP queue is down, there is
+no recovery path available to the platform operator.  See **BUG 24**.
+
+---
+
+### Recommended secure admin workflow (today)
+
+| Goal | Current mechanism | Gap |
+|------|------------------|-----|
+| Prevent login immediately | Set `isActive = false` + change user's `role` (triggers rbacVersion bump) | Two-step workaround; up to 15 min window |
+| Reset forgotten password | `POST /api/auth/forgot-password` to user's email | No admin bypass |
+| View user details | `GET /api/admin/users` or `GET /api/roles/users` | No hash exposure |
+
+---
+
+## BUG 23 — Deactivating a User Does Not Immediately Invalidate Their Active JWTs
+
+- **Severity: Medium**
+- **Category: Security / Session Management**
+- **Files:**
+  - `backend/src/modules/admin/admin.service.ts` (lines 294–330)
+  - `backend/src/modules/auth/auth.service.ts` (lines 408–448 `verifyAccessToken`)
+
+**Issue:**
+`updateUser` in the admin service calls `bumpRbacVersion(id)` only when `body.role` is
+changed, but not when `body.isActive` is set to `false`.  The `verifyAccessToken`
+middleware checks `rbacVersion` but does **not** look up `isActive` from the database.
+Result: after an admin disables an account, the user's existing access token remains
+valid until its natural expiry (up to 15 minutes, controlled by `JWT_ACCESS_EXPIRY`).
+
+**Impact:**
+- A compromised or terminated user has a 15-minute window to continue accessing
+  protected endpoints despite being deactivated.
+- The `isActive` guard only fires on the next `POST /api/auth/refresh`, not on
+  every request.
+
+**Evidence (`admin.service.ts:317-330`):**
+```ts
+const data: Prisma.UserUpdateInput = {};
+if (body.role     !== undefined) data.role     = body.role;
+if (body.isActive !== undefined) data.isActive = body.isActive;  // ← deactivation
+if (body.name     !== undefined) data.name     = body.name;
+
+const updated = await prisma.user.update({ where: { id }, data, select: userListSelect });
+
+// Invalidate outstanding access tokens when RBAC-relevant fields changed
+if (body.role !== undefined) {                // ← only role triggers bump
+  await bumpRbacVersion(id);                  // isActive = false does NOT bump
+}
+```
+
+**Recommended fix:**
+```ts
+if (body.role !== undefined || body.isActive !== undefined) {
+  await bumpRbacVersion(id);
+}
+```
+This immediately invalidates all outstanding access tokens for the deactivated user.
+
+---
+
+## BUG 24 — No SUPER_ADMIN Force-Reset-Password / Send-Reset-Link Endpoint
+
+- **Severity: Medium**
+- **Category: Security / Access Recovery**
+- **Files:**
+  - `backend/src/modules/auth/auth.service.ts` (`forgotPassword`, `resetPassword`)
+  - `backend/src/modules/auth/auth.routes.ts`
+  - `backend/src/modules/admin/admin.service.ts`
+  - `backend/src/modules/admin/admin.controller.ts`
+
+**Issue:**
+The only password-reset mechanism is the self-service email flow
+(`POST /api/auth/forgot-password` → token email → `POST /api/auth/reset-password`).
+There is no SUPER_ADMIN-only endpoint to:
+- directly set a new password for a user, or
+- trigger a password-reset email on behalf of a user without that user having to initiate it.
+
+**Impact:**
+- If a user's email account is compromised or inaccessible, the platform operator has no
+  out-of-band recovery path.
+- SUPER_ADMIN cannot force a one-time password change after a suspected credential compromise.
+- Support workflows requiring an admin to "send reset link" from a back-office UI are blocked.
+
+**Evidence:**
+`auth.routes.ts` exposes only:
+```
+POST /api/auth/forgot-password   ← user-initiated, no auth required
+POST /api/auth/reset-password    ← validates token from email
+```
+`admin.routes.ts` / `admin.service.ts` have no `sendResetLink` or `setPassword` handler.
+
+**Recommended fix:**
+Add a SUPER_ADMIN-only endpoint:
+```
+POST /api/admin/users/:id/send-reset-link
+```
+Implementation: look up the user by `id`, call the existing `forgotPassword(user.email)`
+logic, and return `200 OK`.  No new password is set by the admin — the user still chooses
+their own new password via the existing flow, preserving end-to-end credential control.
+
+---
+
+## BUG 25 — `refresh()` Loads Full User Record Including `passwordHash` Into Memory
+
+- **Severity: Low**
+- **Category: Security / Principle of Least Privilege**
+- **Files:**
+  - `backend/src/modules/auth/auth.service.ts` (line 242)
+
+**Issue:**
+The `refresh()` function fetches the refresh token with `include: { user: true }`, which
+loads the complete `User` row — including `passwordHash` — into the `stored.user` variable.
+While `toSafeUser()` strips the hash before any API response, the hash exists in heap memory
+for the lifetime of the request.  Any future `logger.debug` call on `stored` or `stored.user`
+would inadvertently write the bcrypt hash to logs.
+
+**Impact:**
+Low direct exploitability.  Risk surface is:
+- Accidental logging of the user object during debugging.
+- Extended in-memory lifetime of sensitive data longer than strictly necessary.
+
+**Evidence (`auth.service.ts:241-244`):**
+```ts
+const stored = await prisma.refreshToken.findUnique({
+  where: { token: rawToken },
+  include: { user: true },   // ← loads passwordHash, gdprConsentAt, etc.
+});
+```
+
+**Recommended fix:**
+Replace the broad include with an explicit select that enumerates only the fields that
+`toSafeUser()` / `buildAuthTokens()` actually need:
+```ts
+include: {
+  user: {
+    select: {
+      id: true, email: true, name: true, phone: true,
+      role: true, tenantId: true, canViewLeads: true,
+      canAssignRoles: true, isActive: true, createdAt: true, updatedAt: true,
+    },
+  },
+},
+```
+This ensures `passwordHash` is never loaded into process memory during a token refresh.
+
+---
+
+### BUG 23–25 Summary Table
+
+| BUG | Severity | Category | Title | Status |
+|-----|----------|----------|-------|--------|
+| **BUG 23** | **Medium** | **Security/Session** | **Deactivating a user does not bump rbacVersion — active JWTs remain valid up to 15 min** | **NEW** |
+| **BUG 24** | **Medium** | **Security/Recovery** | **No SUPER_ADMIN send-reset-link or force-set-password endpoint** | **NEW** |
+| **BUG 25** | **Low** | **Security/Memory** | **`refresh()` loads full user row (incl. `passwordHash`) via `include: { user: true }`** | **NEW** |
+
+**Post-fix status (Round 5): BUG 14–22 all fixed (102 suites / 1862 tests pass, 0 failures). 3 new findings (BUG 23–25). BUG 23 and BUG 24 are Medium severity and should be addressed before production launch.**
