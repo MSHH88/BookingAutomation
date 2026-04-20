@@ -1504,75 +1504,118 @@ Compare: `rota.service.ts:createShift()` correctly checks `artist.tenantId !== t
 
 This section answers three questions about the `SUPER_ADMIN` ("Super Creator") role.
 
+> ⚠️ **SUPER_ADMIN only.** The capabilities described in this section are exclusive to the
+> `SUPER_ADMIN` role (platform owner / "Super Creator"). A regular per-tenant `ADMIN` user
+> does **not** have these cross-tenant or platform-level powers. See the role model and
+> access distinction below before designing any frontend that surfaces these controls.
+
 ### Role model
 
 | Role | Numeric level | Tenant scope |
 |------|--------------|--------------|
 | `SUPER_ADMIN` | 5 | `tenantId = null` — cross-tenant / platform owner |
-| `ADMIN` | 3 | Scoped to one tenant |
-| `ARTIST` | 2 | Scoped to one tenant |
-| `CUSTOMER` | 1 | Scoped to one tenant |
+| `ADMIN` | 3 | Scoped to one tenant only |
+| `ARTIST` | 2 | Scoped to one tenant only |
+| `CUSTOMER` | 1 | Scoped to one tenant only |
 
-SUPER_ADMIN is the only role whose JWT carries `tenantId = null`.  It bypasses all
-tenant-isolation guards that check `if (tenantId !== null && …)`.
+**Key distinction:**
+- `SUPER_ADMIN` JWT carries `tenantId = null`. It bypasses every tenant-isolation guard
+  that checks `if (tenantId !== null && …)`, giving unrestricted cross-tenant access.
+- A per-tenant `ADMIN` JWT carries a non-null `tenantId`. All service calls scope queries
+  to that tenant. An `ADMIN` user **cannot** act on records belonging to another tenant.
+
+**Route-level access summary (verified from `admin.routes.ts`, `roles.routes.ts`):**
+
+| Route | Who can call it |
+|-------|----------------|
+| `GET /api/admin/users` | ADMIN or SUPER_ADMIN (ADMIN sees own-tenant users only) |
+| `PATCH /api/admin/users/:id` | ADMIN or SUPER_ADMIN (ADMIN can only modify own-tenant users) |
+| `GET /api/admin/feature-flags` | **SUPER_ADMIN only** |
+| `PATCH /api/admin/feature-flags/:key` | **SUPER_ADMIN only** |
+| `PATCH /api/roles/users/:id` (triggers rbacVersion bump) | **SUPER_ADMIN** or ADMIN with `canAssignRoles` (tenant-scoped) |
 
 ---
 
 ### Q1 — Can SUPER_ADMIN view user passwords or password hashes?
 
-**Answer: NO.**
+**Answer: NO — and this applies to all roles, including SUPER_ADMIN.**
+
+Only `SUPER_ADMIN` has access to the user-management endpoints (`GET /api/admin/users`,
+`PATCH /api/admin/users/:id`). A regular `ADMIN` also calls these routes but is
+tenant-scoped. Neither role can ever see a password hash through any API response.
 
 Evidence:
-- `admin.service.ts` uses an explicit `userListSelect` Prisma select shape that lists every field returned by admin endpoints. `passwordHash` is **not** in that shape.
-- `auth.service.ts` provides a `toSafeUser()` helper that constructs response objects explicitly — `passwordHash` is excluded.
+- `admin.service.ts` uses an explicit `userListSelect` Prisma select shape that lists
+  every field returned by admin endpoints. `passwordHash` is **not** in that shape.
+- `auth.service.ts` provides a `toSafeUser()` helper that constructs all response objects
+  explicitly — `passwordHash` is excluded at the point of serialisation.
 - No module outside `auth.service.ts` references `passwordHash` in a response context.
 - The `roles.service.ts` `roleUserSelect` shape also excludes `passwordHash`.
 
-The only unavoidable in-memory exposure is in `refresh()` (see **BUG 25** below), but it never reaches any API response.
+The only unavoidable in-memory exposure is in `refresh()` (see **BUG 25** below), but it
+never reaches any API response body.
 
 ---
 
 ### Q2 — Can SUPER_ADMIN force logout / revoke access?
 
-**Partial — with an up-to-15-minute gap (BUG 23).**
+**Partially — SUPER_ADMIN only, with an up-to-15-minute gap (BUG 23).**
 
-What works today:
-1. **Deactivate user** (`PATCH /api/admin/users/:id` with `isActive: false`): blocks the next
-   `POST /api/auth/refresh` call because `refresh()` checks `stored.user.isActive`.
-2. **Bump rbacVersion** (implicit when SUPER_ADMIN changes a user's `role` via
-   `PATCH /api/roles/users/:id`): `verifyAccessToken` compares the token's embedded
-   `rbacVersion` against the Redis counter and rejects stale tokens immediately.
+> A regular per-tenant `ADMIN` **cannot** force-logout users from other tenants. Within
+> their own tenant they can deactivate users via `PATCH /api/admin/users/:id`, but this
+> carries the same 15-minute gap described below. Cross-tenant or platform-wide revocation
+> is **SUPER_ADMIN only**.
+
+What SUPER_ADMIN can do today:
+1. **Deactivate user** (`PATCH /api/admin/users/:id` with `{ isActive: false }`) — blocks
+   the next `POST /api/auth/refresh` because `refresh()` checks `stored.user.isActive`.
+   *(This route accepts ADMIN too, but ADMIN is tenant-scoped; only SUPER_ADMIN can target
+   a user from any tenant.)*
+2. **Bump rbacVersion** — by changing a user's `role` via `PATCH /api/roles/users/:id`:
+   `verifyAccessToken` compares the token's embedded `rbacVersion` against the Redis
+   counter and rejects stale tokens **immediately**.
+   *(This route requires SUPER_ADMIN or an ADMIN with the `canAssignRoles` flag.)*
 
 The gap:
 - Setting `isActive = false` via `PATCH /api/admin/users/:id` does **NOT** call
-  `bumpRbacVersion(id)`.  The user's current access token (valid up to 15 minutes)
-  continues to pass `verifyAccessToken` until it naturally expires.  See **BUG 23**.
-- There is no dedicated "revoke all sessions for user X" endpoint.
+  `bumpRbacVersion(id)`. The user's current access token (valid up to 15 minutes,
+  controlled by `JWT_ACCESS_EXPIRY`) continues to pass `verifyAccessToken` until it
+  naturally expires. See **BUG 23**.
+- There is no dedicated "revoke all tokens for user X" endpoint for any role.
 
 ---
 
 ### Q3 — Can SUPER_ADMIN reset / change a user's password?
 
-**No direct admin bypass exists — only the self-service email flow.**
+**No — SUPER_ADMIN has no direct bypass. Only the self-service email flow exists.**
+
+> A regular `ADMIN` has **even fewer** capabilities here: there is no admin-initiated
+> password reset of any kind for any role. The mechanism below is user-self-service only.
 
 Available flows:
-- `POST /api/auth/forgot-password` — sends a one-time reset link to the user's email.
-  This is the only password reset mechanism, and it targets the user's inbox, not an admin UI.
+- `POST /api/auth/forgot-password` — sends a one-time reset link to the user's own email.
+  This is **the only** password reset mechanism. It requires the user's inbox to be
+  accessible, and it is initiated by the user (or the frontend form), not by an admin.
 - No endpoint allows SUPER_ADMIN to directly set a password for another user.
-- No endpoint allows SUPER_ADMIN to generate a reset link on behalf of a user.
+- No endpoint allows SUPER_ADMIN to generate or deliver a reset link on behalf of a user.
 
 Gap: if the user's email is compromised, inaccessible, or the SMTP queue is down, there is
-no recovery path available to the platform operator.  See **BUG 24**.
+no recovery path available to the platform operator. See **BUG 24**.
 
 ---
 
-### Recommended secure admin workflow (today)
+### Recommended secure admin workflow (today) — SUPER_ADMIN only
 
-| Goal | Current mechanism | Gap |
-|------|------------------|-----|
-| Prevent login immediately | Set `isActive = false` + change user's `role` (triggers rbacVersion bump) | Two-step workaround; up to 15 min window |
-| Reset forgotten password | `POST /api/auth/forgot-password` to user's email | No admin bypass |
-| View user details | `GET /api/admin/users` or `GET /api/roles/users` | No hash exposure |
+> These workflows require **SUPER_ADMIN** access. A per-tenant `ADMIN` cannot perform
+> cross-tenant operations and has no password-reset capability whatsoever.
+
+| Goal | Who can do it | Current mechanism | Gap |
+|------|--------------|------------------|-----|
+| Prevent login immediately (cross-tenant) | **SUPER_ADMIN only** | Deactivate user (`isActive = false`) + change `role` (triggers rbacVersion bump) | Two-step workaround; up to 15 min window even for SUPER_ADMIN |
+| Prevent login (own-tenant users) | ADMIN or SUPER_ADMIN | `PATCH /api/admin/users/:id` `{ isActive: false }` | Same 15-min gap (BUG 23) |
+| Reset a forgotten password | No admin role | `POST /api/auth/forgot-password` — user-initiated only | No admin bypass for any role |
+| View user account details | ADMIN (own tenant) or SUPER_ADMIN (any tenant) | `GET /api/admin/users` | No password hash exposure |
+| Toggle feature flags globally | **SUPER_ADMIN only** | `PATCH /api/admin/feature-flags/:key` | Not available to regular ADMIN |
 
 ---
 
