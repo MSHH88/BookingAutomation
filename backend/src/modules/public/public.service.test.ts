@@ -9,14 +9,18 @@
  *  4. getBusinessArtists — returns artists, optionally filtered
  *  5. getBusinessSlots — returns available slots
  *  6. getBusinessSlots — returns empty when artist not available
- *  7. createPublicBooking — creates booking with PENDING status
- *  8. createPublicBooking — creates booking with AWAITING_DEPOSIT when deposit required
- *  9. createPublicBooking — creates customer if not found
- * 10. createPublicBooking — throws 404 for invalid artist
- * 11. getBookingByToken — returns booking for valid token
- * 12. getBookingByToken — throws 404 for invalid token
+ *  7. getBusinessSlots — tenant override OFF: no dynamic pricing even when flag globally ON
+ *  8. getBusinessSlots — tenant override ON: dynamic pricing applied even when flag globally OFF
+ *  9. createPublicBooking — creates booking with PENDING status
+ * 10. createPublicBooking — creates booking with AWAITING_DEPOSIT when deposit required
+ * 11. createPublicBooking — creates customer if not found
+ * 12. createPublicBooking — throws 404 for invalid artist
+ * 13. createPublicBooking — tenant override OFF: booking is PENDING even when global DEPOSIT_REQUIRED is ON
+ * 14. createPublicBooking — tenant override ON: booking is AWAITING_DEPOSIT even when global DEPOSIT_REQUIRED is OFF
+ * 15. getBookingByToken — returns booking for valid token
+ * 16. getBookingByToken — throws 404 for invalid token
  *
- * Total: 12 tests
+ * Total: 16 tests
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -105,8 +109,13 @@ jest.mock('../../middleware/requireFeature', () => ({
   requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
 }));
 
+jest.mock('../../lib/pricing-engine', () => ({
+  calculatePrice: jest.fn().mockResolvedValue(null),
+}));
+
 import { prisma } from '../../lib/prisma';
 import { isFeatureEnabled } from '../../middleware/requireFeature';
+import { calculatePrice } from '../../lib/pricing-engine';
 import {
   getBusinessInfo,
   getBusinessServices,
@@ -227,6 +236,59 @@ describe('public.service', () => {
       });
 
       expect(result).toEqual([]);
+    });
+
+    it('tenant override OFF: no dynamic pricing even when flag would be ON globally (BUG-18)', async () => {
+      (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
+      (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1', slotDuration: 90, bufferMinutes: 30 });
+      (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 60, bufferMinutes: 0 });
+      (prisma.artistAvailability.findUnique as jest.Mock).mockResolvedValue({
+        startTime: '09:00', endTime: '17:00', breakStart: null, breakEnd: null, isActive: true,
+      });
+      (prisma.booking.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.availabilityBlock.findMany as jest.Mock).mockResolvedValue([]);
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(false); // tenant override = OFF
+
+      const result = await getBusinessSlots('test-studio', {
+        date: '2026-04-13', serviceId: 'service-1', artistId: 'artist-1',
+      });
+
+      // isFeatureEnabled must be called with tenant.id (not globally)
+      expect(isFeatureEnabled).toHaveBeenCalledWith('DYNAMIC_PRICING_ENABLED', mockTenant.id);
+      // calculatePrice must NOT be called when flag is off
+      expect(calculatePrice).not.toHaveBeenCalled();
+      // Slots are still returned (just without price annotations)
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]).not.toHaveProperty('adjustedPrice');
+    });
+
+    it('tenant override ON: dynamic pricing applied even when flag would be OFF globally (BUG-18)', async () => {
+      (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
+      (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1', slotDuration: 90, bufferMinutes: 30 });
+      (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 60, bufferMinutes: 0 });
+      (prisma.artistAvailability.findUnique as jest.Mock).mockResolvedValue({
+        startTime: '09:00', endTime: '17:00', breakStart: null, breakEnd: null, isActive: true,
+      });
+      (prisma.booking.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.availabilityBlock.findMany as jest.Mock).mockResolvedValue([]);
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(true); // tenant override = ON
+      (calculatePrice as jest.Mock).mockResolvedValue({
+        basePrice: 100, adjustedPrice: 120, totalAdjustment: 20,
+      });
+
+      const result = await getBusinessSlots('test-studio', {
+        date: '2026-04-13', serviceId: 'service-1', artistId: 'artist-1',
+      });
+
+      // isFeatureEnabled must be called with tenant.id
+      expect(isFeatureEnabled).toHaveBeenCalledWith('DYNAMIC_PRICING_ENABLED', mockTenant.id);
+      // calculatePrice must be called for each slot
+      expect(calculatePrice).toHaveBeenCalled();
+      // Slots include dynamic pricing annotations
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]).toHaveProperty('adjustedPrice', 120);
+      expect(result[0]).toHaveProperty('basePrice', 100);
     });
   });
 

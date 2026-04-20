@@ -247,7 +247,7 @@ export async function getBusinessSlots(slug: string, query: GetBusinessSlotsQuer
   });
 
   // ── Dynamic pricing: if DYNAMIC_PRICING_ENABLED, annotate each slot with price ──
-  const dynamicPricingEnabled = await isFeatureEnabled('DYNAMIC_PRICING_ENABLED');
+  const dynamicPricingEnabled = await isFeatureEnabled('DYNAMIC_PRICING_ENABLED', tenant.id);
   if (dynamicPricingEnabled) {
     const pricedSlots = await Promise.all(
       available.map(async (slot) => {
