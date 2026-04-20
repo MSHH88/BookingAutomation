@@ -1931,3 +1931,225 @@ name/profile updates (ADMIN+) and one for `isActive`/`role` changes (SUPER_ADMIN
 | **BUG 27** | **Medium** | **Access Control** | **`PATCH /api/admin/users/:id` allows any ADMIN to deactivate users — must be SUPER_ADMIN only** | **NEW** |
 
 **Post-fix status (Round 6): BUG 14–22 all fixed (102 suites / 1862 tests pass, 0 failures). BUG 23–25 documented (no fixes). BUG 26–27 newly discovered. BUG 26 is High severity and should be prioritised. BUG 27 is Medium severity and tightens the ADMIN/SUPER_ADMIN boundary for force-logout.**
+
+---
+
+## Audit Pass: 2026-04-20 — BUG 28–30 (Final backend pass before frontend)
+
+Methodology performed:
+- **A** All `isFeatureEnabled(` calls reviewed — single-arg calls in `jobs/index.ts`, `birthday.job.ts`, `campaign.job.ts`, `recurring-booking.job.ts` (lines 56, 106, 140) are intentional global pre-flight kill-switches followed by per-tenant checks inside each loop. `captcha.ts` is intentionally global. No new feature-flag bugs found beyond BUG 28–30.
+- **B** Prisma `findUnique/update/delete` by `id` audited across all tenant-scoped modules (invoices, webhooks, packages, loyalty, pricing, availability, booking-photos, health-flags, artist-media, sessions, forms) — all have tenant guards. ✅
+- **C** Controllers without `extractTenantId` enumerated — identified `services.controller.ts` as missing tenant threading for ADMIN write paths → **BUG 28**.
+- **D** FK cross-tenant integrity on creates — `recurring-bookings.service.ts createRecurringBooking` stores caller-supplied `tenantId` but does not verify that `customerId`, `artistId`, or `serviceId` belong to the same tenant → **BUG 29**.
+- **E** Async job payloads — `no-show.job.ts` correctly passes `data.tenantId` to `isFeatureEnabled` but falls back to `prisma.studioSettings.findFirst({ select: {...} })` **without a WHERE clause** when `booking.tenantId` is null → **BUG 30**.
+
+---
+
+## BUG 28 — `POST /api/services`, `PATCH /api/services/:id`, `DELETE /api/services/:id` — Services Module Missing Tenant Scoping
+
+- **Severity: High**
+- **Category: Cross-Tenant / Data Integrity**
+- **Files:**
+  - `backend/src/modules/services/services.service.ts` (lines 327–430: `createService`, `updateService`, `deleteService`)
+  - `backend/src/modules/services/services.controller.ts` (entire file — no `extractTenantId`)
+  - `backend/src/modules/public/public.service.ts` (lines 288–295: `createPublicBooking` service validation)
+
+**Issue:**
+`createService` creates a service row with `tenantId = null` (because it accepts no `tenantId`
+argument and the controller never extracts one from `req.user`).  `updateService` and
+`deleteService` accept only an `id` with no tenant guard — any ADMIN regardless of tenant can
+mutate any service.
+
+The Prisma `Service` model has `tenantId String?` and the public-booking path explicitly
+requires a tenant-owned service:
+
+```ts
+// public.service.ts lines 288-295
+const service = await prisma.service.findFirst({
+  where: { id: body.serviceId, tenantId: tenant.id, isActive: true },
+  ...
+});
+if (!service) {
+  throw new AppError(404, 'SERVICE_NOT_FOUND', 'Service not found for this business');
+}
+```
+
+Because `createService` stores `tenantId = null`, this WHERE clause (`tenantId = tenant.id`)
+will **never match** in a multi-tenant deployment, so every `POST /api/public/:slug/bookings`
+call fails with 404 "SERVICE_NOT_FOUND" for real (non-test) data.
+
+**Impact:**
+1. **Functional breakage**: Public booking flow is broken in multi-tenant mode — all new bookings fail with SERVICE_NOT_FOUND.
+2. **Cross-tenant IDOR**: Any ADMIN can `PATCH /api/services/:id` or `DELETE /api/services/:id` on a service belonging to a different tenant (no tenant ownership check).
+3. **Cross-tenant data leak**: `GET /api/services` and `GET /api/services/:id` return services from all tenants (no tenant filter applied).
+
+**Evidence:**
+```ts
+// services.service.ts:327 — createService — no tenantId param, no tenantId in data
+export async function createService(body: CreateServiceBody) {
+  ...
+  return prisma.service.create({
+    data: {
+      categoryId:      body.categoryId,
+      name:            body.name,
+      ...
+      // ← tenantId is NEVER set
+    },
+    ...
+  });
+}
+
+// services.service.ts:357 — updateService — no tenant guard
+export async function updateService(id: string, body: UpdateServiceBody) {
+  const existing = await prisma.service.findUnique({ where: { id }, select: { id: true } });
+  // ← no check: existing.tenantId !== callerTenantId
+  ...
+}
+
+// services.service.ts:400 — deleteService — no tenant guard
+export async function deleteService(id: string) {
+  ...
+  // ← no check: existing.tenantId !== callerTenantId
+}
+```
+
+**Recommended Fix:**
+1. Add `tenantId: string | null` param to `createService`, `updateService`, `deleteService`.
+2. In `createService`: persist `tenantId` in `data: { ..., tenantId }`.
+3. In `updateService` / `deleteService`: fetch `tenantId` in the existing-record select and throw 403 when `existing.tenantId !== tenantId` (same pattern as `artists.service.ts` BUG 17 fix).
+4. In `services.controller.ts`: extract `extractTenantId(req)` and pass it to all three write calls.
+5. In `listServices` / `getService`: apply optional tenant filter (`if (tenantId) where.tenantId = tenantId`) to scope reads to the caller's tenant.
+
+---
+
+## BUG 29 — `createRecurringBooking` Does Not Validate Cross-Tenant FK References
+
+- **Severity: Medium**
+- **Category: Cross-Tenant / Data Integrity**
+- **Files:**
+  - `backend/src/modules/recurring-bookings/recurring-bookings.service.ts` (lines 103–123: `createRecurringBooking`)
+  - `backend/src/jobs/recurring-booking.job.ts` (lines 84–115: customer lookup in job processor)
+
+**Issue:**
+`createRecurringBooking` stores `tenantId` from the caller but does **not** verify that
+`body.customerId`, `body.artistId`, or `body.serviceId` belong to the same tenant.  An ADMIN
+for Tenant A can create a recurring booking referencing a customer, artist, or service from
+Tenant B — resulting in cross-tenant notifications.
+
+```ts
+// recurring-bookings.service.ts:103
+export async function createRecurringBooking(
+  tenantId: string | null,
+  body: CreateRecurringBody,
+) {
+  const record = await prisma.recurringBooking.create({
+    data: {
+      tenantId,
+      customerId: body.customerId,   // ← never validated against tenantId
+      serviceId:  body.serviceId ?? null,  // ← never validated against tenantId
+      artistId:   body.artistId  ?? null,  // ← never validated against tenantId
+      ...
+    },
+    ...
+  });
+}
+```
+
+When the recurring-booking job subsequently fires, it loads the customer by `recurring.customerId`
+without verifying `customer.tenantId === recurring.tenantId` (line 84–86):
+
+```ts
+// recurring-booking.job.ts:84
+const customer = await prisma.user.findUnique({
+  where: { id: recurring.customerId },
+  select: { id: true, name: true, phone: true, email: true, ... },
+  // ← tenantId NOT selected or checked
+});
+```
+
+**Impact:**
+- An ADMIN can create a recurring booking pointing at any customer in the system, causing the
+  background job to dispatch notifications (WhatsApp, SMS, email) to customers from other tenants
+  on behalf of a different tenant's studio — a cross-tenant notification leak.
+- If `body.serviceId` or `body.artistId` belong to another tenant, the recurring booking record
+  silently links cross-tenant data.
+
+**Recommended Fix:**
+In `createRecurringBooking`, add tenant-membership checks before the create (mirroring the pattern
+in `packages.service.ts purchasePackage`):
+
+```ts
+// After receiving tenantId, before prisma.create:
+if (body.customerId) {
+  const customer = await prisma.user.findUnique({
+    where: { id: body.customerId }, select: { tenantId: true },
+  });
+  if (!customer || (tenantId !== null && customer.tenantId !== tenantId)) {
+    throw new AppError(403, 'CUSTOMER_FORBIDDEN', 'Customer does not belong to your tenant');
+  }
+}
+// Repeat for artistId and serviceId when provided.
+```
+
+---
+
+## BUG 30 — `no-show.job.ts` Uses `studioSettings.findFirst` Without `WHERE` Clause — Returns Arbitrary Tenant's Settings
+
+- **Severity: Medium**
+- **Category: Data Integrity / Async Job**
+- **Files:**
+  - `backend/src/jobs/no-show.job.ts` (lines 113–121: `resolveDepositPence` / settings lookup)
+
+**Issue:**
+The no-show job resolves studio settings to determine whether to auto-charge a no-show fee.
+When `booking.tenantId` is non-null it correctly uses `findUnique({ where: { tenantId: booking.tenantId } })`.
+However, when `booking.tenantId` is null it falls back to:
+
+```ts
+// no-show.job.ts:119
+: await prisma.studioSettings.findFirst({
+    select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
+  });
+```
+
+`findFirst` without a `WHERE` clause returns the **first row** in the `StudioSettings` table
+by insertion order.  In a multi-tenant deployment (where each tenant has its own settings row),
+this returns a **random tenant's** `noShowAutoCharge` flag and `noShowFeeAmount`.
+
+Compare with the correct pattern used in `payments.service.ts` (line 416):
+```ts
+const settings = await prisma.studioSettings.findFirst({
+  where: { tenantId: booking.tenantId ?? null },
+});
+```
+
+**Impact:**
+- A booking with `tenantId = null` (edge-case, but possible in legacy data or single-tenant
+  mode) triggers a no-show fee auto-charge using the wrong tenant's fee amount and currency.
+- In the worst case, `noShowAutoCharge = true` from Tenant A causes Tenant B's customer
+  to be charged an unexpected fee.
+- If `noShowFeeAmount` is larger in the wrong tenant's settings, the customer may be
+  overcharged.
+
+**Recommended Fix:**
+Replace the `findFirst` fallback with a scoped query identical to `payments.service.ts`:
+
+```ts
+// no-show.job.ts — replace lines 113-121
+const settings = await prisma.studioSettings.findFirst({
+  where:  { tenantId: booking.tenantId ?? null },
+  select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
+});
+```
+
+---
+
+### BUG 28–30 Summary Table
+
+| BUG | Severity | Category | Title | Status |
+|-----|----------|----------|-------|--------|
+| **BUG 28** | **High** | **Cross-Tenant / Data Integrity** | **Services module missing tenant scoping — `createService` omits `tenantId`; update/delete have no tenant guard; public booking broken in multi-tenant mode** | **NEW** |
+| **BUG 29** | **Medium** | **Cross-Tenant / Data Integrity** | **`createRecurringBooking` does not validate that `customerId`/`artistId`/`serviceId` belong to the same tenant** | **NEW** |
+| **BUG 30** | **Medium** | **Data Integrity / Async Job** | **`no-show.job.ts` settings fallback uses `findFirst` without WHERE clause — returns arbitrary tenant's no-show fee settings** | **NEW** |
+
+**Post-audit status (Round 7 — final pass before frontend): BUG 28 is the highest priority (functional breakage of public booking flow + IDOR). BUG 29 and BUG 30 are Medium severity data integrity issues. No password-hash leaks found. No additional feature-flag misses found. No new controller-threading gaps found beyond BUG 28.**
