@@ -22,6 +22,8 @@
  *  ✓ rescheduleBooking — CONFIRMED success, conflict → 409,
  *                        non-CONFIRMED → 409, ARTIST own: success,
  *                        ARTIST other: 403, not found → 404
+ *  ✓ tenant isolation (BUG 4) — cross-tenant 403 for ADMIN on all mutations
+ *  ✓ tenant-scoped feature flags (BUG 19) — PACKAGES_ENABLED and LOYALTY_ENABLED
  */
 
 // ─── Env vars MUST be set before any module import ───────────────────────────
@@ -125,9 +127,19 @@ jest.mock('../loyalty/loyalty.service', () => ({
   calculatePointsForBooking: jest.fn().mockReturnValue(10),
 }));
 
+// bookings.service.ts calls isFeatureEnabled for PACKAGES_ENABLED / LOYALTY_ENABLED
+// Default: returns false so fire-and-forget side-effects are skipped in unrelated tests.
+const mockIsFeatureEnabled = jest.fn().mockResolvedValue(false);
+jest.mock('../../middleware/requireFeature', () => ({
+  isFeatureEnabled: (...a: unknown[]) => mockIsFeatureEnabled(...a),
+  requireFeature:   jest.fn(() => (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()),
+}));
+
 // ─── Import service under test ────────────────────────────────────────────────
 
 import * as bookingsService from './bookings.service';
+import { deductPackageUse } from '../packages/packages.service';
+import { awardPoints } from '../loyalty/loyalty.service';
 
 // ─── Shared fixtures ──────────────────────────────────────────────────────────
 
@@ -831,5 +843,105 @@ describe('tenant isolation (BUG 4)', () => {
         crossTenantId,
       ),
     ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// tenant-scoped feature flags (BUG 19)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('tenant-scoped feature flags (BUG 19)', () => {
+  // Helper: set up a successful confirmBooking flow that returns a booking with a customer
+  function setupConfirmBooking() {
+    const confirmedResult = {
+      ...baseBooking,
+      status:      'CONFIRMED',
+      confirmedAt: new Date(),
+      customer:    { id: 'customer_1', name: 'Jane', email: 'jane@example.com', phone: null },
+      services:    [{ service: { id: 'service_1' } }],
+    };
+    mockBookingFindUnique.mockResolvedValue(baseBooking);
+    mockBookingFindFirst.mockResolvedValue(null); // no conflict
+    mockBookingUpdate.mockResolvedValue(confirmedResult);
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        booking: {
+          findFirst: (...a: unknown[]) => mockBookingFindFirst(...a),
+          update:    (...a: unknown[]) => mockBookingUpdate(...a),
+        },
+      }),
+    );
+    return confirmedResult;
+  }
+
+  // Helper: set up a successful completeBooking flow
+  function setupCompleteBooking() {
+    const completedResult = {
+      ...confirmedBooking,
+      status:      'COMPLETED',
+      completedAt: new Date(),
+      customer:    { id: 'customer_1', name: 'Jane', email: 'jane@example.com', phone: null },
+      services:    [],
+      invoice:     { id: 'inv_1', status: 'UNPAID', amount: '250.00', dueDate: new Date(), paidAt: null },
+    };
+    mockBookingFindUnique
+      .mockResolvedValueOnce(confirmedBooking)
+      .mockResolvedValueOnce(completedResult);
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<void>) =>
+      fn({
+        booking: { update: jest.fn().mockResolvedValue({ id: 'booking_1' }) },
+        invoice: { create: jest.fn().mockResolvedValue({ id: 'inv_1' }) },
+      }),
+    );
+    return completedResult;
+  }
+
+  it('PACKAGES_ENABLED tenant override OFF: deductPackageUse is NOT called', async () => {
+    setupConfirmBooking();
+    mockIsFeatureEnabled.mockResolvedValue(false); // tenant override = OFF
+
+    await bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN');
+
+    // Allow microtasks/fire-and-forget to settle
+    await new Promise(setImmediate);
+
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('PACKAGES_ENABLED', baseBooking.tenantId);
+    expect(deductPackageUse).not.toHaveBeenCalled();
+  });
+
+  it('PACKAGES_ENABLED tenant override ON: deductPackageUse IS called', async () => {
+    setupConfirmBooking();
+    mockIsFeatureEnabled.mockResolvedValue(true); // tenant override = ON
+
+    await bookingsService.confirmBooking('booking_1', 'admin_1', 'ADMIN');
+
+    await new Promise(setImmediate);
+
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('PACKAGES_ENABLED', baseBooking.tenantId);
+    expect(deductPackageUse).toHaveBeenCalled();
+  });
+
+  it('LOYALTY_ENABLED tenant override OFF: awardPoints is NOT called', async () => {
+    setupCompleteBooking();
+    mockIsFeatureEnabled.mockResolvedValue(false); // tenant override = OFF
+
+    await bookingsService.completeBooking('booking_1', {}, 'admin_1', 'ADMIN');
+
+    await new Promise(setImmediate);
+
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('LOYALTY_ENABLED', confirmedBooking.tenantId);
+    expect(awardPoints).not.toHaveBeenCalled();
+  });
+
+  it('LOYALTY_ENABLED tenant override ON: awardPoints IS called', async () => {
+    setupCompleteBooking();
+    mockIsFeatureEnabled.mockResolvedValue(true); // tenant override = ON
+
+    await bookingsService.completeBooking('booking_1', {}, 'admin_1', 'ADMIN');
+
+    await new Promise(setImmediate);
+
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('LOYALTY_ENABLED', confirmedBooking.tenantId);
+    expect(awardPoints).toHaveBeenCalled();
   });
 });

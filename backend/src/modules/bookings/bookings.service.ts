@@ -390,7 +390,7 @@ export async function confirmBooking(
   // tenantId null-check is separated from the customer check so that bookings
   // without a tenantId do not silently skip package deduction (FINDING-015).
   if (updated.customer?.id) {
-    void isFeatureEnabled('PACKAGES_ENABLED').then((enabled) => {
+    void isFeatureEnabled('PACKAGES_ENABLED', booking.tenantId ?? undefined).then((enabled) => {
       if (enabled && booking.tenantId) {
         const serviceId = booking.serviceId ?? updated.services[0]?.service?.id ?? null;
         if (serviceId) {
@@ -583,7 +583,7 @@ export async function completeBooking(
   // tenantId null-check is separated from the customer check so that bookings
   // without a tenantId do not silently skip loyalty awards (FINDING-015).
   if (updated.customer?.id) {
-    void isFeatureEnabled('LOYALTY_ENABLED').then((enabled) => {
+    void isFeatureEnabled('LOYALTY_ENABLED', booking.tenantId ?? undefined).then((enabled) => {
       if (enabled && booking.tenantId) {
         const points = calculatePointsForBooking(invoiceAmount);
         void awardPoints({
