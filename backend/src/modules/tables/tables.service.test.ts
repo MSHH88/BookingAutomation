@@ -46,6 +46,7 @@ const mockTableCreate     = jest.fn();
 const mockTableUpdate     = jest.fn();
 const mockBookingFindMany = jest.fn();
 const mockBookingCount    = jest.fn();
+const mockTenantFindUnique = jest.fn();
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -58,6 +59,9 @@ jest.mock('../../lib/prisma', () => ({
     booking: {
       findMany: (...a: unknown[]) => mockBookingFindMany(...a),
       count:    (...a: unknown[]) => mockBookingCount(...a),
+    },
+    tenant: {
+      findUnique: (...a: unknown[]) => mockTenantFindUnique(...a),
     },
   },
 }));
@@ -101,29 +105,52 @@ beforeEach(() => {
 describe('listTables', () => {
   it('returns active tables by default (no isActive query param)', async () => {
     mockTableFindMany.mockResolvedValue([tableA, tableB]);
-    const result = await listTables({});
+    const result = await listTables({ slug: 'studio' } as any, 'tenant-1');
     expect(mockTableFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { isActive: true } }),
+      expect.objectContaining({ where: { isActive: true, tenantId: 'tenant-1' } }),
     );
     expect(result).toEqual([tableA, tableB]);
   });
 
   it('returns all tables when isActive=false', async () => {
     mockTableFindMany.mockResolvedValue([tableA, tableB, tableInactive]);
-    const result = await listTables({ isActive: 'false' });
+    const result = await listTables({ slug: 'studio', isActive: 'false' } as any, 'tenant-1');
     expect(mockTableFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { isActive: false } }),
+      expect.objectContaining({ where: { isActive: false, tenantId: 'tenant-1' } }),
     );
     expect(result).toHaveLength(3);
   });
 
   it('returns only active tables when isActive=true explicitly', async () => {
     mockTableFindMany.mockResolvedValue([tableA, tableB]);
-    const result = await listTables({ isActive: 'true' });
+    const result = await listTables({ slug: 'studio', isActive: 'true' } as any, 'tenant-1');
     expect(mockTableFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { isActive: true } }),
+      expect.objectContaining({ where: { isActive: true, tenantId: 'tenant-1' } }),
     );
     expect(result).toEqual([tableA, tableB]);
+  });
+
+  // BUG 26: anonymous public callers must provide a slug; service resolves
+  // tenant by slug and never falls back to a "no tenant filter" query.
+  it('BUG 26: anonymous caller resolves tenant via slug and scopes by tenantId', async () => {
+    mockTenantFindUnique.mockResolvedValue({ id: 'tenant-A' });
+    mockTableFindMany.mockResolvedValue([tableA]);
+    await listTables({ slug: 'tenant-a-slug' } as any, null);
+    expect(mockTenantFindUnique).toHaveBeenCalledWith({
+      where: { slug: 'tenant-a-slug' },
+      select: { id: true },
+    });
+    expect(mockTableFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { isActive: true, tenantId: 'tenant-A' } }),
+    );
+  });
+
+  it('BUG 26: throws 404 TENANT_NOT_FOUND when slug does not resolve', async () => {
+    mockTenantFindUnique.mockResolvedValue(null);
+    await expect(
+      listTables({ slug: 'missing' } as any, null),
+    ).rejects.toMatchObject({ statusCode: 404, code: 'TENANT_NOT_FOUND' });
+    expect(mockTableFindMany).not.toHaveBeenCalled();
   });
 });
 
@@ -132,12 +159,12 @@ describe('listTables', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('getTableAvailability', () => {
-  const baseQuery = { date: '2026-06-15', time: '19:00', partySize: 4 };
+  const baseQuery = { slug: 'studio', date: '2026-06-15', time: '19:00', partySize: 4 } as any;
 
   it('returns tables that have capacity and no overlapping bookings', async () => {
     mockTableFindMany.mockResolvedValue([tableA, tableB]);
     mockBookingFindMany.mockResolvedValue([]); // no occupied tables
-    const result = await getTableAvailability(baseQuery);
+    const result = await getTableAvailability(baseQuery, 'tenant-1');
     expect(result).toEqual([tableA, tableB]);
   });
 
@@ -145,7 +172,7 @@ describe('getTableAvailability', () => {
     mockTableFindMany.mockResolvedValue([tableA, tableB]);
     // tableA is occupied
     mockBookingFindMany.mockResolvedValue([{ tableId: 't_A' }]);
-    const result = await getTableAvailability(baseQuery);
+    const result = await getTableAvailability(baseQuery, 'tenant-1');
     expect(result).toEqual([tableB]);
   });
 
@@ -155,14 +182,14 @@ describe('getTableAvailability', () => {
       { tableId: 't_A' },
       { tableId: 't_B' },
     ]);
-    const result = await getTableAvailability(baseQuery);
+    const result = await getTableAvailability(baseQuery, 'tenant-1');
     expect(result).toEqual([]);
   });
 
   it('returns empty array when no tables have sufficient capacity', async () => {
     // prisma already filters by capacity >= partySize, so findMany returns []
     mockTableFindMany.mockResolvedValue([]);
-    const result = await getTableAvailability({ ...baseQuery, partySize: 100 });
+    const result = await getTableAvailability({ ...baseQuery, partySize: 100 }, 'tenant-1');
     expect(result).toEqual([]);
     // booking query should NOT have been called — no tables to check
     expect(mockBookingFindMany).not.toHaveBeenCalled();
@@ -171,7 +198,7 @@ describe('getTableAvailability', () => {
   it('uses durationMinutes from query when provided', async () => {
     mockTableFindMany.mockResolvedValue([tableA]);
     mockBookingFindMany.mockResolvedValue([]);
-    await getTableAvailability({ ...baseQuery, durationMinutes: 60 });
+    await getTableAvailability({ ...baseQuery, durationMinutes: 60 }, 'tenant-1');
     // We can't directly inspect the computed endAt but we verify the call was made
     expect(mockBookingFindMany).toHaveBeenCalled();
   });
@@ -179,9 +206,34 @@ describe('getTableAvailability', () => {
   it('throws 400 for a semantically invalid date (e.g. month 13)', async () => {
     // "2026-13-01" passes the YYYY-MM-DD regex but creates NaN in new Date()
     await expect(
-      getTableAvailability({ date: '2026-13-01', time: '19:00', partySize: 2 }),
+      getTableAvailability({ slug: 'studio', date: '2026-13-01', time: '19:00', partySize: 2 } as any, 'tenant-1'),
     ).rejects.toMatchObject({ statusCode: 400, code: 'INVALID_DATETIME' });
     // No DB queries should have been made
+    expect(mockTableFindMany).not.toHaveBeenCalled();
+  });
+
+  // BUG 26: anonymous availability call resolves tenant via slug
+  it('BUG 26: anonymous availability call resolves tenant via slug and scopes query', async () => {
+    mockTenantFindUnique.mockResolvedValue({ id: 'tenant-A' });
+    mockTableFindMany.mockResolvedValue([tableA]);
+    mockBookingFindMany.mockResolvedValue([]);
+    await getTableAvailability(baseQuery, null);
+    expect(mockTenantFindUnique).toHaveBeenCalledWith({
+      where: { slug: 'studio' },
+      select: { id: true },
+    });
+    expect(mockTableFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ tenantId: 'tenant-A' }),
+      }),
+    );
+  });
+
+  it('BUG 26: anonymous availability call with unknown slug throws 404', async () => {
+    mockTenantFindUnique.mockResolvedValue(null);
+    await expect(
+      getTableAvailability(baseQuery, null),
+    ).rejects.toMatchObject({ statusCode: 404, code: 'TENANT_NOT_FOUND' });
     expect(mockTableFindMany).not.toHaveBeenCalled();
   });
 });

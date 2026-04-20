@@ -41,6 +41,22 @@ import type {
 
 const DEFAULT_SITTING_DURATION_MINUTES = 120;
 
+/**
+ * BUG 26: resolve a tenant id from the slug supplied on a public table
+ * endpoint. Throws 404 if the slug does not match any tenant so the caller
+ * cannot probe for tenant existence by slug enumeration alone.
+ */
+async function resolveTenantIdFromSlug(slug: string): Promise<string> {
+  const tenant = await prisma.tenant.findUnique({
+    where:  { slug },
+    select: { id: true },
+  });
+  if (!tenant) {
+    throw new AppError(404, 'TENANT_NOT_FOUND', 'Tenant not found');
+  }
+  return tenant.id;
+}
+
 // ─── Prisma select shapes ─────────────────────────────────────────────────────
 
 /**
@@ -71,8 +87,15 @@ export async function listTables(query: ListTablesQuery, tenantId: string | null
   const isActive =
     query.isActive !== undefined ? query.isActive === 'true' : true;
 
-  const where: Prisma.TableWhereInput = { isActive };
-  if (tenantId !== null) where.tenantId = tenantId;
+  // BUG 26: when called publicly (tenantId === null), the slug query param is
+  // required and used to resolve the tenant. Authenticated callers always
+  // pass their own tenantId from extractTenantId().
+  let scopedTenantId = tenantId;
+  if (scopedTenantId === null) {
+    scopedTenantId = await resolveTenantIdFromSlug(query.slug);
+  }
+
+  const where: Prisma.TableWhereInput = { isActive, tenantId: scopedTenantId };
 
   return prisma.table.findMany({
     where,
@@ -98,6 +121,12 @@ export async function getTableAvailability(query: ListTableAvailQuery, tenantId:
   const durationMinutes =
     query.durationMinutes ?? DEFAULT_SITTING_DURATION_MINUTES;
 
+  // BUG 26: same as listTables — anonymous callers must supply ?slug=.
+  let scopedTenantId = tenantId;
+  if (scopedTenantId === null) {
+    scopedTenantId = await resolveTenantIdFromSlug(query.slug);
+  }
+
   // Parse the requested date/time into a UTC Date
   const startAt = new Date(`${query.date}T${query.time}:00.000Z`);
   if (isNaN(startAt.getTime())) {
@@ -109,7 +138,7 @@ export async function getTableAvailability(query: ListTableAvailQuery, tenantId:
   const activeTablesWhere: Prisma.TableWhereInput = {
     isActive: true,
     capacity: { gte: query.partySize },
-    ...(tenantId !== null ? { tenantId } : {}),
+    tenantId: scopedTenantId,
   };
   const activeTables = await prisma.table.findMany({
     where:  activeTablesWhere,

@@ -23,6 +23,12 @@ import { z } from 'zod';
  */
 export const listTablesSchema = z.object({
   query: z.object({
+    /**
+     * BUG 26: tenant slug is required so anonymous public callers can only
+     * see one tenant's tables. Without a slug the service has no way to scope
+     * the query and would otherwise leak cross-tenant data.
+     */
+    slug: z.string().trim().min(1, 'slug is required').max(120),
     isActive: z.enum(['true', 'false']).optional(),
   }),
 });
@@ -35,6 +41,11 @@ export const listTablesSchema = z.object({
  */
 export const listTableAvailabilitySchema = z.object({
   query: z.object({
+    /**
+     * BUG 26: tenant slug is required so anonymous public callers can only
+     * see one tenant's availability.
+     */
+    slug: z.string().trim().min(1, 'slug is required').max(120),
     date: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format'),
