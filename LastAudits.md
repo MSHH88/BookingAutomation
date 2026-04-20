@@ -1,3 +1,41 @@
+# PR — Ready for Frontend After Fixing BUG 23–30 ✅
+
+**Date:** 2026-04-20 (Round 6 audit)
+**Branch:** `copilot/create-detailed-automation-plan`
+**Scope reviewed:** all backend modules not previously audited in Rounds 1–5 — products, packages, gift-cards, memberships, loyalty, payments, payroll, invoices, quotes, waitlist, reviews, campaigns, locations, rota, sessions, customers, customer-stats, sms, sms-templates, email-templates, whatsapp-templates, social, alerts, push, notifications, forms, capture, ai, analytics, reminders, referrals, booking-photos, health-flags, features, pricing, settings, styles, roles, tenants, uploads, webhooks, messages.
+
+## TL;DR
+
+> **Once BUG 23–30 are fixed, the backend is ready for frontend work.**
+> Round 6 surfaced **one** additional finding (BUG 31, Medium, defense-in-depth on Stripe webhook handlers). It does **not** block frontend work today — Stripe signature verification (`stripe.webhooks.constructEvent`) prevents forged webhook attacks in the current single-Stripe-account configuration. BUG 31 should be addressed before the platform adopts **Stripe Connect** (per-tenant Stripe accounts) or any multi-account billing topology.
+
+## What changed since Round 5
+
+| Item | Status |
+|------|--------|
+| BUG 14–22 | ✅ Fixed and verified (102 suites / 1862 tests pass, 0 failures, `tsc --noEmit` clean) |
+| BUG 23–25 | 📋 Documented (fixes pending) |
+| BUG 26–30 | 📋 Documented (fixes pending) |
+| BUG 31 | 📋 **NEW** — Documented this pass (fix pending; non-blocking for frontend) |
+
+## Frontend-readiness checklist
+
+- [x] Multi-tenant CRUD endpoints validate `tenantId` on every read/write (BUG 14, 16, 17, 22, 26, 28 close the remaining gaps)
+- [x] Admin routes guarded by `requireAuth` + correct `requireRole` (BUG 27 closes the SUPER_ADMIN gap on `isActive`)
+- [x] SUPER_ADMIN can recover compromised accounts (BUG 23 invalidates JWTs on deactivate; BUG 24 adds send-reset-link)
+- [x] Feature flags scoped per tenant (BUG 15, 18, 19, 20, 21 close all remaining global checks)
+- [x] Cross-tenant FK references validated on create/queue (BUG 29 for recurring bookings)
+- [x] Background jobs always filter by `tenantId` (BUG 30 closes the no-show job global `findFirst`)
+- [x] No `passwordHash` lingering in memory beyond the request (BUG 25)
+- [x] Public/unauthenticated endpoints resolve tenant via slug (BUG 26)
+- [ ] **(Optional, post-launch)** Stripe webhook handlers add defense-in-depth tenant binding (BUG 31) — **not required for frontend work**
+
+## Recommendation
+
+**Proceed with the frontend after BUG 23–30 are merged.** Track BUG 31 on the post-launch hardening backlog; revisit before any Stripe Connect / multi-account billing rollout.
+
+---
+
 ## BUG 14–22 Status Summary (as of 2026-04-20)
 
 - **Status: FIXED ✅**
@@ -2153,3 +2191,125 @@ const settings = await prisma.studioSettings.findFirst({
 | **BUG 30** | **Medium** | **Data Integrity / Async Job** | **`no-show.job.ts` settings fallback uses `findFirst` without WHERE clause — returns arbitrary tenant's no-show fee settings** | **NEW** |
 
 **Post-audit status (Round 7 — final pass before frontend): BUG 28 is the highest priority (functional breakage of public booking flow + IDOR). BUG 29 and BUG 30 are Medium severity data integrity issues. No password-hash leaks found. No additional feature-flag misses found. No new controller-threading gaps found beyond BUG 28.**
+
+---
+
+## Audit pass: 2026-04-20 — BUG 31 (Round 6 — post-BUG-30 sweep of remaining modules)
+
+Scope: every backend module not previously audited in Rounds 1–5 — products, packages, gift-cards, memberships, loyalty, payments, payroll, invoices, quotes, waitlist, reviews, campaigns, locations, rota, sessions, customers, customer-stats, sms, sms-templates, email-templates, whatsapp-templates, social, alerts, push, notifications, forms, capture, ai, analytics, reminders, referrals, booking-photos, health-flags, features, pricing, settings, styles, roles, tenants, uploads, webhooks, messages.
+
+Result: **one** new finding (BUG 31, Medium, defense-in-depth). All other modules properly tenant-scoped, RBAC-protected, and feature-flag-tenant-aware.
+
+---
+
+## BUG 31 — Stripe Webhook Handlers Mutate Records Globally by Stripe ID Without Tenant Binding (Defense-in-Depth)
+
+- **Severity: Medium** (defense-in-depth; not exploitable in current single-Stripe-account configuration because `stripe.webhooks.constructEvent` verifies the signature)
+- **Category: Defense-in-Depth / Future-Proofing (Stripe Connect readiness)**
+- **Files:**
+  - `backend/src/modules/payments/payments.service.ts` (lines ~490, ~518–521, ~524–527, ~572–575, ~578–581: `onPaymentIntentSucceeded`, `onChargeRefunded`)
+  - `backend/src/modules/memberships/memberships.service.ts` (lines ~380–431: `handleSubscriptionWebhook` for `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`)
+
+**Issue:**
+The Stripe webhook handlers mutate records (`Booking`, `Payment`, `Invoice`, `CustomerMembership`) using only the Stripe-side identifier (`stripePaymentIntentId`, `stripeSubscriptionId`, `bookingId` from `paymentIntent.metadata`) — **without** filtering by `tenantId` and **without** validating that the resolved row's `tenantId` matches the tenant the Stripe object belongs to.
+
+```ts
+// payments.service.ts:490
+const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+// ✗ no tenantId verification against paymentIntent metadata
+
+// payments.service.ts:518-521
+await prisma.payment.updateMany({
+  where: { stripePaymentIntentId: paymentIntent.id, status: 'PENDING' },
+  data:  { status: 'SUCCEEDED', paidAt: now },
+});
+// ✗ scoped only by Stripe ID
+
+// memberships.service.ts:391-399
+await prisma.customerMembership.updateMany({
+  where: { stripeSubscriptionId: subId },
+  data:  { status: 'ACTIVE', currentPeriodEnd: ... },
+});
+// ✗ scoped only by Stripe ID
+```
+
+**Impact:**
+- **Today (single Stripe account):** Not exploitable. Stripe-side IDs (`pi_*`, `sub_*`) are globally unique within an account, the webhook signature is verified at line 237 (`stripe.webhooks.constructEvent`), and `metadata.bookingId` is set by this platform when the PaymentIntent is created. An attacker cannot forge a webhook nor inject a foreign `bookingId`.
+- **Future (Stripe Connect / per-tenant Stripe accounts) or in case of metadata corruption / DB-restore-with-stale-IDs:** Without a tenant-binding check, a webhook event could mutate records belonging to the wrong tenant. The current code has no defense-in-depth that would catch such a misrouting.
+- Also: a row whose `tenantId` is `null` (legacy data created before tenant-scoping landed) would be silently updated by any matching webhook event regardless of which tenant the payment belongs to.
+
+**Evidence — webhook entry point already verifies signature, so this is purely defense-in-depth:**
+
+```ts
+// payments.service.ts:233-242  ← signature is enforced
+const webhookKey = process.env['STRIPE_WEBHOOK_SECRET'] ?? '';
+event = stripe.webhooks.constructEvent(rawBody, signature, webhookKey);
+```
+
+**Recommended fix:**
+
+For each handler, after resolving the booking / membership, validate that its `tenantId` is consistent with the Stripe metadata (or the Stripe Connect `event.account` for future Connect support), and use that `tenantId` as an extra `where` clause on every subsequent `update` / `updateMany`:
+
+```ts
+// payments.service.ts onPaymentIntentSucceeded
+const booking = await prisma.booking.findUnique({
+  where:  { id: bookingId },
+  select: { id: true, tenantId: true, status: true, depositPaidAt: true, confirmedAt: true },
+});
+if (!booking) return;
+const expectedTenantId = paymentIntent.metadata?.tenantId ?? null;
+if (expectedTenantId !== null && booking.tenantId !== expectedTenantId) {
+  logger.warn('payment_intent.succeeded tenant mismatch — skipping', {
+    bookingId, expectedTenantId, bookingTenantId: booking.tenantId,
+  });
+  return;
+}
+
+// then thread `tenantId: booking.tenantId` into every updateMany:
+await prisma.payment.updateMany({
+  where: {
+    stripePaymentIntentId: paymentIntent.id,
+    status:                'PENDING',
+    booking:               { tenantId: booking.tenantId },
+  },
+  data: { status: 'SUCCEEDED', paidAt: now },
+});
+
+await prisma.invoice.updateMany({
+  where: {
+    bookingId,
+    status:  'UNPAID',
+    booking: { tenantId: booking.tenantId },
+  },
+  data: { status: 'PAID', paidAt: now },
+});
+```
+
+For `memberships.service.handleSubscriptionWebhook`:
+- Either accept a `tenantId` param from the dispatcher and add it to the `where` clause, **or**
+- Fetch the `CustomerMembership` first by `stripeSubscriptionId`, then update by primary key after asserting tenant consistency.
+
+Also: when creating PaymentIntents and Subscriptions, set `metadata.tenantId` so the webhook always has a side-channel to validate against.
+
+**Why Medium and not Critical:**
+- Stripe signature verification today closes the only practical attack surface (forged webhooks).
+- All known production tenants share a single Stripe account, so PaymentIntent / Subscription IDs cannot collide across tenants.
+- This is a **future-proofing** fix needed before any Stripe Connect rollout, and a **defense-in-depth** fix that would limit blast radius from accidental data corruption or stale-ID restores.
+
+**Frontend impact: NONE.** No request/response contract changes; frontend can proceed today.
+
+---
+
+### BUG 31 Summary Table
+
+| BUG | Severity | Category | Title | Status |
+|-----|----------|----------|-------|--------|
+| **BUG 31** | **Medium** | **Defense-in-Depth / Stripe-Connect-readiness** | **Stripe webhook handlers mutate `Booking`/`Payment`/`Invoice`/`CustomerMembership` rows scoped only by Stripe ID — no tenant binding** | **NEW (non-blocking for frontend)** |
+
+**Post-audit status (Round 6 — frontend-readiness pass):**
+- **BUG 14–22:** ✅ fixed and verified (102 suites / 1862 tests pass).
+- **BUG 23–30:** 📋 documented; fixes pending. Once merged, all known cross-tenant / RBAC / feature-flag / FK-validation gaps are closed.
+- **BUG 31:** 📋 documented this pass. Medium, defense-in-depth, **not blocking for frontend work**. Schedule before Stripe Connect rollout.
+- **All other ~40 modules audited this pass:** clean — no new tenant-scoping, RBAC, feature-flag, or password-leak findings.
+
+> **Verdict: Backend is ready for frontend work as soon as BUG 23–30 land.**
