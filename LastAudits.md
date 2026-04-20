@@ -1,3 +1,65 @@
+## BUG 14–22 Status Summary (as of 2026-04-20)
+
+- **Status: FIXED ✅**
+- Verified by: `cd backend && npx jest --clearCache --silent && npx jest --passWithNoTests`
+- **Jest summary:**
+  - Test Suites: **102 passed, 102 total**
+  - Tests: **1862 passed, 1862 total**
+  - Snapshots: 0 total
+  - Time: ~61 s
+- `npx tsc --noEmit`: **clean (0 errors)**
+- Notes: All 9 bugs fully fixed and verified. No pre-existing failures remain.
+
+---
+
+## BUG 14–22 File Register
+
+### Created files
+*(none — all fixes were modifications to existing files)*
+
+### Modified files
+
+| File | BUG(s) |
+|------|--------|
+| `backend/src/modules/availability/availability.service.ts` | BUG 14 |
+| `backend/src/modules/availability/availability.controller.ts` | BUG 14 |
+| `backend/src/modules/availability/availability.service.test.ts` | BUG 14 |
+| `backend/src/modules/public/public.service.ts` | BUG 15, BUG 18 |
+| `backend/src/modules/public/public.service.test.ts` | BUG 15, BUG 18 |
+| `backend/src/modules/artists/artists.service.ts` | BUG 16, BUG 17 |
+| `backend/src/modules/artists/artists.controller.ts` | BUG 16, BUG 17 |
+| `backend/src/modules/artists/artists.test.ts` | BUG 16, BUG 17 |
+| `backend/src/modules/bookings/bookings.service.ts` | BUG 19 |
+| `backend/src/modules/bookings/bookings.service.test.ts` | BUG 19 |
+| `backend/src/modules/calendar/calendar.service.ts` | BUG 20 |
+| `backend/src/modules/calendar/calendar.service.test.ts` | BUG 20 |
+| `backend/src/modules/calendar/outlook-calendar.service.ts` | BUG 20 |
+| `backend/src/modules/calendar/outlook-calendar.service.test.ts` | BUG 20 |
+| `backend/src/modules/calendar/apple-calendar.service.ts` | BUG 20 |
+| `backend/src/modules/calendar/apple-calendar.service.test.ts` | BUG 20 |
+| `backend/src/modules/whatsapp/whatsapp.service.ts` | BUG 21 |
+| `backend/src/modules/whatsapp/whatsapp.service.test.ts` | BUG 21 |
+| `backend/src/modules/leads/leads.service.ts` | BUG 21 |
+| `backend/src/modules/pos/pos.service.ts` | BUG 22 |
+| `backend/src/modules/pos/pos.service.test.ts` | BUG 22 |
+| `backend/src/modules/pos/pos.test.ts` | BUG 22 |
+
+### BUG → fix summary
+
+| BUG | Root cause | Fix |
+|-----|-----------|-----|
+| **BUG 14** | Availability ADMIN could cross-tenant resolve artist | `resolveTargetArtistId` validates `artist.tenantId`; controller threads `extractTenantId` to all 5 calls |
+| **BUG 15** | `DEPOSIT_REQUIRED` checked globally (no tenantId) | `public.service.ts` passes `tenant.id` to `isFeatureEnabled` |
+| **BUG 16** | `createArtist` omitted `tenantId` on user + artist rows | `artists.service.ts createArtist(input, tenantId)` persists tenantId on both `tx.user.create` and `tx.artist.create` |
+| **BUG 17** | `updateArtist`/`deleteArtist`/`assignStyles` no tenant guard for ADMIN | Service accepts tenantId param, throws 403 when `artist.tenantId !== tenantId`; controller passes `extractTenantId(req)` |
+| **BUG 18** | `DYNAMIC_PRICING_ENABLED` checked globally in public slots | `public.service.ts` passes `tenant.id` to `isFeatureEnabled` |
+| **BUG 19** | `PACKAGES_ENABLED`/`LOYALTY_ENABLED` checked globally in confirm/complete | `bookings.service.ts` passes `booking.tenantId ?? undefined` to both flag checks |
+| **BUG 20** | 9 calendar sync functions checked flags before fetching booking (no tenantId) | Each function fetches booking first, then calls `isFeatureEnabled(flag, booking.tenantId ?? undefined)` |
+| **BUG 21** | WhatsApp `canSend()` and `leads.service.ts` checked `WHATSAPP_CONTACT_ENABLED` globally | `canSend` accepts `tenantId?` param; all 4 enqueue functions pass `params.tenantId`; `leads.service.ts` passes `resolvedTenantId` |
+| **BUG 22** | POS checkout never validated `artist.tenantId` matches request tenant | `pos.service.ts` selects `tenantId` on artist lookup and throws 403 when `tenantId !== null && artist.tenantId !== tenantId` |
+
+---
+
 # ✅ ANSWER: Yes — New Tests WERE Introduced in BUG 1–13!
 
 **The claim that the test output should remain at 100 suites / 1754 tests was WRONG.**
