@@ -30,7 +30,7 @@ import { Prisma } from '@prisma/client';
 
 import { prisma }   from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
-import { bumpRbacVersion } from '../auth/auth.service';
+import { bumpRbacVersion, forgotPassword } from '../auth/auth.service';
 import { paginate, PaginatedResult } from '../../utils/paginate';
 import type {
   UpdateSettingsBody,
@@ -331,6 +331,34 @@ export async function updateUser(
   }
 
   return updated;
+}
+
+/**
+ * BUG 24: Sends a password reset link to the user identified by `id`.
+ *
+ * SUPER_ADMIN-only access-recovery utility. Looks up the user by id (404 if
+ * missing) and re-uses the existing `forgotPassword` flow on the user's email
+ * so a reset token is generated and the password-reset email is enqueued.
+ *
+ * Does not return the reset token — the link is delivered exclusively via the
+ * standard reset-email channel.
+ *
+ * @throws AppError 404 — user with the given id does not exist.
+ */
+export async function sendPasswordResetLinkForUserId(id: string): Promise<void> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, email: true },
+  });
+
+  if (!user) {
+    throw new AppError(404, 'NOT_FOUND', 'User not found');
+  }
+
+  // Reuse existing self-service flow: same token generation, single-use
+  // semantics, mailer enqueue. forgotPassword silently no-ops for inactive
+  // accounts, which matches the desired behaviour here.
+  await forgotPassword(user.email);
 }
 
 // ─── Artist Management ────────────────────────────────────────────────────────

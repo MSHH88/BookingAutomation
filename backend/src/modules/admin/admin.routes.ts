@@ -17,6 +17,7 @@
  * | PATCH  | /api/admin/feature-flags/:key     | SUPER_ADMIN | Toggle / set a single feature flag                |
  * | GET    | /api/admin/users                  | ADMIN+      | Paginated user list (filterable)                  |
  * | PATCH  | /api/admin/users/:id              | ADMIN+      | Update user role / active state / name            |
+ * | POST   | /api/admin/users/:id/send-reset-link | SUPER_ADMIN | Send password reset link to user (BUG 24)       |
  * | GET    | /api/admin/artists                | ADMIN+      | Paginated artist list (filterable)                |
  * | PATCH  | /api/admin/artists/:id            | ADMIN+      | Update artist active state / commission           |
  */
@@ -84,6 +85,16 @@ router.patch(
   requireRole('ADMIN'),
   validate(updateUserSchema),
   ctrl.patchUser,
+);
+
+/**
+ * POST /api/admin/users/:id/send-reset-link
+ * BUG 24: SUPER_ADMIN-only — trigger a password-reset email on behalf of a user.
+ */
+router.post(
+  '/users/:id/send-reset-link',
+  requireRole('SUPER_ADMIN'),
+  ctrl.postSendResetLink,
 );
 
 // ─── Artist Management (ADMIN or SUPER_ADMIN) ─────────────────────────────────

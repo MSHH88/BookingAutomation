@@ -125,6 +125,14 @@ jest.mock('../../lib/redis', () => ({
   }),
 }));
 
+// ─── Mock auth.service (BUG 24: sendPasswordResetLinkForUserId reuses forgotPassword) ─
+const mockBumpRbacVersion = jest.fn().mockResolvedValue(undefined);
+const mockForgotPassword  = jest.fn().mockResolvedValue(undefined);
+jest.mock('../auth/auth.service', () => ({
+  bumpRbacVersion: (...a: unknown[]) => mockBumpRbacVersion(...a),
+  forgotPassword:  (...a: unknown[]) => mockForgotPassword(...a),
+}));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 import { AppError } from '../../errors/AppError';
@@ -590,31 +598,61 @@ describe('updateUser', () => {
   it('bumps rbacVersion when isActive changes (BUG 23)', async () => {
     mockUserFindUnique.mockResolvedValue(stubUser());
     mockUserUpdate.mockResolvedValue(stubUser({ isActive: false }));
-    mockRedisIncr.mockClear();
+    mockBumpRbacVersion.mockClear();
 
     await service.updateUser('user-1', { isActive: false }, null);
 
-    expect(mockRedisIncr).toHaveBeenCalledWith('rbacVersion:user-1');
+    expect(mockBumpRbacVersion).toHaveBeenCalledWith('user-1');
   });
 
   it('still bumps rbacVersion when role changes (regression)', async () => {
     mockUserFindUnique.mockResolvedValue(stubUser());
     mockUserUpdate.mockResolvedValue(stubUser({ role: 'ARTIST' }));
-    mockRedisIncr.mockClear();
+    mockBumpRbacVersion.mockClear();
 
     await service.updateUser('user-1', { role: 'ARTIST' }, null, 'SUPER_ADMIN');
 
-    expect(mockRedisIncr).toHaveBeenCalledWith('rbacVersion:user-1');
+    expect(mockBumpRbacVersion).toHaveBeenCalledWith('user-1');
   });
 
   it('does NOT bump rbacVersion for name-only updates', async () => {
     mockUserFindUnique.mockResolvedValue(stubUser());
     mockUserUpdate.mockResolvedValue(stubUser({ name: 'Bob' }));
-    mockRedisIncr.mockClear();
+    mockBumpRbacVersion.mockClear();
 
     await service.updateUser('user-1', { name: 'Bob' }, null);
 
-    expect(mockRedisIncr).not.toHaveBeenCalled();
+    expect(mockBumpRbacVersion).not.toHaveBeenCalled();
+  });
+});
+
+// ─── sendPasswordResetLinkForUserId (BUG 24) ──────────────────────────────────
+
+describe('sendPasswordResetLinkForUserId (BUG 24)', () => {
+  it('looks up user by id and triggers forgotPassword on their email', async () => {
+    mockUserFindUnique.mockResolvedValue({ id: 'user-1', email: 'alice@example.com' });
+    mockForgotPassword.mockClear();
+
+    await service.sendPasswordResetLinkForUserId('user-1');
+
+    expect(mockUserFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where:  { id: 'user-1' },
+        select: { id: true, email: true },
+      }),
+    );
+    expect(mockForgotPassword).toHaveBeenCalledWith('alice@example.com');
+  });
+
+  it('throws 404 when the user id does not exist', async () => {
+    mockUserFindUnique.mockResolvedValue(null);
+    mockForgotPassword.mockClear();
+
+    await expect(
+      service.sendPasswordResetLinkForUserId('ghost'),
+    ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
+
+    expect(mockForgotPassword).not.toHaveBeenCalled();
   });
 });
 

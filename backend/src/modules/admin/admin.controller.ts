@@ -154,6 +154,31 @@ export async function patchUser(
   }
 }
 
+/**
+ * POST /api/admin/users/:id/send-reset-link
+ *
+ * BUG 24: SUPER_ADMIN-only access-recovery endpoint. Triggers the standard
+ * forgot-password flow on behalf of the targeted user — a reset token is
+ * generated and emailed to the user. Does not return the token.
+ */
+export async function postSendResetLink(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id = req.params['id'];
+    if (typeof id !== 'string' || id.length === 0) {
+      res.status(400).json({ ok: false, error: { code: 'BAD_REQUEST', message: 'id is required' } });
+      return;
+    }
+    await adminService.sendPasswordResetLinkForUserId(id);
+    res.json(success({ sent: true }));
+  } catch (err) {
+    next(err);
+  }
+}
+
 // ─── Artist Management ────────────────────────────────────────────────────────
 
 /**
