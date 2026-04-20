@@ -326,6 +326,54 @@ describe('public.service', () => {
         code: 'ARTIST_NOT_FOUND',
       });
     });
+
+    it('tenant override OFF: booking is PENDING even when global DEPOSIT_REQUIRED is ON', async () => {
+      // Simulates: global default = ON, but tenant-level override = OFF
+      // The fix ensures isFeatureEnabled('DEPOSIT_REQUIRED', tenant.id) uses tenant context
+      (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
+      (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1' });
+      (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
+      (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
+      (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(false); // tenant override = OFF
+      (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.booking.create as jest.Mock).mockResolvedValue({
+        id: 'booking-3', status: 'PENDING', publicToken: 'dddddddd-eeee-4fff-aaaa-000000000003',
+        startAt: new Date(), endAt: new Date(), source: 'WIDGET', createdAt: new Date(),
+        artist: { id: 'artist-1', slug: 'john-doe', user: { name: 'John Doe' } },
+        service: { id: 'service-1', name: 'Full Sleeve', durationMinutes: 120, priceFrom: 250 },
+      });
+
+      const result = await createPublicBooking('test-studio', validBody);
+
+      expect(result.status).toBe('PENDING');
+      expect(result.depositRequired).toBe(false);
+      expect(isFeatureEnabled).toHaveBeenCalledWith('DEPOSIT_REQUIRED', mockTenant.id);
+    });
+
+    it('tenant override ON: booking is AWAITING_DEPOSIT even when global DEPOSIT_REQUIRED is OFF', async () => {
+      // Simulates: global default = OFF, but tenant-level override = ON
+      // The fix ensures isFeatureEnabled('DEPOSIT_REQUIRED', tenant.id) uses tenant context
+      (prisma.tenant.findUnique as jest.Mock).mockResolvedValue(mockTenant);
+      (prisma.artist.findFirst as jest.Mock).mockResolvedValue({ id: 'artist-1' });
+      (prisma.service.findFirst as jest.Mock).mockResolvedValue({ id: 'service-1', durationMinutes: 120, priceFrom: 250 });
+      (prisma.artistService.findFirst as jest.Mock).mockResolvedValue({ id: 'as-1' });
+      (prisma.user.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-1' });
+      (isFeatureEnabled as jest.Mock).mockResolvedValue(true); // tenant override = ON
+      (prisma.booking.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.booking.create as jest.Mock).mockResolvedValue({
+        id: 'booking-4', status: 'AWAITING_DEPOSIT', publicToken: 'eeeeeeee-ffff-4000-bbbb-000000000004',
+        startAt: new Date(), endAt: new Date(), source: 'WIDGET', createdAt: new Date(),
+        artist: { id: 'artist-1', slug: 'john-doe', user: { name: 'John Doe' } },
+        service: { id: 'service-1', name: 'Full Sleeve', durationMinutes: 120, priceFrom: 250 },
+      });
+
+      const result = await createPublicBooking('test-studio', validBody);
+
+      expect(result.status).toBe('AWAITING_DEPOSIT');
+      expect(result.depositRequired).toBe(true);
+      expect(isFeatureEnabled).toHaveBeenCalledWith('DEPOSIT_REQUIRED', mockTenant.id);
+    });
   });
 
   // ── getBookingByToken ──────────────────────────────────────────────────────
