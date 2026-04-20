@@ -99,8 +99,8 @@ import { prisma } from '../../lib/prisma';
 
 const SECRET = process.env['JWT_ACCESS_SECRET']!;
 
-function makeToken(role: 'ADMIN' | 'ARTIST' | 'CUSTOMER' = 'CUSTOMER', userId = 'u_1') {
-  return `Bearer ${jwt.sign({ sub: userId, email: 'test@example.com', role }, SECRET, { expiresIn: '15m' })}`;
+function makeToken(role: 'ADMIN' | 'ARTIST' | 'CUSTOMER' = 'CUSTOMER', userId = 'u_1', tenantId?: string) {
+  return `Bearer ${jwt.sign({ sub: userId, email: 'test@example.com', role, tenantId: tenantId ?? null }, SECRET, { expiresIn: '15m' })}`;
 }
 
 const baseUser = {
@@ -198,7 +198,30 @@ describe('POST /api/artists', () => {
     expect(res.status).toBe(403);
   });
 
-  it('400 — missing required fields', async () => {
+  it('201 — ADMIN creates artist with tenantId persisted on user and artist', async () => {
+    const userCreateMock   = jest.fn().mockResolvedValue({ id: 'u_new', email: 'newartist@example.com', name: 'New Artist', role: 'ARTIST', tenantId: 'tenant_A' });
+    const artistCreateMock = jest.fn().mockResolvedValue({ id: 'a_new', userId: 'u_new', slug: 'new-artist', tenantId: 'tenant_A' });
+
+    (prisma.user.findUnique   as jest.Mock).mockResolvedValue(null);
+    (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.$transaction as jest.Mock).mockImplementation((fn: Function) =>
+      fn({ user: { create: userCreateMock }, artist: { create: artistCreateMock }, artistService: { deleteMany: jest.fn(), createMany: jest.fn() } }),
+    );
+
+    const res = await request(app)
+      .post('/api/artists')
+      .set('Authorization', makeToken('ADMIN', 'u_admin', 'tenant_A'))
+      .send(validBody);
+
+    expect(res.status).toBe(201);
+    // Verify tenantId was passed to both create calls
+    const userCallData   = userCreateMock.mock.calls[0][0].data;
+    const artistCallData = artistCreateMock.mock.calls[0][0].data;
+    expect(userCallData.tenantId).toBe('tenant_A');
+    expect(artistCallData.tenantId).toBe('tenant_A');
+  });
+
+
     const res = await request(app)
       .post('/api/artists')
       .set('Authorization', makeToken('ADMIN'))

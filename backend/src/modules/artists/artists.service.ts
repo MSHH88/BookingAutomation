@@ -101,8 +101,9 @@ export async function getArtistById(id: string) {
 /**
  * Create a new artist.
  * Creates the User and Artist records in a single transaction.
+ * tenantId is taken from the calling ADMIN's tenant context.
  */
-export async function createArtist(input: CreateArtistBody) {
+export async function createArtist(input: CreateArtistBody, tenantId: string | null) {
   // Check for duplicate email
   const existingUser = await prisma.user.findUnique({
     where: { email: input.email.toLowerCase() },
@@ -129,6 +130,7 @@ export async function createArtist(input: CreateArtistBody) {
         phone: input.phone ?? null,
         passwordHash,
         role: 'ARTIST',
+        tenantId,
       },
     });
 
@@ -143,6 +145,7 @@ export async function createArtist(input: CreateArtistBody) {
         slotDuration: input.slotDuration ?? 90,
         commissionRate: input.commissionRate != null ? input.commissionRate : null,
         commissionType: input.commissionType ?? null,
+        tenantId,
       },
       select: artistDetailSelect,
     });

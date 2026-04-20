@@ -9,6 +9,7 @@ import * as artistsService from './artists.service';
 import { success, paginated } from '../../utils/apiResponse';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../errors/AppError';
+import { extractTenantId } from '../../utils/extractTenantId';
 import type {
   CreateArtistBody,
   UpdateArtistBody,
@@ -75,7 +76,8 @@ export async function createArtist(
 ): Promise<void> {
   try {
     const body = req.body as CreateArtistBody;
-    const artist = await artistsService.createArtist(body);
+    const tenantId = extractTenantId(req);
+    const artist = await artistsService.createArtist(body, tenantId);
     res.status(201).json(success(artist));
   } catch (err) {
     next(err);
