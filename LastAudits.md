@@ -1097,3 +1097,341 @@ await artistsService.deleteArtist(id);  // ❌ no tenantId at all
 | **BUG 17** | **High** | **Security/Tenant** | **Artists `updateArtist`/`deleteArtist`/`assignStyles` have no tenant guard for ADMIN callers** | **NEW** |
 
 **Post-fix status (Round 3): 13/13 original bugs fixed. 4 new findings (3 High, 1 Medium). Three of the new bugs (14, 16, 17) follow the same cross-tenant pattern as the previously fixed BUG 9.**
+
+---
+
+# Comprehensive Backend Audit — Round 4 (Follow-Up Pass)
+
+- **Audit Date:** 2026-04-20
+- **Branch:** `copilot/create-detailed-automation-plan`
+- **Commit:** `d4ad249`
+- **Statement:** Full-system follow-up audit pass 4. BUG 14–17 status reviewed. Five new findings documented below (BUG 18–22). All previously identified bugs remain unfixed on the current HEAD — no regressions introduced.
+
+---
+
+### BUG 14–17 — Status: Still Open (Unfixed on HEAD)
+
+Verified against current codebase (`d4ad249`):
+- **BUG 14**: `availability.service.ts:104–116` — `resolveTargetArtistId` still returns `supplied` for ADMIN without tenant check. ❌ **Not yet fixed.**
+- **BUG 15**: `public.service.ts:339` — `isFeatureEnabled('DEPOSIT_REQUIRED')` still called without `tenant.id`. ❌ **Not yet fixed.**
+- **BUG 16**: `artists.service.ts:105` — `createArtist` still omits `tenantId` from both `User` and `Artist` records. ❌ **Not yet fixed.**
+- **BUG 17**: `artists.service.ts:158–260` — `updateArtist`/`deleteArtist`/`assignStyles` still lack tenant guard for ADMIN. ❌ **Not yet fixed.**
+
+---
+
+### BUG 18 — `createPublicBooking` Checks `DYNAMIC_PRICING_ENABLED` Without Tenant Context
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/public/public.service.ts:250` (`getAvailableSlots`)
+
+**Issue:**
+`getAvailableSlots(slug, query)` resolves the tenant from the slug (`tenant = await resolveTenant(slug)`) and then checks `isFeatureEnabled('DYNAMIC_PRICING_ENABLED')` **without passing `tenant.id`**:
+
+```ts
+// Line ~123: tenant resolved ✅
+const tenant = await resolveTenant(slug);
+
+// ...slot generation...
+
+// Line 250: ❌ tenantId not passed — uses global default only
+const dynamicPricingEnabled = await isFeatureEnabled('DYNAMIC_PRICING_ENABLED');
+if (dynamicPricingEnabled) {
+  const pricedSlots = await Promise.all(
+    available.map(async (slot) => {
+      const priceResult = await calculatePrice(tenant.id, query.serviceId, new Date(slot.startAt));
+      ...
+    }),
+  );
+}
+```
+
+Note: `tenant.id` **is** correctly passed to `calculatePrice(tenant.id, ...)` inside the block, but the gate itself (`isFeatureEnabled('DYNAMIC_PRICING_ENABLED')`) ignores it. This is an inconsistency: a tenant can enable dynamic pricing per-tenant but their public slot listing will never show dynamic prices because the global flag check (without tenantId) falls back to the global default, which may be OFF.
+
+**Impact:**
+- Tenants that enable `DYNAMIC_PRICING_ENABLED` via per-tenant override (Control Centre) will not see dynamic prices annotated on public availability slots, because the flag check bypasses their per-tenant row and reads the global default.
+- Tenants that disable `DYNAMIC_PRICING_ENABLED` per-tenant may still have dynamic pricing applied if the global default is ON.
+- This is the same class of bug as BUG 15 (`DEPOSIT_REQUIRED`) and the wider pattern identified in BUGs 18–21 in this audit pass.
+
+**Evidence:**
+- `public.service.ts:250`: `await isFeatureEnabled('DYNAMIC_PRICING_ENABLED')` — no `tenant.id` argument.
+- `public.service.ts:339`: `await isFeatureEnabled('DEPOSIT_REQUIRED')` — same missing argument (BUG 15, documented separately).
+- `public.service.ts:253`: `calculatePrice(tenant.id, ...)` — `tenant.id` correctly used here, making the omission at line 250 inconsistent.
+- Compare `payments.service.ts:158`: `isFeatureEnabled('TIPS_ENABLED', tenantId)` — tenantId passed correctly ✅.
+
+**Recommended Fix:**
+Change line 250 to:
+```ts
+const dynamicPricingEnabled = await isFeatureEnabled('DYNAMIC_PRICING_ENABLED', tenant.id);
+```
+
+---
+
+### BUG 19 — `confirmBooking` and `completeBooking` Check `PACKAGES_ENABLED` / `LOYALTY_ENABLED` Without Tenant Context
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/bookings/bookings.service.ts:393` (`confirmBooking` — `PACKAGES_ENABLED` check)
+- `backend/src/modules/bookings/bookings.service.ts:586` (`completeBooking` — `LOYALTY_ENABLED` check)
+
+**Issue:**
+Two critical post-booking side-effects — package deduction on confirmation and loyalty point awards on completion — both call `isFeatureEnabled` without passing the booking's `tenantId`:
+
+**In `confirmBooking` (line 393):**
+```ts
+void isFeatureEnabled('PACKAGES_ENABLED').then((enabled) => {  // ❌ no tenantId
+  if (enabled && booking.tenantId) {
+    const serviceId = booking.serviceId ?? updated.services[0]?.service?.id ?? null;
+    if (serviceId) {
+      void deductPackageUse(updated.customer!.id, booking.tenantId, serviceId)...
+    }
+  }
+});
+```
+
+**In `completeBooking` (line 586):**
+```ts
+void isFeatureEnabled('LOYALTY_ENABLED').then((enabled) => {  // ❌ no tenantId
+  if (enabled && booking.tenantId) {
+    const points = calculatePointsForBooking(invoiceAmount);
+    void awardPoints({
+      customerId: updated.customer!.id,
+      tenantId:   booking.tenantId,
+      ...
+    })...
+  }
+});
+```
+
+In both cases, `booking.tenantId` is available in the outer closure (used in the subsequent tenant check `if (enabled && booking.tenantId)`), but it is not passed to `isFeatureEnabled`. The checks therefore use the global default flag value rather than the per-tenant override.
+
+**Impact:**
+- **Package deduction:** A tenant that disables `PACKAGES_ENABLED` per-tenant (e.g. a tattoo studio that does not use packages) may still trigger package deduction logic if the global flag is ON. Conversely, a tenant that enables `PACKAGES_ENABLED` per-tenant may never have package balances deducted if the global flag is OFF.
+- **Loyalty points:** Same problem for `LOYALTY_ENABLED`. A tenant that disables loyalty (e.g. a restaurant) may still award points globally, or a tenant that enables loyalty may never award points because the global flag is OFF.
+- Both side-effects are fire-and-forget, so the bug is silent — failures never surface as errors but the business logic is incorrect.
+
+**Evidence:**
+- `bookings.service.ts:393`: `isFeatureEnabled('PACKAGES_ENABLED')` — no `tenantId` argument.
+- `bookings.service.ts:394`: `if (enabled && booking.tenantId)` — `booking.tenantId` is in scope but not passed to the flag check.
+- `bookings.service.ts:586`: `isFeatureEnabled('LOYALTY_ENABLED')` — no `tenantId` argument.
+- `bookings.service.ts:587`: `if (enabled && booking.tenantId)` — `booking.tenantId` is in scope but not passed.
+- Compare `bookings.service.ts:698`: `isFeatureEnabled('WAITING_LIST_ENABLED', tid)` — `tid` (the tenantId) **is** passed correctly ✅.
+- Compare `birthday.job.ts:622`: `isFeatureEnabled('BIRTHDAY_AUTOMATION_ENABLED', customer.tenantId)` — tenantId passed correctly ✅.
+
+**Recommended Fix:**
+1. `bookings.service.ts:393`: change to `isFeatureEnabled('PACKAGES_ENABLED', booking.tenantId ?? undefined)`.
+2. `bookings.service.ts:586`: change to `isFeatureEnabled('LOYALTY_ENABLED', booking.tenantId ?? undefined)`.
+
+---
+
+### BUG 20 — Google, Outlook, and Apple Calendar Sync Functions Check Feature Flags Without Tenant Context
+
+**Severity:** Low
+
+**Files:**
+- `backend/src/modules/calendar/calendar.service.ts:293` (`syncCreateEvent`)
+- `backend/src/modules/calendar/calendar.service.ts:395` (`syncUpdateEvent`)
+- `backend/src/modules/calendar/calendar.service.ts:505` (`syncDeleteEvent`)
+- `backend/src/modules/calendar/outlook-calendar.service.ts:203` (`syncOutlookCreateEvent`)
+- `backend/src/modules/calendar/outlook-calendar.service.ts:272` (`syncOutlookUpdateEvent`)
+- `backend/src/modules/calendar/outlook-calendar.service.ts:338` (`syncOutlookDeleteEvent`)
+- `backend/src/modules/calendar/apple-calendar.service.ts:174` (`syncAppleCreateEvent`)
+- `backend/src/modules/calendar/apple-calendar.service.ts:238` (`syncAppleUpdateEvent`)
+- `backend/src/modules/calendar/apple-calendar.service.ts:302` (`syncAppleDeleteEvent`)
+
+**Issue:**
+All nine calendar sync functions follow the same pattern: they check their feature flag at the **top** of the function — before fetching the booking from the database — which means no `tenantId` is available at the time of the flag check:
+
+```ts
+// calendar.service.ts — syncCreateEvent (same pattern in all 9 functions)
+export async function syncCreateEvent(bookingId: string): Promise<void> {
+  // ❌ flag checked before booking is fetched — no tenantId available
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  if (!calendarEnabled) return;
+
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { id: true, startAt: true, ..., artist: { ... } },
+    });
+    // booking.tenantId available HERE — but flag already checked above
+```
+
+This is structurally identical to **BUG 13** (AI suggestion job), which was fixed by moving the booking fetch before the flag check so `booking.tenantId` could be used. However, the three calendar service files were not updated with the same fix.
+
+**Impact:**
+- If a tenant enables `CALENDAR_ENABLED` (or `OUTLOOK_CALENDAR_ENABLED` / `APPLE_CALENDAR_ENABLED`) via a per-tenant override while the **global** default is OFF, calendar events are never synced for that tenant's bookings.
+- If a tenant disables the flag per-tenant while the global default is ON, calendar events continue to be created/updated/deleted for that tenant's bookings anyway — no way to opt out.
+- All calendar integrations (Google, Outlook, Apple) are affected uniformly.
+
+**Evidence:**
+- `calendar.service.ts:293`: `await isFeatureEnabled('CALENDAR_ENABLED')` — no tenantId.
+- `calendar.service.ts:395`: `await isFeatureEnabled('CALENDAR_ENABLED')` — no tenantId.
+- `calendar.service.ts:505`: `await isFeatureEnabled('CALENDAR_ENABLED')` — no tenantId.
+- `outlook-calendar.service.ts:203`: `await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')` — no tenantId.
+- `outlook-calendar.service.ts:272`: `await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')` — no tenantId.
+- `outlook-calendar.service.ts:338`: `await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')` — no tenantId.
+- `apple-calendar.service.ts:174`: `await isFeatureEnabled('APPLE_CALENDAR_ENABLED')` — no tenantId.
+- `apple-calendar.service.ts:238`: `await isFeatureEnabled('APPLE_CALENDAR_ENABLED')` — no tenantId.
+- `apple-calendar.service.ts:302`: `await isFeatureEnabled('APPLE_CALENDAR_ENABLED')` — no tenantId.
+- Compare fix in **BUG 13** (`ai-suggestion.job.ts`): booking is now fetched first, then `booking.tenantId` is used in the flag check.
+
+**Recommended Fix:**
+For all nine functions, move the booking fetch to before the feature flag check, then pass `booking.tenantId` to `isFeatureEnabled`:
+```ts
+export async function syncCreateEvent(bookingId: string): Promise<void> {
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: { id: true, tenantId: true, ... },
+  });
+  if (!booking) return;
+
+  // Now tenantId is known — per-tenant flag check ✅
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED', booking.tenantId);
+  if (!calendarEnabled) return;
+  ...
+}
+```
+
+---
+
+### BUG 21 — WhatsApp `canSend` Guard and `WHATSAPP_CONTACT_ENABLED` Flag Check in `leads.service.ts` Ignore Tenant Context
+
+**Severity:** Low
+
+**Files:**
+- `backend/src/modules/whatsapp/whatsapp.service.ts:103` (`canSend` internal guard)
+- `backend/src/modules/leads/leads.service.ts:313` (`createLead` side-effect)
+
+**Issue:**
+Two places check `WHATSAPP_CONTACT_ENABLED` without `tenantId`:
+
+**1. `whatsapp.service.ts:103` — `canSend()` never receives `tenantId`:**
+```ts
+async function canSend(preferWhatsApp: boolean, phone: string | null): Promise<boolean> {
+  if (!preferWhatsApp) return false;
+  if (!phone)          return false;
+  return isFeatureEnabled('WHATSAPP_CONTACT_ENABLED');  // ❌ no tenantId
+}
+```
+`canSend` is called by all four WhatsApp enqueue functions (`enqueueLeadInquiry`, `enqueueBookingConfirmed`, `enqueuePostVisitReview`, `enqueueRestaurantReminder`). None of these functions' `Params` interfaces include a `tenantId` field, so the flag check is always global-only.
+
+**2. `leads.service.ts:313` — `resolvedTenantId` is in scope but not passed:**
+```ts
+// Line 230: resolvedTenantId computed ✅
+let resolvedTenantId = tenantId ?? null;
+// ...
+
+setImmediate(() => {
+  // Line 313: ❌ resolvedTenantId is in scope (closure) but not passed
+  void isFeatureEnabled('WHATSAPP_CONTACT_ENABLED').then((enabled) => {
+    if (enabled) {
+      void enqueueLeadInquiry({ ... }).catch(...);
+    }
+  });
+});
+```
+
+Note: even if `leads.service.ts:313` is fixed to pass `resolvedTenantId` to `isFeatureEnabled`, the underlying `canSend` in `whatsapp.service.ts` would still run another global-only check unless `tenantId` is also threaded through the `Params` interfaces.
+
+**Impact:**
+- Tenants that disable `WHATSAPP_CONTACT_ENABLED` per-tenant will still have WhatsApp messages enqueued for their bookings/leads if the global default is ON.
+- Tenants that enable `WHATSAPP_CONTACT_ENABLED` per-tenant will never send WhatsApp messages if the global default is OFF.
+- This affects all four outbound WhatsApp message types: lead inquiry, booking confirmed + reminder, post-visit review, and restaurant reminder.
+
+**Evidence:**
+- `whatsapp.service.ts:103`: `return isFeatureEnabled('WHATSAPP_CONTACT_ENABLED')` — no tenantId.
+- `leads.service.ts:313`: `void isFeatureEnabled('WHATSAPP_CONTACT_ENABLED').then(...)` — `resolvedTenantId` captured in closure but not passed.
+- `whatsapp.service.ts:47–87`: All `Params` interfaces (`LeadInquiryParams`, `BookingConfirmedParams`, `PostVisitReviewParams`, `RestaurantReminderParams`) — none include `tenantId`.
+- Compare `notification-dispatcher.ts:61`: `isFeatureEnabled('WHATSAPP_CONTACT_ENABLED', tenantId)` — tenantId **is** passed in the dispatcher ✅ (but WhatsApp service functions bypass this path).
+
+**Recommended Fix:**
+1. Add optional `tenantId?: string | null` to all four `Params` interfaces.
+2. Update `canSend()` signature to accept `tenantId?: string | null` and pass it to `isFeatureEnabled`.
+3. In `leads.service.ts:313`: pass `resolvedTenantId` to `isFeatureEnabled` and thread it through to `enqueueLeadInquiry`.
+
+---
+
+### BUG 22 — POS Checkout Does Not Validate That the Supplied Artist Belongs to the Operator's Tenant
+
+**Severity:** Medium
+
+**Files:**
+- `backend/src/modules/pos/pos.service.ts:75–81` (`checkout`)
+
+**Issue:**
+In `checkout(tenantId, operatorId, data)`, the artist validation fetches the artist by ID with only `{ id: true }` in the `select` clause — no `tenantId` is included, and no tenant comparison is performed:
+
+```ts
+// pos.service.ts:75–81
+const artist = await prisma.artist.findUnique({
+  where:  { id: data.artistId },
+  select: { id: true },   // ❌ no tenantId in select — cannot validate ownership
+});
+
+if (!artist) {
+  throw new AppError(404, 'ARTIST_NOT_FOUND', 'Artist not found');
+}
+
+// ❌ No tenant check: artist.tenantId is never compared to tenantId
+const booking = await prisma.booking.create({
+  data: {
+    tenantId,         // the POS operator's tenant
+    artistId: data.artistId,  // could be an artist from a DIFFERENT tenant
+    ...
+  },
+});
+```
+
+A POS operator from Tenant A can supply any artist's UUID from Tenant B (or any other tenant) and successfully create a POS booking with the cross-tenant artist. The resulting booking row has `tenantId = 'tenant-A'` but `artistId` pointing to an artist who belongs to Tenant B — creating a data integrity inconsistency.
+
+Compare: `rota.service.ts:createShift()` correctly checks `artist.tenantId !== tenantId` before creating a shift. `sessions.service.ts:createSession()` validates `artist.tenantId !== tenantId`. `payroll.service.ts:calculateForArtist()` throws `403` when `artist.tenantId !== tenantId`. POS checkout is the only booking-creation path that omits this validation.
+
+**Impact:**
+- Cross-tenant artist assignment: POS bookings can reference artists from other tenants, polluting booking records and artist-level analytics with wrong-tenant data.
+- Revenue attribution: `payroll.service.ts` calculates commissions by filtering `bookings.artistId` within the tenant. A cross-tenant POS booking would be invisible to the artist's correct tenant payroll but could appear as a commission discrepancy.
+- Analytics distortion: `getArtistsAnalytics` and `getBookingsAnalytics` aggregate by `tenantId` on the booking, not on the artist. If the booking's `tenantId` is correct but `artistId` is cross-tenant, the booking counts against the operator's tenant but the artist profile never shows the commission.
+
+**Evidence:**
+- `pos.service.ts:76`: `prisma.artist.findUnique({ where: { id: data.artistId }, select: { id: true } })` — `tenantId` not fetched.
+- `pos.service.ts:81`: only `if (!artist)` check — no `artist.tenantId !== tenantId` guard.
+- Compare `rota.service.ts:createShift()`: `if (artist.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', ...)` ✅.
+- Compare `sessions.service.ts:createSession()`: `if (artist.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', ...)` ✅.
+- Compare `payroll.service.ts:calculateForArtist()`: `if (artist.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', ...)` ✅.
+
+**Recommended Fix:**
+1. Add `tenantId: true` to the `select` clause in the artist fetch.
+2. After the `!artist` check, add: `if (tenantId !== null && artist.tenantId !== tenantId) throw new AppError(403, 'FORBIDDEN', 'Artist does not belong to this tenant');`.
+
+---
+
+### Updated Final Summary (Round 4)
+
+| Bug | Severity | Category | One-Line Summary | Status |
+|-----|----------|----------|------------------|--------|
+| BUG 1 | Low | Testing | 2 tests missing vs baseline (1754 vs 1756) | ✅ **FIXED** (now 1821/1821) |
+| BUG 2 | Medium | Feature Flags | SMS_ENABLED flag defined but never enforced at runtime | ✅ **FIXED** |
+| BUG 3 | Medium | CRM/Notifications | WhatsApp processor uses hardcoded messages, ignores editable templates | ✅ **FIXED** |
+| BUG 4 | High | Security/Tenant | Booking single-record endpoints lack tenant isolation for ADMIN users | ✅ **FIXED** |
+| BUG 5 | Low | Automations | Invoice overdue job has global-only flag check, no per-tenant support | ✅ **FIXED** |
+| BUG 6 | High | Security/Tenant | Waitlist admin endpoints have zero tenant isolation | ✅ **FIXED** |
+| BUG 7 | High | Security/Tenant | Invoice single-record endpoints missing tenant isolation | ✅ **FIXED** |
+| BUG 8 | High | Security/Tenant | Quote updateQuote and sendQuote missing tenant isolation | ✅ **FIXED** |
+| BUG 9 | Medium | Security/Tenant | Calendar endpoints allow ADMIN cross-tenant artist access | ✅ **FIXED** |
+| BUG 10 | Medium | Security/Tenant | sendTestEmail bypasses tenant isolation on template lookup | ✅ **FIXED** |
+| BUG 11 | Medium | Data Integrity | joinWaitlist never populates tenantId, breaking smart-match flow | ✅ **FIXED** |
+| BUG 12 | Medium | CRM/Tenant | EmailTemplate `key @unique` prevents per-tenant overrides; `sendEmail()` not tenant-scoped | ✅ **FIXED** |
+| BUG 13 | Low | Feature Flags | AI suggestion job global-only flag check ignores per-tenant overrides | ✅ **FIXED** |
+| BUG 14 | High | Security/Tenant | Availability ADMIN can read/modify any tenant's artist schedule/blocks (no tenant guard) | **OPEN** |
+| BUG 15 | Medium | Feature Flags | `createPublicBooking` checks DEPOSIT_REQUIRED without tenant.id — per-tenant override ignored | **OPEN** |
+| BUG 16 | High | Data Integrity | `createArtist` omits `tenantId` on both User and Artist records — all new artists orphaned | **OPEN** |
+| BUG 17 | High | Security/Tenant | Artists `updateArtist`/`deleteArtist`/`assignStyles` have no tenant guard for ADMIN callers | **OPEN** |
+| **BUG 18** | **Medium** | **Feature Flags** | **`getAvailableSlots` checks DYNAMIC_PRICING_ENABLED without tenant.id** | **NEW** |
+| **BUG 19** | **Medium** | **Feature Flags** | **`confirmBooking`/`completeBooking` check PACKAGES_ENABLED/LOYALTY_ENABLED without tenantId** | **NEW** |
+| **BUG 20** | **Low** | **Feature Flags** | **All 9 calendar sync functions check feature flags before fetching booking — no tenantId** | **NEW** |
+| **BUG 21** | **Low** | **Feature Flags** | **WhatsApp `canSend()` and leads WhatsApp side-effect check WHATSAPP_CONTACT_ENABLED globally** | **NEW** |
+| **BUG 22** | **Medium** | **Security/Tenant** | **POS checkout does not validate artist belongs to operator's tenant** | **NEW** |
+
+**Post-fix status (Round 4): 13/17 original bugs fixed; 4 still open (BUG 14–17). 5 new findings (2 Medium, 2 Low, 1 Medium): all are feature-flag tenant-context omissions or a tenant isolation gap in POS checkout. No new High-severity findings.**
