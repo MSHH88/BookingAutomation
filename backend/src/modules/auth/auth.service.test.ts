@@ -231,6 +231,45 @@ describe('refresh', () => {
       code: 'INVALID_TOKEN',
     });
   });
+
+  // ── BUG 25: refresh must NOT load passwordHash into memory ────────────────
+  it('queries the user with a narrow select that excludes passwordHash (BUG 25)', async () => {
+    // Simulate Prisma honouring the select: returned user has no passwordHash
+    const safeStored = {
+      ...storedToken,
+      user: {
+        id:             baseUser.id,
+        email:          baseUser.email,
+        name:           baseUser.name,
+        phone:          baseUser.phone,
+        role:           baseUser.role,
+        tenantId:       null,
+        canViewLeads:   false,
+        canAssignRoles: false,
+        isActive:       baseUser.isActive,
+        createdAt:      baseUser.createdAt,
+        updatedAt:      baseUser.updatedAt,
+      },
+    };
+    mockFindUnique.mockResolvedValueOnce(safeStored);
+    mockUpdate.mockResolvedValueOnce({});
+    mockCreate.mockResolvedValueOnce({ id: 'rt_2', token: 'new_refresh_hex', expiresAt: new Date() });
+
+    const result = await authService.refresh('valid_refresh_token');
+
+    // Refresh still succeeds without passwordHash being available
+    expect(result.user).not.toHaveProperty('passwordHash');
+    expect(result.user.email).toBe(baseUser.email);
+
+    // Prisma was called with a select shape (not include: { user: true })
+    const call = mockFindUnique.mock.calls[0]?.[0] as {
+      include?: { user?: { select?: Record<string, true> } };
+    };
+    expect(call?.include?.user?.select).toBeDefined();
+    expect(call?.include?.user?.select?.['passwordHash']).toBeUndefined();
+    expect(call?.include?.user?.select?.['id']).toBe(true);
+    expect(call?.include?.user?.select?.['email']).toBe(true);
+  });
 });
 
 // ─── forgotPassword ───────────────────────────────────────────────────────────

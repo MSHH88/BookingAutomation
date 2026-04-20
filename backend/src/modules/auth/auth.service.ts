@@ -235,11 +235,32 @@ export async function login(input: LoginBody): Promise<AuthTokens> {
 /**
  * Exchanges a valid refresh token for a new access + refresh token pair.
  * The old refresh token is immediately revoked (rotation).
+ *
+ * BUG 25: use a narrow `select` instead of `include: { user: true }` so the
+ * user's `passwordHash` (and any other future sensitive fields) are never
+ * loaded into memory during the refresh flow. Only the columns required to
+ * build new tokens / a SafeUser response are fetched.
  */
 export async function refresh(rawToken: string): Promise<AuthTokens> {
   const stored = await prisma.refreshToken.findUnique({
     where: { token: rawToken },
-    include: { user: true },
+    include: {
+      user: {
+        select: {
+          id:             true,
+          email:          true,
+          name:           true,
+          phone:          true,
+          role:           true,
+          tenantId:       true,
+          canViewLeads:   true,
+          canAssignRoles: true,
+          isActive:       true,
+          createdAt:      true,
+          updatedAt:      true,
+        },
+      },
+    },
   });
 
   if (!stored || stored.revokedAt !== null || stored.expiresAt < new Date()) {
