@@ -114,11 +114,14 @@ jest.mock('../../lib/prisma', () => ({
 }));
 
 // ─── Mock Redis (needed by bumpRbacVersion called from updateUser) ────────────
+const mockRedisIncr  = jest.fn().mockResolvedValue(1);
+const mockRedisGet   = jest.fn().mockResolvedValue(null);
+const mockRedisSetex = jest.fn().mockResolvedValue('OK');
 jest.mock('../../lib/redis', () => ({
   getRedis: () => ({
-    get:   jest.fn().mockResolvedValue(null),
-    setex: jest.fn().mockResolvedValue('OK'),
-    incr:  jest.fn().mockResolvedValue(1),
+    get:   (...a: unknown[]) => mockRedisGet(...a),
+    setex: (...a: unknown[]) => mockRedisSetex(...a),
+    incr:  (...a: unknown[]) => mockRedisIncr(...a),
   }),
 }));
 
@@ -581,6 +584,37 @@ describe('updateUser', () => {
 
     expect(result.name).toBe('New Name');
     expect(mockUserUpdate).toHaveBeenCalled();
+  });
+
+  // ── BUG 23: deactivating a user must invalidate active JWTs (rbac bump) ────
+  it('bumps rbacVersion when isActive changes (BUG 23)', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser());
+    mockUserUpdate.mockResolvedValue(stubUser({ isActive: false }));
+    mockRedisIncr.mockClear();
+
+    await service.updateUser('user-1', { isActive: false }, null);
+
+    expect(mockRedisIncr).toHaveBeenCalledWith('rbacVersion:user-1');
+  });
+
+  it('still bumps rbacVersion when role changes (regression)', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser());
+    mockUserUpdate.mockResolvedValue(stubUser({ role: 'ARTIST' }));
+    mockRedisIncr.mockClear();
+
+    await service.updateUser('user-1', { role: 'ARTIST' }, null, 'SUPER_ADMIN');
+
+    expect(mockRedisIncr).toHaveBeenCalledWith('rbacVersion:user-1');
+  });
+
+  it('does NOT bump rbacVersion for name-only updates', async () => {
+    mockUserFindUnique.mockResolvedValue(stubUser());
+    mockUserUpdate.mockResolvedValue(stubUser({ name: 'Bob' }));
+    mockRedisIncr.mockClear();
+
+    await service.updateUser('user-1', { name: 'Bob' }, null);
+
+    expect(mockRedisIncr).not.toHaveBeenCalled();
   });
 });
 

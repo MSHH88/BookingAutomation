@@ -323,8 +323,10 @@ export async function updateUser(
     select: userListSelect,
   });
 
-  // Invalidate outstanding access tokens when RBAC-relevant fields changed
-  if (body.role !== undefined) {
+  // Invalidate outstanding access tokens when RBAC-relevant fields changed.
+  // BUG 23: also bump on isActive changes so deactivated users cannot continue
+  // using their existing access tokens until the 15-minute expiry.
+  if (body.role !== undefined || body.isActive !== undefined) {
     await bumpRbacVersion(id);
   }
 
