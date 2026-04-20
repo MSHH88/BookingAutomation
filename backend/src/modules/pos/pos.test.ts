@@ -103,7 +103,7 @@ describe('/api/pos', () => {
 
   describe('POST /api/pos/checkout', () => {
     it('201 — creates booking and payment (ADMIN)', async () => {
-      (prisma.artist.findUnique as jest.Mock).mockResolvedValue({ id: 'artist-1' });
+      (prisma.artist.findUnique as jest.Mock).mockResolvedValue({ id: 'artist-1', tenantId: 'tenant-1' });
       (prisma.booking.create as jest.Mock).mockResolvedValue({
         id:          'book-1',
         tenantId:    'tenant-1',

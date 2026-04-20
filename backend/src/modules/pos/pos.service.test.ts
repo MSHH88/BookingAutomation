@@ -128,7 +128,7 @@ const BASE_CHECKOUT: Parameters<typeof checkout>[2] = {
 describe('pos.service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockArtistFindUnique.mockResolvedValue({ id: 'artist-1' });
+    mockArtistFindUnique.mockResolvedValue({ id: 'artist-1', tenantId: 'tenant-1' });
     mockBookingCreate.mockResolvedValue(makeBooking());
     mockPaymentCreate.mockResolvedValue(makePayment());
   });
@@ -328,6 +328,33 @@ describe('pos.service', () => {
       expect(result.totalRevenue).toBe(0);
       expect(result.totalTips).toBe(0);
       expect(result.transactionCount).toBe(0);
+    });
+  });
+
+  // ── BUG 22 — artist tenant validation ─────────────────────────────────────
+
+  describe('BUG 22 — checkout artist tenant validation', () => {
+    it('throws 403 when artist belongs to a different tenant', async () => {
+      mockArtistFindUnique.mockResolvedValue({ id: 'artist-1', tenantId: 'tenant-B' });
+
+      await expect(checkout('tenant-A', 'op-1', BASE_CHECKOUT)).rejects.toMatchObject({
+        statusCode: 403,
+        code: 'FORBIDDEN',
+      });
+    });
+
+    it('allows checkout when artist belongs to the same tenant', async () => {
+      mockArtistFindUnique.mockResolvedValue({ id: 'artist-1', tenantId: 'tenant-1' });
+
+      const result = await checkout('tenant-1', 'op-1', BASE_CHECKOUT);
+      expect(result.booking.id).toBe('book-1');
+    });
+
+    it('allows checkout when tenantId is null (SUPER_ADMIN context)', async () => {
+      mockArtistFindUnique.mockResolvedValue({ id: 'artist-1', tenantId: 'any-tenant' });
+
+      const result = await checkout(null, 'op-1', BASE_CHECKOUT);
+      expect(result.booking.id).toBe('book-1');
     });
   });
 });

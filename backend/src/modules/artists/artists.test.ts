@@ -204,7 +204,7 @@ describe('POST /api/artists', () => {
 
     (prisma.user.findUnique   as jest.Mock).mockResolvedValue(null);
     (prisma.artist.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.$transaction as jest.Mock).mockImplementation((fn: Function) =>
+    (prisma.$transaction as jest.Mock).mockImplementationOnce((fn: Function) =>
       fn({ user: { create: userCreateMock }, artist: { create: artistCreateMock }, artistService: { deleteMany: jest.fn(), createMany: jest.fn() } }),
     );
 
@@ -220,8 +220,7 @@ describe('POST /api/artists', () => {
     expect(userCallData.tenantId).toBe('tenant_A');
     expect(artistCallData.tenantId).toBe('tenant_A');
   });
-
-
+  it('400 — validation error when required fields are missing', async () => {
     const res = await request(app)
       .post('/api/artists')
       .set('Authorization', makeToken('ADMIN'))

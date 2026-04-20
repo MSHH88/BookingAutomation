@@ -75,11 +75,15 @@ export async function checkout(tenantId: string | null, operatorId: string, data
   // 2. Validate artist exists (required field on Booking)
   const artist = await prisma.artist.findUnique({
     where:  { id: data.artistId },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
 
   if (!artist) {
     throw new AppError(404, 'ARTIST_NOT_FOUND', 'Artist not found');
+  }
+
+  if (tenantId !== null && artist.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Artist does not belong to this tenant');
   }
 
   // 3. Create a COMPLETED Booking for the walk-in
