@@ -100,6 +100,7 @@ const baseArtist = {
 
 const baseBooking = {
   id:             bookingId,
+  tenantId:       'tenant_1',
   startAt:        new Date('2025-06-01T10:00:00Z'),
   endAt:          new Date('2025-06-01T11:30:00Z'),
   notes:          'Test notes',
@@ -250,8 +251,9 @@ describe('syncAppleCreateEvent', () => {
 
   it('skips when flag is off', async () => {
     mockFlags({ APPLE_CALENDAR_ENABLED: false });
+    mockBookingFindUnique.mockResolvedValueOnce(baseBooking);
     await svc.syncAppleCreateEvent(bookingId);
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
+    expect(mockCreateAppleEvent).not.toHaveBeenCalled();
   });
 
   it('skips when booking not found', async () => {
@@ -296,8 +298,9 @@ describe('syncAppleUpdateEvent', () => {
 
   it('skips when flag is off', async () => {
     mockFlags({ APPLE_CALENDAR_ENABLED: false });
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, calendarEventId: null });
     await svc.syncAppleUpdateEvent(bookingId);
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
+    expect(mockUpdateAppleEvent).not.toHaveBeenCalled();
   });
 
   it('creates new event when no apple: prefix', async () => {
@@ -337,8 +340,9 @@ describe('syncAppleDeleteEvent', () => {
 
   it('skips when flag is off', async () => {
     mockFlags({ APPLE_CALENDAR_ENABLED: false });
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, calendarEventId: 'apple:evt' });
     await svc.syncAppleDeleteEvent(bookingId);
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
+    expect(mockDeleteAppleEvent).not.toHaveBeenCalled();
   });
 
   it('skips when calendarEventId has no apple: prefix', async () => {
@@ -348,5 +352,24 @@ describe('syncAppleDeleteEvent', () => {
     });
     await svc.syncAppleDeleteEvent(bookingId);
     expect(mockDeleteAppleEvent).not.toHaveBeenCalled();
+  });
+});
+
+// ── BUG 20 — tenant-scoped APPLE_CALENDAR_ENABLED ────────────────────────────
+
+describe('BUG 20 — tenant-scoped APPLE_CALENDAR_ENABLED', () => {
+  it('syncAppleCreateEvent: passes booking.tenantId to isFeatureEnabled', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, tenantId: 'tenant_A' });
+    mockCreateAppleEvent.mockResolvedValue(undefined);
+    mockBookingUpdate.mockResolvedValue({});
+    await svc.syncAppleCreateEvent(bookingId);
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('APPLE_CALENDAR_ENABLED', 'tenant_A');
+  });
+
+  it('syncAppleCreateEvent: tenant override OFF + global ON → skips', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, tenantId: 'tenant_A' });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
+    await svc.syncAppleCreateEvent(bookingId);
+    expect(mockCreateAppleEvent).not.toHaveBeenCalled();
   });
 });

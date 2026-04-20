@@ -171,35 +171,36 @@ function parseCreds(token: string, calendarUrl: string | null): AppleCredentials
 // ─── syncAppleCreateEvent ─────────────────────────────────────────────────────
 
 export async function syncAppleCreateEvent(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED')) return;
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:      true,
+      tenantId: true,
+      startAt: true,
+      endAt:   true,
+      notes:   true,
+      artist: {
+        select: {
+          id:               true,
+          appleCalDAVToken: true,
+          appleCalDAVUrl:   true,
+          user: { select: { name: true } },
+        },
+      },
+      customer: { select: { name: true, email: true } },
+      lead:     { select: { name: true, email: true } },
+      services: { select: { service: { select: { name: true } } }, take: 1 },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncAppleCreateEvent: booking not found', { bookingId });
+    return;
+  }
+
+  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED', booking.tenantId ?? undefined)) return;
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:      true,
-        startAt: true,
-        endAt:   true,
-        notes:   true,
-        artist: {
-          select: {
-            id:               true,
-            appleCalDAVToken: true,
-            appleCalDAVUrl:   true,
-            user: { select: { name: true } },
-          },
-        },
-        customer: { select: { name: true, email: true } },
-        lead:     { select: { name: true, email: true } },
-        services: { select: { service: { select: { name: true } } }, take: 1 },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncAppleCreateEvent: booking not found', { bookingId });
-      return;
-    }
-
     const { artist } = booking;
     if (!artist.appleCalDAVToken) {
       logger.debug('syncAppleCreateEvent: artist has no Apple credentials', { bookingId, artistId: artist.id });
@@ -235,36 +236,37 @@ export async function syncAppleCreateEvent(bookingId: string): Promise<void> {
 // ─── syncAppleUpdateEvent ─────────────────────────────────────────────────────
 
 export async function syncAppleUpdateEvent(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED')) return;
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:              true,
+      tenantId:        true,
+      startAt:         true,
+      endAt:           true,
+      notes:           true,
+      calendarEventId: true,
+      artist: {
+        select: {
+          id:               true,
+          appleCalDAVToken: true,
+          appleCalDAVUrl:   true,
+          user: { select: { name: true } },
+        },
+      },
+      customer: { select: { name: true, email: true } },
+      lead:     { select: { name: true, email: true } },
+      services: { select: { service: { select: { name: true } } }, take: 1 },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncAppleUpdateEvent: booking not found', { bookingId });
+    return;
+  }
+
+  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED', booking.tenantId ?? undefined)) return;
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:              true,
-        startAt:         true,
-        endAt:           true,
-        notes:           true,
-        calendarEventId: true,
-        artist: {
-          select: {
-            id:               true,
-            appleCalDAVToken: true,
-            appleCalDAVUrl:   true,
-            user: { select: { name: true } },
-          },
-        },
-        customer: { select: { name: true, email: true } },
-        lead:     { select: { name: true, email: true } },
-        services: { select: { service: { select: { name: true } } }, take: 1 },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncAppleUpdateEvent: booking not found', { bookingId });
-      return;
-    }
-
     const { artist } = booking;
     if (!artist.appleCalDAVToken) return;
 
@@ -299,29 +301,30 @@ export async function syncAppleUpdateEvent(bookingId: string): Promise<void> {
 // ─── syncAppleDeleteEvent ─────────────────────────────────────────────────────
 
 export async function syncAppleDeleteEvent(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED')) return;
-
-  try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:              true,
-        calendarEventId: true,
-        artist: {
-          select: {
-            id:               true,
-            appleCalDAVToken: true,
-            appleCalDAVUrl:   true,
-          },
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:              true,
+      tenantId:        true,
+      calendarEventId: true,
+      artist: {
+        select: {
+          id:               true,
+          appleCalDAVToken: true,
+          appleCalDAVUrl:   true,
         },
       },
-    });
+    },
+  });
 
-    if (!booking) {
-      logger.warn('syncAppleDeleteEvent: booking not found', { bookingId });
-      return;
-    }
+  if (!booking) {
+    logger.warn('syncAppleDeleteEvent: booking not found', { bookingId });
+    return;
+  }
 
+  if (!await isFeatureEnabled('APPLE_CALENDAR_ENABLED', booking.tenantId ?? undefined)) return;
+
+  try {
     const rawEventId = booking.calendarEventId;
     if (!rawEventId?.startsWith('apple:')) return;
 

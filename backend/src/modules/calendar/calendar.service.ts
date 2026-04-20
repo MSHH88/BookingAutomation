@@ -290,40 +290,41 @@ export async function disconnectCalendar(
  * @param bookingId  Booking ID
  */
 export async function syncCreateEvent(bookingId: string): Promise<void> {
-  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:       true,
+      tenantId: true,
+      startAt:  true,
+      endAt:    true,
+      notes:    true,
+      artist: {
+        select: {
+          id:                   true,
+          calendarAccessToken:  true,
+          calendarRefreshToken: true,
+          calendarTokenExpiresAt: true,
+          user: { select: { name: true } },
+        },
+      },
+      customer: { select: { name: true, email: true } },
+      lead:     { select: { name: true, email: true } },
+      services: { select: { service: { select: { name: true } } }, take: 1 },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncCreateEvent: booking not found', { bookingId });
+    return;
+  }
+
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED', booking.tenantId ?? undefined);
   if (!calendarEnabled) {
     logger.debug('Calendar sync skipped — CALENDAR_ENABLED is off');
     return;
   }
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:       true,
-        startAt:  true,
-        endAt:    true,
-        notes:    true,
-        artist: {
-          select: {
-            id:                   true,
-            calendarAccessToken:  true,
-            calendarRefreshToken: true,
-            calendarTokenExpiresAt: true,
-            user: { select: { name: true } },
-          },
-        },
-        customer: { select: { name: true, email: true } },
-        lead:     { select: { name: true, email: true } },
-        services: { select: { service: { select: { name: true } } }, take: 1 },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncCreateEvent: booking not found', { bookingId });
-      return;
-    }
-
     const { artist } = booking;
     if (!artist.calendarRefreshToken) {
       logger.debug('syncCreateEvent: artist has no calendar tokens — skipping', {
@@ -392,41 +393,42 @@ export async function syncCreateEvent(bookingId: string): Promise<void> {
  * @param bookingId  Booking ID
  */
 export async function syncUpdateEvent(bookingId: string): Promise<void> {
-  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:              true,
+      tenantId:        true,
+      startAt:         true,
+      endAt:           true,
+      notes:           true,
+      calendarEventId: true,
+      artist: {
+        select: {
+          id:                   true,
+          calendarAccessToken:  true,
+          calendarRefreshToken: true,
+          calendarTokenExpiresAt: true,
+          user: { select: { name: true } },
+        },
+      },
+      customer: { select: { name: true, email: true } },
+      lead:     { select: { name: true, email: true } },
+      services: { select: { service: { select: { name: true } } }, take: 1 },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncUpdateEvent: booking not found', { bookingId });
+    return;
+  }
+
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED', booking.tenantId ?? undefined);
   if (!calendarEnabled) {
     logger.debug('Calendar sync skipped — CALENDAR_ENABLED is off');
     return;
   }
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:              true,
-        startAt:         true,
-        endAt:           true,
-        notes:           true,
-        calendarEventId: true,
-        artist: {
-          select: {
-            id:                   true,
-            calendarAccessToken:  true,
-            calendarRefreshToken: true,
-            calendarTokenExpiresAt: true,
-            user: { select: { name: true } },
-          },
-        },
-        customer: { select: { name: true, email: true } },
-        lead:     { select: { name: true, email: true } },
-        services: { select: { service: { select: { name: true } } }, take: 1 },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncUpdateEvent: booking not found', { bookingId });
-      return;
-    }
-
     const { artist } = booking;
     if (!artist.calendarRefreshToken) {
       logger.debug('syncUpdateEvent: artist has no calendar tokens — skipping', {
@@ -502,34 +504,35 @@ export async function syncUpdateEvent(bookingId: string): Promise<void> {
  * @param bookingId  Booking ID
  */
 export async function syncDeleteEvent(bookingId: string): Promise<void> {
-  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED');
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:              true,
+      tenantId:        true,
+      calendarEventId: true,
+      artist: {
+        select: {
+          id:                   true,
+          calendarAccessToken:  true,
+          calendarRefreshToken: true,
+          calendarTokenExpiresAt: true,
+        },
+      },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncDeleteEvent: booking not found', { bookingId });
+    return;
+  }
+
+  const calendarEnabled = await isFeatureEnabled('CALENDAR_ENABLED', booking.tenantId ?? undefined);
   if (!calendarEnabled) {
     logger.debug('Calendar sync skipped — CALENDAR_ENABLED is off');
     return;
   }
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:              true,
-        calendarEventId: true,
-        artist: {
-          select: {
-            id:                   true,
-            calendarAccessToken:  true,
-            calendarRefreshToken: true,
-            calendarTokenExpiresAt: true,
-          },
-        },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncDeleteEvent: booking not found', { bookingId });
-      return;
-    }
-
     if (!booking.calendarEventId) {
       logger.debug('syncDeleteEvent: no calendarEventId on booking — skipping', { bookingId });
       return;

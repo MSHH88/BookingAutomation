@@ -100,6 +100,7 @@ const baseArtist = {
 
 const baseBooking = {
   id:             bookingId,
+  tenantId:       'tenant_1',
   startAt:        new Date('2025-06-01T10:00:00Z'),
   endAt:          new Date('2025-06-01T11:30:00Z'),
   notes:          'Test notes',
@@ -269,8 +270,9 @@ describe('syncOutlookCreateEvent', () => {
 
   it('skips when flag is off', async () => {
     mockFlags({ OUTLOOK_CALENDAR_ENABLED: false });
+    mockBookingFindUnique.mockResolvedValueOnce(baseBooking);
     await svc.syncOutlookCreateEvent(bookingId);
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
+    expect(mockCreateOutlookEvent).not.toHaveBeenCalled();
   });
 
   it('skips when booking not found', async () => {
@@ -316,8 +318,9 @@ describe('syncOutlookUpdateEvent', () => {
 
   it('skips when flag is off', async () => {
     mockFlags({ OUTLOOK_CALENDAR_ENABLED: false });
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, calendarEventId: null });
     await svc.syncOutlookUpdateEvent(bookingId);
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
+    expect(mockUpdateOutlookEvent).not.toHaveBeenCalled();
   });
 
   it('creates new event when no outlook: prefix', async () => {
@@ -357,8 +360,9 @@ describe('syncOutlookDeleteEvent', () => {
 
   it('skips when flag is off', async () => {
     mockFlags({ OUTLOOK_CALENDAR_ENABLED: false });
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, calendarEventId: 'outlook:evt' });
     await svc.syncOutlookDeleteEvent(bookingId);
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
+    expect(mockDeleteOutlookEvent).not.toHaveBeenCalled();
   });
 
   it('skips when calendarEventId has no outlook: prefix', async () => {
@@ -368,5 +372,24 @@ describe('syncOutlookDeleteEvent', () => {
     });
     await svc.syncOutlookDeleteEvent(bookingId);
     expect(mockDeleteOutlookEvent).not.toHaveBeenCalled();
+  });
+});
+
+// ── BUG 20 — tenant-scoped OUTLOOK_CALENDAR_ENABLED ──────────────────────────
+
+describe('BUG 20 — tenant-scoped OUTLOOK_CALENDAR_ENABLED', () => {
+  it('syncOutlookCreateEvent: passes booking.tenantId to isFeatureEnabled', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, tenantId: 'tenant_A' });
+    mockCreateOutlookEvent.mockResolvedValue('ms-event-1');
+    mockBookingUpdate.mockResolvedValue({});
+    await svc.syncOutlookCreateEvent(bookingId);
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('OUTLOOK_CALENDAR_ENABLED', 'tenant_A');
+  });
+
+  it('syncOutlookCreateEvent: tenant override OFF + global ON → skips', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce({ ...baseBooking, tenantId: 'tenant_A' });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
+    await svc.syncOutlookCreateEvent(bookingId);
+    expect(mockCreateOutlookEvent).not.toHaveBeenCalled();
   });
 });

@@ -101,6 +101,7 @@ const bookingId = 'booking_1';
 
 const baseBooking = {
   id:              bookingId,
+  tenantId:        'tenant_1',
   startAt:         new Date('2026-04-15T10:00:00Z'),
   endAt:           new Date('2026-04-15T12:00:00Z'),
   notes:           'Sleeve piece',
@@ -395,10 +396,10 @@ describe('syncCreateEvent', () => {
   });
 
   it('skips when CALENDAR_ENABLED flag is off', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce(baseBooking);
     mockIsFeatureEnabled.mockResolvedValueOnce(false);
     await svc.syncCreateEvent(bookingId);
     expect(mockCreateCalendarEvent).not.toHaveBeenCalled();
-    expect(mockBookingFindUnique).not.toHaveBeenCalled();
   });
 
   it('skips when booking not found', async () => {
@@ -466,6 +467,7 @@ describe('syncUpdateEvent', () => {
   });
 
   it('skips when CALENDAR_ENABLED flag is off', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce(bookingWithEvent);
     mockIsFeatureEnabled.mockResolvedValueOnce(false);
     await svc.syncUpdateEvent(bookingId);
     expect(mockUpdateCalendarEvent).not.toHaveBeenCalled();
@@ -500,6 +502,7 @@ describe('syncUpdateEvent', () => {
 describe('syncDeleteEvent', () => {
   const bookingWithEvent = {
     id:              bookingId,
+    tenantId:        'tenant_1',
     calendarEventId: 'event_to_delete',
     artist: {
       id:                   artistId,
@@ -520,6 +523,7 @@ describe('syncDeleteEvent', () => {
   });
 
   it('skips when CALENDAR_ENABLED flag is off', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce(bookingWithEvent);
     mockIsFeatureEnabled.mockResolvedValueOnce(false);
     await svc.syncDeleteEvent(bookingId);
     expect(mockDeleteCalendarEvent).not.toHaveBeenCalled();
@@ -553,5 +557,42 @@ describe('syncDeleteEvent', () => {
     mockBookingFindUnique.mockResolvedValue(bookingWithEvent);
     mockDeleteCalendarEvent.mockRejectedValue(new Error('forbidden'));
     await expect(svc.syncDeleteEvent(bookingId)).resolves.toBeUndefined();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUG 20 — tenant-scoped flag checks
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('BUG 20 — tenant-scoped CALENDAR_ENABLED', () => {
+  const tenantABooking = { ...baseBooking, tenantId: 'tenant_A' };
+
+  it('syncCreateEvent: tenant override OFF + global ON → skips provider call', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce(tenantABooking);
+    mockIsFeatureEnabled.mockImplementationOnce(async (_flag: string, _tenantId?: string) => false);
+    await svc.syncCreateEvent(bookingId);
+    expect(mockCreateCalendarEvent).not.toHaveBeenCalled();
+  });
+
+  it('syncCreateEvent: passes booking.tenantId to isFeatureEnabled', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce(tenantABooking);
+    mockIsFeatureEnabled.mockResolvedValueOnce(true);
+    mockCreateCalendarEvent.mockResolvedValueOnce('evt-1');
+    await svc.syncCreateEvent(bookingId);
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith('CALENDAR_ENABLED', 'tenant_A');
+  });
+
+  it('syncUpdateEvent: tenant override OFF → skips provider call', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce({ ...tenantABooking, calendarEventId: 'evt-x' });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
+    await svc.syncUpdateEvent(bookingId);
+    expect(mockUpdateCalendarEvent).not.toHaveBeenCalled();
+  });
+
+  it('syncDeleteEvent: tenant override OFF → skips provider call', async () => {
+    mockBookingFindUnique.mockResolvedValueOnce({ ...tenantABooking, calendarEventId: 'evt-y' });
+    mockIsFeatureEnabled.mockResolvedValueOnce(false);
+    await svc.syncDeleteEvent(bookingId);
+    expect(mockDeleteCalendarEvent).not.toHaveBeenCalled();
   });
 });

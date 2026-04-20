@@ -200,35 +200,36 @@ async function getValidTokens(
 // ─── syncOutlookCreateEvent ───────────────────────────────────────────────────
 
 export async function syncOutlookCreateEvent(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')) return;
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:      true,
+      tenantId: true,
+      startAt: true,
+      endAt:   true,
+      notes:   true,
+      artist: {
+        select: {
+          id:                   true,
+          microsoftAccessToken: true,
+          microsoftRefreshToken: true,
+          user: { select: { name: true } },
+        },
+      },
+      customer: { select: { name: true, email: true } },
+      lead:     { select: { name: true, email: true } },
+      services: { select: { service: { select: { name: true } } }, take: 1 },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncOutlookCreateEvent: booking not found', { bookingId });
+    return;
+  }
+
+  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED', booking.tenantId ?? undefined)) return;
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:      true,
-        startAt: true,
-        endAt:   true,
-        notes:   true,
-        artist: {
-          select: {
-            id:                   true,
-            microsoftAccessToken: true,
-            microsoftRefreshToken: true,
-            user: { select: { name: true } },
-          },
-        },
-        customer: { select: { name: true, email: true } },
-        lead:     { select: { name: true, email: true } },
-        services: { select: { service: { select: { name: true } } }, take: 1 },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncOutlookCreateEvent: booking not found', { bookingId });
-      return;
-    }
-
     const { artist } = booking;
     if (!artist.microsoftRefreshToken) {
       logger.debug('syncOutlookCreateEvent: artist has no Outlook tokens', { bookingId, artistId: artist.id });
@@ -269,36 +270,37 @@ export async function syncOutlookCreateEvent(bookingId: string): Promise<void> {
 // ─── syncOutlookUpdateEvent ───────────────────────────────────────────────────
 
 export async function syncOutlookUpdateEvent(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')) return;
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:             true,
+      tenantId:       true,
+      startAt:        true,
+      endAt:          true,
+      notes:          true,
+      calendarEventId: true,
+      artist: {
+        select: {
+          id:                   true,
+          microsoftAccessToken: true,
+          microsoftRefreshToken: true,
+          user: { select: { name: true } },
+        },
+      },
+      customer: { select: { name: true, email: true } },
+      lead:     { select: { name: true, email: true } },
+      services: { select: { service: { select: { name: true } } }, take: 1 },
+    },
+  });
+
+  if (!booking) {
+    logger.warn('syncOutlookUpdateEvent: booking not found', { bookingId });
+    return;
+  }
+
+  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED', booking.tenantId ?? undefined)) return;
 
   try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:             true,
-        startAt:        true,
-        endAt:          true,
-        notes:          true,
-        calendarEventId: true,
-        artist: {
-          select: {
-            id:                   true,
-            microsoftAccessToken: true,
-            microsoftRefreshToken: true,
-            user: { select: { name: true } },
-          },
-        },
-        customer: { select: { name: true, email: true } },
-        lead:     { select: { name: true, email: true } },
-        services: { select: { service: { select: { name: true } } }, take: 1 },
-      },
-    });
-
-    if (!booking) {
-      logger.warn('syncOutlookUpdateEvent: booking not found', { bookingId });
-      return;
-    }
-
     const { artist } = booking;
     if (!artist.microsoftRefreshToken) return;
 
@@ -335,29 +337,30 @@ export async function syncOutlookUpdateEvent(bookingId: string): Promise<void> {
 // ─── syncOutlookDeleteEvent ───────────────────────────────────────────────────
 
 export async function syncOutlookDeleteEvent(bookingId: string): Promise<void> {
-  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED')) return;
-
-  try {
-    const booking = await prisma.booking.findUnique({
-      where:  { id: bookingId },
-      select: {
-        id:             true,
-        calendarEventId: true,
-        artist: {
-          select: {
-            id:                   true,
-            microsoftAccessToken: true,
-            microsoftRefreshToken: true,
-          },
+  const booking = await prisma.booking.findUnique({
+    where:  { id: bookingId },
+    select: {
+      id:             true,
+      tenantId:       true,
+      calendarEventId: true,
+      artist: {
+        select: {
+          id:                   true,
+          microsoftAccessToken: true,
+          microsoftRefreshToken: true,
         },
       },
-    });
+    },
+  });
 
-    if (!booking) {
-      logger.warn('syncOutlookDeleteEvent: booking not found', { bookingId });
-      return;
-    }
+  if (!booking) {
+    logger.warn('syncOutlookDeleteEvent: booking not found', { bookingId });
+    return;
+  }
 
+  if (!await isFeatureEnabled('OUTLOOK_CALENDAR_ENABLED', booking.tenantId ?? undefined)) return;
+
+  try {
     const rawEventId = booking.calendarEventId;
     if (!rawEventId?.startsWith('outlook:')) return;
 
