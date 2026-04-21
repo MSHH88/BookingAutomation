@@ -15,7 +15,8 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { enqueueNoShowCheck, noShowQueue } from './no-show.job';
+import { enqueueNoShowCheck, noShowQueue, processNoShowCheck } from './no-show.job';
+import { prisma } from '../lib/prisma';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -45,6 +46,10 @@ jest.mock('../lib/stripe', () => ({
     customers: { retrieve: jest.fn() },
     paymentIntents: { create: jest.fn() },
   }),
+}));
+
+jest.mock('../middleware/requireFeature', () => ({
+  isFeatureEnabled: jest.fn().mockResolvedValue(true),
 }));
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -95,6 +100,62 @@ describe('no-show.job', () => {
       await enqueueNoShowCheck(data, 60000);
       expect(addSpy).toHaveBeenCalled();
       addSpy.mockRestore();
+    });
+  });
+
+  describe('processNoShowCheck — studioSettings tenant scoping', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      (prisma.booking.update as jest.Mock).mockResolvedValue({});
+    });
+
+    function makeJob(tenantId: string | null): any {
+      return {
+        data: {
+          bookingId:    'booking-1',
+          customerId:   'customer-1',
+          artistId:     'artist-1',
+          tenantId,
+          studioName:   'Test Studio',
+          customerName: 'John Doe',
+          phone:        null,
+          email:        'john@example.com',
+          channel:      'EMAIL',
+        },
+      };
+    }
+
+    it('scopes studioSettings.findFirst by tenantId when booking has tenantId', async () => {
+      (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+        id: 'booking-1', status: 'CONFIRMED', tenantId: 'tenant-a',
+        stripePaymentIntentId: null, customer: null,
+      });
+      (prisma.studioSettings.findFirst as jest.Mock).mockResolvedValue(null);
+
+      await processNoShowCheck(makeJob('tenant-a'));
+
+      expect(prisma.studioSettings.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { tenantId: 'tenant-a' },
+        }),
+      );
+      expect(prisma.studioSettings.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('scopes studioSettings.findFirst with tenantId=null when booking has no tenantId', async () => {
+      (prisma.booking.findUnique as jest.Mock).mockResolvedValue({
+        id: 'booking-1', status: 'CONFIRMED', tenantId: null,
+        stripePaymentIntentId: null, customer: null,
+      });
+      (prisma.studioSettings.findFirst as jest.Mock).mockResolvedValue(null);
+
+      await processNoShowCheck(makeJob(null));
+
+      expect(prisma.studioSettings.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { tenantId: null },
+        }),
+      );
     });
   });
 });

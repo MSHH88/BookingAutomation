@@ -67,7 +67,7 @@ export const noShowQueue = new Queue<NoShowJobData>(NO_SHOW_QUEUE_NAME, {
 
 // ─── Job processor ────────────────────────────────────────────────────────────
 
-async function processNoShowCheck(job: Job<NoShowJobData>): Promise<void> {
+export async function processNoShowCheck(job: Job<NoShowJobData>): Promise<void> {
   const data = job.data;
 
   // Runtime flag check — toggles take effect immediately without restart
@@ -111,14 +111,10 @@ async function processNoShowCheck(job: Job<NoShowJobData>): Promise<void> {
   logger.info('Booking marked as NO_SHOW', { bookingId: data.bookingId });
 
   // 3. Attempt no-show fee charge if autoCharge is enabled
-  const settings = booking.tenantId
-    ? await prisma.studioSettings.findUnique({
-        where:  { tenantId: booking.tenantId },
-        select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
-      })
-    : await prisma.studioSettings.findFirst({
-        select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
-      });
+  const settings = await prisma.studioSettings.findFirst({
+    where:  { tenantId: booking.tenantId ?? null },
+    select: { noShowAutoCharge: true, noShowFeeAmount: true, currency: true },
+  });
 
   if (
     settings?.noShowAutoCharge &&
