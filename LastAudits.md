@@ -1,3 +1,18 @@
+## Created Files Register — BUG 17 to BUG 31 (generated from git)
+
+- **Audit generation date:** 2026-04-21
+- **Commit range:** `87e5188..HEAD` (HEAD = `99821c1`)
+- **Total created files:** 1
+- **Scope:** all files added (`git diff --diff-filter=A`) across the BUG 17–31 fix commits, including tests, configs, migrations, scripts, docs, fixtures.
+
+Created files (alphabetical):
+
+- `backend/src/jobs/recurring-booking.job.test.ts`
+
+Note: All other BUG 17–31 fixes were applied by modifying existing files only. No new migrations, configs, scripts, docs, or fixtures were added in this range.
+
+---
+
 # PR — Ready for Frontend After Fixing BUG 23–30 ✅
 
 **Date:** 2026-04-20 (Round 6 audit)
