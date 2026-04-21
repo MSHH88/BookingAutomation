@@ -12,6 +12,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { success, paginated } from '../../utils/apiResponse';
+import { extractTenantId } from '../../utils/extractTenantId';
 import * as svc from './services.service';
 import type {
   ListCategoriesQuery,
@@ -91,7 +92,8 @@ export async function deleteCategory(req: Request, res: Response, next: NextFunc
 export async function listServices(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const query  = req.query as ListServicesQuery;
-    const result = await svc.listServices(query);
+    const tenantId = extractTenantId(req);
+    const result = await svc.listServices(query, tenantId);
     res.json(paginated(result.data, result.meta));
   } catch (err) {
     next(err);
@@ -119,7 +121,8 @@ export async function getService(req: Request, res: Response, next: NextFunction
 export async function createService(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const body   = req.body as CreateServiceBody;
-    const result = await svc.createService(body);
+    const tenantId = extractTenantId(req);
+    const result = await svc.createService(body, tenantId);
     res.status(201).json(success(result));
   } catch (err) {
     next(err);
@@ -134,7 +137,8 @@ export async function updateService(req: Request, res: Response, next: NextFunct
   try {
     const { id } = req.params;
     const body   = req.body as UpdateServiceBody;
-    const result = await svc.updateService(id, body);
+    const tenantId = extractTenantId(req);
+    const result = await svc.updateService(id, body, tenantId);
     res.json(success(result));
   } catch (err) {
     next(err);
@@ -148,7 +152,8 @@ export async function updateService(req: Request, res: Response, next: NextFunct
 export async function deleteService(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { id } = req.params;
-    await svc.deleteService(id);
+    const tenantId = extractTenantId(req);
+    await svc.deleteService(id, tenantId);
     res.status(204).end();
   } catch (err) {
     next(err);

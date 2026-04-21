@@ -391,6 +391,22 @@ describe('listServices', () => {
     expect(result.meta.limit).toBe(10);
     expect(result.meta.totalPages).toBe(5);
   });
+
+  // BUG 28: list scoping by tenantId for authenticated callers
+  it('BUG 28: scopes results to caller tenantId when provided', async () => {
+    await svc.listServices({}, 'tenant-A');
+
+    expect(mockServiceCount).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ tenantId: 'tenant-A' }) }),
+    );
+  });
+
+  it('BUG 28: omits tenant filter when tenantId is null (public/anon)', async () => {
+    await svc.listServices({}, null);
+
+    const where = (mockServiceCount.mock.calls.at(-1) as any)[0].where;
+    expect(where).not.toHaveProperty('tenantId');
+  });
 });
 
 // ─── getService ───────────────────────────────────────────────────────────────
@@ -478,13 +494,43 @@ describe('createService', () => {
 
     expect(mockServiceCreate).not.toHaveBeenCalled();
   });
+
+  // BUG 28: tenantId is persisted on create when supplied
+  it('BUG 28: persists tenantId on the created service', async () => {
+    mockCategoryFindUnique.mockResolvedValue({ id: 'cat_1' });
+    mockServiceCreate.mockResolvedValue(baseServiceDetail);
+
+    await svc.createService(
+      { categoryId: 'cat_1', name: 'X', durationMinutes: 30 },
+      'tenant-A',
+    );
+
+    expect(mockServiceCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ tenantId: 'tenant-A' }),
+      }),
+    );
+  });
+
+  it('BUG 28: omits tenantId on create when caller is SUPER_ADMIN (null)', async () => {
+    mockCategoryFindUnique.mockResolvedValue({ id: 'cat_1' });
+    mockServiceCreate.mockResolvedValue(baseServiceDetail);
+
+    await svc.createService(
+      { categoryId: 'cat_1', name: 'X', durationMinutes: 30 },
+      null,
+    );
+
+    const createArg = mockServiceCreate.mock.calls[0][0];
+    expect(createArg.data).not.toHaveProperty('tenantId');
+  });
 });
 
 // ─── updateService ────────────────────────────────────────────────────────────
 
 describe('updateService', () => {
   it('updates durationMinutes', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1' });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', tenantId: null });
     const updated = { ...baseServiceDetail, durationMinutes: 45 };
     mockServiceUpdate.mockResolvedValue(updated);
 
@@ -500,7 +546,7 @@ describe('updateService', () => {
   });
 
   it('validates the new categoryId before updating', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1' });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', tenantId: null });
     mockCategoryFindUnique.mockResolvedValue({ id: 'cat_new' });
     mockServiceUpdate.mockResolvedValue(baseServiceDetail);
 
@@ -513,7 +559,7 @@ describe('updateService', () => {
   });
 
   it('sets priceFrom to null when passed as null', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1' });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', tenantId: null });
     mockServiceUpdate.mockResolvedValue({ ...baseServiceDetail, priceFrom: null });
 
     await svc.updateService('svc_1', { priceFrom: null });
@@ -535,7 +581,7 @@ describe('updateService', () => {
   });
 
   it('throws 404 when new categoryId does not exist', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1' });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', tenantId: null });
     mockCategoryFindUnique.mockResolvedValue(null);
 
     await expect(svc.updateService('svc_1', { categoryId: 'bad_cat' })).rejects.toThrow(
@@ -543,13 +589,33 @@ describe('updateService', () => {
     );
     expect(mockServiceUpdate).not.toHaveBeenCalled();
   });
+
+  // BUG 28: cross-tenant updates are forbidden
+  it('BUG 28: throws 403 when caller tenant does not own the service', async () => {
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', tenantId: 'tenant-B' });
+
+    await expect(
+      svc.updateService('svc_1', { name: 'New' }, 'tenant-A'),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockServiceUpdate).not.toHaveBeenCalled();
+  });
+
+  it('BUG 28: allows update when service belongs to caller tenant', async () => {
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', tenantId: 'tenant-A' });
+    mockServiceUpdate.mockResolvedValue(baseServiceDetail);
+
+    await svc.updateService('svc_1', { name: 'New' }, 'tenant-A');
+
+    expect(mockServiceUpdate).toHaveBeenCalled();
+  });
 });
 
 // ─── deleteService ────────────────────────────────────────────────────────────
 
 describe('deleteService', () => {
   it('deactivates a service that has no active bookings', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: "Men's Haircut" });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: "Men's Haircut", tenantId: null });
     mockBookingCount.mockResolvedValue(0);
     mockServiceUpdate.mockResolvedValue({ id: 'svc_1' });
 
@@ -564,7 +630,7 @@ describe('deleteService', () => {
   });
 
   it('throws 409 when service has active bookings', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: "Men's Haircut" });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: "Men's Haircut", tenantId: null });
     mockBookingCount.mockResolvedValue(2);
 
     await expect(svc.deleteService('svc_1')).rejects.toThrow(
@@ -574,7 +640,7 @@ describe('deleteService', () => {
   });
 
   it('checks both direct serviceId and BookingService join for active bookings', async () => {
-    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: 'X' });
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: 'X', tenantId: null });
     mockBookingCount.mockResolvedValue(0);
     mockServiceUpdate.mockResolvedValue({ id: 'svc_1' });
 
@@ -601,6 +667,30 @@ describe('deleteService', () => {
     );
     expect(mockBookingCount).not.toHaveBeenCalled();
     expect(mockServiceUpdate).not.toHaveBeenCalled();
+  });
+
+  // BUG 28: cross-tenant deletion is forbidden
+  it('BUG 28: throws 403 when caller tenant does not own the service', async () => {
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: 'X', tenantId: 'tenant-B' });
+
+    await expect(
+      svc.deleteService('svc_1', 'tenant-A'),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+
+    expect(mockBookingCount).not.toHaveBeenCalled();
+    expect(mockServiceUpdate).not.toHaveBeenCalled();
+  });
+
+  it('BUG 28: allows delete when service belongs to caller tenant', async () => {
+    mockServiceFindUnique.mockResolvedValue({ id: 'svc_1', name: 'X', tenantId: 'tenant-A' });
+    mockBookingCount.mockResolvedValue(0);
+    mockServiceUpdate.mockResolvedValue({ id: 'svc_1' });
+
+    await svc.deleteService('svc_1', 'tenant-A');
+
+    expect(mockServiceUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { isActive: false } }),
+    );
   });
 });
 

@@ -274,8 +274,16 @@ export async function deleteCategory(id: string) {
  */
 export async function listServices(
   query: ListServicesQuery,
+  tenantId: string | null = null,
 ): Promise<PaginatedResult<ServiceListItem>> {
   const where: Prisma.ServiceWhereInput = {};
+
+  // BUG 28: scope to caller's tenant when authenticated. Public/anonymous
+  // callers (tenantId === null) keep the original cross-tenant catalogue
+  // listing behaviour used by the public booking widget.
+  if (tenantId !== null) {
+    where.tenantId = tenantId;
+  }
 
   if (query.categoryId) {
     where.categoryId = query.categoryId;
@@ -322,9 +330,14 @@ export async function getService(id: string) {
 
 /**
  * Create a new service (ADMIN only).
+ *
+ * BUG 28: requires `tenantId` so the service is persisted scoped to the
+ * caller's tenant. Public booking lookups in public.service.ts filter by
+ * `tenantId` so unscoped services are unreachable from public flows.
+ *
  * Throws 404 if the supplied categoryId does not exist.
  */
-export async function createService(body: CreateServiceBody) {
+export async function createService(body: CreateServiceBody, tenantId: string | null = null) {
   const category = await prisma.serviceCategory.findUnique({
     where:  { id: body.categoryId },
     select: { id: true },
@@ -343,6 +356,7 @@ export async function createService(body: CreateServiceBody) {
       bufferMinutes:      body.bufferMinutes       ?? 0,
       rebookIntervalDays: body.rebookIntervalDays  ?? null,
       isActive:           body.isActive            ?? true,
+      ...(tenantId !== null ? { tenantId } : {}),
     },
     select: serviceDetailSelect,
   });
@@ -351,16 +365,24 @@ export async function createService(body: CreateServiceBody) {
 /**
  * Update a service (ADMIN only).
  *
+ * BUG 28: when `tenantId` is provided the existing service must belong to
+ * the same tenant — otherwise a 403 is thrown to prevent cross-tenant IDOR.
+ *
  * Throws 404 if the service does not exist.
+ * Throws 403 if the service belongs to a different tenant.
  * Throws 404 if the new categoryId does not exist.
  */
-export async function updateService(id: string, body: UpdateServiceBody) {
+export async function updateService(id: string, body: UpdateServiceBody, tenantId: string | null = null) {
   const existing = await prisma.service.findUnique({
     where:  { id },
-    select: { id: true },
+    select: { id: true, tenantId: true },
   });
   if (!existing) {
     throw new AppError(404, 'SERVICE_NOT_FOUND', 'Service not found');
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Service not in your tenant');
   }
 
   // Validate the new categoryId if provided
@@ -393,17 +415,25 @@ export async function updateService(id: string, body: UpdateServiceBody) {
 /**
  * Deactivate a service (ADMIN only).
  *
+ * BUG 28: when `tenantId` is provided the existing service must belong to
+ * the same tenant — otherwise a 403 is thrown to prevent cross-tenant IDOR.
+ *
  * Sets isActive=false (soft-delete) to preserve booking history.
  * Throws 404 if the service does not exist.
+ * Throws 403 if the service belongs to a different tenant.
  * Throws 409 if the service has active bookings (PENDING / CONFIRMED / RESCHEDULED).
  */
-export async function deleteService(id: string) {
+export async function deleteService(id: string, tenantId: string | null = null) {
   const existing = await prisma.service.findUnique({
     where:  { id },
-    select: { id: true, name: true },
+    select: { id: true, name: true, tenantId: true },
   });
   if (!existing) {
     throw new AppError(404, 'SERVICE_NOT_FOUND', 'Service not found');
+  }
+
+  if (tenantId !== null && existing.tenantId !== tenantId) {
+    throw new AppError(403, 'FORBIDDEN', 'Service not in your tenant');
   }
 
   // Check for active bookings through both direct serviceId and BookingService join
