@@ -104,6 +104,37 @@ export async function createRecurringBooking(
   tenantId: string | null,
   body: CreateRecurringBody,
 ): Promise<Prisma.RecurringBookingGetPayload<{ select: typeof recurringBookingSelect }>> {
+  // Validate referenced FKs belong to the same tenant (defense against cross-tenant IDOR).
+  if (tenantId !== null) {
+    const customer = await prisma.user.findUnique({
+      where:  { id: body.customerId },
+      select: { tenantId: true },
+    });
+    if (!customer || customer.tenantId !== tenantId) {
+      throw new AppError(403, 'CUSTOMER_FORBIDDEN', `Customer '${body.customerId}' does not belong to tenant`);
+    }
+
+    if (body.artistId) {
+      const artist = await prisma.artist.findUnique({
+        where:  { id: body.artistId },
+        select: { tenantId: true },
+      });
+      if (!artist || artist.tenantId !== tenantId) {
+        throw new AppError(403, 'ARTIST_FORBIDDEN', `Artist '${body.artistId}' does not belong to tenant`);
+      }
+    }
+
+    if (body.serviceId) {
+      const service = await prisma.service.findUnique({
+        where:  { id: body.serviceId },
+        select: { tenantId: true },
+      });
+      if (!service || service.tenantId !== tenantId) {
+        throw new AppError(403, 'SERVICE_FORBIDDEN', `Service '${body.serviceId}' does not belong to tenant`);
+      }
+    }
+  }
+
   const record = await prisma.recurringBooking.create({
     data: {
       tenantId,

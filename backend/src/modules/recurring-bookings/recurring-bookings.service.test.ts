@@ -47,6 +47,9 @@ const mockFindMany   = jest.fn();
 const mockCount      = jest.fn();
 const mockCreate     = jest.fn();
 const mockUpdate     = jest.fn();
+const mockUserFindUnique    = jest.fn();
+const mockArtistFindUnique  = jest.fn();
+const mockServiceFindUnique = jest.fn();
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -57,6 +60,9 @@ jest.mock('../../lib/prisma', () => ({
       create:     (...a: unknown[]) => mockCreate(...a),
       update:     (...a: unknown[]) => mockUpdate(...a),
     },
+    user:    { findUnique: (...a: unknown[]) => mockUserFindUnique(...a) },
+    artist:  { findUnique: (...a: unknown[]) => mockArtistFindUnique(...a) },
+    service: { findUnique: (...a: unknown[]) => mockServiceFindUnique(...a) },
   },
 }));
 
@@ -170,6 +176,12 @@ describe('getRecurringBooking', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('createRecurringBooking', () => {
+  beforeEach(() => {
+    mockUserFindUnique.mockResolvedValue({ tenantId: 'tenant_1' });
+    mockArtistFindUnique.mockResolvedValue({ tenantId: 'tenant_1' });
+    mockServiceFindUnique.mockResolvedValue({ tenantId: 'tenant_1' });
+  });
+
   it('creates record with all fields', async () => {
     mockCreate.mockResolvedValue(baseRecord);
 
@@ -215,6 +227,59 @@ describe('createRecurringBooking', () => {
         }),
       }),
     );
+  });
+
+  it('throws 403 when customer belongs to a different tenant', async () => {
+    mockUserFindUnique.mockResolvedValue({ tenantId: 'tenant_other' });
+
+    await expect(
+      service.createRecurringBooking('tenant_1', {
+        customerId:      'customer_x',
+        intervalDays:    30,
+        nextBookingDate: '2026-05-06T10:00:00Z',
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'CUSTOMER_FORBIDDEN' });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('throws 403 when artist belongs to a different tenant', async () => {
+    mockArtistFindUnique.mockResolvedValue({ tenantId: 'tenant_other' });
+
+    await expect(
+      service.createRecurringBooking('tenant_1', {
+        customerId:      'customer_1',
+        artistId:        'artist_x',
+        intervalDays:    30,
+        nextBookingDate: '2026-05-06T10:00:00Z',
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'ARTIST_FORBIDDEN' });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('throws 403 when service belongs to a different tenant', async () => {
+    mockServiceFindUnique.mockResolvedValue({ tenantId: 'tenant_other' });
+
+    await expect(
+      service.createRecurringBooking('tenant_1', {
+        customerId:      'customer_1',
+        serviceId:       'service_x',
+        intervalDays:    30,
+        nextBookingDate: '2026-05-06T10:00:00Z',
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'SERVICE_FORBIDDEN' });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('throws 403 when customer not found', async () => {
+    mockUserFindUnique.mockResolvedValue(null);
+
+    await expect(
+      service.createRecurringBooking('tenant_1', {
+        customerId:      'missing',
+        intervalDays:    30,
+        nextBookingDate: '2026-05-06T10:00:00Z',
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, code: 'CUSTOMER_FORBIDDEN' });
   });
 });
 

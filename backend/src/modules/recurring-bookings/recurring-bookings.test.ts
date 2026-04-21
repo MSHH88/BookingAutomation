@@ -46,6 +46,8 @@ jest.mock('../../lib/redis', () => ({
 jest.mock('../../lib/prisma', () => ({
   prisma: {
     user:             { findUnique: jest.fn() },
+    artist:           { findUnique: jest.fn() },
+    service:          { findUnique: jest.fn() },
     recurringBooking: {
       findFirst:  jest.fn(),
       findMany:   jest.fn(),
@@ -149,6 +151,9 @@ describe('GET /api/recurring-bookings/:id', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('POST /api/recurring-bookings', () => {
   it('201 — ADMIN creates recurring booking', async () => {
+    (prisma.user.findUnique    as jest.Mock).mockResolvedValue({ tenantId: 'tenant_1' });
+    (prisma.artist.findUnique  as jest.Mock).mockResolvedValue({ tenantId: 'tenant_1' });
+    (prisma.service.findUnique as jest.Mock).mockResolvedValue({ tenantId: 'tenant_1' });
     (prisma.recurringBooking.create as jest.Mock).mockResolvedValue(baseRecord);
 
     const res = await request(app)
@@ -164,6 +169,22 @@ describe('POST /api/recurring-bookings', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.data.id).toBe('rb_1');
+  });
+
+  it('403 — customer belongs to a different tenant', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ tenantId: 'tenant_other' });
+
+    const res = await request(app)
+      .post('/api/recurring-bookings')
+      .set('Authorization', makeToken('ADMIN'))
+      .send({
+        customerId:      'customer_x',
+        intervalDays:    30,
+        nextBookingDate: '2026-05-06T10:00:00Z',
+      });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error?.code).toBe('CUSTOMER_FORBIDDEN');
   });
 
   it('400 — validation error (missing customerId)', async () => {

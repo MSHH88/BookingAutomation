@@ -51,7 +51,7 @@ export const recurringQueue = new Queue<RecurringBookingJobData>(RECURRING_QUEUE
 
 // ─── Job processor ────────────────────────────────────────────────────────────
 
-async function processRecurringBookings(job: Job<RecurringBookingJobData>): Promise<void> {
+export async function processRecurringBookings(job: Job<RecurringBookingJobData>): Promise<void> {
   // Runtime flag check — toggles take effect immediately without restart
   if (!(await isFeatureEnabled('RECURRING_BOOKINGS_ENABLED'))) {
     logger.debug('Recurring booking job skipped — RECURRING_BOOKINGS_ENABLED is off');
@@ -83,11 +83,21 @@ async function processRecurringBookings(job: Job<RecurringBookingJobData>): Prom
 
       const customer = await prisma.user.findUnique({
         where: { id: recurring.customerId },
-        select: { id: true, name: true, phone: true, email: true, notificationChannel: true, isActive: true },
+        select: { id: true, tenantId: true, name: true, phone: true, email: true, notificationChannel: true, isActive: true },
       });
 
       if (!customer || !customer.isActive) {
         logger.warn('Recurring booking customer not found or inactive', { recurringId: recurring.id });
+        continue;
+      }
+
+      // Defense-in-depth: skip if customer's tenant does not match recurring booking's tenant.
+      if (recurring.tenantId !== null && customer.tenantId !== recurring.tenantId) {
+        logger.warn('Recurring booking skipped — customer tenant mismatch', {
+          recurringId:      recurring.id,
+          recurringTenant:  recurring.tenantId,
+          customerTenant:   customer.tenantId,
+        });
         continue;
       }
 
