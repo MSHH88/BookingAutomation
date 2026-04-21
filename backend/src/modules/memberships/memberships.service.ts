@@ -388,8 +388,16 @@ export async function handleSubscriptionWebhook(
         ? invoice.subscription
         : invoice.subscription?.id;
       if (!subId) return;
-      await prisma.customerMembership.updateMany({
-        where: { stripeSubscriptionId: subId },
+      const membership = await prisma.customerMembership.findFirst({
+        where:  { stripeSubscriptionId: subId },
+        select: { id: true, tenantId: true },
+      });
+      if (!membership) {
+        logger.warn('invoice.paid: no membership for subscription', { subscriptionId: subId });
+        return;
+      }
+      await prisma.customerMembership.update({
+        where: { id: membership.id },
         data:  {
           status:          'ACTIVE' as MembershipStatus,
           currentPeriodEnd: invoice.lines?.data?.[0]?.period?.end
@@ -397,7 +405,7 @@ export async function handleSubscriptionWebhook(
             : undefined,
         },
       });
-      logger.info('Membership marked ACTIVE via invoice.paid', { subscriptionId: subId });
+      logger.info('Membership marked ACTIVE via invoice.paid', { subscriptionId: subId, membershipId: membership.id });
       break;
     }
 
@@ -407,21 +415,37 @@ export async function handleSubscriptionWebhook(
         ? invoice.subscription
         : invoice.subscription?.id;
       if (!subId) return;
-      await prisma.customerMembership.updateMany({
-        where: { stripeSubscriptionId: subId },
+      const membership = await prisma.customerMembership.findFirst({
+        where:  { stripeSubscriptionId: subId },
+        select: { id: true, tenantId: true },
+      });
+      if (!membership) {
+        logger.warn('invoice.payment_failed: no membership for subscription', { subscriptionId: subId });
+        return;
+      }
+      await prisma.customerMembership.update({
+        where: { id: membership.id },
         data:  { status: 'PAST_DUE' as MembershipStatus },
       });
-      logger.info('Membership marked PAST_DUE via invoice.payment_failed', { subscriptionId: subId });
+      logger.info('Membership marked PAST_DUE via invoice.payment_failed', { subscriptionId: subId, membershipId: membership.id });
       break;
     }
 
     case 'customer.subscription.deleted': {
       const sub = object as Stripe.Subscription;
-      await prisma.customerMembership.updateMany({
-        where: { stripeSubscriptionId: sub.id },
+      const membership = await prisma.customerMembership.findFirst({
+        where:  { stripeSubscriptionId: sub.id },
+        select: { id: true, tenantId: true },
+      });
+      if (!membership) {
+        logger.warn('customer.subscription.deleted: no membership for subscription', { subscriptionId: sub.id });
+        return;
+      }
+      await prisma.customerMembership.update({
+        where: { id: membership.id },
         data:  { status: 'CANCELLED' as MembershipStatus },
       });
-      logger.info('Membership marked CANCELLED via customer.subscription.deleted', { subscriptionId: sub.id });
+      logger.info('Membership marked CANCELLED via customer.subscription.deleted', { subscriptionId: sub.id, membershipId: membership.id });
       break;
     }
 

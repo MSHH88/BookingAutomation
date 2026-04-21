@@ -496,6 +496,18 @@ async function onPaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent): Pr
     return;
   }
 
+  // Defense-in-depth: if Stripe metadata declares a tenantId, ensure it matches the booking's tenantId.
+  const metadataTenantId = paymentIntent.metadata?.tenantId;
+  if (metadataTenantId && booking.tenantId && metadataTenantId !== booking.tenantId) {
+    logger.warn('payment_intent.succeeded tenant mismatch — skipping update', {
+      bookingId,
+      paymentIntentId: paymentIntent.id,
+      metadataTenantId,
+      bookingTenantId: booking.tenantId,
+    });
+    return;
+  }
+
   // Idempotency guard — do not overwrite an existing depositPaidAt
   if (booking.depositPaidAt) {
     logger.debug('payment_intent.succeeded already processed — skipping', { bookingId });
@@ -514,15 +526,24 @@ async function onPaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent): Pr
     },
   });
 
-  // Update Payment record to SUCCEEDED
+  // Update Payment record to SUCCEEDED — scoped via booking relation to prevent
+  // accidental cross-tenant updates if Stripe IDs ever collide (Connect/multi-account).
   await prisma.payment.updateMany({
-    where: { stripePaymentIntentId: paymentIntent.id, status: 'PENDING' },
+    where: {
+      stripePaymentIntentId: paymentIntent.id,
+      status:                'PENDING',
+      booking:               { tenantId: booking.tenantId },
+    },
     data:  { status: 'SUCCEEDED', paidAt: now },
   });
 
   // Mark any outstanding invoice for this booking as paid
   await prisma.invoice.updateMany({
-    where: { bookingId, status: 'UNPAID' },
+    where: {
+      bookingId,
+      status:  'UNPAID',
+      booking: { tenantId: booking.tenantId },
+    },
     data:  { status: 'PAID', paidAt: now },
   });
 
@@ -569,14 +590,30 @@ async function onChargeRefunded(charge: Stripe.Charge): Promise<void> {
     return;
   }
 
+  // Look up the booking via paymentIntentId so we can bind subsequent updates
+  // to the booking's tenantId (defense-in-depth against cross-tenant ID collisions).
+  const booking = await prisma.booking.findFirst({
+    where:  { stripePaymentIntentId: paymentIntentId },
+    select: { id: true, tenantId: true },
+  });
+
+  if (!booking) {
+    logger.warn('charge.refunded: no booking matches paymentIntentId', { paymentIntentId, chargeId: charge.id });
+    return;
+  }
+
   await prisma.booking.updateMany({
-    where: { stripePaymentIntentId: paymentIntentId },
+    where: { id: booking.id, stripePaymentIntentId: paymentIntentId },
     data:  { depositRefunded: true },
   });
 
-  // Update Payment record to REFUNDED
+  // Update Payment record to REFUNDED — scoped to the same tenant.
   await prisma.payment.updateMany({
-    where: { stripePaymentIntentId: paymentIntentId, status: 'SUCCEEDED' },
+    where: {
+      stripePaymentIntentId: paymentIntentId,
+      status:                'SUCCEEDED',
+      booking:               { tenantId: booking.tenantId },
+    },
     data:  { status: 'REFUNDED', refundedAt: new Date(), refundedAmount: charge.amount_refunded / SUBUNIT_MULTIPLIER },
   });
 

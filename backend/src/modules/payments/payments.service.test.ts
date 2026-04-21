@@ -105,6 +105,7 @@ jest.mock('../webhooks/webhooks.queue', () => ({
 // ─── Mock Prisma ──────────────────────────────────────────────────────────────
 
 const mockBookingFindUnique  = jest.fn();
+const mockBookingFindFirst   = jest.fn();
 const mockBookingUpdate      = jest.fn();
 const mockBookingUpdateMany  = jest.fn();
 const mockInvoiceUpdateMany  = jest.fn();
@@ -117,6 +118,7 @@ jest.mock('../../lib/prisma', () => ({
   prisma: {
     booking: {
       findUnique:  (...a: unknown[]) => mockBookingFindUnique(...a),
+      findFirst:   (...a: unknown[]) => mockBookingFindFirst(...a),
       update:      (...a: unknown[]) => mockBookingUpdate(...a),
       updateMany:  (...a: unknown[]) => mockBookingUpdateMany(...a),
     },
@@ -195,6 +197,7 @@ beforeEach(() => {
   mockStudioFindFirst.mockResolvedValue(null);
   mockPaymentCreate.mockResolvedValue({});
   mockPaymentUpdateMany.mockResolvedValue({ count: 0 });
+  mockBookingFindFirst.mockResolvedValue(null);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -455,12 +458,14 @@ describe('handleWebhookEvent', () => {
 
   it('payment_intent.succeeded marks UNPAID invoice as PAID', async () => {
     mockConstructEvent.mockReturnValue(makeSuccessEvent(BOOKING_ID));
-    mockBookingFindUnique.mockResolvedValue(makeBooking());
+    mockBookingFindUnique.mockResolvedValue(makeBooking({ tenantId: 'tenant_a' }));
 
     await paymentsService.handleWebhookEvent(rawBody, validSig);
 
     expect(mockInvoiceUpdateMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { bookingId: BOOKING_ID, status: 'UNPAID' } }),
+      expect.objectContaining({
+        where: expect.objectContaining({ bookingId: BOOKING_ID, status: 'UNPAID' }),
+      }),
     );
   });
 
@@ -518,15 +523,17 @@ describe('handleWebhookEvent', () => {
       id:   'evt_refund',
       type: 'charge.refunded',
       data: {
-        object: { id: CHARGE_ID, payment_intent: PI_ID },
+        object: { id: CHARGE_ID, payment_intent: PI_ID, amount_refunded: 0, currency: 'gbp' },
       },
     });
+    // BUG 31: charge.refunded now looks up the booking via findFirst before updating.
+    mockBookingFindFirst.mockResolvedValue({ id: BOOKING_ID, tenantId: 'tenant_a' });
 
     const result = await paymentsService.handleWebhookEvent(rawBody, validSig);
     expect(result.received).toBe(true);
     expect(mockBookingUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { stripePaymentIntentId: PI_ID },
+        where: expect.objectContaining({ id: BOOKING_ID, stripePaymentIntentId: PI_ID }),
         data:  { depositRefunded: true },
       }),
     );
@@ -555,6 +562,65 @@ describe('handleWebhookEvent', () => {
     expect(result.received).toBe(true);
     expect(mockBookingUpdate).not.toHaveBeenCalled();
     expect(mockBookingUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it('payment_intent.succeeded skips updates when metadata.tenantId mismatches booking.tenantId', async () => {
+    mockConstructEvent.mockReturnValue({
+      id:   'evt_test',
+      type: 'payment_intent.succeeded',
+      data: {
+        object: {
+          id:       PI_ID,
+          metadata: { bookingId: BOOKING_ID, tenantId: 'tenant_b' },
+        },
+      },
+    });
+    mockBookingFindUnique.mockResolvedValue(makeBooking({ tenantId: 'tenant_a' }));
+
+    const result = await paymentsService.handleWebhookEvent(rawBody, validSig);
+    expect(result.received).toBe(true);
+    expect(mockBookingUpdate).not.toHaveBeenCalled();
+    expect(mockPaymentUpdateMany).not.toHaveBeenCalled();
+    expect(mockInvoiceUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it('payment_intent.succeeded scopes payment & invoice updates by booking.tenantId', async () => {
+    mockConstructEvent.mockReturnValue(makeSuccessEvent(BOOKING_ID));
+    mockBookingFindUnique.mockResolvedValue(makeBooking({ tenantId: 'tenant_a' }));
+
+    await paymentsService.handleWebhookEvent(rawBody, validSig);
+
+    expect(mockPaymentUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          stripePaymentIntentId: PI_ID,
+          status:                'PENDING',
+          booking:               { tenantId: 'tenant_a' },
+        }),
+      }),
+    );
+    expect(mockInvoiceUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          bookingId: BOOKING_ID,
+          booking:   { tenantId: 'tenant_a' },
+        }),
+      }),
+    );
+  });
+
+  it('charge.refunded skips when no booking matches the paymentIntentId', async () => {
+    mockConstructEvent.mockReturnValue({
+      id:   'evt_refund_no_booking',
+      type: 'charge.refunded',
+      data: { object: { id: CHARGE_ID, payment_intent: PI_ID, amount_refunded: 0, currency: 'gbp' } },
+    });
+    mockBookingFindFirst.mockResolvedValue(null);
+
+    const result = await paymentsService.handleWebhookEvent(rawBody, validSig);
+    expect(result.received).toBe(true);
+    expect(mockBookingUpdateMany).not.toHaveBeenCalled();
+    expect(mockPaymentUpdateMany).not.toHaveBeenCalled();
   });
 });
 

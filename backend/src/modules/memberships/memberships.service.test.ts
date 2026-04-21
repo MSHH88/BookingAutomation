@@ -246,7 +246,8 @@ describe('memberships.service', () => {
 
   describe('handleSubscriptionWebhook', () => {
     it('sets PAST_DUE on invoice.payment_failed', async () => {
-      (prisma.customerMembership.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+      (prisma.customerMembership.findFirst as jest.Mock).mockResolvedValue({ id: 'cm-1', tenantId: 'tenant-1' });
+      (prisma.customerMembership.update as jest.Mock).mockResolvedValue({});
 
       const fakeInvoice = {
         subscription: 'sub_123',
@@ -255,26 +256,39 @@ describe('memberships.service', () => {
 
       await handleSubscriptionWebhook('invoice.payment_failed', fakeInvoice);
 
-      expect(prisma.customerMembership.updateMany).toHaveBeenCalledWith(
+      expect(prisma.customerMembership.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { stripeSubscriptionId: 'sub_123' } }),
+      );
+      expect(prisma.customerMembership.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { stripeSubscriptionId: 'sub_123' },
+          where: { id: 'cm-1' },
           data:  { status: 'PAST_DUE' },
         }),
       );
     });
 
     it('sets CANCELLED on customer.subscription.deleted', async () => {
-      (prisma.customerMembership.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+      (prisma.customerMembership.findFirst as jest.Mock).mockResolvedValue({ id: 'cm-2', tenantId: 'tenant-1' });
+      (prisma.customerMembership.update as jest.Mock).mockResolvedValue({});
 
       const fakeSub = { id: 'sub_123' } as unknown as any;
       await handleSubscriptionWebhook('customer.subscription.deleted', fakeSub);
 
-      expect(prisma.customerMembership.updateMany).toHaveBeenCalledWith(
+      expect(prisma.customerMembership.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { stripeSubscriptionId: 'sub_123' },
+          where: { id: 'cm-2' },
           data:  { status: 'CANCELLED' },
         }),
       );
+    });
+
+    it('skips when no membership matches the subscription id', async () => {
+      (prisma.customerMembership.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const fakeSub = { id: 'sub_missing' } as unknown as any;
+      await handleSubscriptionWebhook('customer.subscription.deleted', fakeSub);
+
+      expect(prisma.customerMembership.update).not.toHaveBeenCalled();
     });
   });
 });
