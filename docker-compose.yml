@@ -1,0 +1,165 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# BookingAutomation — Local development infrastructure
+#
+# Core services (always started):
+#   postgres  PostgreSQL 16 — primary database
+#   redis     Redis 7        — BullMQ job queue + caching
+#
+# Optional dev-tool services (add --profile tools to enable):
+#   adminer   Lightweight DB admin GUI  → http://localhost:8080
+#   mailpit   SMTP catch-all + web UI   → http://localhost:8025
+#
+# Optional fully-containerised API (add --profile app to enable):
+#   backend   Node.js API              → http://localhost:3000
+#
+# Quick start (recommended for daily dev):
+#   docker compose up -d                     # DB + Redis only
+#   cd backend && npm run dev                # API with hot-reload
+#
+# Run with dev tools:
+#   docker compose --profile tools up -d    # DB + Redis + Adminer + Mailpit
+#
+# Run everything in Docker (staging-like):
+#   docker compose --profile app up -d      # full stack (requires .env)
+#
+# Maintenance:
+#   docker compose down                      # stop containers (keep volumes)
+#   docker compose down -v                   # stop + wipe all volumes (DESTRUCTIVE)
+#   docker compose logs -f                   # follow all logs
+#   docker compose ps                        # check health status
+#   docker compose exec postgres psql -U postgres automation_dev
+#   docker compose exec redis redis-cli
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL 16 ───────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: bookingautomation_postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-automation_dev}
+      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # Store data in a named subdirectory to avoid init-check false positives
+      PGDATA:            /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:         ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-automation_dev}"]
+      interval:     10s
+      timeout:      5s
+      retries:      5
+      start_period: 30s
+    networks:
+      - bookingautomation
+
+  # ── Redis 7 ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: bookingautomation_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test:         ["CMD", "redis-cli", "ping"]
+      interval:     10s
+      timeout:      5s
+      retries:      5
+      start_period: 10s
+    networks:
+      - bookingautomation
+
+  # ── Adminer — database admin GUI ────────────────────────────────────────────
+  # Access: http://localhost:8080
+  #   System: PostgreSQL | Server: postgres | User: postgres | Password: postgres
+  # Only started with: docker compose --profile tools up -d
+  adminer:
+    image: adminer:4-standalone
+    container_name: bookingautomation_adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN:         pepa-linha-dark
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bookingautomation
+    profiles:
+      - tools
+
+  # ── Mailpit — SMTP catch-all for development ─────────────────────────────────
+  # SMTP:    localhost:1025  (configure RESEND_SMTP_* or similar to point here in dev)
+  # Web UI:  http://localhost:8025
+  # Mailpit is the modern, multi-arch (ARM64 compatible) successor to MailHog.
+  # Only started with: docker compose --profile tools up -d
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: bookingautomation_mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"  # SMTP
+      - "${MAILPIT_UI_PORT:-8025}:8025"    # Web UI
+    networks:
+      - bookingautomation
+    profiles:
+      - tools
+
+  # ── Backend — Node.js API ────────────────────────────────────────────────────
+  # For day-to-day local dev use `npm run dev` instead — it is faster (hot-reload via tsx).
+  # Use this service only when you need a fully-containerised staging-like environment.
+  # Only started with: docker compose --profile app up -d
+  # Requires: backend/.env to exist (copy backend/.env.example → backend/.env)
+  backend:
+    build:
+      context:    ./backend
+      dockerfile: Dockerfile
+      target:     runner
+    container_name: bookingautomation_backend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override connection strings so the app talks to the containerised DB/Redis
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-automation_dev}"
+      REDIS_URL:    "redis://redis:6379"
+      NODE_ENV:     production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:         ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval:     30s
+      timeout:      10s
+      retries:      3
+      start_period: 30s
+    networks:
+      - bookingautomation
+    profiles:
+      - app
+
+# ── Named volumes ──────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ── Internal network ──────────────────────────────────────────────────────────
+networks:
+  bookingautomation:
+    driver: bridge

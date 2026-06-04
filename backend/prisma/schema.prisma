@@ -1,0 +1,1525 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN // Platform owner — sits above all tenant roles; cross-tenant access
+  ADMIN       // Business owner / studio manager — tenant-scoped
+  ARTIST      // Staff member — tenant-scoped
+  CUSTOMER    // End customer — tenant-scoped
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  BOOKED
+  COMPLETED
+  CANCELLED
+  LOST
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum BookingStatus {
+  PENDING
+  AWAITING_DEPOSIT
+  AWAITING_FORM
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum HealthFlagType {
+  LATEX_ALLERGY
+  BLOOD_THINNERS
+  SKIN_CONDITION
+  PREGNANCY
+  EPILEPSY
+  PACEMAKER
+  PRODUCT_SENSITIVITY
+  OTHER
+}
+
+enum HealthFlagSeverity {
+  HIGH
+  MEDIUM
+}
+
+enum PhotoType {
+  BEFORE
+  AFTER
+}
+
+enum BookingSource {
+  DIRECT
+  INSTAGRAM
+  FACEBOOK
+  WIDGET
+  POS
+  REFERRAL
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+  VOID
+}
+
+enum CommissionType {
+  PERCENTAGE
+  FLAT
+}
+
+enum WaitlistStatus {
+  WAITING
+  NOTIFIED
+  BOOKED
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  CARD
+  CASH
+  TERMINAL
+  GIFT_CARD
+}
+
+enum StockMovementReason {
+  SALE
+  ADJUSTMENT
+  RESTOCK
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+// ─── Tenant ───────────────────────────────────────────────────────────────────
+// Core multi-tenancy model. Each sold business instance is a Tenant.
+// SUPER_ADMIN manages all tenants; all other users belong to exactly one tenant.
+
+model Tenant {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  businessType String   @default("tattoo_studio")
+  plan         String   @default("starter") // starter | pro | enterprise
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users             User[]
+  artists           Artist[]
+  settings          StudioSettings?
+  featureFlags      FeatureFlag[]
+  emailTemplates    EmailTemplate[]
+  whatsappTemplates WhatsAppTemplate[]
+  smsTemplates      SmsTemplate[]
+  recurringBookings RecurringBooking[]
+  campaigns         Campaign[]
+  serviceCategories ServiceCategory[]
+  services          Service[]
+  tattooStyles      TattooStyle[]
+  tables            Table[]
+  waitlistEntries   WaitlistEntry[]
+  leads             Lead[]
+  bookings          Booking[]
+  webhooks          Webhook[]
+  analyticsEvents   AnalyticsEvent[]
+  healthFlags       HealthFlag[]
+  forms             Form[]
+  formResponses     FormResponse[]
+  bookingPhotos     BookingPhoto[]
+  referrals         Referral[]
+  payments          Payment[]
+  giftCards         GiftCard[]
+  products          Product[]
+  stockMovements    StockMovement[]
+  payrollReports    PayrollReport[]
+  packages          Package[]
+  customerPackages  CustomerPackage[]
+  memberships       Membership[]
+  customerMemberships CustomerMembership[]
+  loyaltyAccounts   LoyaltyAccount[]
+  shifts            Shift[]
+  pushSubscriptions PushSubscription[]
+  artistMedia       ArtistMedia[]
+  pricingRules      PricingRule[]
+  aiSuggestions     AISuggestion[]
+  locations         Location[]
+  sessions          Session[]
+  sessionBookings   SessionBooking[]
+  quotes            Quote[]              @relation("TenantQuotes")
+
+  @@index([isActive])
+  @@map("tenants")
+}
+
+model User {
+  id               String    @id @default(cuid())
+  tenantId         String?   // null for SUPER_ADMIN; required for all other roles
+  email            String    @unique
+  passwordHash     String
+  role             Role      @default(CUSTOMER)
+  name             String
+  phone            String?
+  marketingConsent Boolean   @default(false)
+  gdprConsentAt    DateTime?
+  loyaltyBalance   Int       @default(0)
+  stripeCustomerId String?
+  isActive         Boolean   @default(true)
+  // ─── Permission flags (set by SUPER_ADMIN; embedded in JWT at login) ────────
+  canViewLeads     Boolean   @default(false) // ADMIN may view leads when true
+  canAssignRoles   Boolean   @default(false) // ADMIN may assign roles ≤ ADMIN when true
+  canManageMessages   Boolean              @default(false)
+  notificationChannel NotificationChannel  @default(WHATSAPP)
+  noRebookNudge       Boolean              @default(false)
+  unsubscribed        Boolean              @default(false)
+  dateOfBirth         DateTime?
+  referralCode        String?           @unique // short code for referral tracking
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  tenant        Tenant?        @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  artist        Artist?
+  refreshTokens RefreshToken[]
+  resetTokens   PasswordResetToken[]
+  bookings      Booking[]    @relation("CustomerBookings")
+  healthFlags   HealthFlag[]
+  formResponses FormResponse[]
+  referralsGiven    Referral[] @relation("ReferrerReferrals")
+  referralsReceived Referral[] @relation("RefereeReferrals")
+  customerPackages  CustomerPackage[]
+  customerMemberships CustomerMembership[]
+  loyaltyAccounts   LoyaltyAccount[]
+  pushSubscriptions PushSubscription[]
+  aiSuggestions     AISuggestion[]  @relation("CustomerAISuggestions")
+  sessionBookings   SessionBooking[] @relation("CustomerSessionBookings")
+
+  @@index([tenantId])
+  @@index([tenantId, role])
+  @@map("users")
+}
+
+model Artist {
+  id                    String          @id @default(cuid())
+  tenantId              String?
+  userId                String          @unique
+  slug                  String          @unique
+  bio                   String?
+  profileImageUrl       String?
+  portfolioImages       String[]
+  bufferMinutes         Int             @default(30)
+  slotDuration          Int             @default(90)
+  commissionRate        Decimal?        @db.Decimal(5, 2)
+  commissionType        CommissionType?
+  basePay               Decimal?        @db.Decimal(10, 2)
+  serviceCommissionPct  Decimal?        @db.Decimal(5, 2)
+  productCommissionPct  Decimal?        @db.Decimal(5, 2)
+  calendarAccessToken    String?
+  calendarRefreshToken   String?
+  calendarTokenExpiresAt DateTime?
+  microsoftAccessToken   String?
+  microsoftRefreshToken  String?
+  appleCalDAVUrl         String?
+  appleCalDAVToken       String?
+  isActive               Boolean         @default(true)
+  locationId             String?
+
+  tenant       Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location     Location?            @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  availability ArtistAvailability[]
+  blocks       AvailabilityBlock[]
+  styles       ArtistStyle[]
+  services     ArtistService[]
+  leads        Lead[]               @relation("ArtistLeads")
+  quotes       Quote[]              @relation("ArtistQuotes")
+  bookings     Booking[]            @relation("ArtistBookings")
+  payrollReports PayrollReport[]
+  shifts       Shift[]
+  media        ArtistMedia[]
+  sessions     Session[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("artists")
+}
+
+model ArtistAvailability {
+  id         String  @id @default(cuid())
+  artistId   String
+  dayOfWeek  Int
+  startTime  String
+  endTime    String
+  breakStart String?
+  breakEnd   String?
+  isActive   Boolean @default(true)
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, dayOfWeek])
+  @@index([artistId, isActive])
+  @@map("artist_availability")
+}
+
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  artistId  String
+  startAt   DateTime
+  endAt     DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId, startAt, endAt])
+  @@map("availability_blocks")
+}
+
+model TattooStyle {
+  id              String  @id @default(cuid())
+  tenantId        String?
+  name            String  @unique
+  description     String?
+  exampleImageUrl String?
+  isActive        Boolean @default(true)
+
+  tenant  Tenant?       @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  artists ArtistStyle[]
+  leads   Lead[]        @relation("StyleLeads")
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("tattoo_styles")
+}
+
+model ArtistStyle {
+  artistId String
+  styleId  String
+
+  artist Artist      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  style  TattooStyle @relation(fields: [styleId], references: [id], onDelete: Cascade)
+
+  @@id([artistId, styleId])
+  @@map("artist_styles")
+}
+
+model Lead {
+  id               String     @id @default(cuid())
+  tenantId         String?
+  artistId         String?
+  styleId          String?
+  customerId       String?
+  serviceId        String?
+  placement        Json?
+  size             String?
+  colorPreference  String?
+  referenceImages  String[]
+  description      String
+  name             String
+  email            String
+  phone            String
+  preferWhatsApp   Boolean    @default(false)
+  preferredDates   Json?
+  marketingConsent Boolean    @default(false)
+  status           LeadStatus @default(NEW)
+  score            Int        @default(0)
+  businessType     String     @default("tattoo_studio")
+  country          String?
+  pageVisited      String?
+  source           String?
+  utmSource        String?
+  utmMedium        String?
+  utmCampaign      String?
+  ipAddress        String?
+  deviceType       String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  artist          Artist?      @relation("ArtistLeads", fields: [artistId], references: [id], onDelete: SetNull)
+  style           TattooStyle? @relation("StyleLeads", fields: [styleId], references: [id], onDelete: SetNull)
+  service         Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  tenant          Tenant?      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  quotes          Quote[]
+  booking         Booking?
+  analyticsEvents AnalyticsEvent[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([artistId, status])
+  @@index([email])
+  @@index([createdAt])
+  @@index([businessType])
+  @@index([country])
+  @@map("leads")
+}
+
+model Quote {
+  id          String      @id @default(cuid())
+  tenantId    String?
+  leadId      String
+  artistId    String
+  price       Decimal     @db.Decimal(10, 2)
+  hours       Float?
+  notes       String?
+  validUntil  DateTime
+  status      QuoteStatus @default(DRAFT)
+  sentAt      DateTime?
+  respondedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  tenant  Tenant? @relation("TenantQuotes", fields: [tenantId], references: [id], onDelete: SetNull)
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  artist  Artist  @relation("ArtistQuotes", fields: [artistId], references: [id], onDelete: Restrict)
+  booking Booking?
+
+  @@index([tenantId])
+  @@index([leadId])
+  @@index([artistId, status])
+  @@map("quotes")
+}
+
+model Booking {
+  id                   String        @id @default(cuid())
+  tenantId             String?
+  leadId               String?       @unique
+  quoteId              String?       @unique
+  artistId             String
+  serviceId            String?
+  tableId              String?
+  customerId           String?
+  startAt              DateTime
+  endAt                DateTime
+  status               BookingStatus @default(PENDING)
+  calendarEventId      String?
+  icsToken             String?       @unique
+  notes                String?
+  specialRequests      String?
+  partySize            Int?
+  totalDurationMinutes Int?
+  totalAmount          Decimal?      @db.Decimal(10, 2)
+  depositAmount        Decimal?      @db.Decimal(10, 2)
+  depositPaidAt        DateTime?
+  depositRefunded      Boolean       @default(false)
+  commissionEarned     Decimal?      @db.Decimal(10, 2)
+  policyAcceptedAt     DateTime?
+  policyVersion        String?
+  rescheduledFrom      String?
+  publicToken           String?       @unique
+  source                BookingSource @default(DIRECT)
+  stripePaymentIntentId String?
+  confirmedAt          DateTime?
+  completedAt          DateTime?
+  cancelledAt          DateTime?
+  cancelReason         String?
+  locationId           String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  lead            Lead?           @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote           Quote?          @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  artist          Artist          @relation("ArtistBookings", fields: [artistId], references: [id], onDelete: Restrict)
+  service         Service?        @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  table           Table?          @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  customer        User?           @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: SetNull)
+  tenant          Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  location        Location?       @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  invoice         Invoice?
+  services        BookingService[]
+  waitlistEntries WaitlistEntry[]
+  formResponses   FormResponse[]
+  photos          BookingPhoto[]
+  payments        Payment[]
+  aiSuggestions   AISuggestion[]
+
+  @@index([tenantId])
+  @@index([artistId, startAt])
+  @@index([status])
+  @@index([startAt, endAt])
+  @@index([customerId])
+  @@map("bookings")
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  bookingId String        @unique
+  amount    Decimal       @db.Decimal(10, 2)
+  currency  String        @default("GBP")
+  status    InvoiceStatus @default(UNPAID)
+  dueDate   DateTime
+  paidAt    DateTime?
+  voidedAt  DateTime?
+  sentAt    DateTime?
+  notes     String?
+  lineItems Json
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String?  // null = global default; non-null = per-tenant override
+  key       String
+  subject   String
+  htmlBody  String
+  variables Json
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("email_templates")
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  tenantId    String?  // null = global default; non-null = per-tenant override
+  key         String
+  label       String
+  description String?
+  isEnabled   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([key, tenantId])
+  @@index([tenantId])
+  @@map("feature_flags")
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  tenantId    String?
+  leadId      String?
+  eventType   String
+  payload     Json?
+  sessionId   String?
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  createdAt   DateTime @default(now())
+
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([eventType])
+  @@index([leadId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+// ─── Service Catalogue ────────────────────────────────────────────────────────
+
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  tenantId    String?
+  name        String
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  services Service[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("service_categories")
+}
+
+model Service {
+  id                 String   @id @default(cuid())
+  tenantId           String?
+  categoryId         String
+  name               String
+  description        String?
+  durationMinutes    Int
+  priceFrom          Decimal? @db.Decimal(10, 2)
+  bufferMinutes      Int      @default(0)
+  rebookIntervalDays Int?
+  isActive           Boolean  @default(true)
+  locationId         String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenant          Tenant?          @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  category        ServiceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  location        Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  artists         ArtistService[]
+  bookings        Booking[]
+  bookingServices BookingService[]
+  leads           Lead[]
+  pricingRules    PricingRule[]
+  aiSuggestions   AISuggestion[]
+  sessions        Session[]
+
+  @@index([tenantId])
+  @@index([categoryId, isActive])
+  @@index([isActive])
+  @@map("services")
+}
+
+model ArtistService {
+  artistId    String
+  serviceId   String
+  customPrice Decimal? @db.Decimal(10, 2) // per-artist price override; null = use Service.priceFrom
+
+  artist  Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([artistId, serviceId])
+  @@map("artist_services")
+}
+
+model BookingService {
+  id              String  @id @default(cuid())
+  bookingId       String
+  serviceId       String
+  price           Decimal @db.Decimal(10, 2)
+  durationMinutes Int
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([bookingId])
+  @@map("booking_services")
+}
+
+// ─── Table / Restaurant ───────────────────────────────────────────────────────
+
+model Table {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  name      String
+  capacity  Int
+  location  String?
+  positionX Float?   // x coordinate for visual floor-plan (CRM)
+  positionY Float?   // y coordinate for visual floor-plan (CRM)
+  isActive  Boolean  @default(true)
+  locationId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant     Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  tableLocation Location? @relation("TableLocation", fields: [locationId], references: [id], onDelete: SetNull)
+  bookings   Booking[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("tables")
+}
+
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
+
+model WaitlistEntry {
+  id                  String         @id @default(cuid())
+  tenantId            String?
+  bookingId           String?
+  artistId            String?
+  serviceId           String?
+  name                String
+  email               String
+  phone               String
+  requestedDate       DateTime?
+  notes               String?
+  status              WaitlistStatus @default(WAITING)
+  timePreference      TimePreference @default(ANY)
+  notifiedAt          DateTime?
+  notificationExpiry  DateTime?
+  expiresAt           DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([email])
+  @@index([artistId])
+  @@index([serviceId])
+  @@map("waitlist_entries")
+}
+
+// ─── Studio Settings (singleton) ──────────────────────────────────────────────
+
+model StudioSettings {
+  id                      String   @id @default(cuid())
+  tenantId                String?  @unique // one settings row per tenant; null = legacy single-tenant
+  studioName              String
+  studioEmail             String?
+  studioPhone             String?
+  studioAddress           String?
+  studioTimezone          String   @default("Europe/London")
+  currency                String   @default("GBP")
+  depositPercentage       Decimal  @default(20) @db.Decimal(5, 2)
+  depositFixedAmount      Decimal? @db.Decimal(10, 2)
+  cancellationHours       Int      @default(24)
+  cancellationFeePercent  Decimal  @default(0) @db.Decimal(5, 2)
+  cancellationPolicyText  String?
+  maxCoversPerSlot        Int?
+  slotIntervalMinutes     Int      @default(15)
+  noShowFeeAmount         Decimal? @db.Decimal(10, 2) // flat fee charged on no-show
+  noShowGracePeriodMinutes Int     @default(30)
+  noShowAutoCharge        Boolean  @default(false)     // automatically charge no-show fee
+  googleReviewUrl         String?
+  bookingPageUrl          String?
+  updatedAt               DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("studio_settings")
+}
+
+// ─── Outgoing Webhooks ────────────────────────────────────────────────────────
+
+model Webhook {
+  id          String   @id @default(cuid())
+  tenantId    String?
+  url         String   @db.VarChar(2048)
+  events      String[] // e.g. ["booking.created", "payment.succeeded"]
+  secret      String   // HMAC-SHA256 signing secret (min 16 chars)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant     Tenant?           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id         String   @id @default(cuid())
+  webhookId  String
+  event      String
+  payload    Json
+  statusCode Int?
+  response   String?  @db.Text
+  durationMs Int?
+  success    Boolean  @default(false)
+  error      String?
+  attempt    Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([createdAt])
+  @@index([success])
+  @@map("webhook_deliveries")
+}
+
+// ─── WhatsApp Templates ───────────────────────────────────────────────────────
+// Stores editable WhatsApp message templates per tenant.
+// Seeded with global defaults (tenantId = null); each tenant can override.
+
+model WhatsAppTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String?  // null = global default; non-null = per-tenant override
+  key       String   // Template key, e.g. "booking-confirmed"
+  body      String   @db.Text
+  variables Json     @default("[]") // Array of variable names, e.g. ["customerName","date"]
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("whatsapp_templates")
+}
+
+// ─── Enums: Notification & Campaign ───────────────────────────────────────────
+
+enum NotificationChannel {
+  WHATSAPP
+  SMS
+  EMAIL
+  ALL
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+// ─── SMS Templates ────────────────────────────────────────────────────────────
+
+model SmsTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  key       String
+  body      String   @db.Text
+  variables Json     @default("[]")
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("sms_templates")
+}
+
+// ─── Recurring Bookings ───────────────────────────────────────────────────────
+
+model RecurringBooking {
+  id              String   @id @default(cuid())
+  tenantId        String?
+  customerId      String
+  serviceId       String?
+  artistId        String?
+  intervalDays    Int
+  nextBookingDate DateTime
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([isActive, nextBookingDate])
+  @@map("recurring_bookings")
+}
+
+// ─── Campaigns ────────────────────────────────────────────────────────────────
+
+model Campaign {
+  id             String         @id @default(cuid())
+  tenantId       String?
+  name           String
+  channel        NotificationChannel @default(WHATSAPP)
+  templateKey    String
+  audienceFilter Json           @default("{}")
+  scheduledAt    DateTime?
+  status         CampaignStatus @default(DRAFT)
+  stats          Json           @default("{}")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("campaigns")
+}
+
+// ─── Phase 3: Customer Profile & Safety ───────────────────────────────────────
+
+model HealthFlag {
+  id          String             @id @default(cuid())
+  customerId  String
+  tenantId    String?
+  type        HealthFlagType
+  notes       String?
+  severity    HealthFlagSeverity @default(MEDIUM)
+  confirmedAt DateTime?
+  confirmedBy String?            // userId who confirmed
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  customer User    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([tenantId])
+  @@index([type])
+  @@map("health_flags")
+}
+
+model Form {
+  id           String   @id @default(cuid())
+  tenantId     String?
+  name         String
+  serviceTypes String[] // which service categories require this form
+  fields       Json     // array of field definitions: { name, type, label, required, options? }
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant    Tenant?        @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  responses FormResponse[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("forms")
+}
+
+model FormResponse {
+  id          String    @id @default(cuid())
+  formId      String
+  bookingId   String?
+  customerId  String?
+  tenantId    String?
+  answers     Json      // { fieldName: value, ... }
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  form     Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  booking  Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customer User?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  tenant   Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([formId])
+  @@index([bookingId])
+  @@index([customerId])
+  @@index([tenantId])
+  @@map("form_responses")
+}
+
+model BookingPhoto {
+  id          String    @id @default(cuid())
+  bookingId   String
+  tenantId    String?
+  url         String
+  type        PhotoType
+  uploadedBy  String?   // artistId or userId who uploaded
+  description String?
+  uploadedAt  DateTime  @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tenant  Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([tenantId])
+  @@index([type])
+  @@map("booking_photos")
+}
+
+model Referral {
+  id            String   @id @default(cuid())
+  tenantId      String?
+  referrerId    String   // customer who referred
+  refereeId     String   // customer who was referred
+  referralCode  String
+  rewardIssued  Boolean  @default(false)
+  rewardAmount  Decimal? @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  referrer User    @relation("ReferrerReferrals", fields: [referrerId], references: [id], onDelete: Cascade)
+  referee  User    @relation("RefereeReferrals", fields: [refereeId], references: [id], onDelete: Cascade)
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([referrerId])
+  @@index([refereeId])
+  @@index([referralCode])
+  @@map("referrals")
+}
+
+// ─── Phase 4: Financial & POS ─────────────────────────────────────────────────
+
+// Payment record — tracks every payment transaction (tip, full, partial, cash, card).
+model Payment {
+  id                    String        @id @default(cuid())
+  tenantId              String?
+  bookingId             String?
+  amount                Decimal       @db.Decimal(10, 2)
+  tipAmount             Decimal?      @db.Decimal(10, 2)
+  currency              String        @default("GBP")
+  status                PaymentStatus @default(PENDING)
+  method                PaymentMethod @default(CARD)
+  stripePaymentIntentId String?       @unique
+  paidAt                DateTime?
+  refundedAt            DateTime?
+  refundedAmount        Decimal?      @db.Decimal(10, 2)
+  notes                 String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+// Gift card — sold/issued by studio, redeemable at checkout.
+model GiftCard {
+  id             String    @id @default(cuid())
+  tenantId       String?
+  code           String    @unique  // 12-char alphanumeric code
+  originalValue  Decimal   @db.Decimal(10, 2)
+  currentBalance Decimal   @db.Decimal(10, 2)
+  issuedTo       String?             // recipient email
+  purchasedById  String?             // customerId who bought it
+  expiresAt      DateTime?
+  isRedeemed     Boolean   @default(false) // fully used up
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([code])
+  @@index([issuedTo])
+  @@index([purchasedById])
+  @@map("gift_cards")
+}
+
+// Product — physical or retail item sold by the studio.
+model Product {
+  id                String   @id @default(cuid())
+  tenantId          String?
+  name              String
+  sku               String?
+  price             Decimal  @db.Decimal(10, 2)
+  stockLevel        Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  category          String?
+  imageUrl          String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant         Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  stockMovements StockMovement[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([sku])
+  @@map("products")
+}
+
+// StockMovement — audit trail for inventory in/out changes.
+model StockMovement {
+  id        String              @id @default(cuid())
+  productId String
+  tenantId  String?
+  quantity  Int                 // positive = stock in, negative = stock out
+  reason    StockMovementReason
+  bookingId String?
+  notes     String?
+  createdAt DateTime            @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenant  Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([tenantId])
+  @@index([reason])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+model PayrollReport {
+  id                 String   @id @default(cuid())
+  tenantId           String?
+  artistId           String
+  periodStart        DateTime
+  periodEnd          DateTime
+  basePay            Decimal  @db.Decimal(10, 2)
+  serviceCommission  Decimal  @db.Decimal(10, 2)
+  productCommission  Decimal  @db.Decimal(10, 2)
+  totalTips          Decimal  @db.Decimal(10, 2)
+  totalPay           Decimal  @db.Decimal(10, 2)
+  generatedAt        DateTime @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  artist Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([artistId])
+  @@index([periodStart, periodEnd])
+  @@map("payroll_reports")
+}
+
+// ─── Phase 5: Packages, Loyalty & Retention ──────────────────────────────────
+
+// Package — a purchasable bundle of services sold at a fixed price.
+model Package {
+  id               String   @id @default(cuid())
+  tenantId         String?
+  name             String
+  description      String?
+  price            Decimal  @db.Decimal(10, 2)
+  includedServices Json     // Array: [{ serviceId: string, quantity: number }]
+  totalUses        Int      @default(1)
+  expiryDays       Int?     // days from purchase before the package expires (null = no expiry)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  tenant            Tenant?           @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  customerPackages  CustomerPackage[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("packages")
+}
+
+// CustomerPackage — a Package instance owned by a customer after purchase.
+model CustomerPackage {
+  id             String    @id @default(cuid())
+  customerId     String
+  packageId      String
+  tenantId       String?
+  remainingUses  Int
+  purchasedAt    DateTime  @default(now())
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  customer User?    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  package  Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  tenant   Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([packageId])
+  @@index([tenantId])
+  @@index([expiresAt])
+  @@map("customer_packages")
+}
+
+// Membership — a recurring subscription product (monthly or annual).
+model Membership {
+  id               String          @id @default(cuid())
+  tenantId         String?
+  name             String
+  price            Decimal         @db.Decimal(10, 2)
+  billingInterval  BillingInterval @default(MONTHLY)
+  includedServices Json            // Array of service IDs covered (empty = all)
+  usageLimit       Int?            // null = unlimited per billing period
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  tenant              Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  customerMemberships CustomerMembership[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("memberships")
+}
+
+// CustomerMembership — active Stripe subscription for a customer.
+model CustomerMembership {
+  id                   String           @id @default(cuid())
+  customerId           String
+  membershipId         String
+  tenantId             String?
+  stripeSubscriptionId String?          @unique
+  status               MembershipStatus @default(ACTIVE)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  customer   User?      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  tenant     Tenant?    @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([membershipId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+  @@map("customer_memberships")
+}
+
+// LoyaltyAccount — one account per customer per tenant tracking points.
+model LoyaltyAccount {
+  id           String   @id @default(cuid())
+  customerId   String
+  tenantId     String?
+  points       Int      @default(0)
+  tier         LoyaltyTier @default(BRONZE)
+  totalEarned  Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customer     User?                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant       Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  transactions LoyaltyTransaction[]
+
+  @@unique([customerId, tenantId])
+  @@index([tenantId])
+  @@index([tier])
+  @@map("loyalty_accounts")
+}
+
+// LoyaltyTransaction — audit trail of all points earned and redeemed.
+model LoyaltyTransaction {
+  id               String   @id @default(cuid())
+  loyaltyAccountId String
+  points           Int      // positive = earned, negative = redeemed
+  reason           String
+  bookingId        String?
+  createdAt        DateTime @default(now())
+
+  loyaltyAccount LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+
+  @@index([loyaltyAccountId])
+  @@index([bookingId])
+  @@index([createdAt])
+  @@map("loyalty_transactions")
+}
+
+// ─── Phase 5 Enums ────────────────────────────────────────────────────────────
+
+enum BillingInterval {
+  MONTHLY
+  ANNUAL
+}
+
+enum MembershipStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum TimePreference {
+  MORNING
+  AFTERNOON
+  EVENING
+  ANY
+}
+
+// ─── Phase 6: Staff & HR ──────────────────────────────────────────────────────
+
+// Shift — defines a recurring weekly work pattern for an artist.
+model Shift {
+  id              String    @id @default(cuid())
+  tenantId        String?
+  artistId        String
+  dayOfWeek       Int       // 0 = Sunday … 6 = Saturday
+  startTime       String    // HH:MM (24-hour)
+  endTime         String    // HH:MM (24-hour)
+  isRecurring     Boolean   @default(true)
+  effectiveFrom   DateTime
+  effectiveUntil  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  artist    Artist          @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tenant    Tenant?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  overrides ShiftOverride[]
+
+  @@index([artistId])
+  @@index([tenantId])
+  @@index([dayOfWeek])
+  @@index([effectiveFrom])
+  @@map("shifts")
+}
+
+// ShiftOverride — a one-off change or day-off for a specific shift on a specific date.
+model ShiftOverride {
+  id         String    @id @default(cuid())
+  shiftId    String
+  date       DateTime  @db.Date
+  startTime  String?   // null when isOff = true
+  endTime    String?   // null when isOff = true
+  isOff      Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  shift  Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, date])
+  @@index([shiftId])
+  @@index([date])
+  @@map("shift_overrides")
+}
+
+// PushSubscription — Web Push subscription record for a staff member (PWA).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  tenantId  String?
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([tenantId])
+  @@map("push_subscriptions")
+}
+
+// ArtistMedia — profile photo and portfolio images for an artist.
+model ArtistMedia {
+  id                 String          @id @default(cuid())
+  artistId           String
+  tenantId           String?
+  url                String
+  cloudinaryPublicId String
+  type               ArtistMediaType @default(PORTFOLIO)
+  sortOrder          Int             @default(0)
+  uploadedAt         DateTime        @default(now())
+
+  artist Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([artistId])
+  @@index([tenantId])
+  @@index([type])
+  @@map("artist_media")
+}
+
+// ─── Phase 6 Enums ────────────────────────────────────────────────────────────
+
+enum ArtistMediaType {
+  PROFILE
+  PORTFOLIO
+}
+
+// ─── Phase 7: Calendar & Integration Expansion ────────────────────────────────
+// (No additional models — Outlook and Apple fields are on the Artist model above)
+
+// ─── Phase 8: Advanced Intelligence ──────────────────────────────────────────
+
+// PricingRule — dynamic/surge pricing rule applied to services or all bookings.
+model PricingRule {
+  id              String            @id @default(cuid())
+  tenantId        String?
+  serviceId       String?           // null = applies to all services
+  ruleType        PricingRuleType
+  daysOfWeek      Int[]             // 0=Sun … 6=Sat; empty = every day
+  startTime       String?           // HH:MM — null = all day
+  endTime         String?           // HH:MM — null = all day
+  dateFrom        DateTime?         @db.Date
+  dateTo          DateTime?         @db.Date
+  adjustmentType  AdjustmentType
+  adjustmentValue Decimal           @db.Decimal(10, 2) // positive=surcharge, negative=discount
+  priority        Int               @default(0)        // higher = applied last (wins)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([serviceId])
+  @@index([ruleType])
+  @@index([isActive])
+  @@map("pricing_rules")
+}
+
+// AISuggestion — AI-generated rebooking/upsell suggestion for a customer.
+model AISuggestion {
+  id           String              @id @default(cuid())
+  tenantId     String?
+  customerId   String
+  bookingId    String?             // source booking that triggered the suggestion
+  message      String              // 1–2 sentence personalised message
+  serviceId    String?             // recommended service (optional)
+  suggestedAt  DateTime?           // recommended slot datetime (optional)
+  status       AISuggestionStatus  @default(PENDING)
+  sentAt       DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  customer User      @relation("CustomerAISuggestions", fields: [customerId], references: [id], onDelete: Cascade)
+  booking  Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  service  Service?  @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([customerId])
+  @@index([status])
+  @@map("ai_suggestions")
+}
+
+// ─── Phase 8 Enums ────────────────────────────────────────────────────────────
+
+enum PricingRuleType {
+  PEAK
+  OFF_PEAK
+  SEASONAL
+  DEMAND
+}
+
+enum AdjustmentType {
+  PERCENTAGE
+  FLAT
+}
+
+enum AISuggestionStatus {
+  PENDING
+  APPROVED
+  SENT
+  DISMISSED
+}
+
+// ─── Phase 9 — Multi-Location ────────────────────────────────────────────────
+
+model Location {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  name      String
+  address   String?
+  city      String?
+  postcode  String?
+  country   String?
+  phone     String?
+  timezone  String   @default("UTC")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  artists  Artist[]
+  services Service[]
+  tables   Table[]   @relation("TableLocation")
+  bookings Booking[]
+  sessions Session[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("locations")
+}
+
+// ─── Phase 9 — Group / Class Booking ─────────────────────────────────────────
+
+enum SessionStatus {
+  OPEN
+  FULL
+  CANCELLED
+}
+
+enum SessionBookingStatus {
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
+
+model Session {
+  id               String        @id @default(cuid())
+  tenantId         String?
+  serviceId        String
+  artistId         String
+  locationId       String?
+  startTime        DateTime
+  endTime          DateTime
+  capacity         Int
+  currentAttendees Int           @default(0)
+  status           SessionStatus @default(OPEN)
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  tenant   Tenant?          @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  service  Service          @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  artist   Artist           @relation(fields: [artistId], references: [id], onDelete: Restrict)
+  location Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  bookings SessionBooking[]
+
+  @@index([tenantId])
+  @@index([artistId, startTime])
+  @@index([status])
+  @@map("sessions")
+}
+
+model SessionBooking {
+  id         String               @id @default(cuid())
+  sessionId  String
+  customerId String
+  tenantId   String?
+  status     SessionBookingStatus @default(CONFIRMED)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  session  Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  customer User    @relation("CustomerSessionBookings", fields: [customerId], references: [id], onDelete: Cascade)
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@unique([sessionId, customerId])
+  @@index([tenantId])
+  @@index([customerId])
+  @@map("session_bookings")
+}
